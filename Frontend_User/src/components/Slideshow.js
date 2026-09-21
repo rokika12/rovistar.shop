@@ -7,7 +7,8 @@ import { fullUrl } from '../api';
  * Lightweight, dependency-free slideshow banner.
  * Always shows exactly ONE image at a time (absolute stacked slides + fade),
  * so it never duplicates under React StrictMode. Auto-plays with arrows + dots.
- * Full width and full height responsive layout with blur background.
+ * Full width and full height responsive layout. Images fill the frame so the
+ * admin-selected banner does not leave blurred side panels.
  */
 export default function Slideshow({ slides }) {
   const { t } = useLanguage();
@@ -73,17 +74,11 @@ export default function Slideshow({ slides }) {
             i === index ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          {/* Blur background - fills entire container */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-xl scale-110"
-            style={{ backgroundImage: `url(${fullUrl(img)})` }}
-          />
-          
-          {/* Main image - centered with contain to show full image */}
+          {/* Cover the frame consistently on phones, tablets, and desktop. */}
           <img 
             src={fullUrl(img)} 
             alt={`Slide ${i + 1}`} 
-            className="w-full h-full object-contain relative z-10"
+            className="w-full h-full object-cover relative z-10"
           />
         </div>
       ))}

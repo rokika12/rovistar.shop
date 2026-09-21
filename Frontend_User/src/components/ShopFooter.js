@@ -49,9 +49,6 @@ export default function ShopFooter() {
           <span className="inline-flex items-center gap-1.5 bg-[var(--primary)] text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow-sm">
             KHQR
           </span>
-          <span className="inline-flex items-center gap-1.5 bg-white text-slate-600 font-bold px-3 py-1.5 rounded-lg text-xs border border-slate-200">
-            💳 Visa / Mastercard
-          </span>
         </div>
       </div>
       </div>

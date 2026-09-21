@@ -194,11 +194,13 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
             </label>
             <label className="border rounded-lg p-3 cursor-pointer hover:bg-slate-50">
               <span className="text-xs font-semibold block mb-2">Main banner / hero image</span>
+              <span className="text-[11px] text-gray-500 block mb-2">Recommended: 1600 × 600 px (wide), JPG/PNG, under 2 MB. The image will fill and crop to the frame.</span>
               <input type="file" accept="image/*" onChange={(e) => uploadBrandImage('banner', e.target.files?.[0])} className="text-xs w-full" />
               {brand.banner && <div className="mt-2 flex items-center gap-2"><img src={fullUrl(brand.banner)} alt="Banner preview" className="h-16 w-full rounded object-cover" /><button type="button" onClick={() => removeBrandImage('banner')} className="text-xs text-red-600">លុប</button></div>}
             </label>
             <div className="md:col-span-2 border rounded-lg p-3">
               <span className="text-xs font-semibold block mb-2">Front slideshow images</span>
+              <span className="text-[11px] text-gray-500 block mb-2">Recommended: 1600 × 600 px each. Use the same ratio for every slide so mobile and desktop stay aligned.</span>
               <input type="file" accept="image/*" multiple onChange={(e) => uploadSlides(e.target.files)} className="text-xs w-full" />
               {brand.slideshow.length > 0 && <div className="flex gap-2 mt-2 overflow-x-auto">{brand.slideshow.map((image) => <div key={image} className="relative shrink-0"><img src={fullUrl(image)} alt="Slide" className="h-14 w-24 rounded object-cover" /><button type="button" onClick={() => removeSlide(image)} className="absolute right-0 top-0 rounded-bl bg-red-600 px-1 text-xs text-white">x</button></div>)}</div>}
             </div>

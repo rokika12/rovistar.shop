@@ -42,7 +42,7 @@ export default function ProductCard({ product }) {
         <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">HOT</span>
         {discount > 0 && <span className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-blue-700 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">-{discount}%</span>}
       </Link>
-      <div className="p-3 sm:p-5 flex flex-col flex-1">
+      <div className="p-2 sm:p-5 flex flex-col flex-1">
         {product.category_name && <p className="text-xs font-bold text-gray-900 dark:text-gray-200 uppercase tracking-wide">{product.category_name}</p>}
         <Link to={`/${shop.username}/product/${product.id}`}>
           <h3 className="font-bold text-sm sm:text-lg text-primary mt-2 line-clamp-2 group-hover:underline transition leading-tight">{product.name}</h3>
@@ -50,7 +50,7 @@ export default function ProductCard({ product }) {
         <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 line-clamp-2 min-h-[32px] sm:min-h-[40px]">{description || (isDigital ? 'Digital access delivered after payment.' : 'Quality product from our store.')}</p>
         <p className="text-[11px] sm:text-xs text-amber-600 mt-2 sm:mt-3">★ {metadata.rating || '4.9'} {metadata.review_count ? `(${metadata.review_count})` : ''}</p>
         <div className="mt-2 sm:mt-3 flex flex-wrap items-baseline gap-1 sm:gap-2">
-          <span className="text-xl sm:text-2xl font-bold text-blue-700 dark:text-blue-400">${price.toFixed(2)}</span>
+          <span className="text-lg sm:text-2xl font-bold text-blue-700 dark:text-blue-400">${price.toFixed(2)}</span>
           <span className="text-xs text-gray-500">{shop.currency}</span>
           {hasSale && <span className="text-sm text-gray-400 line-through">${Number(product.price).toFixed(2)}</span>}
         </div>
@@ -60,8 +60,8 @@ export default function ProductCard({ product }) {
           </span>
           <span className="text-[10px] sm:text-xs font-semibold bg-green-50 text-gray-800 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">{isDigital ? 'Instant' : 'Available'}</span>
         </div>
-        <button onClick={buyNow} disabled={product.quantity <= 0} className="mt-auto w-full rounded-xl bg-blue-700 py-2.5 sm:py-3.5 text-sm sm:text-base text-white font-bold hover:bg-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-          <FiZap className="w-4 h-4 sm:w-5 sm:h-5" /> {product.quantity > 0 ? 'Buy Now' : 'Sold Out'}
+        <button onClick={buyNow} disabled={product.quantity <= 0} className="mt-auto w-full rounded-lg bg-blue-700 py-2 sm:py-3.5 text-xs sm:text-base text-white font-bold hover:bg-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2">
+          <FiZap className="w-3.5 h-3.5 sm:w-5 sm:h-5" /> {product.quantity > 0 ? 'Buy Now' : 'Sold Out'}
         </button>
       </div>
     </div>

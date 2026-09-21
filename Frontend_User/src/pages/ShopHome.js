@@ -54,7 +54,7 @@ export default function ShopHome() {
 
       {/* Hero slideshow — contained to match the page content width */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <Slideshow slides={shop.slideshow} />
+        <Slideshow slides={[shop.banner, ...(shop.slideshow || [])].filter(Boolean)} />
       </div>
 
       {/* Digital stores may promote offers; clothing stores keep a normal product grid. */}
