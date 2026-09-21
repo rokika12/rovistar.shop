@@ -46,8 +46,11 @@ export const getCategories = (shopId) =>
   api.get('/api/categories/public', { params: { shop_id: shopId } }).then((r) => r.data);
 export const createOrder = (payload) => api.post('/api/orders', payload).then((r) => r.data);
 export const createPayment = (payload) => api.post('/api/payments/aba/create', payload).then((r) => r.data);
-export const trackOrder = (orderNumber) =>
-  api.get('/api/orders/public/track', { params: { order_number: orderNumber } }).then((r) => r.data);
+export const trackOrder = (orderNumber, token = '') =>
+  api.get('/api/orders/public/track', {
+    params: { order_number: orderNumber },
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  }).then((r) => r.data);
 
 // Plans / self-serve shop creation
 export const getPlans = () => api.get('/api/plans').then((r) => r.data);

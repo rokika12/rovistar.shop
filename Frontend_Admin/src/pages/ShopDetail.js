@@ -274,7 +274,7 @@ function ProductsTab({ shopId }) {
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const emptyCredential = { email: '', password: '', license_key: '' };
-  const [form, setForm] = useState({ name: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '' });
+  const [form, setForm] = useState({ name: '', description: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '' });
 
   const load = () => Promise.all([listShopProducts(shopId), listShopCategories(shopId)])
     .then(([p, c]) => { setProducts(p); setCats(c); })
@@ -282,11 +282,11 @@ function ProductsTab({ shopId }) {
     .finally(() => setLoading(false));
   useEffect(() => { load(); }, [shopId]);
 
-  const openCreate = () => { setEditing(null); setForm({ name: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '' }); setModal(true); };
+  const openCreate = () => { setEditing(null); setForm({ name: '', description: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '' }); setModal(true); };
   const openEdit = (p) => {
     setEditing(p);
     const savedCredentials = p.metadata?.digital_delivery?.credentials || [];
-    setForm({ name: p.name, price: p.price ?? '', sale_price: p.sale_price ?? '', quantity: p.quantity ?? '', category_id: p.category_id ?? '', status: p.status || 'active', featured: !!p.featured, product_type: p.metadata?.product_type || 'digital', duration: p.metadata?.duration || '', delivery_email: p.metadata?.digital_delivery?.email || '', delivery_password: p.metadata?.digital_delivery?.password || '', license_key: p.metadata?.digital_delivery?.license_key || '', credentials: savedCredentials.length ? savedCredentials : [emptyCredential], images: p.images || [], promo_enabled: !!p.metadata?.promotion?.enabled, promo_text: p.metadata?.promotion?.text || '', promo_start: p.metadata?.promotion?.start_at || '', promo_end: p.metadata?.promotion?.end_at || '' });
+    setForm({ name: p.name, description: p.description || '', price: p.price ?? '', sale_price: p.sale_price ?? '', quantity: p.quantity ?? '', category_id: p.category_id ?? '', status: p.status || 'active', featured: !!p.featured, product_type: p.metadata?.product_type || 'digital', duration: p.metadata?.duration || '', delivery_email: p.metadata?.digital_delivery?.email || '', delivery_password: p.metadata?.digital_delivery?.password || '', license_key: p.metadata?.digital_delivery?.license_key || '', credentials: savedCredentials.length ? savedCredentials : [emptyCredential], images: p.images || [], promo_enabled: !!p.metadata?.promotion?.enabled, promo_text: p.metadata?.promotion?.text || '', promo_start: p.metadata?.promotion?.start_at || '', promo_end: p.metadata?.promotion?.end_at || '' });
     setModal(true);
   };
 
@@ -294,7 +294,7 @@ function ProductsTab({ shopId }) {
     e.preventDefault();
     if (!form.name) { toast.error('Name is required'); return; }
     const payload = {
-      shop_id: shopId, name: form.name, description: '',
+      shop_id: shopId, name: form.name, description: form.description,
       price: Number(form.price) || 0, sale_price: form.sale_price === '' ? null : Number(form.sale_price), quantity: form.product_type === 'digital' ? form.credentials.filter((entry) => entry.email || entry.password).length : Number(form.quantity) || 0,
       category_id: form.category_id ? Number(form.category_id) : null,
       images: form.images,
@@ -408,6 +408,10 @@ function ProductModal({ modal, editing, form, setForm, submit, setModal, cats })
         <div>
           <label className="text-sm font-medium text-gray-700 block">Name *</label>
           <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-gray-700 block">Product details / terms</label>
+          <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputCls} rows="5" placeholder="Explain what the customer receives, duration, activation steps, limits, and support terms." />
         </div>
         <div className="border border-slate-200 rounded-lg p-3">
           <label className="text-sm font-medium text-gray-700 block mb-2">Product images</label>

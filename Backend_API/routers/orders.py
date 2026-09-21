@@ -275,11 +275,19 @@ def customer_order_history(data: schemas.CustomerHistoryRequest, db: Session = D
 
 
 @router.get("/public/track")
-def track_order(order_number: str = Query(...), db: Session = Depends(get_db)):
+def track_order(order_number: str = Query(...), db: Session = Depends(get_db),
+                customer: models.Customer = Depends(get_optional_customer)):
     order = db.query(models.Order).filter(models.Order.order_number == order_number).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    return order.to_dict()
+    result = order.to_dict()
+    # Digital credentials are private delivery data. The public success page can
+    # show order status, but only the signed-in owner can retrieve credentials.
+    owns_order = bool(customer and order.customer_id == customer.id)
+    if not owns_order:
+        for item in result.get("items", []):
+            item.pop("digital_delivery", None)
+    return result
 
 
 @router.get("")

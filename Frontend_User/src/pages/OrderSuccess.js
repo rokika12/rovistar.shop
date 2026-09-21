@@ -3,12 +3,14 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { FiCheckCircle, FiClock, FiCopy, FiDownload, FiHelpCircle } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useShop } from '../contexts/ShopContext';
+import { useCustomer } from '../contexts/CustomerContext';
 import { useLanguage } from '../i18n';
 import { trackOrder, fullUrl } from '../api';
 import Loading from '../components/Loading';
 
 export default function OrderSuccess() {
   const { shop } = useShop();
+  const { token } = useCustomer();
   const { t } = useLanguage();
   const [params] = useSearchParams();
   const [order, setOrder] = useState(null);
@@ -21,11 +23,11 @@ export default function OrderSuccess() {
       setLoading(false);
       return;
     }
-    trackOrder(orderNumber)
+    trackOrder(orderNumber, token)
       .then(setOrder)
       .catch(() => setLoading(false))
       .finally(() => setLoading(false));
-  }, [orderNumber]);
+  }, [orderNumber, token]);
 
   if (loading) return <Loading />;
 
