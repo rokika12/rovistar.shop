@@ -70,6 +70,12 @@ body {
   min-height: 42px;
   font-size: 14px;
 }
+[data-template='account'] > header {
+  border-bottom: 3px solid var(--secondary);
+}
+[data-template='account'] > main {
+  background: #f7fbfa;
+}
 [data-template='account'] .shop-brand-name,
 [data-template='account'] .shop-brand-heading {
   letter-spacing: 0.02em;
@@ -77,6 +83,9 @@ body {
 [data-template='login'] .shop-brand-name,
 [data-template='login'] .shop-brand-heading {
   letter-spacing: 0;
+}
+[data-template='login'] > main {
+  background: #ffffff;
 }
 @keyframes brand-ticker-scroll {
   from { transform: translateX(0); }
