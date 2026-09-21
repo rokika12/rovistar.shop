@@ -89,7 +89,7 @@ export default function Login() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-600 text-white flex items-center justify-center mb-2">
             <FiShoppingBag className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold text-white">ROKIKA SHOP Admin</h1>
+          <h1 className="text-2xl font-bold text-white">ROVISTAR MARKET Admin</h1>
           <p className="text-slate-400 text-sm mt-1">Platform Admin Panel</p>
         </div>
         <form onSubmit={submit} className="bg-white rounded-2xl shadow-xl p-6 space-y-4">

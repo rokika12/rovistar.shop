@@ -39,7 +39,7 @@ export default function Layout() {
       <aside className={`w-60 text-white flex flex-col fixed inset-y-0 ${storeType === 'digital' ? 'bg-gradient-to-b from-pink-950 to-slate-900' : 'bg-slate-900'}`}>
         <div className="p-5 border-b border-slate-700">
           <h1 className="font-bold text-lg flex items-center gap-2">
-            <FiShoppingBag className="w-5 h-5" /> ROKIKA SHOP
+            <FiShoppingBag className="w-5 h-5" /> ROVISTAR MARKET
           </h1>
           <p className="text-xs text-slate-400">{storeType === 'digital' ? 'Digital Store Dashboard' : 'Clothing Store Dashboard'}</p>
         </div>

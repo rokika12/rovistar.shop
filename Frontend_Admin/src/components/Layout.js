@@ -23,7 +23,7 @@ export default function Layout() {
       <aside className="w-60 bg-slate-900 text-white flex flex-col fixed inset-y-0">
         <div className="p-5 border-b border-slate-700">
           <h1 className="font-bold text-lg flex items-center gap-2">
-            <FiShoppingBag className="w-5 h-5" /> ROKIKA SHOP
+            <FiShoppingBag className="w-5 h-5" /> ROVISTAR MARKET
           </h1>
           <p className="text-xs text-slate-400">Platform Admin</p>
         </div>

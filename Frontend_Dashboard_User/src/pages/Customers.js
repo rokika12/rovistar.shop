@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { listCustomers } from '../api';
 import { useAuth } from '../contexts/AuthContext';
-import { Empty, Loading, Modal } from '../components/ui';
+import { Empty, Loading, Modal, btnPrimary, inputCls } from '../components/ui';
 
 export default function Customers() {
   const { user } = useAuth();
