@@ -247,11 +247,8 @@ export default function Checkout() {
           {/* QR card */}
           <div className="qr-area">
             <div className="qr-card-new">
-              <div className="qr-top">
-                <span className="w-6 h-6 rounded-full bg-white dark:bg-gray-800 text-[var(--primary)] flex items-center justify-center font-black text-xs">A</span>
-              </div>
-              <div className="qr-tab"><div className="qr-tab-tri" /></div>
-              <div className="qr-info">
+              <div className="qr-info pt-5">
+                <span className="block text-sm font-bold text-[var(--primary)]">ABA KHQR · REAL PAYMENT</span>
                 <span className="qr-merch">{(shop.shop_name || shop.username).toUpperCase()}</span>
                 <div className="qr-amt-row">
                   {payAmount} <span className="qr-amt-cur">{shop.currency}</span>

@@ -158,8 +158,9 @@ def build_checkout_url(order, shop, success_url="", error_url="", cancel_url="")
                 result["qr_error"] = qr.get("responseMessage") or "ABA returned no QR payload"
         else:
             result["qr_error"] = qr.get("responseMessage") or qr.get("message") or f"ABA response code: {response_code or 'unknown'}"
-    except Exception as exc:
-        result["qr_error"] = str(exc)
+    except Exception:
+        # Never present a fake fallback QR when the gateway is unreachable.
+        result["qr_error"] = "ABA KHQR is temporarily unreachable. Check the server connection and merchant settings, then retry."
 
     return result
 
