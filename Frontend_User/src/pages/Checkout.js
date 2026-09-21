@@ -292,15 +292,11 @@ export default function Checkout() {
             </p>
           )}
 
-          {/* Buttons */}
+          {/* Payments stay on the storefront; the QR is scanned in ABA Mobile. */}
           <div className="space-y-3 mt-6 w-full">
-            <a
-              href={payment.checkout_url}
-              target="_blank" rel="noreferrer"
-              className="block w-full text-center bg-[var(--primary)] hover:brightness-95 text-white font-bold py-3.5 rounded-xl transition shadow-sm"
-            >
-              {t('payWithABA')} ↗
-            </a>
+            <div className="w-full rounded-xl bg-[var(--primary)] px-4 py-3.5 text-center font-bold text-white shadow-sm">
+              Scan the QR above with ABA Mobile
+            </div>
             <button
               onClick={handleAlreadyPaid}
               disabled={checking}

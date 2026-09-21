@@ -49,7 +49,6 @@ export default function Profile() {
         error_url: window.location.href,
       });
       setTopup(result);
-      window.open(result.payment.checkout_url, '_blank', 'noopener,noreferrer');
     } catch (err) {
       toast.error(err?.response?.data?.detail || 'Unable to start wallet top-up');
     } finally { setTopupBusy(false); }
@@ -234,7 +233,7 @@ export default function Profile() {
           ))}
         </div>
         <p className="text-xs text-white/75 mt-2">Top up from $0.10 to $1,000.00 with real ABA KHQR.</p>
-        {topup && <div className="mt-4 rounded-xl bg-white/15 p-3 text-sm"><p>Scan the real ABA KHQR or open the payment page, then confirm.</p>{topup.payment?.qr_code_url && <img src={fullUrl(topup.payment.qr_code_url)} alt="ABA KHQR" className="w-40 h-40 bg-white rounded-xl p-2 mt-3 mx-auto" />}<a href={topup.payment?.checkout_url} target="_blank" rel="noreferrer" className="inline-block mt-3 rounded-lg bg-white px-3 py-2 font-bold text-blue-700">Open ABA Pay</a><button type="button" onClick={confirmTopup} className="ml-2 rounded-lg bg-white px-3 py-2 font-bold text-pink-600">Confirm top-up</button></div>}
+        {topup && <div className="mt-4 rounded-xl bg-white/15 p-3 text-sm"><p>Scan the real ABA KHQR below with ABA Mobile, then confirm.</p>{topup.payment?.qr_code_url && <img src={fullUrl(topup.payment.qr_code_url)} alt="ABA KHQR" className="w-40 h-40 bg-white rounded-xl p-2 mt-3 mx-auto" />}<button type="button" onClick={confirmTopup} className="mt-3 rounded-lg bg-white px-3 py-2 font-bold text-pink-600">Confirm top-up</button></div>}
       </div>}
 
       {editing ? (

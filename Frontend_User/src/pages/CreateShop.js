@@ -240,10 +240,9 @@ export default function CreateShop() {
               </div>
             </div>
             <div className="mt-4 space-y-2">
-              <a href={reg.payment.checkout_url} target="_blank" rel="noreferrer"
-                 className="block w-full text-center bg-[var(--primary)] hover:brightness-95 text-white font-bold py-3 rounded-xl transition">
-                Pay with ABA Pay ↗
-              </a>
+              <div className="block w-full text-center bg-[var(--primary)] text-white font-bold py-3 rounded-xl">
+                Scan the QR above with ABA Mobile
+              </div>
               <button onClick={alreadyPaid} disabled={checking}
                       className="w-full py-3 rounded-xl border-2 border-[var(--primary)] text-[var(--primary)] font-bold hover:bg-[var(--primary)] hover:text-white transition disabled:opacity-50">
                 I already paid — confirm
@@ -293,4 +292,3 @@ export default function CreateShop() {
     </div>
   );
 }
-
