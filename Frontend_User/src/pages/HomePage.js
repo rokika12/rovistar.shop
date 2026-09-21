@@ -110,8 +110,10 @@ export default function HomePage() {
             <LanguageSwitcher />
             <a href="/demo" className="hidden sm:inline-flex text-sm font-semibold text-[#011F46] hover:text-[#FB6E08] transition">{t('browseDemo')}</a>
             <Link to="/create-shop"
-                  className="inline-flex items-center gap-1.5 bg-[#FB6E08] hover:bg-[#e05f03] text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-[#FB6E08]/25 transition">
-              {t('startYourShop')} <FiArrowRight className="w-4 h-4" />
+                  className="home-header-cta inline-flex items-center gap-1.5 bg-[#FB6E08] hover:bg-[#e05f03] text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-[#FB6E08]/25 transition">
+              <span className="hidden sm:inline">{t('startYourShop')}</span>
+              <span className="sm:hidden">បើកហាង</span>
+              <FiArrowRight className="w-4 h-4 shrink-0" />
             </Link>
           </div>
         </div>
@@ -151,7 +153,7 @@ export default function HomePage() {
 
           {/* Phone frame: live demo shop */}
           <div className="flex justify-center">
-            <div className="phone-frame shadow-2xl" style={{ width: 300, height: 620 }}>
+            <div className="phone-frame shadow-2xl">
               <iframe src={`${window.location.origin}/demo`} title="Mini Shop demo" className="w-full h-full rounded-[38px] bg-white" />
             </div>
           </div>
@@ -410,14 +412,16 @@ export default function HomePage() {
       </footer>
 
       {/* Floating Telegram channel button — home page only */}
-      <a
-        href="https://t.me/your_telegram"
-        target="_blank"
-        rel="noreferrer"
-        className="fixed bottom-20 md:bottom-6 right-4 z-[60] inline-flex items-center gap-2 bg-[#229ED9] hover:bg-[#1d8cc1] text-white font-bold text-xs md:text-sm px-4 py-3 rounded-full shadow-2xl transition"
-      >
-        <FiSend className="w-4 h-4" /> {t('joinTelegram')}
-      </a>
+      {process.env.REACT_APP_TELEGRAM_URL && (
+        <a
+          href={process.env.REACT_APP_TELEGRAM_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="fixed bottom-20 md:bottom-6 right-4 z-[60] inline-flex max-w-[calc(100vw-2rem)] items-center gap-2 bg-[#229ED9] hover:bg-[#1d8cc1] text-white font-bold text-xs md:text-sm px-4 py-3 rounded-full shadow-2xl transition"
+        >
+          <FiSend className="w-4 h-4 shrink-0" /> <span className="truncate">{t('joinTelegram')}</span>
+        </a>
+      )}
     </div>
   );
 }

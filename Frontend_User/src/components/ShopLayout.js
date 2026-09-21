@@ -31,7 +31,7 @@ export default function ShopLayout() {
   // Contact this shop owner: the shop's own Telegram link, else the platform channel.
   const tgContact = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : '')
-    || 'https://t.me/your_telegram';
+    || '';
   const theme = shop.theme || {};
   const themeStyle = {
     '--primary': theme.primary || '#123B3A',
@@ -62,14 +62,16 @@ export default function ShopLayout() {
       <BottomNav />
 
       {/* Floating "Contact this shop owner" button — fixed on screen */}
-      <a
-        href={tgContact}
-        target="_blank"
-        rel="noreferrer"
-        className="fixed bottom-20 md:bottom-6 right-4 z-[60] inline-flex items-center gap-2 bg-[#229ED9] hover:bg-[#1d8cc1] text-white font-bold text-xs md:text-sm px-4 py-3 rounded-full shadow-2xl transition"
-      >
-        <FiSend className="w-4 h-4" /> {t('contactThisOwner')}
-      </a>
+      {tgContact && (
+        <a
+          href={tgContact}
+          target="_blank"
+          rel="noreferrer"
+          className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-6 right-4 z-[60] inline-flex max-w-[calc(100vw-2rem)] items-center gap-2 bg-[#229ED9] hover:bg-[#1d8cc1] text-white font-bold text-xs md:text-sm px-4 py-3 rounded-full shadow-2xl transition"
+        >
+          <FiSend className="w-4 h-4 shrink-0" /> <span className="truncate">{t('contactThisOwner')}</span>
+        </a>
+      )}
     </div>
   );
 }
