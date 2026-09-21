@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { CartProvider } from './contexts/CartContext';
 import { ShopProvider } from './contexts/ShopContext';
@@ -7,7 +7,6 @@ import { OwnerProvider } from './contexts/OwnerContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ShopLayout from './components/ShopLayout';
 import ErrorBoundary from './components/ErrorBoundary';
-import HomePage from './pages/HomePage';
 import CreateShop from './pages/CreateShop';
 import ShopHome from './pages/ShopHome';
 import Products from './pages/Products';
@@ -19,6 +18,8 @@ import MyOrders from './pages/MyOrders';
 import Profile from './pages/Profile';
 import { useLanguage } from './i18n';
 
+const PRIMARY_SHOP = process.env.REACT_APP_PRIMARY_SHOP || 'ROVISTAR';
+
 export default function App() {
   return (
     <ErrorBoundary>
@@ -26,7 +27,7 @@ export default function App() {
         <CartProvider>
           <OwnerProvider>
             <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<Navigate to={`/${PRIMARY_SHOP}`} replace />} />
           <Route path="/create-shop" element={<CreateShop />} />
           <Route
             path="/:username"

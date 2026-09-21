@@ -8,6 +8,9 @@ import { useLanguage } from '../i18n';
 import { fullUrl, getMyOrders, getMyWallet, topUpWallet, updateMyProfile, changeMyPassword, verifyPayment } from '../api';
 import CustomerAuth from '../components/CustomerAuth';
 
+// ABA mark attribution is retained in public/ABA_LOGO_ATTRIBUTION.txt.
+const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-bank-logo.png`;
+
 export default function Profile() {
   const { shop } = useShop();
   const { customer, token, isLoggedIn, logout, setSession } = useCustomer();
@@ -218,9 +221,8 @@ export default function Profile() {
         )}
       </div>
 
-      {shop.template_type === 'account' && <div className="bg-gradient-to-r from-blue-700 to-pink-500 rounded-2xl shadow p-6 mb-6 text-white">
-        <p className="text-xs font-bold uppercase tracking-widest text-white/75">Digital wallet</p>
-        <p className="text-3xl font-black mt-2">${Number(wallet.balance || 0).toFixed(2)}</p>
+      {shop.template_type === 'account' && <div className="compact-wallet-card bg-gradient-to-r from-blue-700 to-pink-500 rounded-2xl shadow p-6 mb-6 text-white">
+        <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-white/75">Digital wallet</p><p className="text-3xl font-black mt-2">${Number(wallet.balance || 0).toFixed(2)}</p></div><img src={ABA_LOGO_URL} alt="ABA Bank" className="aba-payment-logo aba-payment-logo-light" onError={(event) => { event.currentTarget.style.display = 'none'; }} /></div>
         <div className="flex flex-wrap gap-2 mt-4">
           <input type="number" min="0.10" max="1000" step="0.10" value={topupAmount} onChange={(e) => setTopupAmount(e.target.value)} className="w-28 rounded-lg px-3 py-2 text-gray-900" />
           <button type="button" onClick={startTopup} disabled={topupBusy} className="rounded-lg bg-white px-4 py-2 font-bold text-blue-700 disabled:opacity-60">{topupBusy ? 'Loading...' : 'Add Balance'}</button>

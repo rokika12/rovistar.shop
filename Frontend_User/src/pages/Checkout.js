@@ -16,6 +16,9 @@ const initialForm = {
   customer_country: '', customer_note: '',
 };
 
+// ABA mark attribution is retained in public/ABA_LOGO_ATTRIBUTION.txt.
+const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-bank-logo.png`;
+
 export default function Checkout() {
   const { shop } = useShop();
   const { items, totals, clear } = useCart();
@@ -217,7 +220,7 @@ export default function Checkout() {
     const payAmount = Number(payment.amount || order?.total || 0).toFixed(2);
     return (
       <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/55 py-8 px-4 backdrop-blur-[2px]" onClick={() => navigate(`/${shop.username}/checkout`)}>
-        <div className="relative max-w-xl mx-auto rounded-3xl bg-white dark:bg-gray-800 px-5 py-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="relative max-w-md mx-auto rounded-[1.75rem] bg-white dark:bg-gray-800 px-5 py-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
             onClick={() => navigate(`/${shop.username}/checkout`)}
@@ -227,8 +230,14 @@ export default function Checkout() {
             <FiX className="h-6 w-6" />
           </button>
           <div className="max-w-sm mx-auto flex flex-col items-center">
-            <div className="w-full mb-4">
-              <h2 className="text-2xl font-normal text-slate-900 dark:text-white">ABA KHQR</h2>
+            <div className="w-full mb-4 flex items-center gap-3">
+              <img
+                src={ABA_LOGO_URL}
+                alt="ABA Bank"
+                className="aba-payment-logo"
+                onError={(event) => { event.currentTarget.style.display = 'none'; }}
+              />
+              <div><p className="text-[10px] font-black tracking-[0.12em] text-slate-400">SECURE PAYMENT</p><h2 className="text-xl font-black text-slate-900 dark:text-white">ABA KHQR</h2></div>
             </div>
           {/* Header: ABA PayWay + timer */}
           <div className="hdr">

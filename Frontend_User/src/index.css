@@ -489,3 +489,13 @@ body {
   .store-account-menu { top: calc(100% + 0.55rem); width: min(348px, calc(100vw - 1rem)); }
   .store-account-chevron { display: none; }
 }
+
+/* Compact commerce surfaces and verified ABA payment identity. */
+.storefront-main .max-w-7xl { max-width: 68rem; }
+.aba-payment-logo { display: block; width: 4.8rem; max-height: 2.35rem; object-fit: contain; }
+.aba-payment-logo-light { width: 5.6rem; max-height: 2.7rem; border-radius: 0.65rem; background: #fff; padding: 0.4rem 0.55rem; }
+.compact-wallet-card { max-width: 42rem; margin-left: auto; margin-right: auto; }
+@media (max-width: 767px) {
+  .storefront-main .max-w-7xl { max-width: 100%; }
+  .compact-wallet-card { border-radius: 1rem; padding: 1.1rem; }
+}
