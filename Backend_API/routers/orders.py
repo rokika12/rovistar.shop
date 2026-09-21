@@ -6,6 +6,7 @@ from datetime import datetime
 
 import models
 import schemas
+from config import config
 from database import get_db
 from security import (get_optional_customer, get_current_admin, get_current_shop_user, get_current_user,
                       log_activity, require_shop_access)
@@ -36,7 +37,7 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         raise HTTPException(status_code=403, detail="This account is not registered at this shop")
 
     customer_email = (data.customer_email or "").strip().lower()
-    if customer_email:
+    if config.REQUIRE_ORDER_EMAIL_VERIFICATION and customer_email:
         token = (data.email_verification_token or "").strip()
         if not _verify_email_token(db, data.shop_id, customer_email, token):
             raise HTTPException(status_code=400, detail="Please verify your email before placing the order")
@@ -378,4 +379,3 @@ def delete_order(order_id: int, db: Session = Depends(get_db),
     db.delete(order)
     db.commit()
     return {"ok": True}
-

@@ -67,6 +67,7 @@ class Config:
     EMAIL_SMTP_PASSWORD = os.getenv("EMAIL_SMTP_PASSWORD", "")
     EMAIL_FROM_ADDRESS = os.getenv("EMAIL_FROM_ADDRESS", "no-reply@example.com")
     EMAIL_OTP_DEBUG = os.getenv("EMAIL_OTP_DEBUG", "false").lower() == "true"
+    REQUIRE_ORDER_EMAIL_VERIFICATION = os.getenv("REQUIRE_ORDER_EMAIL_VERIFICATION", "false").lower() == "true"
 
 
 config = Config()
