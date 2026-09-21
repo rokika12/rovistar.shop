@@ -44,9 +44,10 @@ export default function ShopHome() {
       .finally(() => setLoading(false));
   }, [shop]);
 
+  const isDigitalStore = shop?.template_type === 'account';
+  const slides = useMemo(() => [shop?.banner, ...(shop?.slideshow || [])].filter(Boolean), [shop]);
+
   if (!shop) return null;
-  const isDigitalStore = shop.template_type === 'account';
-  const slides = useMemo(() => [shop.banner, ...(shop.slideshow || [])].filter(Boolean), [shop]);
   const featuredProducts = featured.length ? featured : allProducts.slice(0, 4);
 
   return (
