@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Rovistar Market">
+  <rect width="80" height="80" rx="24" fill="#123B3A"/>
+  <path d="M22 27h36l-4 36H26l-4-36Z" fill="#F4C95D"/>
+  <path d="M30 30v-5c0-8 5-13 10-13s10 5 10 13v5" fill="none" stroke="#F4C95D" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="40" cy="45" r="7" fill="#123B3A"/>
+  <path d="M37 45h6M40 42v6" stroke="#F4C95D" stroke-width="2" stroke-linecap="round"/>
+</svg>

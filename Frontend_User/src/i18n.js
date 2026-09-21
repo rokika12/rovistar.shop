@@ -98,7 +98,7 @@ const kh = {
   followUs: 'តាមដានយើង',
   contact: 'ទំនាក់ទំនង',
   quickLinks: 'តំណរហ័ស',
-  poweredBy: 'ដំណើរការដោយ ROKIKA SHOP',
+  poweredBy: 'ដំណើរការដោយ ROVISTAR MARKET',
   weAccept: 'យើងទទួលយកការទូទាត់',
   fastDelivery: 'ការដឹកជញ្ជូនលឿន',
   fastDeliveryDesc: 'ការដឹកជញ្ជូនលឿន និងគួរឱ្យទុកចិត្តទូទាំងប្រទេស។',
@@ -197,7 +197,7 @@ const kh = {
   signInRequiredDesc: 'បង្កើតគណនី ឬចូលគណនី ដើម្បីដាក់ការបញ្ជាទិញ និងមើលប្រវត្តិការបញ្ជាទិញរបស់អ្នក។',
 
   // landing page
-  heroTitle: 'ស្វាគមន៍មកកាន់ ROKIKA SHOP',
+  heroTitle: 'ស្វាគមន៍មកកាន់ ROVISTAR MARKET',
   heroSubtitle: 'វេទិកាអ៊ីកូមមឺសពហុហាង ដែលមានការទូទាត់ ABA Pay (KHQR) បង្កាន់ដៃ PDF និងការជូនដំណឹងតាម Telegram។',
   featuresTitle: 'លក្ខណៈពិសេសរបស់វេទិកា',
   featuresLabel: 'លក្ខណៈពិសេស',
@@ -269,7 +269,7 @@ const kh = {
   statProducts: 'ផលិតផលនៅលើវេទិកា',
   statCustomers: 'អតិថិជនរីករាយ',
   statSupport: 'ជំនួយ និងតាមដាន',
-  aboutLabel: 'អំពី ROKIKA SHOP កម្ពុជា',
+  aboutLabel: 'អំពី ROVISTAR MARKET កម្ពុជា',
   aboutTitle: 'អ្វីគ្រប់យ៉ាងដែលអ្នកត្រូវការដើម្បីលក់តាមអនឡាញនៅកម្ពុជា',
   aboutP1: 'ROKIKA SHOP កម្ពុជាគឺជាវេទិកាអ៊ីកូមមឺសពហុហាងដែលបង្កើតឡើងសម្រាប់អាជីវកម្មក្នុងស្រុក។ ហាងនីមួយៗទទួលបាន storefront ផ្ទាល់ខ្លួនជាមួយតំ�ផ្ទាល់ខ្លួន ផ្ទាំងគ្រប់គ្រងពេញលេញ (ផលិតផល ប្រភេទ ស្តុក ការបញ្ជាទិញ អតិថិជន របាយការណ៍) ប្រព័ន្ធ POS ដែលមានជំនាញវិជ្ជាជីវៈ និងការទូទាត់ ABA Pay (KHQR) ពិតប្រាកដ ដើម្បីឱ្យអតិថិជនអាចបង់ប្រាក់ភ្លាមៗតាមទូរស័ព្ទ។',
   aboutP2: 'ការទូទាត់ត្រូវបានបញ្ជាក់ដោយស្វ័យប្រវត្តិ បង្កាន់ដៃ PDF ពីរភាសា (ខ្មែរ + អង់គ្លេស ជាមួយឡូហ្គោ និងពណ៌ម៉ាករបស់អ្នក) ត្រូវបានបង្កើតសម្រាប់រាល់ការបញ្ជាទិញ ហើយអ្នកទទួលបានការជូនដំណឹង Telegram ភ្លាមៗ — ការបញ្ជាទិញថ្មី ការទូទាត់ និងការជូនដំណឹងស្តុកទាបទៅកាន់ទូរស័ព្ទរបស់អ្នក។',
@@ -310,13 +310,13 @@ const kh = {
   startFree: 'ចាប់ផ្តើមហាងឥតគិតថ្លៃ',
   loadingMore: 'កំពុងផ្ទុកផលិតផលបន្ថែម...',
   showMore: 'បង្ហាញបន្ថែម',
-  footerAbout: 'ROKIKA SHOP កម្ពុជា — វេទិកាអ៊ីកូមមឺសពហុហាងដែលអនុញ្ញាតឱ្យអ្នកគ្រប់គ្នាបើកហាងអនឡាញជាមួយ ABA Pay, POS និងបង្កាន់ដៃវិជ្ជាជីវៈ។',
-  aboutMiniShop: 'អំពី ROKIKA SHOP',
+  footerAbout: 'ROVISTAR MARKET កម្ពុជា — វេទិកាអ៊ីកូមមឺសពហុហាងដែលអនុញ្ញាតឱ្យអ្នកគ្រប់គ្នាបើកហាងអនឡាញជាមួយ ABA Pay, POS និងបង្កាន់ដៃវិជ្ជាជីវៈ។',
+  aboutMiniShop: 'អំពី ROVISTAR MARKET',
   startYourShop: 'បង្កើតហាងរបស់អ្នក',
   contactFooter: 'ទំនាក់ទំនង',
   contactShops: '500+ ហាង · ភ្នំពេញ កម្ពុជា 🇰🇭',
   contactSupport: 'ជំនួយ: 24/7',
-  copyright: '© {year} ROKIKA SHOP កម្ពុជា',
+  copyright: '© {year} ROVISTAR MARKET កម្ពុជា',
 };
 
 const en = {
@@ -410,7 +410,7 @@ const en = {
   followUs: 'Follow us',
   contact: 'Contact',
   quickLinks: 'Quick links',
-  poweredBy: 'Powered by ROKIKA SHOP Platform',
+  poweredBy: 'Powered by ROVISTAR MARKET Platform',
   weAccept: 'We accept',
   fastDelivery: 'Fast Delivery',
   fastDeliveryDesc: 'Quick and reliable delivery across the country.',
@@ -508,7 +508,7 @@ const en = {
   signInRequired: 'Please sign in to buy',
   signInRequiredDesc: 'Create an account or sign in to place orders and view your order history.',
 
-  heroTitle: 'Welcome to ROKIKA SHOP',
+  heroTitle: 'Welcome to ROVISTAR MARKET',
   heroSubtitle: 'A multi-shop e-commerce platform with ABA Pay (KHQR) payments, PDF receipts and Telegram notifications.',
   featuresTitle: 'Platform Features',
   featuresLabel: 'Features',
@@ -579,7 +579,7 @@ const en = {
   statProducts: 'Products live',
   statCustomers: 'Happy customers',
   statSupport: 'Support & monitoring',
-  aboutLabel: 'About ROKIKA SHOP Cambodia',
+  aboutLabel: 'About ROVISTAR MARKET Cambodia',
   aboutTitle: 'Everything you need to sell online in Cambodia',
   aboutP1: 'ROKIKA SHOP Cambodia is a complete multi-shop platform built for local businesses. Every shop gets its own storefront with a personal link, a full shop dashboard (products, categories, stock, orders, customers, reports), a professional POS system, and real ABA Pay (KHQR) checkout so customers can pay instantly with their phone.',
   aboutP2: 'Payments are confirmed automatically, bilingual PDF invoices are generated for every order (Khmer + English, with your logo and brand color), and you get instant Telegram notifications — every new order, payment and low-stock alert straight to your phone.',
@@ -620,13 +620,13 @@ const en = {
   startFree: 'Start my shop free',
   loadingMore: 'Loading more products...',
   showMore: 'Show more',
-  footerAbout: 'ROKIKA SHOP Cambodia — the multi-shop e-commerce platform that lets anyone open an online store with ABA Pay, POS and professional invoices.',
-  aboutMiniShop: 'About ROKIKA SHOP',
+  footerAbout: 'ROVISTAR MARKET Cambodia — the multi-shop e-commerce platform that lets anyone open an online store with ABA Pay, POS and professional invoices.',
+  aboutMiniShop: 'About ROVISTAR MARKET',
   startYourShop: 'Start your shop',
   contactFooter: 'Contact',
   contactShops: '500+ shops · Phnom Penh, Cambodia 🇰🇭',
   contactSupport: 'Support: 24/7',
-  copyright: '© {year} ROKIKA SHOP Cambodia',
+  copyright: '© {year} ROVISTAR MARKET Cambodia',
 };
 
 const LanguageContext = createContext(null);

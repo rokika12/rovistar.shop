@@ -9,8 +9,8 @@ import { useLanguage } from '../i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import ThemeToggle from '../components/ThemeToggle';
 
-const NAVY = '#011F46';
-const ORANGE = '#FB6E08';
+const NAVY = '#123B3A';
+const ORANGE = '#F4C95D';
 
 // Animated counter for the "500+ shops" social proof.
 function CountUp({ to, suffix = '', duration = 1400 }) {
@@ -34,14 +34,14 @@ function BrandMark({ size = 'w-10 h-10', light = false }) {
   return (
     <div className="relative flex items-center gap-2">
       <img
-        src={`${process.env.PUBLIC_URL}/logo.svg`}
-        alt="ROKIKA SHOP"
+        src={`${process.env.PUBLIC_URL}/rovistar-mark.svg`}
+        alt="ROVISTAR MARKET"
         className={`${size} drop-shadow-lg shrink-0`}
         onError={(e) => { e.target.style.display = 'none'; }}
       />
       <span className="font-extrabold text-xl tracking-tight">
-        <span style={{ color: light ? '#FFFFFF' : NAVY }}>ROKIKA</span>
-        <span style={{ color: ORANGE }}> SHOP</span>
+        <span style={{ color: light ? '#FFFFFF' : NAVY }}>ROVISTAR</span>
+        <span style={{ color: ORANGE }}> MARKET</span>
       </span>
     </div>
   );
@@ -93,7 +93,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className="min-h-screen flex flex-col bg-white" style={{ fontFamily: "'Plus Jakarta Sans', 'Kantumruy Pro', sans-serif" }}>
       {/* ===== Nav ===== */}
       <header className="bg-white/90 backdrop-blur sticky top-0 z-40 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -126,7 +126,7 @@ export default function HomePage() {
             <span className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 text-sm font-semibold text-orange-100">
               {t('heroBadge')}
             </span>
-            <h1 className="mt-6 text-4xl md:text-6xl font-extrabold leading-[1.1] text-white">
+            <h1 className="mt-6 text-5xl md:text-7xl font-extrabold leading-[1.08] text-white">
               {t('heroTitleMain')} <br className="hidden md:block" />
               <span style={{ color: ORANGE }}>{t('heroTitleMain2')}</span>
             </h1>
