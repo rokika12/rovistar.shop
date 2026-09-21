@@ -27,7 +27,12 @@ export default function CreateShop() {
   const timer = useRef(null);
 
   useEffect(() => {
-    getPlans().then(setPlans).catch(() => setPlans([]));
+    getPlans().then((available) => {
+      setPlans(available);
+      setPlan((current) => available.length && !available.some((p) => p.id === current)
+        ? available[0].id
+        : current);
+    }).catch(() => setPlans([]));
   }, []);
   useEffect(() => () => clearInterval(timer.current), []);
 
@@ -134,7 +139,7 @@ export default function CreateShop() {
             <FiShoppingBag className="w-7 h-7" />
           </div>
           <h1 className="text-3xl font-bold text-white">Create your own shop</h1>
-          <p className="text-blue-200 mt-2 text-sm">Own your online store in minutes — Starter plan is FREE for 7 days, no payment needed.</p>
+            <p className="text-blue-200 mt-2 text-sm">Choose a plan, pay securely, and receive your shop dashboard after confirmation.</p>
           <div className="mt-6 flex items-center justify-center gap-2">
              {['Plan', 'Details', 'Done'].map((s, i) => (
                <React.Fragment key={s}>
@@ -149,10 +154,9 @@ export default function CreateShop() {
       <div className="max-w-3xl mx-auto px-4 py-8">
         {step === 'plan' && (
           <div>
-            {/* FREE plan banner */}
-              <div className="mb-6 rounded-xl px-4 py-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 shadow">
-                <span>🔥 {t('free7Days')} · {t('free7DaysDesc')}</span>
-              </div>
+            <div className="mb-6 rounded-xl px-4 py-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm font-semibold text-white bg-gradient-to-r from-[#123B3A] to-[#1f5a56] shadow">
+              <span>បង់ប្រាក់តាម ABA Pay/KHQR ហើយទទួលបានហាងរបស់អ្នក</span>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               {plans.map((p) => (
                 <button key={p.id} onClick={() => setPlan(p.id)}
@@ -278,6 +282,10 @@ export default function CreateShop() {
                     className="block w-full text-center py-3.5 rounded-xl border-2 border-[var(--primary)] text-[var(--primary)] font-bold hover:bg-[var(--primary)] hover:text-white transition">
                 View my shop ↗
               </Link>
+              <a href="https://t.me/ROVISTARCAMBO" target="_blank" rel="noreferrer"
+                 className="block w-full text-center py-3.5 rounded-xl bg-[#229ED9] text-white font-bold hover:bg-[#1d8cc1] transition">
+                ទាក់ទង Admin តាម Telegram ↗
+              </a>
             </div>
           </div>
         )}

@@ -51,7 +51,8 @@ PLANS = {
 @router.get("")
 def list_plans():
     """Public: available plans with price, period and limits."""
-    return [{"id": k, **v} for k, v in PLANS.items()]
+    require_payment = os.getenv("PUBLIC_REGISTRATION_REQUIRES_PAYMENT", "false").lower() == "true"
+    return [{"id": k, **v} for k, v in PLANS.items() if not require_payment or not v.get("free")]
 
 
 def _gen_order_number(prefix="PLN"):
@@ -83,6 +84,8 @@ def register_shop_plan(data: schemas.ShopRegister, db: Session = Depends(get_db)
     plan = PLANS.get((data.plan or "starter").strip().lower())
     if not plan:
         raise HTTPException(status_code=400, detail="Invalid plan")
+    if plan.get("free") and os.getenv("PUBLIC_REGISTRATION_REQUIRES_PAYMENT", "false").lower() == "true":
+        raise HTTPException(status_code=400, detail="Please choose a paid plan. Free shops are opened by the platform admin.")
     store_type = (data.store_type or "clothing").strip().lower()
     if store_type not in ("clothing", "digital"):
         raise HTTPException(status_code=400, detail="Invalid store type")
