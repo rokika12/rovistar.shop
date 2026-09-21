@@ -146,9 +146,11 @@ export default function HomePage() {
                 {t('startMyShop')} <FiArrowRight className="w-5 h-5" />
               </Link>
             </div>
-            <p className="mt-5 text-sm text-blue-200">
-              {t('needHelp')} <a className="font-semibold underline hover:text-white" href="https://t.me/your_telegram" target="_blank" rel="noreferrer">@your_telegram</a>
-            </p>
+            {process.env.REACT_APP_TELEGRAM_URL && (
+              <p className="mt-5 text-sm text-blue-200">
+                {t('needHelp')} <a className="font-semibold underline hover:text-white" href={process.env.REACT_APP_TELEGRAM_URL} target="_blank" rel="noreferrer">Telegram</a>
+              </p>
+            )}
           </div>
 
           {/* Phone frame: live demo shop */}

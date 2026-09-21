@@ -34,7 +34,7 @@ export const ShopProvider = ({ children }) => {
       setShop(null);
       setLoading(false);
       setError(null);
-      document.title = 'ROKIKA SHOP';
+      document.title = 'ROVISTAR MARKET';
       setShopFavicon(null);
       return;
     }
@@ -47,7 +47,7 @@ export const ShopProvider = ({ children }) => {
         setShop(data);
         // Dynamic browser tab title + meta description for this shop.
         const shopTitle = data.shop_name || data.username || 'Shop';
-        document.title = `${shopTitle} | ROKIKA SHOP`;
+        document.title = `${shopTitle} | ROVISTAR MARKET`;
         // Browser-tab icon (favicon) follows the shop's logo.
         setShopFavicon(data.logo ? fullUrl(data.logo) : null);
         let meta = document.querySelector('meta[name="description"]');
@@ -56,7 +56,7 @@ export const ShopProvider = ({ children }) => {
           meta.setAttribute('name', 'description');
           document.head.appendChild(meta);
         }
-        meta.setAttribute('content', (data.description || data.bio || `Shop ${shopTitle} on ROKIKA SHOP`).slice(0, 200));
+        meta.setAttribute('content', (data.description || data.bio || `Shop ${shopTitle} on ROVISTAR MARKET`).slice(0, 200));
         // Apply theme colors
         const theme = { ...DEFAULT_THEME, ...(data.theme || {}) };
         document.documentElement.style.setProperty('--primary', theme.primary);

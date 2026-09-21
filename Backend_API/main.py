@@ -141,12 +141,30 @@ Base.metadata.create_all(bind=engine)
 _migrate_columns()
 _backfill_order_customers()
 
+
+def _normalize_demo_branding():
+    """Remove legacy demo branding without changing real shop identities."""
+    db = SessionLocal()
+    try:
+        demo = db.query(models.Shop).filter(models.Shop.username == "demo").first()
+        if demo and (demo.shop_name or "").strip().upper() in ("ROKIKASHOP", "ROKIKA SHOP"):
+            demo.shop_name = "Rovistar Demo Store"
+            demo.logo = ""
+            demo.contact = ""
+            demo.social_media = models.JSONText.dumps({})
+            db.commit()
+    except Exception:
+        db.rollback()
+    finally:
+        db.close()
+
 # Seed default admin + demo data
 _seed_db = SessionLocal()
 try:
     seed_database(_seed_db)
 finally:
     _seed_db.close()
+    _normalize_demo_branding()
 
 # Rate limiting (60 requests / minute)
 limiter = Limiter(key_func=get_remote_address, default_limits=[f"{config.RATE_LIMIT_REQUESTS}/{config.RATE_LIMIT_PERIOD}"])
