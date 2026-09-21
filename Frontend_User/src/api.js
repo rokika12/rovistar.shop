@@ -45,7 +45,7 @@ export const getProduct = (id) => api.get(`/api/products/${id}/public`).then((r)
 export const getCategories = (shopId) =>
   api.get('/api/categories/public', { params: { shop_id: shopId } }).then((r) => r.data);
 export const createOrder = (payload) => api.post('/api/orders', payload).then((r) => r.data);
-export const createPayment = (payload) => api.post('/api/payments/aba/create', payload).then((r) => r.data);
+export const createPayment = (payload) => api.post('/api/payments/aba/create', payload, { timeout: 12000 }).then((r) => r.data);
 export const trackOrder = (orderNumber, token = '') =>
   api.get('/api/orders/public/track', {
     params: { order_number: orderNumber },

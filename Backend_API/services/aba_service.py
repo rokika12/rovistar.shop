@@ -87,7 +87,8 @@ def request_direct_qr(profile_id: str, secret_key: str, transaction_id: str,
         "remark": remark,
         "hash": aba_hash(secret_key, transaction_id, amount, success_url, remark),
     }
-    with httpx.Client(timeout=30) as client:
+    # Keep checkout responsive when the external gateway is unavailable.
+    with httpx.Client(timeout=httpx.Timeout(8.0, connect=4.0)) as client:
         resp = client.post(url, data=payload)
     resp.raise_for_status()
     return resp.json()
@@ -184,7 +185,7 @@ def verify_payment(order, shop, transaction_id: str = "") -> dict:
     url = f"{KHQRCC_BASE}/{profile_id}/payment-gateway/v1/payments/check-transv2-khqrcc"
     payload = {"transaction_id": tx, "hash": verify_hash(secret_key, tx)}
     try:
-        with httpx.Client(timeout=30) as client:
+        with httpx.Client(timeout=httpx.Timeout(8.0, connect=4.0)) as client:
             resp = client.post(url, data=payload)
         result = resp.json()
     except Exception as e:

@@ -166,7 +166,10 @@ export default function Checkout() {
       setPayment(paymentData);
       clear();
     } catch (err) {
-      toast.error(err?.response?.data?.detail || 'Failed to place order');
+      const message = err?.code === 'ECONNABORTED'
+        ? 'ABA Pay is taking too long to respond. Please retry in a moment.'
+        : (err?.response?.data?.detail || 'Failed to place order');
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
