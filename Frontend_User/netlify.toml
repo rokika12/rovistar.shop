@@ -3,8 +3,8 @@
   publish = "build"
 
 [build.environment]
-  # Override this in the Netlify UI for production deploys.
-  REACT_APP_API_URL = "https://rokika-api.onrender.com"
+  # Production API is served from Rovistar's own subdomain.
+  REACT_APP_API_URL = "https://api.rovistar.shop"
   REACT_APP_ADMIN_URL = "https://admin.rovistar.shop/shops"
   REACT_APP_DASHBOARD_URL = "https://dashboard.rovistar.shop/"
   REACT_APP_ALLOW_PUBLIC_SHOP_REGISTRATION = "true"

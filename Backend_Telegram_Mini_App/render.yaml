@@ -3,7 +3,7 @@
 # shop bot's /start automatically.
 services:
   - type: worker
-    name: minishop-telegram-bot-worker
+    name: rovistar-telegram-bot-worker
     runtime: python
     plan: starter   # background workers need a paid plan (no free tier)
     buildCommand: pip install -r requirements.txt
@@ -11,7 +11,7 @@ services:
     healthCheckPath: ""
     envVars:
       - key: MINI_BACKEND_BASE_URL
-        value: http://localhost:8000
+        value: https://api.rovistar.shop
       - key: MINI_BOT_SERVICE_KEY
         sync: false   # set this secret in the Render dashboard (same as BOT_SERVICE_KEY on the main API)
       - key: LOOP_SECONDS

@@ -1,14 +1,19 @@
-# Render.com web service - ROKIKA SHOP Backend API
-# Deploy: push this file to GitHub, then in Render -> New + -> Web Service -> connect repo -> select this render.yaml
+# Render.com web service - Rovistar API
+# Deploy from the repository root so Render can read this Blueprint.
 
 services:
   - type: web
-    name: rokika-api
+    name: rovistar-api
     runtime: python
-  ​  plan: free
+    plan: starter
     rootDir: Backend_API
     buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker -w 2 -b 0.0.0.0:$PORT main:app
     healthCheckPath: /api/health
+    disk:
+      name: rovistar-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: ENVIRONMENT
         value: production
@@ -16,16 +21,22 @@ services:
         value: false
       - key: DATABASE_URL
         fromDatabase:
-          name: rokika-db
+          name: rovistar-db
           property: connectionString
+      - key: DATA_DIR
+        value: /var/data/data
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: BACKUP_DIR
+        value: /var/data/backups
       - key: MINISHOP_SECRET_KEY
         generateValue: true
       - key: DEFAULT_ADMIN_PASSWORD
         sync: false
       - key: CORS_ORIGINS
-        value: https://rovistar.shop,https://www.rovistar.shop,https://admin.rovistar.shop,https://dashboard.rovistar.shop,https://telegram.rovistar.shop
+        value: https://rovistar.shop,https://www.rovistar.shop,https://admin.rovistar.shop,https://dashboard.rovistar.shop,https://reseller.rovistar.shop,https://telegram.rovistar.shop
       - key: BASE_URL
-        value: https://www.rovistar.shop
+        value: https://api.rovistar.shop
       - key: DASHBOARD_URL
         value: https://dashboard.rovistar.shop/
       - key: ALLOW_PUBLIC_SHOP_REGISTRATION
@@ -35,7 +46,7 @@ services:
       - key: TELEGRAM_ADMIN_URL
         value: https://t.me/ROVISTARCAMBO
       - key: API_URL
-        value: https://rokika-api.onrender.com
+        value: https://api.rovistar.shop
       - key: PLATFORM_SHOP_USERNAME
         value: demo
       - key: REFERRAL_SECRET

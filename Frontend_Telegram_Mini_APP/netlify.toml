@@ -8,11 +8,10 @@
 [build.environment]
   CI = "false"
 
-# LOCAL STUDY COPY: same-origin API proxy -> YOUR OWN backend.
-# Replace https://rokika-api.onrender.com with your deployed API URL when you go live.
+# Route Telegram Mini App API calls through Rovistar's production API.
 [[redirects]]
   from = "/api/*"
-  to = "https://rokika-api.onrender.com/api/:splat"
+  to = "https://api.rovistar.shop/api/:splat"
   status = 200
 
 # SPA fallback.
