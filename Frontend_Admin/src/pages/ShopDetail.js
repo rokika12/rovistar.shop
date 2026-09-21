@@ -105,6 +105,7 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
     secret_key: shop.aba_settings?.secret_key || '',
     test_mode: shop.aba_settings?.test_mode !== false,
   });
+  const [paymentSaved, setPaymentSaved] = useState(Boolean(shop.aba_settings?.profile_id && shop.aba_settings?.secret_key));
   const [brand, setBrand] = useState({
     shop_name: shop.shop_name || '', store_type: shop.store_type || 'clothing', logo: shop.logo || '', banner: shop.banner || '',
     slideshow: shop.slideshow || [], bio: shop.bio || '', description: shop.description || '', contact: shop.contact || '',
@@ -128,6 +129,7 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
   const savePayment = async () => {
     try {
       await updateShop(shop.id, { aba_settings: payment });
+      setPaymentSaved(Boolean(payment.profile_id.trim() && payment.secret_key.trim()));
       toast.success('Payment settings saved');
       onSaved();
     } catch (e) {
@@ -245,7 +247,7 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
         </div>
         <div className="border-t pt-4">
           <p className="font-semibold mb-1">ABA Pay / KHQR settings</p>
-          <p className="text-xs text-gray-500 mb-3">Enter the merchant credentials used by this shop for real payments.</p>
+          <p className="text-xs text-gray-500 mb-3">These credentials are saved for this shop only and used when customers checkout on its website.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
             <div>
               <label className="text-xs text-gray-500 block mb-1">Profile ID / API ID</label>
@@ -258,8 +260,10 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
           </div>
           <label className="flex items-center gap-2 mt-3 text-sm text-gray-600">
             <input type="checkbox" checked={payment.test_mode} onChange={(e) => setPayment({ ...payment, test_mode: e.target.checked })} />
-            Sandbox / test mode
+            Sandbox credentials / test mode
           </label>
+          <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mt-3">Save does not create a QR by itself. The ID and key must be the PayWay/KHQR API credentials issued for this merchant; a real QR is generated only when a customer starts checkout.</p>
+          {paymentSaved && <p className="text-xs text-emerald-700 mt-2">Credentials saved for this shop. Checkout will use them on the next payment.</p>}
           <button onClick={savePayment} className={`${btnPrimary} mt-3`}>Save Payment Settings</button>
         </div>
       </div>
