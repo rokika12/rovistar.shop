@@ -5,6 +5,8 @@
 [build.environment]
   # Override this in the Netlify UI for production deploys.
   REACT_APP_API_URL = "https://rokika-api.onrender.com"
+  REACT_APP_ADMIN_URL = "https://admin.rovistar.shop/shops"
+  REACT_APP_DASHBOARD_URL = "https://dashboard.rovistar.shop/"
   CI = "false"
 
 # SPA fallback: serve index.html for all client-side routes

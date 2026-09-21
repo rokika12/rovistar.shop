@@ -294,7 +294,7 @@ def list_orders(shop_id: int = Query(...), status: str = "",
 
 
 @router.get("/all")
-def list_all_orders(db: Session = Depends(get_db), admin: models.User = Depends(get_current_user)):
+def list_all_orders(db: Session = Depends(get_db), admin: models.User = Depends(get_current_admin)):
     orders = db.query(models.Order).order_by(models.Order.id.desc()).limit(500).all()
     return [o.to_dict() for o in orders]
 

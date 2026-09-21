@@ -1,0 +1,27 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# JavaScript dependencies and build output
+node_modules/
+build/
+
+# Local databases and generated files
+*.db
+*.sqlite
+*.sqlite3
+Backend_API/uploads/
+Backend_API/backups/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -10,7 +10,7 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
-      - key: APP_ENV
+      - key: ENVIRONMENT
         value: production
       - key: DEBUG
         value: false
@@ -18,12 +18,14 @@ services:
         fromDatabase:
           name: rokika-db
           property: connectionString
-      - key: SECRET_KEY
+      - key: MINISHOP_SECRET_KEY
         generateValue: true
+      - key: DEFAULT_ADMIN_PASSWORD
+        sync: false
       - key: CORS_ORIGINS
-        value: https://rokika-shop.netlify.app,https://dashboard.rokika-shop.netlify.app,https://telegram.rokika-shop.netlify.app
-      - key: STORE_URL
-        value: https://rokika-shop.netlify.app
+        value: https://rovistar.shop,https://www.rovistar.shop,https://admin.rovistar.shop,https://dashboard.rovistar.shop,https://telegram.rovistar.shop
+      - key: BASE_URL
+        value: https://rovistar.shop
       - key: API_URL
         value: https://rokika-api.onrender.com
       - key: PLATFORM_SHOP_USERNAME

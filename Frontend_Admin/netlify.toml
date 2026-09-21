@@ -4,7 +4,7 @@
 
 [build.environment]
   # Point your own deployment at YOUR backend (set it in the Netlify UI for real deploys)
-  REACT_APP_API_URL = "http://localhost:8000"
+  REACT_APP_API_URL = "https://rokika-api.onrender.com"
   CI = "false"
 
 # SPA fallback: serve index.html for all client-side routes
