@@ -133,8 +133,8 @@ export default function ProductDetail() {
           )}
         </div>
 
-        {/* Info */}
-        <div>
+        {/* Purchase panel */}
+        <div className="store-product-detail-panel">
           {product.category_name && <span className="text-xs text-primary font-semibold uppercase">{product.category_name}</span>}
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-1">{product.name}</h1>
           {product.metadata?.product_type === 'digital' && product.metadata?.duration && (

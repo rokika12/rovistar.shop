@@ -221,22 +221,38 @@ export default function Profile() {
         )}
       </div>
 
-      {shop.template_type === 'account' && <div className="compact-wallet-card bg-gradient-to-r from-blue-700 to-pink-500 rounded-2xl shadow p-6 mb-6 text-white">
-        <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-white/75">Digital wallet</p><p className="text-3xl font-black mt-2">${Number(wallet.balance || 0).toFixed(2)}</p></div><img src={ABA_LOGO_URL} alt="ABA Bank" className="aba-payment-logo aba-payment-logo-light" onError={(event) => { event.currentTarget.style.display = 'none'; }} /></div>
-        <div className="flex flex-wrap gap-2 mt-4">
-          <input type="number" min="0.10" max="1000" step="0.10" value={topupAmount} onChange={(e) => setTopupAmount(e.target.value)} className="w-28 rounded-lg px-3 py-2 text-gray-900" />
-          <button type="button" onClick={startTopup} disabled={topupBusy} className="rounded-lg bg-white px-4 py-2 font-bold text-blue-700 disabled:opacity-60">{topupBusy ? 'Loading...' : 'Add Balance'}</button>
-        </div>
-        <div className="flex flex-wrap gap-1.5 mt-2 text-xs">
-          {[0.1, 1, 2, 5, 10, 100, 1000].map((amount) => (
-            <button key={amount} type="button" onClick={() => setTopupAmount(String(amount))} className="rounded-full bg-white/20 px-2.5 py-1 font-semibold hover:bg-white/30">
-              ${amount.toFixed(2)}
-            </button>
-          ))}
-        </div>
-        <p className="text-xs text-white/75 mt-2">Top up from $0.10 to $1,000.00 with real ABA KHQR.</p>
-        {topup && <div className="mt-4 rounded-xl bg-white/15 p-3 text-sm"><p>Scan the real ABA KHQR below with ABA Mobile, then confirm.</p>{topup.payment?.qr_code_url && <img src={fullUrl(topup.payment.qr_code_url)} alt="ABA KHQR" className="w-40 h-40 bg-white rounded-xl p-2 mt-3 mx-auto" />}<button type="button" onClick={confirmTopup} className="mt-3 rounded-lg bg-white px-3 py-2 font-bold text-pink-600">Confirm top-up</button></div>}
-      </div>}
+      {shop.template_type === 'account' && (
+        <section className="wallet-topup-card mb-6">
+          <div className="wallet-topup-main">
+            <p className="wallet-topup-label">DIGITAL WALLET</p>
+            <p className="wallet-topup-balance">${Number(wallet.balance || 0).toFixed(2)}</p>
+            <div className="wallet-topup-controls">
+              <input
+                type="number"
+                min="0.10"
+                max="1000"
+                step="0.10"
+                value={topupAmount}
+                onChange={(event) => setTopupAmount(event.target.value)}
+                aria-label="Top-up amount"
+              />
+              <button type="button" onClick={startTopup} disabled={topupBusy}>{topupBusy ? 'Loading...' : 'Add Balance'}</button>
+            </div>
+            <div className="wallet-topup-presets">
+              {[0.1, 1, 2, 5, 10, 100, 1000].map((amount) => (
+                <button key={amount} type="button" onClick={() => setTopupAmount(String(amount))}>${amount.toFixed(2)}</button>
+              ))}
+            </div>
+            <p className="wallet-topup-note">Top up from $0.10 to $1,000.00 with ABA KHQR.</p>
+          </div>
+          <aside className="wallet-topup-aba">
+            <p>PAYMENT METHOD</p>
+            <div className="wallet-aba-badge"><img src={ABA_LOGO_URL} alt="ABA Bank" onError={(event) => { event.currentTarget.style.display = 'none'; }} /><strong>ABA<br />KHQR</strong></div>
+            <span>Scan securely with ABA Mobile</span>
+          </aside>
+          {topup && <div className="wallet-topup-qr"><p>Scan the ABA KHQR below, then confirm your payment.</p>{topup.payment?.qr_code_url && <img src={fullUrl(topup.payment.qr_code_url)} alt="ABA KHQR payment QR" />}<button type="button" onClick={confirmTopup}>Confirm top-up</button></div>}
+        </section>
+      )}
 
       {editing ? (
         <form onSubmit={saveProfile} className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 mb-6 space-y-3">

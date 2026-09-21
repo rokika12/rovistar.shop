@@ -499,3 +499,31 @@ body {
   .storefront-main .max-w-7xl { max-width: 100%; }
   .compact-wallet-card { border-radius: 1rem; padding: 1.1rem; }
 }
+
+/* Wallet top-up stays compact while matching the two-column payment reference. */
+.wallet-topup-card { display: grid; grid-template-columns: minmax(0, 1fr) 11.5rem; position: relative; max-width: 42rem; margin-left: auto; margin-right: auto; overflow: hidden; border-radius: 1.15rem; background: linear-gradient(112deg, #075dce 0%, #4764d4 55%, #d64e8c 100%); box-shadow: 0 16px 36px rgba(48, 72, 166, 0.2); color: #fff; }
+.wallet-topup-main { padding: 1.6rem; }
+.wallet-topup-label, .wallet-topup-aba > p { margin: 0; color: rgba(255,255,255,0.76); font-size: 0.65rem; font-weight: 900; letter-spacing: 0.13em; }
+.wallet-topup-balance { margin: 0.45rem 0 1.25rem; font-size: 2rem; font-weight: 900; letter-spacing: -0.055em; }
+.wallet-topup-controls { display: flex; gap: 0.5rem; }
+.wallet-topup-controls input { width: 7.25rem; min-width: 0; border: 1px solid rgba(255,255,255,0.8); border-radius: 0.65rem; background: #fff; padding: 0.7rem 0.75rem; color: #17213e; font-size: 0.9rem; font-weight: 800; }
+.wallet-topup-controls button { border-radius: 0.65rem; background: #fff; padding: 0.7rem 0.85rem; color: #1653bb; font-size: 0.8rem; font-weight: 900; transition: 160ms ease; }
+.wallet-topup-controls button:hover { background: #eaf2ff; }
+.wallet-topup-controls button:disabled { cursor: not-allowed; opacity: 0.62; }
+.wallet-topup-presets { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+.wallet-topup-presets button { border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; background: rgba(255,255,255,0.14); padding: 0.28rem 0.52rem; color: #fff; font-size: 0.66rem; font-weight: 800; transition: 160ms ease; }
+.wallet-topup-presets button:hover { background: rgba(255,255,255,0.28); }
+.wallet-topup-note { margin: 0.7rem 0 0; color: rgba(255,255,255,0.76); font-size: 0.68rem; line-height: 1.45; }
+.wallet-topup-aba { display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; border-left: 1px solid rgba(255,255,255,0.34); padding: 1.6rem 1.25rem; text-align: right; }
+.wallet-aba-badge { display: flex; align-items: center; justify-content: center; gap: 0.45rem; min-height: 3.25rem; margin-top: 0.75rem; border-radius: 0.8rem; background: #fff; padding: 0.4rem 0.55rem; color: #1552ad; }
+.wallet-aba-badge img { width: 2.7rem; max-height: 2.2rem; object-fit: contain; }
+.wallet-aba-badge strong { border-left: 1px solid #dbe7ff; padding-left: 0.45rem; font-size: 0.66rem; font-weight: 900; line-height: 1.05; text-align: left; }
+.wallet-topup-aba > span { max-width: 8rem; margin-top: 0.65rem; color: rgba(255,255,255,0.76); font-size: 0.67rem; line-height: 1.4; }
+.wallet-topup-qr { grid-column: 1 / -1; border-top: 1px solid rgba(255,255,255,0.28); padding: 1rem 1.6rem 1.4rem; text-align: center; }
+.wallet-topup-qr p { margin: 0; font-size: 0.76rem; font-weight: 700; }
+.wallet-topup-qr img { display: block; width: 10rem; height: 10rem; margin: 0.75rem auto; border-radius: 0.75rem; background: #fff; padding: 0.4rem; }
+.wallet-topup-qr button { border-radius: 0.65rem; background: #fff; padding: 0.6rem 0.9rem; color: #1653bb; font-size: 0.75rem; font-weight: 900; }
+@media (max-width: 640px) { .wallet-topup-card { grid-template-columns: 1fr; border-radius: 1rem; } .wallet-topup-main { padding: 1.1rem; } .wallet-topup-aba { align-items: flex-start; border-top: 1px solid rgba(255,255,255,0.34); border-left: 0; padding: 1rem 1.1rem; text-align: left; } .wallet-topup-aba > span { max-width: none; } .wallet-topup-qr { padding: 1rem 1.1rem; } }
+
+.store-product-detail-panel { border: 1px solid var(--market-line); border-radius: 1.15rem; background: #fff; padding: clamp(1.1rem, 3vw, 1.75rem); box-shadow: 0 10px 26px rgba(41, 69, 121, 0.07); }
+.dark .store-product-detail-panel { border-color: #334155; background: #1f2937; }
