@@ -55,7 +55,7 @@ export default function ShopLayout() {
         </div>
       </div>
       <ShopHeader />
-      <main className="flex-1 pb-20 md:pb-0">
+      <main className="storefront-main flex-1 pb-20 md:pb-0">
         <Outlet />
       </main>
       <ShopFooter />

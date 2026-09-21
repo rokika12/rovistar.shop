@@ -15,6 +15,7 @@ export default function Slideshow({ slides }) {
   const images = useMemo(() => slides || [], [slides]);
   const count = images.length;
   const [index, setIndex] = useState(0);
+  const [failedSlides, setFailedSlides] = useState(() => new Set());
   const touchStart = useRef(null);
   const timerRef = useRef(null);
 
@@ -41,6 +42,7 @@ export default function Slideshow({ slides }) {
 
   useEffect(() => {
     setIndex(0);
+    setFailedSlides(new Set());
   }, [images]);
 
   useEffect(() => {
@@ -74,12 +76,19 @@ export default function Slideshow({ slides }) {
             i === index ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          {/* Cover the frame consistently on phones, tablets, and desktop. */}
-          <img 
-            src={fullUrl(img)} 
-            alt={`Slide ${i + 1}`} 
-            className="w-full h-full object-cover relative z-10"
-          />
+          {/* Keep a designed fallback instead of exposing broken-image alt text. */}
+          {failedSlides.has(i) ? (
+            <div className="w-full h-full bg-gradient-to-br from-blue-700 via-blue-600 to-sky-400 flex items-end p-7 text-white">
+              <div><span className="text-xs font-black tracking-[0.16em]">ROVISTAR UPDATE</span><p className="mt-2 text-2xl font-black">ថ្មីៗ សម្រាប់អ្នក</p></div>
+            </div>
+          ) : (
+            <img
+              src={fullUrl(img)}
+              alt=""
+              className="w-full h-full object-cover relative z-10"
+              onError={() => setFailedSlides((current) => new Set([...current, i]))}
+            />
+          )}
         </div>
       ))}
 
