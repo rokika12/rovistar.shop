@@ -42,7 +42,7 @@ export default function ShopHome() {
   }, [shop]);
 
   if (!shop) return null;
-  const isDigitalStore = shop.store_type === 'digital' || allProducts.some((product) => product.metadata?.product_type === 'digital');
+  const isDigitalStore = shop.template_type === 'account';
 
   return (
     <div>

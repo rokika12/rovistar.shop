@@ -219,7 +219,7 @@ export default function Profile() {
         )}
       </div>
 
-      {shop.store_type === 'digital' && <div className="bg-gradient-to-r from-blue-700 to-pink-500 rounded-2xl shadow p-6 mb-6 text-white">
+      {shop.template_type === 'account' && <div className="bg-gradient-to-r from-blue-700 to-pink-500 rounded-2xl shadow p-6 mb-6 text-white">
         <p className="text-xs font-bold uppercase tracking-widest text-white/75">Digital wallet</p>
         <p className="text-3xl font-black mt-2">${Number(wallet.balance || 0).toFixed(2)}</p>
         <div className="flex flex-wrap gap-2 mt-4">

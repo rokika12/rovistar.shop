@@ -33,6 +33,7 @@ export default function ShopLayout() {
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : '')
     || '';
   const theme = shop.theme || {};
+  const isAccountTemplate = shop.template_type === 'account';
   const themeStyle = {
     '--primary': theme.primary || '#123B3A',
     '--secondary': theme.secondary || '#F4C95D',
@@ -45,10 +46,10 @@ export default function ShopLayout() {
     <div className="min-h-screen flex flex-col dark:bg-gray-900" data-template={shop.template_type || 'login'} style={themeStyle}>
       <div className="brand-ticker bg-[var(--brand-blue)] text-white">
         <div className="brand-ticker-track">
-          <span>{shop.store_type === 'digital'
+          <span>{isAccountTemplate
             ? 'សេវាកម្មឌីជីថលពិតប្រាកដ · ទទួលបានភ្លាមៗបន្ទាប់ពីបង់ប្រាក់ · សេវាកម្មមានការគាំទ្រ'
             : 'ទំនិញមានគុណភាព · ដឹកជញ្ជូនតាមទីតាំង · សេវាកម្មរហ័ស និងអាចទុកចិត្តបាន'}</span>
-          <span aria-hidden="true">{shop.store_type === 'digital'
+          <span aria-hidden="true">{isAccountTemplate
             ? 'សេវាកម្មឌីជីថលពិតប្រាកដ · ទទួលបានភ្លាមៗបន្ទាប់ពីបង់ប្រាក់ · សេវាកម្មមានការគាំទ្រ'
             : 'ទំនិញមានគុណភាព · ដឹកជញ្ជូនតាមទីតាំង · សេវាកម្មរហ័ស និងអាចទុកចិត្តបាន'}</span>
         </div>
@@ -58,7 +59,7 @@ export default function ShopLayout() {
         <Outlet />
       </main>
       <ShopFooter />
-      {shop.store_type !== 'digital' && <CartSidebar />}
+      {!isAccountTemplate && <CartSidebar />}
       <BottomNav />
 
       {/* Floating "Contact this shop owner" button — fixed on screen */}

@@ -153,6 +153,13 @@ def _normalize_demo_branding():
             demo.contact = ""
             demo.social_media = models.JSONText.dumps({})
             db.commit()
+        if demo:
+            digital_product = db.query(models.Product).filter(models.Product.shop_id == demo.id).first()
+            if digital_product:
+                metadata = models.JSONText.loads(digital_product.metadata_json, {})
+                if metadata.get("product_type") == "digital":
+                    demo.template_type = "account"
+                    db.commit()
     except Exception:
         db.rollback()
     finally:

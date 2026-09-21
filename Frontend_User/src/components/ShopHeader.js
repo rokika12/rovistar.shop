@@ -23,13 +23,14 @@ export default function ShopHeader() {
   const [search, setSearch] = useState('');
   const [isMyShop, setIsMyShop] = useState(false);
   const base = `/${shop.username}`;
+  const isAccountTemplate = shop.template_type === 'account';
 
   useEffect(() => {
-    if (shop.store_type !== 'digital' || !isLoggedIn || customer?.shop_id !== shop.id) return;
+    if (!isAccountTemplate || !isLoggedIn || customer?.shop_id !== shop.id) return;
     getMyWallet(localStorage.getItem('ms_customer_token'))
       .then((wallet) => setWalletBalance(wallet.balance || 0))
       .catch(() => setWalletBalance(customer?.wallet_balance || 0));
-  }, [shop.id, shop.store_type, isLoggedIn, customer?.shop_id, customer?.wallet_balance]);
+  }, [shop.id, isAccountTemplate, isLoggedIn, customer?.shop_id, customer?.wallet_balance]);
 
   // Server-verified ownership: the Dashboard button shows ONLY when the signed-in
   // account is confirmed (by /api/shops/:id/owner) as the owner/staff of this shop.
@@ -93,7 +94,7 @@ export default function ShopHeader() {
                 <FcGoogle className="w-4 h-4" /> {t('signIn')}
               </button>
             )}
-            {shop.store_type === 'digital' && isLoggedIn && customer?.shop_id === shop.id && (
+            {isAccountTemplate && isLoggedIn && customer?.shop_id === shop.id && (
               <Link to={`${base}/profile`} className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-pink-50 border border-pink-200 px-3 py-1.5 text-xs font-bold text-pink-700" title="Open wallet">
                 <FiCreditCard className="w-3.5 h-3.5" /> ${Number(walletBalance).toFixed(2)}
               </Link>
@@ -184,7 +185,7 @@ export default function ShopHeader() {
             <NavLink to={`${base}/my-orders`} className={mobileLinkCls}>{t('myOrders')}</NavLink>
             <NavLink to={`${base}/profile`} className={mobileLinkCls}>{t('myProfile')}</NavLink>
             <NavLink to={`${base}/about`} className={mobileLinkCls}>{t('about')}</NavLink>
-            {shop.store_type === 'digital' && isLoggedIn && customer?.shop_id === shop.id && (
+            {isAccountTemplate && isLoggedIn && customer?.shop_id === shop.id && (
               <Link to={`${base}/profile`} className="flex items-center gap-2 rounded-lg bg-pink-50 px-3 py-2.5 text-sm font-bold text-pink-700">
                 <FiCreditCard className="w-4 h-4" /> Wallet ${Number(walletBalance).toFixed(2)} · Add balance
               </Link>

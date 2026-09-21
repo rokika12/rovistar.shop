@@ -24,6 +24,7 @@ def seed_database(db: Session):
         demo_shop = models.Shop(
             username="demo",
             shop_name="Demo Fashion Store",
+            template_type="account",
             bio="Your friendly neighbourhood demo shop for trying the Mini Shop platform.",
             description=("Welcome to our demo store! Browse our products, pick your favourites, "
                          "and experience the full checkout flow with ABA Pay (sandbox mode)."),
