@@ -34,7 +34,9 @@ export default function ShopLogo({ shop, className = '', textClassName = 'text-l
 
   const letter = ((shop.shop_name || shop.username || 'S')[0] || 'S').toUpperCase();
 
-  if (shop.logo && !failed) {
+  // Keep the built-in demo preview independent from legacy uploaded branding.
+  const isPlatformDemo = shop.username === 'demo';
+  if (shop.logo && !failed && !isPlatformDemo) {
     return (
       <img
         src={fullUrl(shop.logo)}
@@ -49,8 +51,8 @@ export default function ShopLogo({ shop, className = '', textClassName = 'text-l
   if (!failed) {
     return (
       <img
-        src={`${process.env.PUBLIC_URL}/logo.svg`}
-        alt="ROKIKA SHOP"
+        src={`${process.env.PUBLIC_URL}/rovistar-mark.svg`}
+        alt="ROVISTAR MARKET"
         className={`object-contain ${className}`}
         onError={() => setFailed(true)}
       />

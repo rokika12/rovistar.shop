@@ -39,7 +39,7 @@ function BrandMark({ size = 'w-10 h-10', light = false }) {
         className={`${size} drop-shadow-lg shrink-0`}
         onError={(e) => { e.target.style.display = 'none'; }}
       />
-      <span className="font-extrabold text-xl tracking-tight">
+      <span className="home-brand-label font-extrabold text-xl tracking-tight">
         <span style={{ color: light ? '#FFFFFF' : NAVY }}>ROVISTAR</span>
         <span style={{ color: ORANGE }}> MARKET</span>
       </span>
@@ -128,11 +128,11 @@ export default function HomePage() {
             <span className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1.5 text-sm font-semibold text-orange-100">
               {t('heroBadge')}
             </span>
-            <h1 className="mt-6 text-5xl md:text-7xl font-extrabold leading-[1.08] text-white">
+            <h1 className="mt-6 text-3xl sm:text-4xl md:text-7xl font-extrabold leading-[1.1] text-white">
               {t('heroTitleMain')} <br className="hidden md:block" />
               <span style={{ color: ORANGE }}>{t('heroTitleMain2')}</span>
             </h1>
-            <p className="mt-5 max-w-xl mx-auto lg:mx-0 text-lg text-blue-100 leading-relaxed">
+            <p className="mt-5 max-w-xl mx-auto lg:mx-0 text-sm sm:text-base md:text-lg text-blue-100 leading-relaxed">
               {t('heroDesc')}
             </p>
             <div className="mt-8 flex flex-wrap justify-center lg:justify-start gap-3">

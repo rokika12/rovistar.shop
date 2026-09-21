@@ -26,6 +26,10 @@ body {
     font-size: 0.75rem;
   }
 }
+@media (max-width: 380px) {
+  .home-brand-label { display: none; }
+  .home-header-cta { padding-left: 0.5rem; padding-right: 0.5rem; }
+}
 
 .bg-primary { background-color: var(--primary); }
 .text-primary { color: var(--primary); }
