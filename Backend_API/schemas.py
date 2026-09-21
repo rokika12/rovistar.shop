@@ -223,11 +223,23 @@ class OrderCreate(BaseModel):
     customer_city: str = ""
     customer_country: str = ""
     customer_note: str = ""
+    email_verification_token: str = ""
     items: List[OrderItemIn]
     shipping_fee: float = 0
     discount: float = 0
     currency: str = "USD"
     payment_method: str = "khqr"
+
+
+class EmailCodeRequest(BaseModel):
+    shop_id: int
+    email: str
+
+
+class EmailCodeVerifyRequest(BaseModel):
+    shop_id: int
+    email: str
+    code: str
 
 
 class WalletTopup(BaseModel):

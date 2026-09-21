@@ -25,7 +25,7 @@ services:
       - key: CORS_ORIGINS
         value: https://rovistar.shop,https://www.rovistar.shop,https://admin.rovistar.shop,https://dashboard.rovistar.shop,https://telegram.rovistar.shop
       - key: BASE_URL
-        value: https://rovistar.shop
+        value: https://www.rovistar.shop
       - key: DASHBOARD_URL
         value: https://dashboard.rovistar.shop/
       - key: ALLOW_PUBLIC_SHOP_REGISTRATION

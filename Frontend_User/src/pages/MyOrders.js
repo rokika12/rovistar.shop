@@ -15,6 +15,22 @@ const STATUS_COLORS = {
   cancelled: 'bg-red-100 text-red-700',
 };
 
+export function mergeOrderHistory(accountHistory = { count: 0, orders: [] }, guestOrders = []) {
+  const merged = new Map();
+  const accountOrders = accountHistory?.orders || [];
+
+  [...accountOrders, ...guestOrders].forEach((order) => {
+    if (!order) return;
+    const key = order.id || order.order_number || `${order.created_at || ''}-${Math.random()}`;
+    if (!merged.has(key)) merged.set(key, order);
+  });
+
+  return {
+    count: merged.size,
+    orders: [...merged.values()].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)),
+  };
+}
+
 // Format order times in Cambodia timezone (Asia/Phnom_Penh, UTC+7)
 const fmtDate = (iso) => {
   if (!iso) return '—';
@@ -42,25 +58,39 @@ export default function MyOrders() {
   const loadGuestOrders = useCallback(async () => {
     const numbers = JSON.parse(localStorage.getItem(`ms_guest_orders_${shop?.id}`) || '[]');
     const orders = (await Promise.all(numbers.map((number) => trackOrder(number).catch(() => null)))).filter(Boolean);
-    setHistory({ count: orders.length, orders });
+    return { count: orders.length, orders };
   }, [shop?.id]);
 
   useEffect(() => {
     let mounted = true;
-    if (isLoggedIn && token) {
+
+    const loadHistory = async () => {
       setLoading(true);
-      getMyOrders(token)
-        .then((res) => { if (mounted) setHistory(res); })
-        .catch(async (err) => {
-          if (err?.response?.status === 401) {
-            logout();
-            await loadGuestOrders();
-          } else if (mounted) toast.error(err?.response?.data?.detail || 'Failed to load orders');
-        })
-        .finally(() => { if (mounted) setLoading(false); });
-    } else {
-      loadGuestOrders().finally(() => { if (mounted) setLoading(false); });
-    }
+      try {
+        const guestHistory = await loadGuestOrders();
+        if (!mounted) return;
+
+        if (isLoggedIn && token) {
+          try {
+            const accountHistory = await getMyOrders(token);
+            if (mounted) setHistory(mergeOrderHistory(accountHistory, guestHistory.orders));
+          } catch (err) {
+            if (err?.response?.status === 401) {
+              logout();
+              if (mounted) setHistory(guestHistory);
+            } else {
+              if (mounted) toast.error(err?.response?.data?.detail || 'Failed to load orders');
+            }
+          }
+        } else {
+          if (mounted) setHistory(guestHistory);
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadHistory();
     return () => { mounted = false; };
   }, [isLoggedIn, loadGuestOrders, logout, token]);
 

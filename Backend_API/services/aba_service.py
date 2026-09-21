@@ -76,6 +76,67 @@ def generate_qr_image(data: str, filename: str) -> str:
     return f"/uploads/qr/{filename}"
 
 
+def _normalize_status(value) -> str:
+    if value is None:
+        return ""
+    return str(value).strip().lower()
+
+
+def _extract_qr_value(payload):
+    """Pull the QR / EMV payload from the many shape variants that ABA gateways return."""
+    if payload is None:
+        return ""
+    if isinstance(payload, str):
+        text = payload.strip()
+        return text if text else ""
+    if isinstance(payload, list):
+        for item in payload:
+            value = _extract_qr_value(item)
+            if value:
+                return value
+        return ""
+    if not isinstance(payload, dict):
+        return ""
+
+    for key in [
+        "qr", "qr_content", "qrContent", "qr_string", "qrString", "qr_data", "qrData",
+        "qr_code", "qrCode", "emv", "emv_code", "emvCode", "code", "data"
+    ]:
+        value = payload.get(key)
+        if value:
+            extracted = _extract_qr_value(value)
+            if extracted:
+                return extracted
+
+    for key in ["qr_url", "qrUrl", "image_url", "imageUrl", "payment_url", "paymentUrl"]:
+        value = payload.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+
+    for key in ["data", "result", "payload"]:
+        if key in payload:
+            extracted = _extract_qr_value(payload.get(key))
+            if extracted:
+                return extracted
+
+    return ""
+
+
+def _response_is_success(payload: dict) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    response_code = str(payload.get("responseCode", payload.get("response_code", ""))).strip().lower()
+    if response_code in {"0", "00", "0000", "success", "successful", "approved"}:
+        return True
+    status = _normalize_status(payload.get("status") or payload.get("transaction_status") or payload.get("state"))
+    if status in {"success", "successful", "paid", "approved", "complete"}:
+        return True
+    nested = payload.get("data") or payload.get("result") or payload.get("payload")
+    if isinstance(nested, dict):
+        return _response_is_success(nested)
+    return False
+
+
 def request_direct_qr(profile_id: str, secret_key: str, transaction_id: str,
                       amount: str, success_url: str, remark: str) -> dict:
     """Call the Direct QR API and return the parsed JSON response."""
@@ -140,13 +201,12 @@ def build_checkout_url(order, shop, success_url="", error_url="", cancel_url="")
     try:
         qr = request_direct_qr(profile_id, secret_key, tran_id, amount, success_url, remark)
         response_code = str(qr.get("responseCode", qr.get("response_code", ""))).strip()
-        data = qr.get("data") or {}
+        data = qr.get("data") or qr.get("result") or qr.get("payload") or qr
         if isinstance(data, list):
             data = data[0] if data else {}
-        if response_code in ("0", "00") and data:
-            emv = (data.get("qr") or data.get("qr_string") or data.get("qr_content")
-                   or data.get("qrData") or data.get("qr_code") or "")
-            qr_url = data.get("qr_url") or data.get("qrUrl") or ""
+        if _response_is_success(qr) or _response_is_success(data):
+            emv = _extract_qr_value(data)
+            qr_url = (data.get("qr_url") if isinstance(data, dict) else "") or (data.get("qrUrl") if isinstance(data, dict) else "") or ""
             if emv:
                 result["qr_content"] = emv
                 # Always render the QR locally (PNG served by this API host) so the
@@ -156,7 +216,7 @@ def build_checkout_url(order, shop, success_url="", error_url="", cancel_url="")
             elif qr_url:
                 result["qr_code_url"] = qr_url
             else:
-                result["qr_error"] = qr.get("responseMessage") or "ABA returned no QR payload"
+                result["qr_error"] = qr.get("responseMessage") or qr.get("message") or "ABA returned no QR payload"
         else:
             result["qr_error"] = qr.get("responseMessage") or qr.get("message") or f"ABA response code: {response_code or 'unknown'}"
     except Exception:
@@ -191,20 +251,23 @@ def verify_payment(order, shop, transaction_id: str = "") -> dict:
     except Exception as e:
         return {"verified": False, "status": "error", "detail": str(e), "transaction_id": tx}
 
-    if result.get("responseCode") == 0:
-        data = result.get("data") or {}
-        status = data.get("status", "pending")
-        if status == "success":
+    response_code = str(result.get("responseCode", result.get("response_code", ""))).strip()
+    if response_code in {"0", "00", "0000"} or _response_is_success(result):
+        data = result.get("data") or result.get("result") or result.get("payload") or {}
+        if isinstance(data, list):
+            data = data[0] if data else {}
+        status = _normalize_status(data.get("status") or data.get("transaction_status") or result.get("status") or "pending")
+        if status in {"success", "successful", "paid", "approved", "complete"}:
             return {
                 "verified": True,
                 "status": "success",
-                "amount": data.get("amount"),
+                "amount": data.get("amount") or result.get("amount"),
                 "transaction_id": tx,
                 "detail": result,
             }
-        return {"verified": False, "status": status, "transaction_id": tx, "detail": result}
+        return {"verified": False, "status": status or "pending", "transaction_id": tx, "detail": result}
 
     return {"verified": False, "status": "error",
-            "detail": result.get("responseMessage", "Unknown verification error"),
+            "detail": result.get("responseMessage") or result.get("message") or "Unknown verification error",
             "transaction_id": tx}
 

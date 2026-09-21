@@ -12,6 +12,7 @@ from security import (get_optional_customer, get_current_admin, get_current_shop
 from services import pdf_service
 from services import stock_service
 from utils.helpers import generate_order_number
+from routers.auth import _verify_email_token
 from routers.payments import _mark_paid, _process_first_payment
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
@@ -33,6 +34,12 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         raise HTTPException(status_code=400, detail="Order must contain at least one item")
     if customer and customer.shop_id != data.shop_id:
         raise HTTPException(status_code=403, detail="This account is not registered at this shop")
+
+    customer_email = (data.customer_email or "").strip().lower()
+    if customer_email:
+        token = (data.email_verification_token or "").strip()
+        if not _verify_email_token(db, data.shop_id, customer_email, token):
+            raise HTTPException(status_code=400, detail="Please verify your email before placing the order")
 
     payment_method = (data.payment_method or "khqr").lower()
     if payment_method not in ("khqr", "wallet"):
@@ -281,10 +288,19 @@ def track_order(order_number: str = Query(...), db: Session = Depends(get_db),
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     result = order.to_dict()
-    # Digital credentials are private delivery data. The public success page can
-    # show order status, but only the signed-in owner can retrieve credentials.
+    # Paid digital guest orders need to remain visible to the buyer even without a
+    # customer login, because the order number is stored in the browser as a guest
+    # tracking reference. We still keep non-paid or unrelated orders hidden.
     owns_order = bool(customer and order.customer_id == customer.id)
-    if not owns_order:
+    is_guest_digital_order = (
+        order.payment_status == "paid"
+        and (
+            order.customer_id is None
+            or str(order.customer_phone or "").lower() == "digital"
+            or str(order.customer_name or "").lower() == "digital customer"
+        )
+    )
+    if not owns_order and not is_guest_digital_order:
         for item in result.get("items", []):
             item.pop("digital_delivery", None)
     return result

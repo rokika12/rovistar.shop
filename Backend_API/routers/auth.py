@@ -1,8 +1,10 @@
 """Authentication endpoints."""
 import hashlib
 import secrets
+import smtplib
 import time
 from datetime import datetime, timedelta
+from email.message import EmailMessage
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
@@ -12,6 +14,7 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 from database import get_db
+from config import config
 from security import (create_access_token, get_current_admin, get_current_customer,
                       get_current_user, hash_password, log_activity, verify_password)
 from services import telegram_service
@@ -74,6 +77,65 @@ def _register_failed_attempt(user, db, now):
     raise HTTPException(
         status_code=401,
         detail=f"Invalid username or password — {remaining} attempt(s) left, then your account is locked for {next_minutes} minutes.")
+
+
+def _normalize_email(value: str) -> str:
+    return (value or "").strip().lower()
+
+
+def _generate_email_code() -> str:
+    return f"{secrets.randbelow(900000) + 100000}"
+
+
+def _send_email_code(email: str, code: str) -> bool:
+    """Send a 6-digit code over SMTP. Returns False on transport failure."""
+    smtp_host = (config.EMAIL_SMTP_HOST or "").strip()
+    if not smtp_host:
+        if config.ENVIRONMENT == "development" or config.EMAIL_OTP_DEBUG:
+            print(f"[EMAIL OTP DEBUG] email={email} code={code}")
+            return True
+        return False
+
+    message = EmailMessage()
+    message["Subject"] = "Your verification code"
+    message["From"] = config.EMAIL_FROM_ADDRESS
+    message["To"] = email
+    message.set_content(
+        "Your verification code is: " + str(code) + "\n\n"
+        "This code expires in 5 minutes."
+    )
+
+    try:
+        with smtplib.SMTP(smtp_host, int(config.EMAIL_SMTP_PORT or 587)) as server:
+            server.starttls()
+            username = (config.EMAIL_SMTP_USERNAME or "").strip()
+            password = (config.EMAIL_SMTP_PASSWORD or "").strip()
+            if username and password:
+                server.login(username, password)
+            server.send_message(message)
+        return True
+    except Exception:
+        return False
+
+
+def _verify_email_token(db, shop_id: int, email: str, token: str) -> bool:
+    """Check whether a verified email token is still valid for this shop."""
+    normalized_email = _normalize_email(email)
+    token_value = (token or "").strip()
+    if not normalized_email or not token_value:
+        return False
+
+    record = db.query(models.EmailCode).filter(
+        models.EmailCode.shop_id == shop_id,
+        models.EmailCode.email == normalized_email,
+    ).first()
+    if not record:
+        return False
+    if record.verification_expires_at and record.verification_expires_at < datetime.utcnow():
+        return False
+    if record.verified_at is None:
+        return False
+    return record.token_hash == hashlib.sha256(token_value.encode()).hexdigest()
 
 
 def _attempt_login(db, username: str, password: str) -> models.User:
@@ -171,6 +233,70 @@ def telegram_login(data: schemas.TelegramAuthRequest, db: Session = Depends(get_
         "token_type": "bearer",
         "customer": customer.to_dict(),
     }
+
+
+@router.post("/email/request-code")
+def request_email_code(data: schemas.EmailCodeRequest, db: Session = Depends(get_db)):
+    """Send a 6-digit verification code to a customer email before checkout."""
+    shop = db.query(models.Shop).filter(models.Shop.id == data.shop_id).first()
+    if not shop or shop.status != "active":
+        raise HTTPException(status_code=404, detail="Shop not found")
+
+    email = _normalize_email(data.email)
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+
+    code = _generate_email_code()
+    token = secrets.token_urlsafe(24)
+    record = db.query(models.EmailCode).filter(
+        models.EmailCode.shop_id == shop.id,
+        models.EmailCode.email == email,
+    ).first()
+    if not record:
+        record = models.EmailCode(shop_id=shop.id, email=email)
+        db.add(record)
+    record.code_hash = hashlib.sha256(code.encode()).hexdigest()
+    record.token_hash = hashlib.sha256(token.encode()).hexdigest()
+    record.expires_at = datetime.utcnow() + timedelta(minutes=5)
+    record.verification_expires_at = datetime.utcnow() + timedelta(minutes=30)
+    record.verified_at = None
+    db.commit()
+
+    ok = _send_email_code(email, code)
+    if not ok:
+        raise HTTPException(status_code=400, detail="Could not send the verification code to this email.")
+
+    payload = {"ok": True, "detail": "Verification code sent to your email", "token": token}
+    if config.ENVIRONMENT == "development" or config.EMAIL_OTP_DEBUG:
+        payload["code"] = code
+    return payload
+
+
+@router.post("/email/verify-code")
+def verify_email_code(data: schemas.EmailCodeVerifyRequest, db: Session = Depends(get_db)):
+    """Verify the email code and return a one-time token valid for checkout."""
+    shop = db.query(models.Shop).filter(models.Shop.id == data.shop_id).first()
+    if not shop or shop.status != "active":
+        raise HTTPException(status_code=404, detail="Shop not found")
+
+    email = _normalize_email(data.email)
+    record = db.query(models.EmailCode).filter(
+        models.EmailCode.shop_id == shop.id,
+        models.EmailCode.email == email,
+    ).first()
+    if not record:
+        raise HTTPException(status_code=400, detail="No verification code was requested for this email")
+    if record.expires_at and record.expires_at < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="The verification code has expired. Please request a new one.")
+    if record.code_hash != hashlib.sha256((data.code or "").strip().encode()).hexdigest():
+        raise HTTPException(status_code=401, detail="Invalid verification code")
+
+    token = secrets.token_urlsafe(24)
+    record.token_hash = hashlib.sha256(token.encode()).hexdigest()
+    record.verified_at = datetime.utcnow()
+    record.verification_expires_at = datetime.utcnow() + timedelta(minutes=30)
+    db.commit()
+    return {"ok": True, "verified": True, "token": token, "email": email}
 
 
 @router.post("/telegram/request-code")

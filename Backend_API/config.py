@@ -61,5 +61,12 @@ class Config:
 
     BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 
+    EMAIL_SMTP_HOST = os.getenv("EMAIL_SMTP_HOST", "")
+    EMAIL_SMTP_PORT = int(os.getenv("EMAIL_SMTP_PORT", "587"))
+    EMAIL_SMTP_USERNAME = os.getenv("EMAIL_SMTP_USERNAME", "")
+    EMAIL_SMTP_PASSWORD = os.getenv("EMAIL_SMTP_PASSWORD", "")
+    EMAIL_FROM_ADDRESS = os.getenv("EMAIL_FROM_ADDRESS", "no-reply@example.com")
+    EMAIL_OTP_DEBUG = os.getenv("EMAIL_OTP_DEBUG", "false").lower() == "true"
+
 
 config = Config()

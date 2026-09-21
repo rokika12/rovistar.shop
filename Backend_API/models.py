@@ -456,6 +456,21 @@ class ActivityLog(Base):
         }
 
 
+class EmailCode(Base):
+    """One-time email verification codes used before checkout or protected actions."""
+    __tablename__ = "email_codes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    shop_id = Column(Integer, nullable=False, index=True)
+    email = Column(String, default="", index=True)
+    code_hash = Column(String, default="")
+    token_hash = Column(String, default="")
+    expires_at = Column(DateTime, nullable=True)
+    verification_expires_at = Column(DateTime, nullable=True)
+    verified_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class TelegramCode(Base):
     """One-time verification codes for the fallback Telegram login flow."""
     __tablename__ = "telegram_codes"
