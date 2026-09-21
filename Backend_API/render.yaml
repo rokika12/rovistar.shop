@@ -5,9 +5,9 @@ services:
   - type: web
     name: rokika-api
     runtime: python
-    plan: free
+  ​  plan: free
+    rootDir: Backend_API
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
       - key: ENVIRONMENT
