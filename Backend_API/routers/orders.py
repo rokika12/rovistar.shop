@@ -7,7 +7,7 @@ from datetime import datetime
 import models
 import schemas
 from database import get_db
-from security import (get_optional_customer, get_current_shop_user, get_current_user,
+from security import (get_optional_customer, get_current_admin, get_current_shop_user, get_current_user,
                       log_activity, require_shop_access)
 from services import pdf_service
 from services import stock_service
