@@ -8,21 +8,21 @@ import { useAuth } from '../contexts/AuthContext';
 import { getShopDetail } from '../api';
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: <FiHome />, end: true },
-  { to: '/pos', label: 'POS Sale', icon: <FiCreditCard /> },
-  { to: '/products', label: 'Products', icon: <FiPackage /> },
-  { to: '/categories', label: 'Categories', icon: <FiTag /> },
-  { to: '/stock', label: 'Stock', icon: <FiBox /> },
-  { to: '/orders', label: 'Orders', icon: <FiShoppingBag /> },
-  { to: '/customers', label: 'Customers', icon: <FiUsers /> },
-  { to: '/reports', label: 'Reports', icon: <FiBarChart2 /> },
-  { to: '/receipts', label: 'Receipts', icon: <FiFileText /> },
-  { to: '/khsmm', label: 'KHSMM Services', icon: <FiGlobe /> },
-  { to: '/settings', label: 'Shop Settings', icon: <FiSettings /> },
-  { to: '/payment', label: 'Payment (ABA Pay)', icon: <FiSmartphone /> },
+  { to: '/', label: 'ផ្ទាំងគ្រប់គ្រង', icon: <FiHome />, end: true },
+  { to: '/pos', label: 'លក់ POS', icon: <FiCreditCard /> },
+  { to: '/products', label: 'ផលិតផល', icon: <FiPackage /> },
+  { to: '/categories', label: 'ប្រភេទផលិតផល', icon: <FiTag /> },
+  { to: '/stock', label: 'ស្តុក', icon: <FiBox /> },
+  { to: '/orders', label: 'ការបញ្ជាទិញ', icon: <FiShoppingBag /> },
+  { to: '/customers', label: 'អតិថិជន', icon: <FiUsers /> },
+  { to: '/reports', label: 'របាយការណ៍', icon: <FiBarChart2 /> },
+  { to: '/receipts', label: 'បង្កាន់ដៃ', icon: <FiFileText /> },
+  { to: '/khsmm', label: 'សេវាកម្ម KHSMM', icon: <FiGlobe /> },
+  { to: '/settings', label: 'ការកំណត់ហាង', icon: <FiSettings /> },
+  { to: '/payment', label: 'ការទូទាត់ ABA Pay', icon: <FiSmartphone /> },
   { to: '/telegram', label: 'Telegram Bot', icon: <FiMail /> },
-  { to: '/backup', label: 'Backup & Import', icon: <FiArchive /> },
-  { to: '/upgrade', label: 'Upgrade Plan', icon: <FiTrendingUp /> },
+  { to: '/backup', label: 'បម្រុងទុក និងនាំចូល', icon: <FiArchive /> },
+  { to: '/upgrade', label: 'ប្ដូរគម្រោង', icon: <FiTrendingUp /> },
 ];
 
 export default function Layout() {

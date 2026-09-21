@@ -4,13 +4,13 @@ import { FiActivity, FiDatabase, FiHome, FiLogOut, FiPercent, FiSettings, FiShop
 import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: <FiHome />, end: true },
-  { to: '/shops', label: 'Shops', icon: <FiShoppingBag /> },
-  { to: '/users', label: 'Users', icon: <FiUsers /> },
-  { to: '/resellers', label: 'Resellers', icon: <FiPercent /> },
-  { to: '/backup', label: 'Backup', icon: <FiDatabase /> },
-  { to: '/activity', label: 'Activity Logs', icon: <FiActivity /> },
-  { to: '/settings', label: 'Settings', icon: <FiSettings /> },
+  { to: '/', label: 'ផ្ទាំងគ្រប់គ្រង', icon: <FiHome />, end: true },
+  { to: '/shops', label: 'ហាងទាំងអស់', icon: <FiShoppingBag /> },
+  { to: '/users', label: 'អ្នកប្រើប្រាស់', icon: <FiUsers /> },
+  { to: '/resellers', label: 'អ្នកលក់បន្ត', icon: <FiPercent /> },
+  { to: '/backup', label: 'បម្រុងទុក', icon: <FiDatabase /> },
+  { to: '/activity', label: 'កំណត់ហេតុសកម្មភាព', icon: <FiActivity /> },
+  { to: '/settings', label: 'ការកំណត់', icon: <FiSettings /> },
 ];
 
 export default function Layout() {

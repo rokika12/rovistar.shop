@@ -632,7 +632,8 @@ const en = {
 const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
-  const [lang, setLang] = useState(() => localStorage.getItem('ms_lang') || 'kh');
+  // Storefront is intentionally English-only; dashboard language is managed separately.
+  const [lang, setLang] = useState('en');
 
   useEffect(() => {
     localStorage.setItem('ms_lang', lang);

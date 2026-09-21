@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FiCreditCard, FiHeadphones, FiLock, FiShoppingBag, FiSmartphone,
+  FiCreditCard, FiHeadphones, FiShoppingBag, FiSmartphone,
   FiTruck,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
@@ -55,25 +55,8 @@ export default function ShopHome() {
       <ShopSearchBar />
       {categories.length > 0 && <CategoryNav categories={categories} />}
 
-      <section className="max-w-7xl mx-auto px-4 pt-5 md:pt-7">
-        <div className="storefront-hero">
-          <div className="storefront-hero-copy">
-            <span>ROVISTAR VERIFIED MARKET</span>
-            <h1>{shop.shop_name || shop.username}<br />ទិញងាយ បង់បានសុវត្ថិភាព</h1>
-            <p>
-              រកមើលទំនិញដែលអ្នកចង់បាន បង់ជាមួយ ABA KHQR ហើយតាមដានការបញ្ជាទិញបានក្នុងគណនីតែមួយ។
-            </p>
-            <div className="storefront-hero-metrics">
-              <b><FiCreditCard className="inline mr-1" /> ABA KHQR</b>
-              <b><FiLock className="inline mr-1" /> Secure checkout</b>
-              <b><FiHeadphones className="inline mr-1" /> Support ready</b>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {slides.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 pt-5">
+        <section className="max-w-7xl mx-auto px-4 pt-6 md:pt-8">
           <Slideshow slides={slides} />
         </section>
       )}
