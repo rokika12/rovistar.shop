@@ -64,6 +64,20 @@ body {
   padding-left: 100%;
   animation: brand-ticker-scroll 30s linear infinite;
 }
+
+/* Each shop can select one of the two platform templates in Admin. */
+[data-template='account'] .brand-ticker {
+  min-height: 42px;
+  font-size: 14px;
+}
+[data-template='account'] .shop-brand-name,
+[data-template='account'] .shop-brand-heading {
+  letter-spacing: 0.02em;
+}
+[data-template='login'] .shop-brand-name,
+[data-template='login'] .shop-brand-heading {
+  letter-spacing: 0;
+}
 @keyframes brand-ticker-scroll {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }

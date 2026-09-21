@@ -72,6 +72,8 @@ def _migrate_columns():
                 conn.execute(sa_text("ALTER TABLE shops ADD COLUMN reseller_id INTEGER"))
             if "store_type" not in cols:
                 conn.execute(sa_text("ALTER TABLE shops ADD COLUMN store_type VARCHAR DEFAULT 'clothing'"))
+            if "template_type" not in cols:
+                conn.execute(sa_text("ALTER TABLE shops ADD COLUMN template_type VARCHAR DEFAULT 'login'"))
             if "shipping_settings" not in cols:
                 conn.execute(sa_text("ALTER TABLE shops ADD COLUMN shipping_settings TEXT DEFAULT '{}'"))
 

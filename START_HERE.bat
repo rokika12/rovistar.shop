@@ -1,10 +1,10 @@
 @echo off
 setlocal
 chcp 65001 >nul
-title ROKIKA SHOP - Startup
+title ROVISTAR MARKET - Startup
 
 echo ========================================
-echo       ROKIKA SHOP - Local Startup
+echo       ROVISTAR MARKET - Local Startup
 echo ========================================
 echo.
 
@@ -70,7 +70,7 @@ echo.
 REM Start Backend
 echo [Backend] Starting FastAPI on http://localhost:8000
 cd /d "%~dp0Backend_API"
-start "ROKIKA SHOP - Backend" cmd /c "call venv\Scripts\activate.bat && uvicorn main:app --host 0.0.0.0 --port 8000"
+start "ROVISTAR MARKET - Backend" cmd /c "call venv\Scripts\activate.bat && uvicorn main:app --host 0.0.0.0 --port 8000"
 
 REM Wait for backend to start
 echo       Waiting for backend...
@@ -79,12 +79,12 @@ timeout /t 3 /nobreak >nul
 REM Start Frontend_User
 echo [Storefront] Starting on http://localhost:3000
 cd /d "%~dp0Frontend_User"
-start "ROKIKA SHOP - Storefront" cmd /c "set PORT=3000 && npm start"
+start "ROVISTAR MARKET - Storefront" cmd /c "set PORT=3000 && npm start"
 
 REM Start Dashboard
 echo [Dashboard] Starting on http://localhost:3002
 cd /d "%~dp0Frontend_Dashboard_User"
-start "ROKIKA SHOP - Dashboard" cmd /c "set PORT=3002 && npm start"
+start "ROVISTAR MARKET - Dashboard" cmd /c "set PORT=3002 && npm start"
 
 echo.
 echo ========================================
@@ -104,5 +104,5 @@ echo   Press any key to stop all services...
 pause >nul
 
 REM Kill all child processes
-taskkill /FI "WINDOWTITLE eq ROKIKA SHOP - *" /F >nul 2>&1
+taskkill /FI "WINDOWTITLE eq ROVISTAR MARKET - *" /F >nul 2>&1
 endlocal

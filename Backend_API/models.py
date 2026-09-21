@@ -70,6 +70,7 @@ class Shop(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     shop_name = Column(String, default="")
     store_type = Column(String, default="clothing")  # clothing | digital
+    template_type = Column(String, default="login")  # login | account
     logo = Column(String, default="")
     banner = Column(String, default="")
     bio = Column(Text, default="")
@@ -125,6 +126,7 @@ class Shop(Base):
             "username": self.username,
             "shop_name": self.shop_name,
             "store_type": self.store_type or "clothing",
+            "template_type": self.template_type or "login",
             "logo": self.logo,
             "banner": self.banner,
             "bio": self.bio,

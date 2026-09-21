@@ -40,11 +40,14 @@ class ShopCreate(BaseModel):
     password: str
     currency: str = "USD"
     store_type: str = "clothing"
+    template_type: str = "login"
+    theme: Dict[str, Any] = Field(default_factory=dict)
 
 
 class ShopUpdate(BaseModel):
     shop_name: Optional[str] = None
     store_type: Optional[str] = None
+    template_type: Optional[str] = None
     username: Optional[str] = None
     logo: Optional[str] = None
     banner: Optional[str] = None

@@ -14,7 +14,10 @@ export default function Shops() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
   const [detailShop, setDetailShop] = useState(null);
-  const emptyForm = { username: '', shop_name: '', email: '', password: '', store_type: 'clothing' };
+  const emptyForm = {
+    username: '', shop_name: '', email: '', password: '', store_type: 'clothing',
+    template_type: 'login', theme: { primary: '#123B3A', secondary: '#F4C95D', font_family: 'Kantumruy Pro' },
+  };
   const [form, setForm] = useState(emptyForm);
   const [expiryDays, setExpiryDays] = useState(30);
 
@@ -113,7 +116,7 @@ export default function Shops() {
                       <span className="font-semibold">{shop.shop_name || shop.username}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-500">@{shop.username}<span className={`block text-[10px] font-bold uppercase ${shop.store_type === 'digital' ? 'text-pink-600' : 'text-blue-600'}`}>{shop.store_type || 'clothing'}</span></td>
+                  <td className="px-4 py-3 text-gray-500">@{shop.username}<span className={`block text-[10px] font-bold uppercase ${shop.store_type === 'digital' ? 'text-pink-600' : 'text-blue-600'}`}>{shop.store_type || 'clothing'}</span><span className="block text-[10px] font-bold uppercase text-emerald-600">{shop.template_type || 'login'} template</span></td>
                   <td className="px-4 py-3">{shop.product_count}</td>
                   <td className="px-4 py-3">{shop.order_count}</td>
                   <td className="px-4 py-3 text-xs text-gray-500">
@@ -181,6 +184,30 @@ export default function Shops() {
               <option value="digital">Digital products / accounts / codes</option>
             </select>
             <p className="text-xs text-gray-400 mt-1">This changes the owner dashboard product form.</p>
+          </div>
+          <div className="rounded-xl border-2 border-emerald-100 bg-emerald-50 p-4">
+            <label className="text-base font-bold text-emerald-950 block">Storefront template *</label>
+            <p className="text-xs text-emerald-800 mt-1 mb-3">Choose the customer-facing layout for this shop.</p>
+            <select value={form.template_type} onChange={(e) => setForm({ ...form, template_type: e.target.value })} className={inputCls}>
+              <option value="login">Login storefront — customer signs in before checkout</option>
+              <option value="account">Account storefront — customer account and wallet first</option>
+            </select>
+          </div>
+          <div className="rounded-xl border-2 border-amber-100 bg-amber-50 p-4">
+            <label className="text-base font-bold text-amber-950 block">Brand style *</label>
+            <p className="text-xs text-amber-800 mt-1 mb-3">Each shop can start with its own colors.</p>
+            <select value={form.theme.primary} onChange={(e) => {
+              const presets = {
+                '#123B3A': { primary: '#123B3A', secondary: '#F4C95D', font_family: 'Kantumruy Pro' },
+                '#193A8A': { primary: '#193A8A', secondary: '#FF7A59', font_family: 'Kantumruy Pro' },
+                '#5B285F': { primary: '#5B285F', secondary: '#F2A65A', font_family: 'Kantumruy Pro' },
+              };
+              setForm({ ...form, theme: presets[e.target.value] });
+            }} className={inputCls}>
+              <option value="#123B3A">Pine & Gold</option>
+              <option value="#193A8A">Cobalt & Coral</option>
+              <option value="#5B285F">Plum & Apricot</option>
+            </select>
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700 block">Owner Email</label>

@@ -32,9 +32,17 @@ export default function ShopLayout() {
   const tgContact = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : '')
     || 'https://t.me/your_telegram';
+  const theme = shop.theme || {};
+  const themeStyle = {
+    '--primary': theme.primary || '#123B3A',
+    '--secondary': theme.secondary || '#F4C95D',
+    '--brand-blue': theme.primary || '#123B3A',
+    '--brand-pink': theme.secondary || '#F4C95D',
+    fontFamily: theme.font_family ? `'${theme.font_family}', 'Kantumruy Pro', sans-serif` : undefined,
+  };
 
   return (
-    <div className="min-h-screen flex flex-col dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col dark:bg-gray-900" data-template={shop.template_type || 'login'} style={themeStyle}>
       <div className="brand-ticker bg-[var(--brand-blue)] text-white">
         <div className="brand-ticker-track">
           <span>{shop.store_type === 'digital'

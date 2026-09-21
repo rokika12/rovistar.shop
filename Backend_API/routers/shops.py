@@ -96,8 +96,13 @@ def create_shop(data: schemas.ShopCreate, db: Session = Depends(get_db),
     store_type = (data.store_type or "clothing").strip().lower()
     if store_type not in ("clothing", "digital"):
         raise HTTPException(status_code=400, detail="Invalid store type")
+    template_type = (data.template_type or "login").strip().lower()
+    if template_type not in ("login", "account"):
+        raise HTTPException(status_code=400, detail="Invalid template type")
     shop = models.Shop(username=data.username, shop_name=data.shop_name or data.username,
-                       currency=data.currency, store_type=store_type)
+                       currency=data.currency, store_type=store_type,
+                       template_type=template_type,
+                       theme=models.JSONText.dumps(data.theme or {}))
     db.add(shop)
     db.flush()
     owner = models.User(
@@ -123,7 +128,8 @@ def update_shop(shop_id: int, data: schemas.ShopUpdate, db: Session = Depends(ge
         raise HTTPException(status_code=404, detail="Shop not found")
 
     fields = {
-        "shop_name": "shop_name", "store_type": "store_type", "username": "username", "logo": "logo",
+        "shop_name": "shop_name", "store_type": "store_type", "template_type": "template_type",
+        "username": "username", "logo": "logo",
         "banner": "banner", "bio": "bio", "description": "description",
         "currency": "currency", "contact": "contact", "status": "status",
     }
@@ -134,6 +140,10 @@ def update_shop(shop_id: int, data: schemas.ShopUpdate, db: Session = Depends(ge
                 val = val.strip().lower()
                 if val not in ("clothing", "digital"):
                     raise HTTPException(status_code=400, detail="Invalid store type")
+            if src == "template_type":
+                val = val.strip().lower()
+                if val not in ("login", "account"):
+                    raise HTTPException(status_code=400, detail="Invalid template type")
             setattr(shop, dst, val)
     if data.slideshow is not None:
         shop.slideshow = models.JSONText.dumps(data.slideshow)
