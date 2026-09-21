@@ -59,9 +59,9 @@ export default function ShopHeader() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to={base} className="flex items-center gap-2 min-w-0">
+          <Link to={base} className="flex items-center gap-2 min-w-0 max-w-[58%] sm:max-w-none">
             <ShopLogo shop={shop} className="w-10 h-10 rounded-full" textClassName="text-lg" />
-            <span className="shop-brand-name text-lg text-gray-900 dark:text-white truncate hidden sm:block">{shop.shop_name || shop.username}</span>
+            <span className="shop-header-brand-name shop-brand-name text-sm sm:text-lg text-gray-900 dark:text-white truncate">{shop.shop_name || shop.username}</span>
           </Link>
 
           {/* Desktop nav */}

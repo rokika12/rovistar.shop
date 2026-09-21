@@ -77,6 +77,12 @@ body {
   animation: brand-ticker-scroll 30s linear infinite;
 }
 
+@media (max-width: 480px) {
+  .shop-header-brand-name { max-width: 8rem; }
+  .promo-marquee { animation-duration: 26s; }
+  .promo-marquee { gap: 1rem; }
+}
+
 /* Each shop can select one of the two platform templates in Admin. */
 [data-template='account'] .brand-ticker {
   min-height: 42px;
