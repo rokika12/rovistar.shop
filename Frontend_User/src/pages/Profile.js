@@ -223,9 +223,17 @@ export default function Profile() {
         <p className="text-xs font-bold uppercase tracking-widest text-white/75">Digital wallet</p>
         <p className="text-3xl font-black mt-2">${Number(wallet.balance || 0).toFixed(2)}</p>
         <div className="flex flex-wrap gap-2 mt-4">
-          <input type="number" min="0.10" step="0.10" value={topupAmount} onChange={(e) => setTopupAmount(e.target.value)} className="w-28 rounded-lg px-3 py-2 text-gray-900" />
+          <input type="number" min="0.10" max="1000" step="0.10" value={topupAmount} onChange={(e) => setTopupAmount(e.target.value)} className="w-28 rounded-lg px-3 py-2 text-gray-900" />
           <button type="button" onClick={startTopup} disabled={topupBusy} className="rounded-lg bg-white px-4 py-2 font-bold text-blue-700 disabled:opacity-60">{topupBusy ? 'Loading...' : 'Add Balance'}</button>
         </div>
+        <div className="flex flex-wrap gap-1.5 mt-2 text-xs">
+          {[0.1, 1, 2, 5, 10, 100, 1000].map((amount) => (
+            <button key={amount} type="button" onClick={() => setTopupAmount(String(amount))} className="rounded-full bg-white/20 px-2.5 py-1 font-semibold hover:bg-white/30">
+              ${amount.toFixed(2)}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-white/75 mt-2">Top up from $0.10 to $1,000.00 with real ABA KHQR.</p>
         {topup && <div className="mt-4 rounded-xl bg-white/15 p-3 text-sm"><p>Scan the real ABA KHQR or open the payment page, then confirm.</p>{topup.payment?.qr_code_url && <img src={fullUrl(topup.payment.qr_code_url)} alt="ABA KHQR" className="w-40 h-40 bg-white rounded-xl p-2 mt-3 mx-auto" />}<a href={topup.payment?.checkout_url} target="_blank" rel="noreferrer" className="inline-block mt-3 rounded-lg bg-white px-3 py-2 font-bold text-blue-700">Open ABA Pay</a><button type="button" onClick={confirmTopup} className="ml-2 rounded-lg bg-white px-3 py-2 font-bold text-pink-600">Confirm top-up</button></div>}
       </div>}
 

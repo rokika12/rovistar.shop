@@ -58,7 +58,7 @@ export default function ShopLayout() {
         <Outlet />
       </main>
       <ShopFooter />
-      <CartSidebar />
+      {shop.store_type !== 'digital' && <CartSidebar />}
       <BottomNav />
 
       {/* Floating "Contact this shop owner" button — fixed on screen */}

@@ -31,7 +31,7 @@ export default function BottomNav() {
   const items = [
     { to: base, exact: true, icon: <FiHome className="w-5 h-5" />, label: t('home') },
     { to: `${base}/products`, prefixes: [`${base}/products`, `${base}/product/`], icon: <FiGrid className="w-5 h-5" />, label: t('products') },
-    { cart: true, icon: <FiShoppingCart className="w-5 h-5" />, label: t('cart') },
+    ...(shop.store_type === 'digital' ? [] : [{ cart: true, icon: <FiShoppingCart className="w-5 h-5" />, label: t('cart') }]),
     { to: `${base}/my-orders`, prefixes: [`${base}/my-orders`], icon: <FiList className="w-5 h-5" />, label: t('myOrders') },
     { to: `${base}/profile`, prefixes: [`${base}/profile`], icon: <FiUser className="w-5 h-5" />, label: t('myProfile') },
   ];
@@ -41,7 +41,7 @@ export default function BottomNav() {
       className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="grid grid-cols-5 max-w-md mx-auto">
+      <div className={`grid ${shop.store_type === 'digital' ? 'grid-cols-4' : 'grid-cols-5'} max-w-md mx-auto`}>
         {items.map((item) => {
           // Cart button opens the sidebar instead of navigating.
           if (item.cart) {
