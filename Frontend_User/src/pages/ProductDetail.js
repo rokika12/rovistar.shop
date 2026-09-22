@@ -5,14 +5,14 @@ import { FiChevronLeft, FiPlayCircle, FiShoppingBag, FiZap } from 'react-icons/f
 import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../i18n';
-import { getProduct, getProducts, fullUrl } from '../api';
+import { getProduct, getProducts, fullUrl, lookupRobloxUsername } from '../api';
 import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const { shop } = useShop();
-  const { addItem, setOpen } = useCart();
+  const { addItem, clear, setOpen } = useCart();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -21,6 +21,9 @@ export default function ProductDetail() {
   const [selectedVariations, setSelectedVariations] = useState({});
   const [activeImage, setActiveImage] = useState(0);
   const [serviceLink, setServiceLink] = useState('');
+  const [gameServerId, setGameServerId] = useState('');
+  const [robloxAccount, setRobloxAccount] = useState(null);
+  const [checkingRoblox, setCheckingRoblox] = useState(false);
 
   useEffect(() => {
     if (!shop) return;
@@ -69,7 +72,11 @@ export default function ProductDetail() {
     : [];
   const varOptions = (attrName) => [...new Set((product.variations || []).map((v) => v.attrs?.[attrName]).filter(Boolean))];
   const manualService = product.metadata?.fulfillment_type === 'manual_service';
-  const telegramService = manualService && product.metadata?.service_platform === 'telegram' && /premium|star/i.test(product.name || '');
+  const servicePlatform = String(product.metadata?.service_platform || '').toLowerCase();
+  const telegramService = manualService && servicePlatform === 'telegram' && /premium|star/i.test(product.name || '');
+  const freeFireService = manualService && servicePlatform === 'free_fire';
+  const mobileLegendsService = manualService && servicePlatform === 'mobile_legends';
+  const robloxService = manualService && servicePlatform === 'roblox';
   const isAvailable = manualService || effectiveStock > 0;
   const videoUrl = String(product.metadata?.service_video_url || '').trim();
   const youtubeMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
@@ -106,11 +113,32 @@ export default function ProductDetail() {
       return;
     }
     if (manualService && !telegramService && !serviceLink.trim().startsWith(('https://'))) {
-      toast.error('Please enter your public TikTok link');
+      if (freeFireService && /^\d{5,20}$/.test(serviceLink.trim())) {
+        // Free Fire does not provide an official public player-name lookup API.
+      } else if (mobileLegendsService && /^\d{5,20}$/.test(serviceLink.trim()) && /^\d{3,10}$/.test(gameServerId.trim())) {
+        // Mobile Legends credentials are sent as a paired Game ID and Server ID.
+      } else if (robloxService && robloxAccount) {
+        // Only a verified official Roblox username can continue to checkout.
+      } else {
+        toast.error(freeFireService ? 'Please enter a valid Free Fire Player ID' : mobileLegendsService ? 'Enter valid Mobile Legends Game ID and Server ID' : robloxService ? 'Verify your Roblox username first' : 'Please enter your public TikTok link');
+        return;
+      }
+    }
+    if (robloxService && !robloxAccount) {
+      toast.error('Verify your Roblox username first');
       return;
     }
     if (!isAvailable) { toast.error('This item is out of stock'); return; }
-    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, manualService ? { ...selectedVariations, _service_link: serviceLink.trim() } : selectedVariations);
+    // Buy now starts a single-product checkout instead of mixing older cart items.
+    clear();
+    const serviceTarget = mobileLegendsService
+      ? `Mobile Legends Game ID: ${serviceLink.trim()} | Server ID: ${gameServerId.trim()}`
+      : robloxService
+        ? `Roblox: ${robloxAccount.username} (${robloxAccount.display_name}, ID ${robloxAccount.id})`
+        : freeFireService
+          ? `Free Fire Player ID: ${serviceLink.trim()}`
+          : serviceLink.trim();
+    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, manualService ? { ...selectedVariations, _service_link: serviceTarget } : selectedVariations);
     setOpen(false);
     navigate(`/${shop.username}/checkout`);
   };
@@ -158,7 +186,7 @@ export default function ProductDetail() {
             </span>
           )}
           {manualService && (
-            <p className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-900">{telegramService ? 'Choose a package and enter the recipient Telegram username before payment.' : 'Choose a package and paste your public TikTok link before payment. We never request your TikTok password.'}</p>
+            <p className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-900">{telegramService ? 'Choose a package and enter the recipient Telegram username before payment.' : freeFireService ? 'Enter your Free Fire Player ID before payment.' : mobileLegendsService ? 'Enter your Mobile Legends Game ID and Server ID before payment.' : robloxService ? 'Enter and verify your Roblox username before payment.' : 'Choose a package and paste your public TikTok link before payment. We never request your TikTok password.'}</p>
           )}
 
           {!manualService && (
@@ -236,15 +264,26 @@ export default function ProductDetail() {
 
           {manualService && (
             <div className="service-link-card mt-5">
-              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">{telegramService ? 'Telegram username' : 'TikTok link'}</label>
-              <p>{telegramService ? 'Enter the recipient username, for example @username.' : 'Paste the public video or profile link before payment.'}</p>
+              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">{telegramService ? 'Telegram username' : freeFireService ? 'Free Fire Player ID' : mobileLegendsService ? 'Mobile Legends Game ID' : robloxService ? 'Roblox username' : 'TikTok link'}</label>
+              <p>{telegramService ? 'Enter the recipient username, for example @username.' : freeFireService ? 'Free Fire is securely handled with Player ID only.' : mobileLegendsService ? 'Enter both numbers exactly as shown in your game profile.' : robloxService ? 'We will verify the public Roblox account name and avatar.' : 'Paste the public video or profile link before payment.'}</p>
               <input
                 id="service-link"
                 value={serviceLink}
-                onChange={(event) => setServiceLink(event.target.value)}
+                onChange={(event) => { setServiceLink(event.target.value); if (robloxService) setRobloxAccount(null); }}
                 type="text"
-                placeholder={telegramService ? '@username' : 'https://www.tiktok.com/@...'}
+                inputMode={freeFireService || mobileLegendsService ? 'numeric' : 'text'}
+                placeholder={telegramService ? '@username' : freeFireService ? 'Player ID' : mobileLegendsService ? 'Game ID' : robloxService ? 'Username' : 'https://www.tiktok.com/@...'}
               />
+              {mobileLegendsService && <input value={gameServerId} onChange={(event) => setGameServerId(event.target.value)} type="text" inputMode="numeric" placeholder="Server ID" className="mt-3" />}
+              {robloxService && <>
+                <button type="button" className="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white disabled:opacity-50" disabled={checkingRoblox || !serviceLink.trim()} onClick={async () => {
+                  setCheckingRoblox(true);
+                  try { setRobloxAccount(await lookupRobloxUsername(serviceLink.trim())); }
+                  catch (error) { setRobloxAccount(null); toast.error(error?.response?.data?.detail || 'Roblox username was not found'); }
+                  finally { setCheckingRoblox(false); }
+                }}>{checkingRoblox ? 'Checking...' : 'Verify Roblox account'}</button>
+                {robloxAccount && <div className="mt-3 flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">{robloxAccount.avatar_url && <img src={robloxAccount.avatar_url} alt="Roblox avatar" className="h-11 w-11 rounded-full" />}<span><strong>{robloxAccount.display_name}</strong><br />@{robloxAccount.username} · Roblox ID {robloxAccount.id}</span></div>}
+              </>}
             </div>
           )}
 
