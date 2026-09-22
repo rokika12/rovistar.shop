@@ -244,7 +244,7 @@ export default function ProductForm() {
         <div className="bg-white rounded-xl shadow-sm p-6 space-y-4 border border-cyan-100">
           <div>
             <h2 className="font-bold text-cyan-800">របៀបផ្ដល់សេវាកម្ម</h2>
-            <p className="mt-1 text-xs text-gray-500">ជ្រើស “សេវាកម្មធ្វើដោយដៃ” សម្រាប់សេវាដែលភ្ញៀវជ្រើស package និងដាក់ public link មុនបង់ប្រាក់។</p>
+            <p className="mt-1 text-xs text-gray-500">ជ្រើស “សេវាកម្មធ្វើដោយដៃ” សម្រាប់សេវាដែលភ្ញៀវជ្រើស package ហើយដាក់ link, username ឬ game ID មុនបង់ប្រាក់។</p>
           </div>
           <label className="block text-sm font-medium text-gray-700">
             ប្រភេទការផ្ដល់
@@ -259,7 +259,7 @@ export default function ProductForm() {
           </label>
           {manualService && (
             <>
-              <p className="rounded-lg bg-cyan-50 p-3 text-sm text-cyan-900">អតិថិជននឹងជ្រើស package និងបញ្ចូល TikTok/video/profile link មុនបង់ប្រាក់។ ក្រោយទូទាត់ជោគជ័យ Website បញ្ជូន link នោះទៅ Telegram របស់ហាង ហើយមិនបង្ហាញ password ឬ code ទេ។</p>
+              <p className="rounded-lg bg-cyan-50 p-3 text-sm text-cyan-900">អតិថិជននឹងជ្រើស package និងបញ្ចូល TikTok link, Telegram username ឬ game ID មុនបង់ប្រាក់។ ក្រោយទូទាត់ជោគជ័យ Website បញ្ជូនព័ត៌មានទាំងនេះទៅ Telegram របស់ហាង ហើយមិនបង្ហាញ password ឬ code ទេ។</p>
               <label className="block text-sm font-medium text-gray-700">
                 Link វីដេអូណែនាំ (YouTube ឬ MP4 public)
                 <input
@@ -326,6 +326,9 @@ export default function ProductForm() {
                   <option value="instagram">Instagram</option>
                   <option value="tiktok">TikTok</option>
                   <option value="telegram">Telegram</option>
+                  <option value="free_fire">Free Fire</option>
+                  <option value="mobile_legends">Mobile Legends</option>
+                  <option value="roblox">Roblox</option>
                 </select>
               </div>
               <div>
