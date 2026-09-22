@@ -115,6 +115,7 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
   const [telegram, setTelegram] = useState({
     bot_token: shop.telegram_settings?.bot_token || '',
     chat_id: shop.telegram_settings?.chat_id || '',
+    admin_chat_id: shop.telegram_settings?.admin_chat_ids?.[0] || '',
     enabled: !!shop.telegram_settings?.enabled,
   });
 
@@ -174,7 +175,10 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
 
   const saveTelegram = async () => {
     try {
-      await updateShop(shop.id, { telegram_settings: telegram });
+      await updateShop(shop.id, { telegram_settings: {
+        ...telegram,
+        admin_chat_ids: telegram.admin_chat_id.trim() ? [telegram.admin_chat_id.trim()] : [],
+      } });
       toast.success('Telegram settings saved');
       onSaved();
     } catch (e) { toast.error(e?.response?.data?.detail || 'Failed to save Telegram settings'); }
@@ -233,9 +237,10 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
         <div className="border-t pt-4">
           <p className="font-semibold mb-1">Telegram order notifications</p>
           <p className="text-xs text-gray-500 mb-3">Store this only here in the protected dashboard. It sends the customer link and paid order details to your Telegram chat.</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-3xl">
             <input type="password" value={telegram.bot_token} onChange={(e) => setTelegram({ ...telegram, bot_token: e.target.value })} className={inputCls} placeholder="Telegram Bot Token" />
             <input value={telegram.chat_id} onChange={(e) => setTelegram({ ...telegram, chat_id: e.target.value })} className={inputCls} placeholder="Telegram Chat ID" />
+            <input value={telegram.admin_chat_id} onChange={(e) => setTelegram({ ...telegram, admin_chat_id: e.target.value })} className={inputCls} placeholder="Admin 2 Chat ID (optional)" />
           </div>
           <label className="flex items-center gap-2 mt-3 text-sm"><input type="checkbox" checked={telegram.enabled} onChange={(e) => setTelegram({ ...telegram, enabled: e.target.checked })} /> បើកការជូនដំណឹង Telegram</label>
           <button onClick={saveTelegram} className={`${btnPrimary} mt-3`}>រក្សាទុក Telegram</button>
