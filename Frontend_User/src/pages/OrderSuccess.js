@@ -47,6 +47,7 @@ export default function OrderSuccess() {
 
   const isPaid = order.payment_status === 'paid';
   const manualServiceItems = order.items.filter((item) => item.service_request_required);
+  const submittedServiceItems = order.items.filter((item) => item.variations?._service_link);
   const serviceVideoUrl = order.items.map((item) => item.service_video_url).find(Boolean) || '';
   const serviceVideoEmbed = serviceVideoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
   const isDirectServiceVideo = /\.(mp4|webm)(?:\?.*)?$/i.test(serviceVideoUrl);
@@ -102,6 +103,14 @@ export default function OrderSuccess() {
         })}
       </section>
 
+      {isPaid && submittedServiceItems.length > 0 && (
+        <section className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-950">
+          <div className="flex items-center gap-3"><FiCheckCircle className="h-7 w-7 text-emerald-600" /><div><h2 className="font-bold">Your service request is confirmed</h2><p className="text-sm">Our team has received your details. Processing normally takes 10-15 minutes.</p></div></div>
+          {submittedServiceItems.map((item, index) => <div key={index} className="mt-4 rounded-xl border border-emerald-200 bg-white p-3 text-sm"><span className="font-semibold">{item.product_name}</span><p className="mt-1 break-all text-slate-700">Recipient: {item.variations._service_link}</p></div>)}
+          <p className="mt-3 text-sm">We sent the complete paid-order details to the service team on Telegram.</p>
+        </section>
+      )}
+
       <div className="bg-white rounded-2xl shadow overflow-hidden">
         <div className="p-6 border-b grid grid-cols-2 gap-4 text-sm">
           <div><span className="text-gray-500 block text-xs">{t('orderNumber')}</span><span className="font-bold">{order.order_number}</span></div>
@@ -147,7 +156,7 @@ export default function OrderSuccess() {
               ))}
             </div>
           )}
-          {isPaid && manualServiceItems.length > 0 && (
+          {isPaid && manualServiceItems.length > 0 && submittedServiceItems.length === 0 && (
             <div className="mt-6 rounded-xl border-2 border-cyan-600 bg-cyan-50/60 p-5">
               {order.service_request_submitted ? (
                 <>
