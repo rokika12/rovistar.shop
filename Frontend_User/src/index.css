@@ -510,13 +510,45 @@ body {
 .store-section-heading h2 { margin: 0; color: var(--market-ink); font-size: clamp(1.25rem, 3vw, 1.7rem); font-weight: 900; letter-spacing: -0.035em; }
 .store-section-heading h2::before { display: inline-block; width: 0.25rem; height: 1.1em; margin-right: 0.6rem; border-radius: 999px; background: var(--market-blue); content: ''; vertical-align: -0.12em; }
 .store-section-heading a { color: var(--market-blue); font-size: 0.8rem; font-weight: 900; }
+.store-section-kicker { display: inline-flex; align-items: center; gap: 0.3rem; margin-bottom: 0.22rem; color: var(--market-blue); font-size: 0.64rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+.store-flash-heading { margin-bottom: 0.75rem; }
+.flash-sale-track { display: flex; gap: 0.7rem; overflow-x: auto; padding: 0.1rem 0 0.55rem; scroll-snap-type: x mandatory; }
+.flash-sale-card { position: relative; display: flex; min-width: min(23rem, calc(100vw - 2.5rem)); max-width: 23rem; align-items: center; gap: 0.75rem; overflow: hidden; border: 1px solid #ffd4d8; border-radius: 1rem; background: linear-gradient(130deg, #fff 0%, #fff5f5 100%); padding: 0.6rem; scroll-snap-align: start; transition: 160ms ease; }
+.flash-sale-card:hover { border-color: #fb7185; box-shadow: 0 12px 24px rgba(225, 29, 72, 0.12); transform: translateY(-2px); }
+.flash-sale-image { display: grid; width: 4.7rem; height: 4.7rem; flex: 0 0 auto; place-items: center; overflow: hidden; border-radius: 0.72rem; background: #fee2e2; color: #e11d48; }
+.flash-sale-image img { width: 100%; height: 100%; object-fit: cover; }
+.flash-sale-label { color: #e11d48; font-size: 0.57rem; font-weight: 900; letter-spacing: 0.11em; }
+.flash-sale-card h3 { display: -webkit-box; overflow: hidden; margin: 0.18rem 2rem 0 0; color: var(--market-ink); font-size: 0.8rem; font-weight: 900; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.flash-sale-price-row { display: flex; align-items: baseline; gap: 0.45rem; margin-top: 0.34rem; }
+.flash-sale-price-row strong { color: var(--market-blue-dark); font-size: 1rem; font-weight: 900; }
+.flash-sale-price-row del { color: #94a3b8; font-size: 0.68rem; font-weight: 700; }
+.flash-sale-discount, .store-sale-badge, .store-hot-badge { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; background: #e11d48; color: #fff; font-size: 0.61rem; font-weight: 900; letter-spacing: 0.04em; }
+.flash-sale-discount { position: absolute; top: 0.55rem; right: 0.55rem; min-width: 2.15rem; padding: 0.28rem 0.35rem; }
+.store-sale-badge, .store-hot-badge { padding: 0.38rem 0.55rem; box-shadow: 0 5px 12px rgba(225, 29, 72, 0.24); }
+.store-hot-badge { background: #dc2626; }
 .store-trust-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
 .store-trust-card { border: 1px solid var(--market-line); border-radius: 1rem; background: #fff; padding: 1rem; color: var(--market-ink); }
 .store-trust-card svg { color: var(--market-blue); font-size: 1.25rem; }
 .store-trust-card strong { display: block; margin-top: 0.5rem; font-size: 0.83rem; }
 .store-trust-card p { margin: 0.25rem 0 0; color: #7b879b; font-size: 0.72rem; line-height: 1.45; }
 .store-product-card { border: 1px solid var(--market-line); border-radius: 1.1rem; box-shadow: none; }
+.store-product-image { background: #edf3ff; }
+.store-product-card-popular .store-product-image { aspect-ratio: 1 / 1; }
+.store-product-card-popular .store-product-image img { min-height: 100%; }
 .store-product-card:hover { border-color: #b8ccf6; box-shadow: 0 16px 28px rgba(48, 83, 144, 0.12); transform: translateY(-3px); }
+
+.store-category-nav { border-bottom: 1px solid var(--market-line); background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(18px); }
+.store-category-nav-inner { padding: 0.6rem 1rem; }
+.store-category-track { display: flex; width: 100%; gap: 0.5rem; overflow-x: auto; overscroll-behavior-x: contain; white-space: nowrap; }
+.store-category-pill { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 0.42rem; border: 1px solid #d8e4f8; border-radius: 999px; background: #fff; padding: 0.48rem 0.7rem 0.48rem 0.82rem; color: #53627a; font-size: 0.76rem; font-weight: 800; line-height: 1; transition: 160ms ease; }
+.store-category-pill:hover { border-color: #a9c4fb; background: #f4f8ff; color: var(--market-blue); }
+.store-category-count { display: inline-flex; min-width: 1.15rem; height: 1.15rem; align-items: center; justify-content: center; border-radius: 999px; background: #edf3ff; padding: 0 0.3rem; color: var(--market-blue-dark); font-size: 0.61rem; font-weight: 900; }
+.store-category-pill-active { border-color: var(--market-blue); background: var(--market-blue); color: #fff; box-shadow: 0 6px 14px rgba(23, 105, 255, 0.2); }
+.store-category-pill-active:hover { border-color: var(--market-blue-dark); background: var(--market-blue-dark); color: #fff; }
+.store-category-pill-active .store-category-count { background: rgba(255, 255, 255, 0.2); color: #fff; }
+
+.product-list-filters { display: flex; min-width: 0; align-items: center; gap: 0.5rem; }
+.product-list-search { flex: 1 1 auto; min-width: 12rem; }
 
 @media (max-width: 767px) {
   .store-header-inner { height: 66px; padding: 0 0.9rem; }
@@ -534,6 +566,7 @@ body {
   .storefront-hero { border-radius: 1.15rem; }
   .storefront-hero-copy h1 { letter-spacing: -0.045em; }
   .store-trust-grid { grid-template-columns: 1fr; }
+  .flash-sale-card { min-width: calc(100vw - 1.5rem); }
 }
 
 /* Compact header account menu: original layout, inspired by marketplace patterns. */
@@ -659,6 +692,12 @@ body {
   .payment-confirm-actions button { min-height: 3rem; }
   .checkout-payment-marks { max-width: 8.5rem; }
   .checkout-payment-marks img { max-width: 3.25rem; }
+  .store-category-nav-inner { padding: 0.55rem 0.75rem; }
+  .store-category-track { gap: 0.42rem; }
+  .store-category-pill { padding: 0.45rem 0.62rem 0.45rem 0.72rem; font-size: 0.72rem; }
+  .product-list-filters { width: calc(100vw - 1.5rem); max-width: 100%; overflow-x: auto; padding-bottom: 0.1rem; }
+  .product-list-search { min-width: 12.5rem; }
+  .product-list-filters select { min-width: 9.6rem; flex: 0 0 auto; }
 }
 
 .order-progress-card { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.1rem; margin: 0 auto 1.35rem; border-radius: 1rem; background: #fff; padding: 1.15rem 0.65rem 0.8rem; box-shadow: 0 8px 24px rgba(43, 63, 98, 0.08); }
