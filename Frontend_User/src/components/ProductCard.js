@@ -16,6 +16,8 @@ export default function ProductCard({ product }) {
   const metadata = product.metadata || {};
   const description = (product.description || '').replace(/\s+/g, ' ').trim();
   const isDigital = metadata.product_type === 'digital';
+  const isManualService = metadata.fulfillment_type === 'manual_service';
+  const isAvailable = isManualService || product.quantity > 0;
 
   const buyNow = () => {
     clear();
@@ -60,11 +62,11 @@ export default function ProductCard({ product }) {
           {hasSale && <span className="text-xs text-slate-400 line-through">${Number(product.price).toFixed(2)}</span>}
         </div>
         <div className="mt-3 flex items-center justify-between gap-2 text-[10px] font-bold">
-          <span className={product.quantity > 0 ? 'text-emerald-600' : 'text-rose-600'}>{product.quantity > 0 ? '● Available' : '● Sold out'}</span>
-          <span className="text-slate-400">{isDigital ? 'Instant access' : 'Ready to order'}</span>
+          <span className={isAvailable ? 'text-emerald-600' : 'text-rose-600'}>{isAvailable ? '● Available' : '● Sold out'}</span>
+          <span className="text-slate-400">{isManualService ? 'Manual service' : (isDigital ? 'Instant access' : 'Ready to order')}</span>
         </div>
-        <button onClick={buyNow} disabled={product.quantity <= 0} className="mt-4 w-full rounded-xl bg-blue-700 py-2.5 text-xs sm:text-sm text-white font-black hover:bg-blue-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition">
-          <FiZap className="w-4 h-4" /> {product.quantity > 0 ? 'Buy now' : 'Sold out'}
+        <button onClick={buyNow} disabled={!isAvailable} className="mt-4 w-full rounded-xl bg-blue-700 py-2.5 text-xs sm:text-sm text-white font-black hover:bg-blue-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition">
+          <FiZap className="w-4 h-4" /> {isAvailable ? 'Buy now' : 'Sold out'}
         </button>
       </div>
     </article>
