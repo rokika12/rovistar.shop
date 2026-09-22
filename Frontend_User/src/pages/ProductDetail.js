@@ -5,7 +5,7 @@ import { FiChevronLeft, FiPlayCircle, FiShoppingBag, FiZap } from 'react-icons/f
 import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../i18n';
-import { getProduct, getProducts, fullUrl, lookupRobloxUsername } from '../api';
+import { getProduct, getProducts, fullUrl, lookupRobloxUsername, lookupTelegramUsername } from '../api';
 import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
 
@@ -24,6 +24,8 @@ export default function ProductDetail() {
   const [gameServerId, setGameServerId] = useState('');
   const [robloxAccount, setRobloxAccount] = useState(null);
   const [checkingRoblox, setCheckingRoblox] = useState(false);
+  const [telegramAccount, setTelegramAccount] = useState(null);
+  const [checkingTelegram, setCheckingTelegram] = useState(false);
 
   useEffect(() => {
     if (!shop) return;
@@ -110,6 +112,10 @@ export default function ProductDetail() {
     if (missing) { toast.error(`Please select ${missing.label}`); return; }
     if (telegramService && !/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(serviceLink.trim())) {
       toast.error('Please enter a valid Telegram username starting with @');
+      return;
+    }
+    if (telegramService && !telegramAccount) {
+      toast.error('Check the public Telegram username before continuing');
       return;
     }
     if (manualService && !telegramService && !serviceLink.trim().startsWith(('https://'))) {
@@ -269,11 +275,20 @@ export default function ProductDetail() {
               <input
                 id="service-link"
                 value={serviceLink}
-                onChange={(event) => { setServiceLink(event.target.value); if (robloxService) setRobloxAccount(null); }}
+                onChange={(event) => { setServiceLink(event.target.value); if (robloxService) setRobloxAccount(null); if (telegramService) setTelegramAccount(null); }}
                 type="text"
                 inputMode={freeFireService || mobileLegendsService ? 'numeric' : 'text'}
                 placeholder={telegramService ? '@username' : freeFireService ? 'Player ID' : mobileLegendsService ? 'Game ID' : robloxService ? 'Username' : 'https://www.tiktok.com/@...'}
               />
+              {telegramService && <>
+                <button type="button" className="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white disabled:opacity-50" disabled={checkingTelegram || !serviceLink.trim()} onClick={async () => {
+                  setCheckingTelegram(true);
+                  try { setTelegramAccount(await lookupTelegramUsername(serviceLink.trim())); }
+                  catch (error) { setTelegramAccount(null); toast.error(error?.response?.data?.detail || 'Telegram username was not found publicly'); }
+                  finally { setCheckingTelegram(false); }
+                }}>{checkingTelegram ? 'Checking...' : 'Check username'}</button>
+                {telegramAccount && <div className="mt-3 flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">{telegramAccount.avatar_url && <img src={telegramAccount.avatar_url} alt="Telegram avatar" className="h-11 w-11 rounded-full" />}<span><strong>{telegramAccount.name || 'Public username verified'}</strong><br />@{telegramAccount.username}{telegramAccount.name ? ' · public Telegram account' : ' · Telegram does not expose private display names'}</span></div>}
+              </>}
               {mobileLegendsService && <input value={gameServerId} onChange={(event) => setGameServerId(event.target.value)} type="text" inputMode="numeric" placeholder="Server ID" className="mt-3" />}
               {robloxService && <>
                 <button type="button" className="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white disabled:opacity-50" disabled={checkingRoblox || !serviceLink.trim()} onClick={async () => {
