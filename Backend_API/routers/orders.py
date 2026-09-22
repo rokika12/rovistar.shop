@@ -74,13 +74,15 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         if not product or product.shop_id != data.shop_id:
             raise HTTPException(status_code=400, detail=f"Product #{item.product_id} is not available in this shop")
         unit_price = product.sale_price if product.sale_price is not None else product.price
-        # The server, not the browser, selects the package price. Internal service
-        # fields such as _service_link never affect the product variation match.
+        product_meta = models.JSONText.loads(product.metadata_json, {})
+        # Package choices apply only to manual services. Regular products can
+        # retain optional variations without blocking checkout.
         variations = models.JSONText.loads(product.variations, []) if product.variations else []
         variation_keys = {key for variation in variations for key in (variation.get("attrs") or {})}
-        if variation_keys:
+        if product_meta.get("fulfillment_type") == "manual_service" and variation_keys:
+            selected = {str(key).strip().lower(): value for key, value in item_variations.items()}
             match = next((variation for variation in variations if all(
-                str((variation.get("attrs") or {}).get(key)) == str(item_variations.get(key))
+                str((variation.get("attrs") or {}).get(key)) == str(selected.get(str(key).strip().lower()))
                 for key in variation_keys
             )), None)
             if not match:
@@ -90,7 +92,6 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         # Stock is NOT deducted here — it is deducted automatically when the
         # payment is confirmed successful (see payments._mark_paid).
         items_total += float(unit_price) * item.quantity
-        product_meta = models.JSONText.loads(product.metadata_json, {}) if product else {}
         digital_only = digital_only and product_meta.get("product_type") == "digital"
         if product_meta.get("fulfillment_type") == "manual_service":
             service_link = str(item_variations.get("_service_link") or "").strip()
