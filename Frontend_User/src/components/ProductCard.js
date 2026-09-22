@@ -4,7 +4,7 @@ import { FiArrowUpRight, FiShoppingBag } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { fullUrl } from '../api';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, variant = 'standard' }) {
   const { shop } = useShop();
   const [imageFailed, setImageFailed] = useState(false);
   const price = product.sale_price ?? product.price;
@@ -17,14 +17,14 @@ export default function ProductCard({ product }) {
   const isAvailable = isManualService || product.quantity > 0;
 
   return (
-    <article className="store-product-card bg-white dark:bg-gray-800 overflow-hidden transition group flex flex-col h-full">
+    <article className={`store-product-card store-product-card-${variant} bg-white dark:bg-gray-800 overflow-hidden transition group flex flex-col h-full`}>
       <Link to={`/${shop.username}/product/${product.id}`} className="block relative">
-        <div className="aspect-[1.35/1] bg-slate-100 dark:bg-gray-700 overflow-hidden">
+        <div className="store-product-image aspect-[1.35/1] bg-slate-100 dark:bg-gray-700 overflow-hidden">
           {product.images?.[0] && !imageFailed ? (
             <img
               src={fullUrl(product.images[0])}
               alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+              className="w-full h-full object-cover bg-slate-50 group-hover:scale-105 transition duration-300"
               onError={() => setImageFailed(true)}
             />
           ) : (
@@ -34,8 +34,8 @@ export default function ProductCard({ product }) {
             </div>
           )}
         </div>
-        {hasSale && <span className="absolute top-3 right-3 bg-rose-500 text-white text-[10px] font-black px-2.5 py-1.5 rounded-full">-{discount}%</span>}
-        {metadata.featured && <span className="absolute top-3 left-3 bg-white/90 text-blue-700 text-[10px] font-black px-2.5 py-1.5 rounded-full backdrop-blur">HOT</span>}
+        {hasSale && <span className="store-sale-badge absolute top-3 right-3">SALE -{discount}%</span>}
+        {product.featured && <span className="store-hot-badge absolute top-3 left-3">HOT</span>}
       </Link>
       <div className="p-3 sm:p-4 flex flex-col flex-1">
         <div className="flex items-center justify-between gap-2">
