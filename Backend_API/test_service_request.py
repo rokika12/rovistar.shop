@@ -80,8 +80,9 @@ def test_manual_service_requires_link_before_payment_and_keeps_video_for_receipt
             shop_id=shop.id,
             name="TikTok campaign setup",
             price=3.0,
-            quantity=10,
-            variations=models.JSONText.dumps([{"attrs": {"Package": "Pro"}, "price": 9.0, "quantity": 10}]),
+            # Manual services have no finite inventory and must remain purchasable at zero stock.
+            quantity=0,
+            variations=models.JSONText.dumps([{"attrs": {"Package": "Pro"}, "price": 9.0, "quantity": 0}]),
             metadata_json=models.JSONText.dumps({
                 "product_type": "digital",
                 "fulfillment_type": "manual_service",
