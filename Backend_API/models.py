@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timezone
 
 from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer,
-                        String, Text)
+                        LargeBinary, String, Text)
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -37,6 +37,16 @@ class JSONText:
             return json.loads(value)
         except (ValueError, TypeError):
             return default if default is not None else []
+
+
+class MediaFile(Base):
+    """Database-backed image bytes so uploads survive stateless app deploys."""
+    __tablename__ = "media_files"
+
+    filename = Column(String, primary_key=True)
+    content_type = Column(String, nullable=False)
+    content = Column(LargeBinary, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
 class User(Base):

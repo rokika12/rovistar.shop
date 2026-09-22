@@ -8,7 +8,7 @@ import { useLanguage } from '../i18n';
 import { fullUrl, getMyOrders, getMyWallet, topUpWallet, updateMyProfile, changeMyPassword, verifyPayment } from '../api';
 import CustomerAuth from '../components/CustomerAuth';
 
-const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-bank-logo.png`;
+const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
 const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-logo.png`;
 const TOPUP_OPTIONS = [5, 10, 20, 50];
 

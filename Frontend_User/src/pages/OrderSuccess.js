@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FiCheckCircle, FiClock, FiCopy, FiDownload, FiHelpCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiClock, FiCopy, FiDownload, FiHelpCircle, FiPackage, FiTruck } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
@@ -43,6 +43,10 @@ export default function OrderSuccess() {
   }
 
   const isPaid = order.payment_status === 'paid';
+  const stageNames = ['Order placed', 'Paid', 'Prepared', 'Delivered', 'Completed'];
+  const orderStage = String(order.order_status || '').toLowerCase();
+  const stageIndex = !isPaid ? 0 : (orderStage === 'completed' ? 4 : orderStage === 'delivered' ? 3 : orderStage === 'prepared' || orderStage === 'processing' ? 2 : 1);
+  const stageIcons = [FiPackage, FiCheckCircle, FiPackage, FiTruck, FiCheckCircle];
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
@@ -63,6 +67,15 @@ export default function OrderSuccess() {
           {isPaid ? t('paymentSuccessMsg') : t('orderPlacedMsg')}
         </p>
       </div>
+
+      <section className="order-progress-card" aria-label="Order progress">
+        <div className="order-progress-track" />
+        {stageNames.map((name, index) => {
+          const Icon = stageIcons[index];
+          const active = index <= stageIndex;
+          return <div key={name} className={`order-progress-step ${active ? 'order-progress-active' : ''}`}><span><Icon /></span><small>{name}</small></div>;
+        })}
+      </section>
 
       <div className="bg-white rounded-2xl shadow overflow-hidden">
         <div className="p-6 border-b grid grid-cols-2 gap-4 text-sm">

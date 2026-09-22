@@ -1,6 +1,6 @@
-ABA Bank logo source: ABA Bank via Wikimedia Commons, File:ABA Logo.png.
-License: CC BY-SA 4.0.
-Source page: https://commons.wikimedia.org/wiki/File:ABA_Logo.png
+ABA payment mark source: ABA Bank-hosted brand lockup.
+Source URL: https://form.ababank.com/images/logos/aba-mobile-top-logo.png
+The compact aba-payment-mark.png is a cropped presentation of the official ABA mark for the payment selection card.
 
 KHQR logo source: Wikimedia Commons, File:KHQR Logo.png.
 License: CC0 1.0 Universal Public Domain Dedication.
