@@ -116,6 +116,7 @@ export default function Checkout() {
   if (!shop) return null;
 
   const digitalOnly = items.length > 0 && items.every((item) => item.metadata?.product_type === 'digital');
+  const manualServiceOrder = items.some((item) => item.metadata?.fulfillment_type === 'manual_service');
   const freeDigitalOrder = digitalOnly && totals.subtotal <= 0;
   const currentShopLoggedIn = !!token && customer?.shop_id === shop.id;
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
@@ -124,7 +125,7 @@ export default function Checkout() {
     e.preventDefault();
     const shopToken = customer?.shop_id === shop.id ? token : null;
     const shopLoggedIn = !!shopToken;
-    if (!digitalOnly && !shopLoggedIn) {
+    if ((!digitalOnly || manualServiceOrder) && !shopLoggedIn) {
       toast.error(t('signInRequired'));
       return;
     }
@@ -372,8 +373,20 @@ export default function Checkout() {
       <div className="max-w-xl mx-auto px-4 py-16">
         {paymentConfirmationModal}
         <div className="rounded-3xl bg-white dark:bg-gray-800 p-7 shadow-xl text-center">
+          {manualServiceOrder && !currentShopLoggedIn ? (
+            <>
+              <h1 className="text-2xl font-black text-gray-900 dark:text-white">Sign in to continue</h1>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">A customer account keeps your paid service link private and lets you track progress.</p>
+              <div className="mt-6 text-left"><CustomerAuth /></div>
+            </>
+          ) : (
+            <>
           <h1 className="text-2xl font-black text-gray-900 dark:text-white">Digital checkout</h1>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">No address is needed. After payment is confirmed, your digital access details appear here.</p>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            {manualServiceOrder
+              ? 'No address is needed. After payment, submit your public content link securely to start the service.'
+              : 'No address is needed. After payment is confirmed, your digital access details appear here.'}
+          </p>
           <div className="my-6 rounded-2xl bg-blue-50 dark:bg-gray-700 p-5 text-left">
             {items.map((item) => <div key={item.product_id} className="flex justify-between border-b border-blue-100 dark:border-gray-600 py-2 text-sm"><span>{item.name} × {item.quantity}</span><strong>{(item.price * item.quantity).toFixed(2)} {shop.currency}</strong></div>)}
             <div className="flex justify-between pt-3 font-black"><span>Total</span><span>{totals.subtotal.toFixed(2)} {shop.currency}</span></div>
@@ -394,6 +407,8 @@ export default function Checkout() {
           <button onClick={handleSubmit} disabled={submitting} className="w-full rounded-2xl bg-blue-600 py-4 font-black text-white hover:bg-blue-700 disabled:opacity-50">
             {submitting ? 'Preparing...' : (freeDigitalOrder ? 'Get free access' : paymentMethod === 'wallet' ? 'Pay with wallet' : 'Continue to ABA KHQR')}
           </button>
+            </>
+          )}
         </div>
       </div>
     );

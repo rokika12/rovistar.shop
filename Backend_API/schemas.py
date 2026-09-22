@@ -266,6 +266,12 @@ class OrderStatusUpdate(BaseModel):
     payment_status: Optional[str] = None
 
 
+class ServiceRequestSubmit(BaseModel):
+    """A paid manual-service customer supplies the public content link to process."""
+    link: str = Field(min_length=8, max_length=2048)
+    note: str = Field(default="", max_length=1000)
+
+
 class CustomerHistoryRequest(BaseModel):
     """Customer login via Telegram/phone to view their order history for a shop."""
     shop_id: int

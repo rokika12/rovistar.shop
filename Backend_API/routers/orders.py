@@ -8,7 +8,7 @@ import models
 import schemas
 from config import config
 from database import get_db
-from security import (get_optional_customer, get_current_admin, get_current_shop_user, get_current_user,
+from security import (get_optional_customer, get_current_admin, get_current_customer, get_current_shop_user, get_current_user,
                       log_activity, require_shop_access)
 from services import pdf_service
 from services import stock_service
@@ -78,6 +78,8 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         item_variations = dict(item.variations or {})
         product_meta = models.JSONText.loads(product.metadata_json, {}) if product else {}
         digital_only = digital_only and product_meta.get("product_type") == "digital"
+        if product_meta.get("fulfillment_type") == "manual_service":
+            item_variations["_service_request_required"] = True
         delivery = None
         if product_meta.get("product_type") == "digital":
             pool = (product_meta.get("digital_delivery") or {}).get("credentials") or []
@@ -162,6 +164,45 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
                  data.shop_id)
     db.commit()
     return order.to_dict()
+
+
+@router.post("/{order_id}/service-request")
+def submit_service_request(order_id: int, data: schemas.ServiceRequestSubmit,
+                           db: Session = Depends(get_db),
+                           customer: models.Customer = Depends(get_current_customer)):
+    """Save a paid manual-service link and send it to the shop's configured Telegram chat."""
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.customer_id != customer.id or order.shop_id != customer.shop_id:
+        raise HTTPException(status_code=403, detail="You do not have access to this order")
+    if order.payment_status != "paid":
+        raise HTTPException(status_code=400, detail="Payment must be confirmed before sending a service link")
+
+    requested = any(
+        bool(models.JSONText.loads(item.variations, {}).get("_service_request_required"))
+        for item in order.items
+    )
+    if not requested:
+        raise HTTPException(status_code=400, detail="This order does not need a service link")
+
+    link = data.link.strip()
+    if not link.startswith(("https://", "http://")):
+        raise HTTPException(status_code=400, detail="Please enter a valid public link")
+    note = data.note.strip()
+    order.customer_note = f"[service-request]\nLink: {link}\nNote: {note}".rstrip()
+    order.order_status = "processing"
+    db.commit()
+    db.refresh(order)
+
+    shop = db.query(models.Shop).filter(models.Shop.id == order.shop_id).first()
+    notified = False
+    if shop:
+        from services.telegram_service import notify_shop_service_request
+        notified = notify_shop_service_request(shop, order, link, note)
+    log_activity(db, "service_request", f"Customer submitted service link for #{order.order_number}", order.shop_id)
+    db.commit()
+    return {"order": order.to_dict(), "notified": notified}
 
 
 @router.post("/pos")

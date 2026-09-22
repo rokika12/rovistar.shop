@@ -11,7 +11,7 @@ import { btnGhost, btnPrimary, inputCls } from '../components/ui';
 const emptyProduct = {
   name: '', description: '', price: 0, sale_price: '', quantity: 0,
   category_id: '', images: [], custom_attributes: [], variations: [], featured: false, status: 'active',
-  metadata: { product_type: 'physical', is_khsmm_service: false, service_platform: '', service_type: '', api_package_id: '', service_url: 'https://khmer-smm.com/', digital_delivery: { credentials: [] } },
+  metadata: { product_type: 'physical', fulfillment_type: 'instant_code', service_video_url: '', is_khsmm_service: false, service_platform: '', service_type: '', api_package_id: '', service_url: 'https://khmer-smm.com/', digital_delivery: { credentials: [] } },
 };
 
 const emptyCredential = { email: '', password: '', license_key: '' };
@@ -39,6 +39,8 @@ export default function ProductForm() {
           featured: p.featured, status: p.status,
           metadata: {
             product_type: p.metadata?.product_type || 'physical',
+            fulfillment_type: p.metadata?.fulfillment_type || 'instant_code',
+            service_video_url: p.metadata?.service_video_url || '',
             is_khsmm_service: !!p.metadata?.is_khsmm_service,
             service_platform: p.metadata?.service_platform || '',
             service_type: p.metadata?.service_type || '',
@@ -71,6 +73,7 @@ export default function ProductForm() {
   };
 
   const credentials = form.metadata?.digital_delivery?.credentials || [];
+  const manualService = storeType === 'digital' && form.metadata?.fulfillment_type === 'manual_service';
   const primaryButton = storeType === 'digital'
     ? 'bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg font-semibold transition disabled:opacity-50'
     : btnPrimary;
@@ -115,17 +118,19 @@ export default function ProductForm() {
     const metadata = {
       ...(form.metadata || {}),
       product_type: storeType === 'digital' ? 'digital' : 'physical',
+      fulfillment_type: storeType === 'digital' && manualService ? 'manual_service' : 'instant_code',
+      service_video_url: (form.metadata?.service_video_url || '').trim(),
       is_khsmm_service: storeType === 'digital' && !!form.metadata?.is_khsmm_service,
       service_platform: form.metadata?.service_platform || '',
       service_type: form.metadata?.service_type || '',
       api_package_id: form.metadata?.api_package_id || '',
       service_url: form.metadata?.service_url || 'https://khmer-smm.com/',
     };
-    if (storeType === 'digital') {
+    if (storeType === 'digital' && !manualService) {
       metadata.digital_delivery = { ...(form.metadata?.digital_delivery || {}), credentials: digitalCredentials };
     } else {
       delete metadata.digital_delivery;
-      metadata.is_khsmm_service = false;
+      if (storeType !== 'digital') metadata.is_khsmm_service = false;
     }
 
     const payload = {
@@ -133,7 +138,7 @@ export default function ProductForm() {
       name: form.name, description: form.description,
       price: Number(form.price) || 0,
       sale_price: form.sale_price === '' || form.sale_price === null ? null : Number(form.sale_price),
-      quantity: storeType === 'digital' ? digitalCredentials.length : Number(form.quantity) || 0,
+      quantity: storeType === 'digital' && !manualService ? digitalCredentials.length : Number(form.quantity) || 0,
       category_id: form.category_id === '' ? null : Number(form.category_id),
       images: form.images,
       custom_attributes: form.custom_attributes.filter((a) => a.name.trim()),
@@ -177,7 +182,7 @@ export default function ProductForm() {
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 block">ចំនួន</label>
-              {storeType === 'digital' ? (
+              {storeType === 'digital' && !manualService ? (
                 <div className={`${inputCls} bg-slate-50 text-slate-500`}>{credentials.length} credentials available</div>
               ) : (
                 <input type="number" value={form.quantity} onChange={set('quantity')} className={inputCls} />
@@ -219,6 +224,40 @@ export default function ProductForm() {
         </div>
 
         {storeType === 'digital' && (
+        <div className="bg-white rounded-xl shadow-sm p-6 space-y-4 border border-cyan-100">
+          <div>
+            <h2 className="font-bold text-cyan-800">របៀបផ្ដល់សេវាកម្ម</h2>
+            <p className="mt-1 text-xs text-gray-500">ជ្រើស “សេវាកម្មធ្វើដោយដៃ” សម្រាប់សេវាដែលអតិថិជនបង់រួច រួចផ្ញើ public link មកអ្នក។</p>
+          </div>
+          <label className="block text-sm font-medium text-gray-700">
+            ប្រភេទការផ្ដល់
+            <select
+              value={form.metadata?.fulfillment_type || 'instant_code'}
+              onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, fulfillment_type: e.target.value } })}
+              className={inputCls}
+            >
+              <option value="instant_code">កូដ / License ភ្លាមៗ</option>
+              <option value="manual_service">សេវាកម្មធ្វើដោយដៃ (អតិថិជនផ្ញើ Link ក្រោយបង់)</option>
+            </select>
+          </label>
+          {manualService && (
+            <>
+              <p className="rounded-lg bg-cyan-50 p-3 text-sm text-cyan-900">ក្រោយពេលបង់ប្រាក់ អតិថិជននឹងបញ្ចូល TikTok/video/profile link នៅលើ receipt។ Website បញ្ជូន link នោះទៅ Telegram របស់ហាង ហើយមិនបង្ហាញ password ឬ code ទេ។</p>
+              <label className="block text-sm font-medium text-gray-700">
+                Link វីដេអូណែនាំ (YouTube ឬ MP4 public)
+                <input
+                  value={form.metadata?.service_video_url || ''}
+                  onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, service_video_url: e.target.value } })}
+                  className={inputCls}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+              </label>
+            </>
+          )}
+        </div>
+        )}
+
+        {storeType === 'digital' && !manualService && (
         <div className="bg-white rounded-xl shadow-sm p-6 space-y-4 border border-pink-100">
           <div className="flex items-center justify-between">
             <div>

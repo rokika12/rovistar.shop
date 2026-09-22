@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiChevronLeft, FiShoppingBag, FiZap } from 'react-icons/fi';
+import { FiChevronLeft, FiPlayCircle, FiShoppingBag, FiZap } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../i18n';
@@ -67,6 +67,10 @@ export default function ProductDetail() {
     ? Object.keys(product.variations[0].attrs || {})
     : [];
   const varOptions = (attrName) => [...new Set((product.variations || []).map((v) => v.attrs?.[attrName]).filter(Boolean))];
+  const manualService = product.metadata?.fulfillment_type === 'manual_service';
+  const videoUrl = String(product.metadata?.service_video_url || '').trim();
+  const youtubeMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  const isDirectVideo = /\.(mp4|webm)(?:\?.*)?$/i.test(videoUrl);
 
   // Unified list of attributes the customer can pick: custom select/color
   // attributes with options, plus any variation attributes not covered.
@@ -142,6 +146,9 @@ export default function ProductDetail() {
               Digital access · {product.metadata.duration}
             </span>
           )}
+          {manualService && (
+            <p className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-900">Manual service · After payment, send your public link securely. We never request your TikTok password.</p>
+          )}
 
           <div className="flex items-center gap-3 mt-4">
             <span className="text-3xl font-bold dark:text-gray-100">{effectivePrice.toFixed(2)}</span>
@@ -211,7 +218,7 @@ export default function ProductDetail() {
           {/* Direct digital purchase */}
           <div className="flex items-center gap-4 mt-8">
             <button onClick={buyNow} disabled={effectiveStock <= 0} className="flex-1 px-5 py-3 rounded-xl bg-primary text-white font-bold hover:brightness-95 disabled:opacity-50 flex items-center justify-center gap-2">
-              <FiZap /> Buy Now
+              <FiZap /> {manualService ? 'Continue' : 'Buy Now'}
             </button>
           </div>
 
@@ -237,6 +244,20 @@ export default function ProductDetail() {
               <p className="text-gray-600 dark:text-gray-400 whitespace-pre-line text-sm leading-relaxed">{product.description}</p>
             </div>
           )}
+          {videoUrl && (
+            <div className="mt-6 border-t pt-6">
+              <h3 className="mb-3 flex items-center gap-2 font-bold"><FiPlayCircle /> How it works</h3>
+              {youtubeMatch ? (
+                <div className="aspect-video overflow-hidden rounded-xl bg-slate-900">
+                  <iframe className="h-full w-full" src={`https://www.youtube-nocookie.com/embed/${youtubeMatch[1]}`} title={`${product.name} guide`} allowFullScreen />
+                </div>
+              ) : isDirectVideo ? (
+                <video className="w-full rounded-xl bg-slate-900" controls preload="metadata" src={fullUrl(videoUrl)} />
+              ) : (
+                <a className="inline-flex rounded-xl border-2 border-primary px-4 py-2 font-semibold text-primary" href={videoUrl} target="_blank" rel="noreferrer">Watch the service guide</a>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -252,4 +273,3 @@ export default function ProductDetail() {
     </div>
   );
 }
-

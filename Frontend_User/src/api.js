@@ -67,6 +67,8 @@ export const getMyOrders = (token) =>
   api.get('/api/customers/auth/orders', { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then((r) => r.data);
 export const createOrderAsCustomer = (payload, token) =>
   api.post('/api/orders', payload, { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then((r) => r.data);
+export const submitServiceRequest = (orderId, data, token) =>
+  api.post(`/api/orders/${orderId}/service-request`, data, { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then((r) => r.data);
 
 // Customer profile management
 export const updateMyProfile = (token, data) =>

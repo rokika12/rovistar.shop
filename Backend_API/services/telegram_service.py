@@ -97,6 +97,20 @@ def notify_shop_payment_success(shop, order_number, amount, currency, customer_n
     return send_shop_notification(shop, text)
 
 
+def notify_shop_service_request(shop, order, link: str, note: str = "") -> bool:
+    """Alert the shop only after a paid customer submits a manual-service link."""
+    lines = [
+        "🔗 <b>សំណើសេវាកម្មថ្មី</b>",
+        "",
+        f"🧾 <b>លេខកុម្ម៉ង់:</b> #{_html(order.order_number)}",
+        f"👤 <b>អតិថិជន:</b> {_html(order.customer_name or '-')}",
+        f"🔗 <b>Link:</b> {_html(link)}",
+    ]
+    if note:
+        lines.append(f"📝 <b>កំណត់ចំណាំ:</b> {_html(note)}")
+    return send_shop_notification(shop, "\n".join(lines))
+
+
 def send_verification_code(bot_token: str, chat_id, code: str) -> bool:
     """Send a one-time login verification code to a Telegram user via the bot."""
     text = (

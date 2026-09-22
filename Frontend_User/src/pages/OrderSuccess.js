@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
 import { useLanguage } from '../i18n';
-import { trackOrder, fullUrl } from '../api';
+import { trackOrder, fullUrl, submitServiceRequest } from '../api';
 import Loading from '../components/Loading';
 
 export default function OrderSuccess() {
@@ -15,6 +15,9 @@ export default function OrderSuccess() {
   const [params] = useSearchParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [serviceLink, setServiceLink] = useState('');
+  const [serviceNote, setServiceNote] = useState('');
+  const [sendingServiceRequest, setSendingServiceRequest] = useState(false);
 
   const orderNumber = params.get('order');
 
@@ -43,10 +46,29 @@ export default function OrderSuccess() {
   }
 
   const isPaid = order.payment_status === 'paid';
+  const manualServiceItems = order.items.filter((item) => item.service_request_required);
   const stageNames = ['Order placed', 'Paid', 'Prepared', 'Delivered', 'Completed'];
   const orderStage = String(order.order_status || '').toLowerCase();
   const stageIndex = !isPaid ? 0 : (orderStage === 'completed' ? 4 : orderStage === 'delivered' ? 3 : orderStage === 'prepared' || orderStage === 'processing' ? 2 : 1);
   const stageIcons = [FiPackage, FiCheckCircle, FiPackage, FiTruck, FiCheckCircle];
+
+  const sendServiceRequest = async (event) => {
+    event.preventDefault();
+    if (!serviceLink.trim()) {
+      toast.error('Please enter your public video or profile link');
+      return;
+    }
+    setSendingServiceRequest(true);
+    try {
+      const result = await submitServiceRequest(order.id, { link: serviceLink, note: serviceNote }, token);
+      setOrder(result.order);
+      toast.success('Your service request has been sent');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Could not send your service request');
+    } finally {
+      setSendingServiceRequest(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
@@ -120,6 +142,41 @@ export default function OrderSuccess() {
                   ))}
                 </div>
               ))}
+            </div>
+          )}
+          {isPaid && manualServiceItems.length > 0 && (
+            <div className="mt-6 rounded-xl border-2 border-cyan-600 bg-cyan-50/60 p-5">
+              {order.service_request_submitted ? (
+                <>
+                  <h3 className="font-bold text-cyan-950">Service request received</h3>
+                  <p className="mt-1 text-sm text-cyan-900">Your order is now being processed. We will update the order when the service is complete.</p>
+                </>
+              ) : (
+                <form onSubmit={sendServiceRequest} className="space-y-3">
+                  <div>
+                    <h3 className="font-bold text-cyan-950">Send your TikTok link</h3>
+                    <p className="mt-1 text-sm text-cyan-900">Paste the public video or profile link after payment. We do not ask for your TikTok password.</p>
+                  </div>
+                  <input
+                    value={serviceLink}
+                    onChange={(event) => setServiceLink(event.target.value)}
+                    type="url"
+                    required
+                    placeholder="https://www.tiktok.com/@..."
+                    className="w-full rounded-lg border border-cyan-200 bg-white px-3 py-2 text-sm"
+                  />
+                  <textarea
+                    value={serviceNote}
+                    onChange={(event) => setServiceNote(event.target.value)}
+                    rows="2"
+                    placeholder="Optional note for the service team"
+                    className="w-full rounded-lg border border-cyan-200 bg-white px-3 py-2 text-sm"
+                  />
+                  <button type="submit" disabled={sendingServiceRequest} className="rounded-lg bg-cyan-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-cyan-800 disabled:opacity-60">
+                    {sendingServiceRequest ? 'Sending...' : 'Send link securely'}
+                  </button>
+                </form>
+              )}
             </div>
           )}
           <div className="border-t mt-4 pt-4 space-y-1 text-sm">

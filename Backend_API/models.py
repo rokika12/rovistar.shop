@@ -298,6 +298,7 @@ class Order(Base):
             "transaction_id": self.transaction_id,
             "order_status": self.order_status,
             "receipt_url": self.receipt_url,
+            "service_request_submitted": str(self.customer_note or "").startswith("[service-request]"),
             "created_at": _iso(self.created_at),
             "paid_at": _iso(self.paid_at),
             "shop_name": self.shop.shop_name if self.shop else None,
@@ -324,6 +325,7 @@ class OrderItem(Base):
     def to_dict(self):
         variations = JSONText.loads(self.variations, {})
         delivery = variations.pop("_digital_delivery", None) if self.order and self.order.payment_status == "paid" else None
+        service_request_required = bool(variations.pop("_service_request_required", False))
         result = {
             "id": self.id,
             "order_id": self.order_id,
@@ -335,6 +337,8 @@ class OrderItem(Base):
         }
         if delivery:
             result["digital_delivery"] = delivery
+        if service_request_required:
+            result["service_request_required"] = True
         return result
 
 
@@ -491,5 +495,4 @@ class TelegramCode(Base):
     code_hash = Column(String, default="")
     expires_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-
 
