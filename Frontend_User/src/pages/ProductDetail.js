@@ -69,6 +69,7 @@ export default function ProductDetail() {
     : [];
   const varOptions = (attrName) => [...new Set((product.variations || []).map((v) => v.attrs?.[attrName]).filter(Boolean))];
   const manualService = product.metadata?.fulfillment_type === 'manual_service';
+  const telegramService = manualService && product.metadata?.service_platform === 'telegram' && /premium|star/i.test(product.name || '');
   const isAvailable = manualService || effectiveStock > 0;
   const videoUrl = String(product.metadata?.service_video_url || '').trim();
   const youtubeMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
@@ -100,7 +101,11 @@ export default function ProductDetail() {
   const buyNow = () => {
     const missing = selectableAttrs.find((a) => !selectedVariations[a.key]);
     if (missing) { toast.error(`Please select ${missing.label}`); return; }
-    if (manualService && !serviceLink.trim().startsWith(('https://'))) {
+    if (telegramService && !/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(serviceLink.trim())) {
+      toast.error('Please enter a valid Telegram username starting with @');
+      return;
+    }
+    if (manualService && !telegramService && !serviceLink.trim().startsWith(('https://'))) {
       toast.error('Please enter your public TikTok link');
       return;
     }
@@ -153,7 +158,7 @@ export default function ProductDetail() {
             </span>
           )}
           {manualService && (
-            <p className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-900">Choose a package and paste your public TikTok link before payment. We never request your TikTok password.</p>
+            <p className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-900">{telegramService ? 'Choose a package and enter the recipient Telegram username before payment.' : 'Choose a package and paste your public TikTok link before payment. We never request your TikTok password.'}</p>
           )}
 
           {!manualService && (
@@ -231,14 +236,14 @@ export default function ProductDetail() {
 
           {manualService && (
             <div className="service-link-card mt-5">
-              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">TikTok link</label>
-              <p>Paste the public video or profile link before payment.</p>
+              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">{telegramService ? 'Telegram username' : 'TikTok link'}</label>
+              <p>{telegramService ? 'Enter the recipient username, for example @username.' : 'Paste the public video or profile link before payment.'}</p>
               <input
                 id="service-link"
                 value={serviceLink}
                 onChange={(event) => setServiceLink(event.target.value)}
-                type="url"
-                placeholder="https://www.tiktok.com/@..."
+                type="text"
+                placeholder={telegramService ? '@username' : 'https://www.tiktok.com/@...'}
               />
             </div>
           )}

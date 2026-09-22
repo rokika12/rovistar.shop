@@ -95,8 +95,10 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         digital_only = digital_only and product_meta.get("product_type") == "digital"
         if product_meta.get("fulfillment_type") == "manual_service":
             service_link = str(item_variations.get("_service_link") or "").strip()
-            if len(service_link) > 2048 or not service_link.startswith(("https://", "http://")):
-                raise HTTPException(status_code=400, detail="Please enter a valid public service link before payment")
+            telegram_service = product_meta.get("service_platform") == "telegram" and __import__("re").search(r"premium|star", product.name or "", __import__("re").I)
+            valid_target = bool(__import__("re").fullmatch(r"@[A-Za-z][A-Za-z0-9_]{4,31}", service_link)) if telegram_service else service_link.startswith(("https://", "http://"))
+            if len(service_link) > 2048 or not valid_target:
+                raise HTTPException(status_code=400, detail="Please enter a valid Telegram username" if telegram_service else "Please enter a valid public service link before payment")
             item_variations["_service_link"] = service_link
             service_video_url = str(product_meta.get("service_video_url") or "").strip()
             if service_video_url:

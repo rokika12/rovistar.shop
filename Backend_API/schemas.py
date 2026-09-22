@@ -372,3 +372,10 @@ class SettingUpdate(BaseModel):
 class TelegramTest(BaseModel):
     shop_id: Optional[int] = None
     message: str = "🧪 Test notification from Mini Shop Platform"
+
+
+class TelegramSettingsSave(BaseModel):
+    shop_id: int
+    bot_token: str = ""
+    chat_ids: List[str] = Field(default_factory=list)
+    enabled: bool = False

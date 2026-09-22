@@ -157,7 +157,6 @@ def set_telegram_webhook(shop_id: int, db: Session = Depends(get_db),
         "detail": "Webhook registered. Users can now start the bot and link your shop.",
         "profile_id": tg.get("profile_id"),
         "secret_key": tg.get("secret_key"),
-        "webhook_url": webhook_url,
         "linked_chats": tg.get("linked_chats", []),
     }
 
@@ -173,13 +172,66 @@ def get_telegram_settings(shop_id: int, db: Session = Depends(get_db),
     tg = telegram_service.ensure_shop_profile(shop)
     db.commit()
     return {
-        "bot_token": tg.get("bot_token", ""),
         "chat_id": tg.get("chat_id", ""),
+        "chat_ids": telegram_service.configured_chat_ids(tg),
+        "admin_chat_ids": telegram_service.normalize_chat_ids(tg.get("admin_chat_ids") or []),
         "enabled": tg.get("enabled", False),
+        "bot_token_configured": bool(tg.get("bot_token")),
         "profile_id": tg.get("profile_id", ""),
         "secret_key": tg.get("secret_key", ""),
         "linked_chats": tg.get("linked_chats", []),
         "bot_username": telegram_service.get_bot_username(tg.get("bot_token", "")),
+    }
+
+
+@router.post("/telegram/settings/test-and-save")
+def test_and_save_telegram_settings(data: schemas.TelegramSettingsSave,
+                                    db: Session = Depends(get_db),
+                                    user: models.User = Depends(get_current_user)):
+    """Validate proposed Telegram settings, test every recipient, then save atomically."""
+    require_shop_access(data.shop_id, user)
+    shop = db.query(models.Shop).filter(models.Shop.id == data.shop_id).first()
+    if not shop:
+        raise HTTPException(status_code=404, detail="Shop not found")
+
+    current = telegram_service.ensure_shop_profile(shop)
+    bot_token = (data.bot_token or current.get("bot_token") or "").strip()
+    validation = telegram_service.validate_bot_token(bot_token)
+    if not validation.get("ok"):
+        raise HTTPException(status_code=400, detail=validation.get("detail", "Invalid bot token"))
+
+    chat_ids = telegram_service.normalize_chat_ids(data.chat_ids)
+    test_recipients = telegram_service.normalize_chat_ids(chat_ids, current.get("linked_chats") or [])
+    if not test_recipients:
+        raise HTTPException(status_code=400, detail="Add at least one recipient chat ID or link a chat")
+
+    message = f"🧪 Telegram settings test from Mini Shop Platform ({user.username})"
+    failed_chat_ids = [
+        chat_id for chat_id in test_recipients
+        if not telegram_service.send_telegram_message(bot_token, chat_id, message)
+    ]
+    if failed_chat_ids:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Test message failed for chat ID(s): {', '.join(failed_chat_ids)}. Settings were not saved.",
+        )
+
+    current.update({
+        "bot_token": bot_token,
+        "chat_ids": chat_ids,
+        "chat_id": chat_ids[0] if chat_ids else "",
+        "enabled": data.enabled,
+    })
+    shop.telegram_settings = models.JSONText.dumps(current)
+    db.commit()
+    return {
+        "ok": True,
+        "detail": f"Test sent to {len(test_recipients)} recipient(s); settings saved",
+        "chat_ids": chat_ids,
+        "tested_chat_ids": test_recipients,
+        "enabled": data.enabled,
+        "bot_token_configured": True,
+        "bot_username": validation.get("username", ""),
     }
 
 
@@ -206,21 +258,29 @@ def test_telegram(data: schemas.TelegramTest, db: Session = Depends(get_db),
             raise HTTPException(status_code=404, detail="Shop not found")
         tg = shop.telegram_dict()
         bot_token = tg.get("bot_token", "")
-        chat_id = tg.get("chat_id", "")
+        chat_ids = telegram_service.recipient_chat_ids(tg)
     else:
         if user.role != "admin":
             raise HTTPException(status_code=403, detail="Admin privileges required")
         bot_token = __import__("config").config.TELEGRAM_BOT_TOKEN
-        chat_id = data.message  # admin supplies chat id in message body placeholder
-        chat_id = ""
+        chat_ids = []
 
-    if not bot_token or not chat_id:
+    if not bot_token or not chat_ids:
         raise HTTPException(status_code=400, detail="Bot token or chat ID is not configured")
 
-    ok = telegram_service.send_telegram_message(
-        bot_token, chat_id,
-        f"{data.message}\n\n— Sent from Mini Shop Platform ({user.username})")
-    return {"ok": ok, "detail": "Notification sent" if ok else "Failed to send notification"}
+    failed_chat_ids = [
+        chat_id for chat_id in chat_ids
+        if not telegram_service.send_telegram_message(
+            bot_token, chat_id,
+            f"{data.message}\n\n— Sent from Mini Shop Platform ({user.username})")
+    ]
+    ok = not failed_chat_ids
+    return {
+        "ok": ok,
+        "detail": "Notification sent to all recipients" if ok else "Failed to send to one or more recipients",
+        "sent_count": len(chat_ids) - len(failed_chat_ids),
+        "recipient_count": len(chat_ids),
+    }
 
 
 @router.post("/telegram/stock-alert")

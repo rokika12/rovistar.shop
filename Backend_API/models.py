@@ -89,7 +89,7 @@ class Shop(Base):
     social_media = Column(Text, default="{}")        # JSON dict
     theme = Column(Text, default="{}")               # JSON dict {primary, secondary, font_family}
     aba_settings = Column(Text, default="{}")        # JSON dict {profile_id, secret_key, test_mode}
-    telegram_settings = Column(Text, default="{}")   # JSON dict {bot_token, chat_id, enabled}
+    telegram_settings = Column(Text, default="{}")   # JSON dict {bot_token, chat_id, chat_ids, enabled}
     shipping_settings = Column(Text, default="{}")   # JSON dict for physical-store delivery
     currency = Column(String, default="USD")
     status = Column(String, default="active")        # active | suspended | pending
@@ -158,7 +158,9 @@ class Shop(Base):
         }
         if include_private:
             d["aba_settings"] = self.aba_dict()
-            d["telegram_settings"] = self.telegram_dict()
+            telegram_settings = self.telegram_dict().copy()
+            telegram_settings["bot_token_configured"] = bool(telegram_settings.pop("bot_token", ""))
+            d["telegram_settings"] = telegram_settings
             d["expires_at"] = _iso(self.expires_at)
             d["reseller_id"] = self.reseller_id
         return d

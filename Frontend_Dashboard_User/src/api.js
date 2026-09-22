@@ -119,6 +119,7 @@ export const upgradePlan = (payload) => api.post('/api/plans/upgrade', payload).
 export const confirmPlan = (payload) => api.post('/api/plans/confirm', payload).then((r) => r.data);
 export const testTelegram = (data) => api.post('/api/telegram/test', data).then((r) => r.data);
 export const getTelegramSettings = (shopId) => api.get('/api/telegram/settings', { params: { shop_id: shopId } }).then((r) => r.data);
+export const testAndSaveTelegramSettings = (data) => api.post('/api/telegram/settings/test-and-save', data).then((r) => r.data);
 export const setTelegramWebhook = (shopId) => api.post('/api/telegram/setwebhook', null, { params: { shop_id: shopId } }).then((r) => r.data);
 export const resolveTelegramUsername = (shopId, username) => api.get('/api/telegram/resolve-public-chat', { params: { shop_id: shopId, username } }).then((r) => r.data);
 

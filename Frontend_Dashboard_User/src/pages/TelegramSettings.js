@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FiCopy, FiLink, FiMessageCircle, FiRefreshCw, FiSend } from 'react-icons/fi';
-import { getShopDetail, getTelegramSettings, resolveTelegramUsername, setTelegramWebhook, testTelegram, updateShop } from '../api';
+import { getTelegramSettings, resolveTelegramUsername, setTelegramWebhook, testTelegram, updateShop } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import { Loading, btnPrimary, btnGhost, inputCls } from '../components/ui';
 
 export default function TelegramSettings() {
   const { user } = useAuth();
-  const [tg, setTg] = useState({ bot_token: '', chat_id: '', enabled: false });
+  const [tg, setTg] = useState({ bot_token: '', chat_id: '', admin_chat_id: '', enabled: false, bot_token_configured: false });
   const [profile, setProfile] = useState({ profile_id: '', secret_key: '', linked_chats: [], bot_username: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [testing, setTesting] = useState(false);
   const [webhookBusy, setWebhookBusy] = useState(false);
   const [publicUsername, setPublicUsername] = useState('');
   const [resolvedChat, setResolvedChat] = useState(null);
@@ -19,21 +18,22 @@ export default function TelegramSettings() {
 
   const load = () => {
     setLoading(true);
-    Promise.all([
-      getShopDetail(user.shop_id),
-      getTelegramSettings(user.shop_id).catch(() => null),
-    ]).then(([s, st]) => {
+    getTelegramSettings(user.shop_id).then((st) => {
       setTg({
-        bot_token: s.telegram_settings?.bot_token || '',
-        chat_id: s.telegram_settings?.chat_id || '',
-        enabled: s.telegram_settings?.enabled ?? false,
+        bot_token: '',
+        chat_id: st.chat_id ? String(st.chat_id) : '',
+        admin_chat_id: st.admin_chat_ids?.[0] ? String(st.admin_chat_ids[0]) : '',
+        enabled: st.enabled ?? false,
+        bot_token_configured: st.bot_token_configured ?? false,
       });
-      if (st) setProfile({
+      setProfile({
         profile_id: st.profile_id || '',
         secret_key: st.secret_key || '',
         linked_chats: st.linked_chats || [],
         bot_username: st.bot_username || '',
       });
+    }).catch((err) => {
+      toast.error(err?.response?.data?.detail || 'Failed to load Telegram settings');
     }).finally(() => setLoading(false));
   };
 
@@ -42,25 +42,34 @@ export default function TelegramSettings() {
   const save = async () => {
     setSaving(true);
     try {
-      await updateShop(user.shop_id, { telegram_settings: tg });
+      await updateShop(user.shop_id, { telegram_settings: {
+        bot_token: tg.bot_token.trim(),
+        chat_id: tg.chat_id.trim(),
+        admin_chat_ids: tg.admin_chat_id.trim() ? [tg.admin_chat_id.trim()] : [],
+        enabled: tg.enabled,
+      } });
+      setTg((current) => ({ ...current, bot_token: '', bot_token_configured: true }));
       toast.success('Telegram settings saved!');
+      return true;
     } catch (err) {
       toast.error(err?.response?.data?.detail || 'Failed to save');
+      return false;
     } finally {
       setSaving(false);
     }
   };
 
   const runTest = async () => {
-    setTesting(true);
+    if (!await save()) return;
     try {
-      const res = await testTelegram({ shop_id: user.shop_id });
-      if (res.ok) toast.success('Test notification sent! Check your Telegram chat.');
-      else toast.error(res.detail || 'Failed to send');
+      const result = await testTelegram({
+        shop_id: user.shop_id,
+        message: '🧪 Test notification from Mini Shop Platform',
+      });
+      if (result.ok) toast.success(result.detail || 'Test notification sent!');
+      else toast.error(result.detail || 'Test notification failed');
     } catch (err) {
       toast.error(err?.response?.data?.detail || 'Test failed');
-    } finally {
-      setTesting(false);
     }
   };
 
@@ -112,6 +121,7 @@ export default function TelegramSettings() {
         <h1 className="text-2xl font-bold">Telegram Bot</h1>
         <div className="flex gap-2">
           <button onClick={save} disabled={saving} className={btnPrimary}>{saving ? 'Saving...' : 'Save Settings'}</button>
+          <button onClick={runTest} disabled={saving} className={btnGhost}><span className="inline-flex items-center gap-1"><FiSend /> Test</span></button>
         </div>
       </div>
 
@@ -215,17 +225,23 @@ export default function TelegramSettings() {
         <div>
           <label className="text-sm font-medium text-gray-700 block">Bot Token</label>
           <input
+            type="password"
             value={tg.bot_token}
             onChange={(e) => setTg({ ...tg, bot_token: e.target.value })}
             className={inputCls}
-            placeholder="123456789:ABCdefGHI..."
+            placeholder={tg.bot_token_configured ? 'Token configured — leave blank to keep it' : '123456789:ABCdefGHI...'}
           />
-          <p className="text-xs text-gray-400 mt-1">Create your bot with @BotFather, then paste its token here. Tokens are stored per-shop on the server.</p>
+          <p className="text-xs text-gray-400 mt-1">Create your bot with @BotFather. Saved tokens are never returned by the server.</p>
         </div>
         <div>
           <label className="text-sm font-medium text-gray-700 block">Chat ID (group / channel)</label>
           <input value={tg.chat_id} onChange={(e) => setTg({ ...tg, chat_id: e.target.value })} className={inputCls} placeholder="-1001234567890" />
           <p className="text-xs text-gray-400 mt-1">Negative IDs are supergroups; private chats use positive IDs.</p>
+        </div>
+        <div>
+          <label className="text-sm font-medium text-gray-700 block">Admin 2 chat ID</label>
+          <input value={tg.admin_chat_id} onChange={(e) => setTg({ ...tg, admin_chat_id: e.target.value })} className={inputCls} placeholder="Optional second admin chat ID" />
+          <p className="text-xs text-gray-400 mt-1">Optional. This admin receives the same notifications as the primary chat.</p>
         </div>
         <div className="rounded-xl border border-sky-100 bg-sky-50 p-4">
           <label className="text-sm font-semibold text-slate-800 block">Check public Telegram username</label>
@@ -246,10 +262,8 @@ export default function TelegramSettings() {
           Enable Telegram notifications
         </label>
 
-        <div className="pt-2 border-t">
-          <button onClick={runTest} disabled={testing || (!tg.bot_token || (!tg.chat_id && profile.linked_chats.length === 0))} className={btnGhost}>
-            {testing ? 'Sending...' : <span className="inline-flex items-center gap-1"><FiSend /> Send Test Notification</span>}
-          </button>
+        <div className="pt-3 border-t border-slate-200">
+          <p className="text-xs text-gray-500">The Test button saves current settings first, then sends a notification using the existing Telegram test endpoint.</p>
         </div>
       </div>
 

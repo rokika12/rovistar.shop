@@ -11,6 +11,36 @@ import models
 from config import config
 
 
+def normalize_chat_ids(*chat_id_groups) -> list[str]:
+    """Return non-empty Telegram chat IDs in stable, de-duplicated order."""
+    result = []
+    seen = set()
+    for group in chat_id_groups:
+        if group is None:
+            continue
+        values = group if isinstance(group, (list, tuple, set)) else [group]
+        for value in values:
+            chat_id = str(value or "").strip()
+            if chat_id and chat_id not in seen:
+                seen.add(chat_id)
+                result.append(chat_id)
+    return result
+
+
+def configured_chat_ids(settings: dict) -> list[str]:
+    """Read the new recipient list plus the legacy single chat_id field."""
+    return normalize_chat_ids(settings.get("chat_ids") or [], settings.get("chat_id"))
+
+
+def recipient_chat_ids(settings: dict) -> list[str]:
+    """Return configured, admin, and bot-linked recipient chats once each."""
+    return normalize_chat_ids(
+        configured_chat_ids(settings),
+        settings.get("admin_chat_ids") or [],
+        settings.get("linked_chats") or [],
+    )
+
+
 def send_telegram_message(bot_token: str, chat_id: str, text: str) -> bool:
     """Send a text message via the Telegram Bot API. Returns True on success.
 
@@ -39,7 +69,8 @@ def send_telegram_message(bot_token: str, chat_id: str, text: str) -> bool:
 def ensure_shop_profile(shop) -> dict:
     """
     Make sure the shop has a bot Profile ID (used to link the Telegram bot to a shop)
-    and a linked_chats list. Stores them in shop.telegram_settings.
+    a linked_chats list, and the multi-recipient chat_ids list. Stores them in
+    shop.telegram_settings while preserving the legacy chat_id field.
     """
     tg = shop.telegram_dict()
     changed = False
@@ -52,24 +83,23 @@ def ensure_shop_profile(shop) -> dict:
     if "linked_chats" not in tg:
         tg["linked_chats"] = []
         changed = True
+    normalized_chat_ids = configured_chat_ids(tg)
+    if tg.get("chat_ids") != normalized_chat_ids:
+        tg["chat_ids"] = normalized_chat_ids
+        changed = True
     if changed:
         shop.telegram_settings = models.JSONText.dumps(tg)
     return tg
 
 
 def send_shop_notification(shop, text: str) -> bool:
-    """Send a message to every chat linked to the shop (configured chat_id + bot-linked chats)."""
+    """Send a message to every configured or bot-linked recipient chat."""
     tg = shop.telegram_dict()
     bot_token = (tg.get("bot_token") or "").strip()
     if not bot_token:
         return False
-    chat_ids = set()
-    if tg.get("chat_id"):
-        chat_ids.add(str(tg["chat_id"]))
-    for c in (tg.get("linked_chats") or []):
-        chat_ids.add(str(c))
     sent = False
-    for cid in chat_ids:
+    for cid in recipient_chat_ids(tg):
         if send_telegram_message(bot_token, cid, text):
             sent = True
     return sent
@@ -126,17 +156,24 @@ def send_verification_code(bot_token: str, chat_id, code: str) -> bool:
 
 def get_bot_username(bot_token: str):
     """Resolve a bot token to its public @username via the getMe API."""
+    result = validate_bot_token(bot_token)
+    return result.get("username") if result.get("ok") else None
+
+
+def validate_bot_token(bot_token: str) -> dict:
+    """Validate a bot token with Telegram getMe without returning the token."""
     if not bot_token:
-        return None
+        return {"ok": False, "detail": "Bot token is not configured"}
     try:
         with httpx.Client(timeout=15) as client:
             resp = client.get(f"https://api.telegram.org/bot{bot_token}/getMe")
             data = resp.json()
-        if data.get("ok"):
-            return data.get("result", {}).get("username")
+        if resp.status_code == 200 and data.get("ok") is True:
+            bot = data.get("result") or {}
+            return {"ok": True, "username": bot.get("username") or "", "bot_id": bot.get("id")}
+        return {"ok": False, "detail": data.get("description") or "Telegram rejected the bot token"}
     except Exception:
-        pass
-    return None
+        return {"ok": False, "detail": "Telegram could not be reached. Please try again."}
 
 
 def resolve_public_chat_username(bot_token: str, username: str) -> dict:

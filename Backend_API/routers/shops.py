@@ -10,7 +10,7 @@ from config import config
 from database import get_db
 from security import (get_current_admin, get_current_shop_user, get_current_user,
                       hash_password, log_activity, require_shop_access)
-from services import qr_service
+from services import qr_service, telegram_service
 from services.telegram_service import get_bot_username
 
 router = APIRouter(prefix="/api/shops", tags=["shops"])
@@ -154,7 +154,19 @@ def update_shop(shop_id: int, data: schemas.ShopUpdate, db: Session = Depends(ge
     if data.aba_settings is not None:
         shop.aba_settings = models.JSONText.dumps(data.aba_settings)
     if data.telegram_settings is not None:
-        shop.telegram_settings = models.JSONText.dumps(data.telegram_settings)
+        # Legacy clients still save Telegram settings through the generic shop route.
+        # Merge their payload so a hidden token and bot-linked profile data are not erased.
+        telegram_settings = shop.telegram_dict()
+        incoming = dict(data.telegram_settings)
+        if not (incoming.get("bot_token") or "").strip():
+            incoming.pop("bot_token", None)
+        if "chat_id" in incoming and "chat_ids" not in incoming:
+            incoming["chat_ids"] = telegram_service.normalize_chat_ids(incoming.get("chat_id"))
+        telegram_settings.update(incoming)
+        chat_ids = telegram_service.configured_chat_ids(telegram_settings)
+        telegram_settings["chat_ids"] = chat_ids
+        telegram_settings["chat_id"] = chat_ids[0] if chat_ids else ""
+        shop.telegram_settings = models.JSONText.dumps(telegram_settings)
     if data.shipping_settings is not None:
         shop.shipping_settings = models.JSONText.dumps(data.shipping_settings)
 
