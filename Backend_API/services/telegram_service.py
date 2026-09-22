@@ -211,6 +211,36 @@ def resolve_public_chat_username(bot_token: str, username: str) -> dict:
     }
 
 
+def resolve_public_profile_username(username: str) -> dict:
+    """Read public Telegram profile metadata without accessing private accounts."""
+    normalized = str(username or "").strip().lstrip("@")
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{4,31}", normalized):
+        return {"ok": False, "detail": "Enter a valid Telegram username (for example @username)."}
+    try:
+        with httpx.Client(timeout=10, follow_redirects=True) as client:
+            response = client.get(f"https://t.me/{normalized}")
+        if response.status_code != 200:
+            return {"ok": False, "detail": "Telegram could not find that public username."}
+        page = response.text
+    except httpx.HTTPError:
+        return {"ok": False, "detail": "Telegram could not be reached. Please try again."}
+
+    title_match = re.search(r'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)', page, re.I)
+    image_match = re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)', page, re.I)
+    if not title_match:
+        return {"ok": False, "detail": "This Telegram username is not publicly visible. Private accounts cannot be previewed by username."}
+    name = __import__("html").unescape(title_match.group(1)).strip()
+    # Telegram hides a private user's display name on its public landing page.
+    if name.lower() == f"telegram: contact @{normalized}".lower():
+        name = ""
+    return {
+        "ok": True,
+        "username": normalized,
+        "name": name,
+        "avatar_url": __import__("html").unescape(image_match.group(1)).strip() if image_match else "",
+    }
+
+
 def verify_telegram_login(bot_token: str, auth_data: dict) -> bool:
     """
     Verify the signature of the Telegram Login Widget callback.
