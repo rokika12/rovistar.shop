@@ -244,7 +244,7 @@ export default function ProductForm() {
         <div className="bg-white rounded-xl shadow-sm p-6 space-y-4 border border-cyan-100">
           <div>
             <h2 className="font-bold text-cyan-800">របៀបផ្ដល់សេវាកម្ម</h2>
-            <p className="mt-1 text-xs text-gray-500">ជ្រើស “សេវាកម្មធ្វើដោយដៃ” សម្រាប់សេវាដែលអតិថិជនបង់រួច រួចផ្ញើ public link មកអ្នក។</p>
+            <p className="mt-1 text-xs text-gray-500">ជ្រើស “សេវាកម្មធ្វើដោយដៃ” សម្រាប់សេវាដែលភ្ញៀវជ្រើស package និងដាក់ public link មុនបង់ប្រាក់។</p>
           </div>
           <label className="block text-sm font-medium text-gray-700">
             ប្រភេទការផ្ដល់
@@ -254,12 +254,12 @@ export default function ProductForm() {
               className={inputCls}
             >
               <option value="instant_code">កូដ / License ភ្លាមៗ</option>
-              <option value="manual_service">សេវាកម្មធ្វើដោយដៃ (អតិថិជនផ្ញើ Link ក្រោយបង់)</option>
+              <option value="manual_service">សេវាកម្មធ្វើដោយដៃ (អតិថិជនដាក់ Link មុនបង់)</option>
             </select>
           </label>
           {manualService && (
             <>
-              <p className="rounded-lg bg-cyan-50 p-3 text-sm text-cyan-900">ក្រោយពេលបង់ប្រាក់ អតិថិជននឹងបញ្ចូល TikTok/video/profile link នៅលើ receipt។ Website បញ្ជូន link នោះទៅ Telegram របស់ហាង ហើយមិនបង្ហាញ password ឬ code ទេ។</p>
+              <p className="rounded-lg bg-cyan-50 p-3 text-sm text-cyan-900">អតិថិជននឹងជ្រើស package និងបញ្ចូល TikTok/video/profile link មុនបង់ប្រាក់។ ក្រោយទូទាត់ជោគជ័យ Website បញ្ជូន link នោះទៅ Telegram របស់ហាង ហើយមិនបង្ហាញ password ឬ code ទេ។</p>
               <label className="block text-sm font-medium text-gray-700">
                 Link វីដេអូណែនាំ (YouTube ឬ MP4 public)
                 <input

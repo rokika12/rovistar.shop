@@ -47,11 +47,11 @@ export default function ShopLayout() {
         <div className="brand-ticker bg-[var(--brand-blue)] text-white" aria-label="Store security notice">
           <div className="brand-ticker-track">
             <span>{isAccountTemplate
-              ? 'SECURE CHECKOUT · VERIFIED PAYMENTS · DIGITAL SERVICE SUPPORT · '
-              : 'SECURE CHECKOUT · VERIFIED PAYMENTS · FAST CUSTOMER SUPPORT · '}</span>
+              ? 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · គាំទ្រសេវាកម្មឌីជីថល · '
+              : 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · ក្រុមការងារគាំទ្ររហ័ស · '}</span>
             <span aria-hidden="true">{isAccountTemplate
-              ? 'SECURE CHECKOUT · VERIFIED PAYMENTS · DIGITAL SERVICE SUPPORT'
-              : 'SECURE CHECKOUT · VERIFIED PAYMENTS · FAST CUSTOMER SUPPORT'}</span>
+              ? 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · គាំទ្រសេវាកម្មឌីជីថល'
+              : 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · ក្រុមការងារគាំទ្ររហ័ស'}</span>
           </div>
         </div>
         <ShopHeader />

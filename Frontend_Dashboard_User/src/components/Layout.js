@@ -17,7 +17,7 @@ const navItems = [
   { to: '/customers', label: 'អតិថិជន', icon: <FiUsers /> },
   { to: '/reports', label: 'របាយការណ៍', icon: <FiBarChart2 /> },
   { to: '/receipts', label: 'បង្កាន់ដៃ', icon: <FiFileText /> },
-  { to: '/khsmm', label: 'សេវាកម្ម KHSMM', icon: <FiGlobe /> },
+  { to: '/khsmm', label: 'សេវាកម្មប៊ូតដោយដៃ', icon: <FiGlobe /> },
   { to: '/settings', label: 'ការកំណត់ហាង', icon: <FiSettings /> },
   { to: '/payment', label: 'ការទូទាត់ ABA Pay', icon: <FiSmartphone /> },
   { to: '/telegram', label: 'Telegram Bot', icon: <FiMail /> },

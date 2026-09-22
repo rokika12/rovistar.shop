@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FiArrowUpRight, FiCheckCircle, FiTag } from 'react-icons/fi';
+import { FiCheckCircle, FiPackage, FiPlusCircle, FiTag } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import { listProducts, fullUrl } from '../api';
 import { useAuth } from '../contexts/AuthContext';
-import { Empty, Loading, btnPrimary } from '../components/ui';
+import { Loading, btnPrimary } from '../components/ui';
 
 const PLATFORM_META = {
   facebook: { label: 'Facebook', color: 'bg-blue-100 text-blue-700', icon: 'f' },
@@ -11,8 +12,6 @@ const PLATFORM_META = {
   tiktok: { label: 'TikTok', color: 'bg-slate-900 text-white', icon: '♪' },
   telegram: { label: 'Telegram', color: 'bg-sky-100 text-sky-700', icon: '✈' },
 };
-
-const defaultServiceUrl = 'https://khmer-smm.com/';
 
 export default function KHSMMServices() {
   const { user } = useAuth();
@@ -25,17 +24,13 @@ export default function KHSMMServices() {
       try {
         const items = await listProducts(user.shop_id);
         const filtered = (items || [])
-          .filter((item) => item?.metadata && (item.metadata.is_khsmm_service || item.metadata.service_platform))
-          .filter((item) => {
-            const platform = (item.metadata?.service_platform || '').toLowerCase();
-            return ['facebook', 'instagram', 'tiktok', 'telegram'].includes(platform);
-          })
+          .filter((item) => item?.metadata?.fulfillment_type === 'manual_service')
           .sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
 
         setServices(filtered);
         setSelectedId(filtered[0]?.id || null);
       } catch (err) {
-        toast.error(err?.response?.data?.detail || 'Unable to load KHSMM services');
+        toast.error(err?.response?.data?.detail || 'មិនអាចបើកសេវាកម្មធ្វើដោយដៃបាន');
       } finally {
         setLoading(false);
       }
@@ -50,7 +45,14 @@ export default function KHSMMServices() {
   );
 
   if (loading) return <Loading />;
-  if (!services.length) return <Empty message="No paid KHSMM services are configured yet." />;
+  if (!services.length) {
+    return (
+      <div className="py-12 text-center text-gray-400">
+        <p>មិនទាន់មានសេវាកម្មធ្វើដោយដៃទេ។ បង្កើតផលិតផល TikTok/Facebook/Instagram/YouTube មុនសិន។</p>
+        <Link to="/products/new" className={btnPrimary + ' mt-4 inline-flex items-center gap-2'}><FiPlusCircle /> បង្កើតសេវាកម្មថ្មី</Link>
+      </div>
+    );
+  }
 
   const platform = selected?.metadata?.service_platform || 'facebook';
   const platformData = PLATFORM_META[platform] || PLATFORM_META.facebook;
@@ -59,11 +61,11 @@ export default function KHSMMServices() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-indigo-600 font-semibold">KHSMM</p>
-          <h1 className="text-3xl font-bold mt-1">Paid social media services</h1>
+          <p className="text-sm uppercase tracking-[0.2em] text-indigo-600 font-semibold">ROVISTAR SERVICES</p>
+          <h1 className="text-3xl font-bold mt-1">សេវាកម្មប៊ូតដោយដៃ</h1>
         </div>
         <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
-          <FiCheckCircle /> Paid only
+          <FiCheckCircle /> បង់ប្រាក់រួច
         </span>
       </div>
 
@@ -97,13 +99,13 @@ export default function KHSMMServices() {
                       <span className={`inline-flex items-center rounded-full px-2 py-1 text-[10px] font-bold ${itemMeta.color}`}>
                         {itemMeta.label}
                       </span>
-                      <span className="text-xs font-semibold text-amber-700">Paid package</span>
+                      <span className="text-xs font-semibold text-amber-700">សេវាកម្មដាច់ដោយឡែក</span>
                     </div>
                     <h2 className="mt-2 font-bold text-lg truncate">{item.name}</h2>
-                    <p className="text-sm text-slate-500 mt-1 line-clamp-2">{item.description || 'KHSMM marketing service package'}</p>
+                    <p className="text-sm text-slate-500 mt-1 line-clamp-2">{item.description || 'សេវាកម្មដែលភ្ញៀវដាក់ Link មុនបង់ ហើយអ្នកគ្រប់គ្រងដោយដៃ'}</p>
                     <div className="mt-3 flex items-center justify-between">
                       <span className="text-xl font-bold text-slate-900">${Number(item.price || 0).toFixed(2)}</span>
-                      <span className="text-xs text-indigo-600 font-semibold">{item.metadata?.service_type || 'service'}</span>
+                      <span className="text-xs text-indigo-600 font-semibold">{item.metadata?.service_type || 'សេវាកម្ម'}</span>
                     </div>
                   </div>
                 </div>
@@ -120,7 +122,7 @@ export default function KHSMMServices() {
                   {platformData.label}
                 </span>
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-600">
-                  <FiTag /> Ready for order
+                  <FiTag /> រួចរាល់សម្រាប់ទទួល order
                 </span>
               </div>
 
@@ -135,11 +137,11 @@ export default function KHSMMServices() {
               </div>
 
               <h2 className="mt-5 text-2xl font-bold">{selected.name}</h2>
-              <p className="mt-2 text-slate-600">{selected.description || 'SMM service package from Khmer SMM.'}</p>
+              <p className="mt-2 text-slate-600">{selected.description || 'ភ្ញៀវជ្រើស package និងបញ្ចូល public link មុនទូទាត់ប្រាក់។'}</p>
 
               <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-xl bg-slate-50 p-3">
-                  <div className="text-slate-500">Price</div>
+                  <div className="text-slate-500">តម្លៃចាប់ផ្ដើម</div>
                   <div className="mt-1 font-bold text-lg">${Number(selected.price || 0).toFixed(2)}</div>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-3">
@@ -147,23 +149,26 @@ export default function KHSMMServices() {
                   <div className="mt-1 font-bold">{platformData.label}</div>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-3">
-                  <div className="text-slate-500">Type</div>
-                  <div className="mt-1 font-bold capitalize">{selected.metadata?.service_type || 'General'}</div>
+                  <div className="text-slate-500">ប្រភេទសេវាកម្ម</div>
+                  <div className="mt-1 font-bold capitalize">{selected.metadata?.service_type || 'ទូទៅ'}</div>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-3">
-                  <div className="text-slate-500">API package</div>
-                  <div className="mt-1 font-bold">{selected.metadata?.api_package_id || '—'}</div>
+                  <div className="text-slate-500">ការផ្ដល់សេវា</div>
+                  <div className="mt-1 font-bold">Link មុនបង់</div>
                 </div>
               </div>
 
-              <div className="mt-6 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => window.open(selected.metadata?.service_url || defaultServiceUrl, '_blank', 'noopener,noreferrer')}
-                  className={btnPrimary + ' inline-flex items-center gap-2'}
-                >
-                  Open service <FiArrowUpRight />
-                </button>
+              <div className="mt-6 rounded-xl border border-indigo-100 bg-indigo-50 p-4">
+                <h3 className="flex items-center gap-2 font-bold text-indigo-950"><FiPackage /> ប្រអប់ Package និងតម្លៃ</h3>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {(selected.variations || []).map((variation, index) => (
+                    <div key={index} className="rounded-lg bg-white p-3 text-sm shadow-sm">
+                      <strong>{Object.values(variation.attrs || {}).join(' · ') || `Package ${index + 1}`}</strong>
+                      <span className="mt-1 block text-indigo-700">${Number(variation.price || 0).toFixed(2)}</span>
+                    </div>
+                  ))}
+                  {(!selected.variations || selected.variations.length === 0) && <p className="text-sm text-slate-500">មិនទាន់មាន package ទេ។ ចូលកែផលិតផលនេះ ដើម្បីបន្ថែម package និងតម្លៃ។</p>}
+                </div>
               </div>
             </>
           ) : null}
