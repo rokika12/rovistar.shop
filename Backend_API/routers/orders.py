@@ -185,14 +185,11 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
                 product.metadata_json = models.JSONText.dumps(metadata)
         db.commit()
         db.refresh(order)
-        # Wallet orders are already paid in this endpoint, so send the public
-        # service link to the shop here. ABA orders notify after verification.
-        if order.payment_method == "wallet" and manual_service_links:
-            shop = db.query(models.Shop).filter(models.Shop.id == order.shop_id).first()
-            if shop:
-                from services.telegram_service import notify_shop_service_request
-                for service_link in manual_service_links:
-                    notify_shop_service_request(shop, order, service_link)
+        # Free and wallet orders are paid immediately. Run the same receipt and
+        # full Telegram notification path as a confirmed ABA payment.
+        shop = db.query(models.Shop).filter(models.Shop.id == order.shop_id).first()
+        if shop:
+            _process_first_payment(db, order, shop)
 
     # NOTE: no "new order" Telegram notification here — the shop's Telegram group
     # only receives a message when the payment is CONFIRMED SUCCESSFUL
