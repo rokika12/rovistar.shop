@@ -63,6 +63,11 @@ export const uploadProductImages = (files) => {
   files.forEach((file) => fd.append('files', file));
   return api.post('/api/uploads/product', fd).then((r) => r.data);
 };
+export const uploadServiceVideo = (file) => {
+  const fd = new FormData();
+  fd.append('file', file);
+  return api.post('/api/uploads/service-video', fd).then((r) => r.data);
+};
 export const setShopExpiry = (id, days) => api.post(`/api/shops/${id}/set-expiry`, { days }).then((r) => r.data);
 export const setShopLimits = (id, data) => api.post(`/api/shops/${id}/set-limits`, data).then((r) => r.data);
 
