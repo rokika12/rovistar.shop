@@ -156,13 +156,15 @@ export default function ProductDetail() {
             <p className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-900">Choose a package and paste your public TikTok link before payment. We never request your TikTok password.</p>
           )}
 
-          <div className="flex items-center gap-3 mt-4">
-            <span className="text-3xl font-bold dark:text-gray-100">{effectivePrice.toFixed(2)}</span>
-            <span className="text-gray-500 dark:text-gray-400">{shop.currency}</span>
-            {product.sale_price != null && product.sale_price < product.price && (
-              <span className="text-lg text-gray-400 dark:text-gray-500 line-through">{product.price.toFixed(2)}</span>
-            )}
-          </div>
+          {!manualService && (
+            <div className="flex items-center gap-3 mt-4">
+              <span className="text-3xl font-bold dark:text-gray-100">{effectivePrice.toFixed(2)}</span>
+              <span className="text-gray-500 dark:text-gray-400">{shop.currency}</span>
+              {product.sale_price != null && product.sale_price < product.price && (
+                <span className="text-lg text-gray-400 dark:text-gray-500 line-through">{product.price.toFixed(2)}</span>
+              )}
+            </div>
+          )}
 
           {manualService ? (
             <p className="text-sm text-green-600 mt-1">✓ Available · manual service</p>

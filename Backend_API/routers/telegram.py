@@ -183,6 +183,18 @@ def get_telegram_settings(shop_id: int, db: Session = Depends(get_db),
     }
 
 
+@router.get("/telegram/resolve-public-chat")
+def resolve_public_telegram_chat(shop_id: int, username: str, db: Session = Depends(get_db),
+                                 user: models.User = Depends(get_current_user)):
+    """Check a public Telegram group/channel username before saving its chat ID."""
+    require_shop_access(shop_id, user)
+    shop = db.query(models.Shop).filter(models.Shop.id == shop_id).first()
+    if not shop:
+        raise HTTPException(status_code=404, detail="Shop not found")
+    bot_token = (shop.telegram_dict().get("bot_token") or "").strip()
+    return telegram_service.resolve_public_chat_username(bot_token, username)
+
+
 @router.post("/telegram/test")
 def test_telegram(data: schemas.TelegramTest, db: Session = Depends(get_db),
                   user: models.User = Depends(get_current_user)):

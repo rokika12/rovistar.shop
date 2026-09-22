@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FiCopy, FiLink, FiMessageCircle, FiRefreshCw, FiSend } from 'react-icons/fi';
-import { getShopDetail, getTelegramSettings, setTelegramWebhook, testTelegram, updateShop } from '../api';
+import { getShopDetail, getTelegramSettings, resolveTelegramUsername, setTelegramWebhook, testTelegram, updateShop } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import { Loading, btnPrimary, btnGhost, inputCls } from '../components/ui';
 
@@ -13,6 +13,9 @@ export default function TelegramSettings() {
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [webhookBusy, setWebhookBusy] = useState(false);
+  const [publicUsername, setPublicUsername] = useState('');
+  const [resolvedChat, setResolvedChat] = useState(null);
+  const [resolvingUsername, setResolvingUsername] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -71,6 +74,20 @@ export default function TelegramSettings() {
       toast.error(err?.response?.data?.detail || 'setWebhook failed');
     } finally {
       setWebhookBusy(false);
+    }
+  };
+
+  const resolveUsername = async () => {
+    setResolvingUsername(true);
+    setResolvedChat(null);
+    try {
+      const result = await resolveTelegramUsername(user.shop_id, publicUsername);
+      setResolvedChat(result);
+      if (!result.ok) toast.error(result.detail);
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || 'Could not check that Telegram username');
+    } finally {
+      setResolvingUsername(false);
     }
   };
 
@@ -209,6 +226,20 @@ export default function TelegramSettings() {
           <label className="text-sm font-medium text-gray-700 block">Chat ID (group / channel)</label>
           <input value={tg.chat_id} onChange={(e) => setTg({ ...tg, chat_id: e.target.value })} className={inputCls} placeholder="-1001234567890" />
           <p className="text-xs text-gray-400 mt-1">Negative IDs are supergroups; private chats use positive IDs.</p>
+        </div>
+        <div className="rounded-xl border border-sky-100 bg-sky-50 p-4">
+          <label className="text-sm font-semibold text-slate-800 block">Check public Telegram username</label>
+          <p className="text-xs text-slate-500 mt-1">Enter a public group or channel username to confirm its real Telegram name before using it.</p>
+          <div className="mt-3 flex gap-2">
+            <input value={publicUsername} onChange={(e) => setPublicUsername(e.target.value)} className={inputCls} placeholder="@my_shop_group" />
+            <button type="button" onClick={resolveUsername} disabled={resolvingUsername || !publicUsername.trim()} className={btnGhost}>{resolvingUsername ? 'Checking...' : 'Check'}</button>
+          </div>
+          {resolvedChat && (
+            <p className={`mt-3 text-sm font-semibold ${resolvedChat.ok ? 'text-emerald-700' : 'text-rose-700'}`}>
+              {resolvedChat.ok ? `✓ @${resolvedChat.username} — ${resolvedChat.name} (${resolvedChat.chat_type})` : resolvedChat.detail}
+            </p>
+          )}
+          <p className="mt-2 text-xs text-slate-500">Telegram does not let bots look up private people by username. A person must press Start on your bot first; then Telegram sends their real name and chat ID securely.</p>
         </div>
         <label className="flex items-center gap-2 text-sm text-gray-700">
           <input type="checkbox" checked={tg.enabled} onChange={(e) => setTg({ ...tg, enabled: e.target.checked })} className="w-4 h-4" />

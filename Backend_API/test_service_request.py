@@ -9,6 +9,7 @@ from main import app
 import models
 from security import create_access_token
 from routers.uploads import _validate_service_video
+from services.telegram_service import resolve_public_chat_username
 
 
 client = TestClient(app)
@@ -18,6 +19,16 @@ def test_service_video_validation_allows_small_mp4_only():
     _validate_service_video(b"not-decoded-in-this-route", "guide.mp4", "video/mp4")
     with pytest.raises(HTTPException):
         _validate_service_video(b"bad", "guide.mov", "video/quicktime")
+
+
+def test_telegram_public_username_check_validates_input_before_calling_api():
+    invalid = resolve_public_chat_username("token", "not a username")
+    assert invalid["ok"] is False
+    assert "valid Telegram username" in invalid["detail"]
+
+    missing_token = resolve_public_chat_username("", "public_group")
+    assert missing_token["ok"] is False
+    assert "bot token" in missing_token["detail"]
 
 
 def test_paid_manual_service_request_requires_owner_and_saves_link():

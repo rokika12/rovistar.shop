@@ -1,6 +1,7 @@
 """Telegram bot notification + Login Widget verification service."""
 import hashlib
 import hmac
+import re
 import secrets
 import time
 
@@ -136,6 +137,41 @@ def get_bot_username(bot_token: str):
     except Exception:
         pass
     return None
+
+
+def resolve_public_chat_username(bot_token: str, username: str) -> dict:
+    """Resolve a public group/channel username through Telegram's getChat API.
+
+    Telegram does not expose private user profiles by username. A customer must
+    start the bot first before their name and chat ID can be trusted or stored.
+    """
+    normalized = str(username or "").strip().lstrip("@")
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{4,31}", normalized):
+        return {"ok": False, "detail": "Enter a valid Telegram username (for example @my_shop_group)."}
+    if not bot_token:
+        return {"ok": False, "detail": "Save the bot token before checking a Telegram username."}
+    try:
+        with httpx.Client(timeout=15) as client:
+            response = client.get(
+                f"https://api.telegram.org/bot{bot_token}/getChat",
+                params={"chat_id": f"@{normalized}"},
+            )
+        payload = response.json()
+    except Exception:
+        return {"ok": False, "detail": "Telegram could not be reached. Please try again."}
+    if not payload.get("ok"):
+        return {
+            "ok": False,
+            "detail": "Telegram could not find that public group or channel. Private users must first press Start on the bot.",
+        }
+    chat = payload.get("result") or {}
+    display_name = chat.get("title") or " ".join(filter(None, [chat.get("first_name"), chat.get("last_name")]))
+    return {
+        "ok": True,
+        "username": chat.get("username") or normalized,
+        "name": display_name or f"@{normalized}",
+        "chat_type": chat.get("type") or "unknown",
+    }
 
 
 def verify_telegram_login(bot_token: str, auth_data: dict) -> bool:

@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FiArrowUpRight, FiShoppingBag, FiZap } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import { FiArrowUpRight, FiShoppingBag } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
-import { useCart } from '../contexts/CartContext';
 import { fullUrl } from '../api';
 
 export default function ProductCard({ product }) {
   const { shop } = useShop();
-  const { addItem, clear, setOpen } = useCart();
-  const navigate = useNavigate();
   const [imageFailed, setImageFailed] = useState(false);
   const price = product.sale_price ?? product.price;
   const hasSale = product.sale_price != null && product.sale_price < product.price;
@@ -18,13 +15,6 @@ export default function ProductCard({ product }) {
   const isDigital = metadata.product_type === 'digital';
   const isManualService = metadata.fulfillment_type === 'manual_service';
   const isAvailable = isManualService || product.quantity > 0;
-
-  const buyNow = () => {
-    clear();
-    addItem(product, 1, {});
-    setOpen(false);
-    navigate(`/${shop.username}/checkout`);
-  };
 
   return (
     <article className="store-product-card bg-white dark:bg-gray-800 overflow-hidden transition group flex flex-col h-full">
@@ -56,18 +46,27 @@ export default function ProductCard({ product }) {
           <h3 className="font-black text-sm sm:text-base text-slate-900 dark:text-white mt-2 line-clamp-2 group-hover:text-blue-700 transition leading-snug">{product.name}</h3>
         </Link>
         <p className="text-xs text-slate-500 dark:text-gray-400 mt-2 line-clamp-2 min-h-[32px]">{description || (isDigital ? 'Digital access after payment.' : 'Quality product from this shop.')}</p>
-        <div className="mt-3 flex items-baseline gap-1.5">
-          <span className="text-xl sm:text-2xl font-black text-blue-700">${Number(price).toFixed(2)}</span>
-          <span className="text-[10px] font-bold text-slate-400">{shop.currency}</span>
-          {hasSale && <span className="text-xs text-slate-400 line-through">${Number(product.price).toFixed(2)}</span>}
-        </div>
+        {!isManualService && (
+          <div className="mt-3 flex items-baseline gap-1.5">
+            <span className="text-xl sm:text-2xl font-black text-blue-700">${Number(price).toFixed(2)}</span>
+            <span className="text-[10px] font-bold text-slate-400">{shop.currency}</span>
+            {hasSale && <span className="text-xs text-slate-400 line-through">${Number(product.price).toFixed(2)}</span>}
+          </div>
+        )}
         <div className="mt-3 flex items-center justify-between gap-2 text-[10px] font-bold">
           <span className={isAvailable ? 'text-emerald-600' : 'text-rose-600'}>{isAvailable ? '● Available' : '● Sold out'}</span>
           <span className="text-slate-400">{isManualService ? 'Manual service' : (isDigital ? 'Instant access' : 'Ready to order')}</span>
         </div>
-        <button onClick={buyNow} disabled={!isAvailable} className="mt-4 w-full rounded-xl bg-blue-700 py-2.5 text-xs sm:text-sm text-white font-black hover:bg-blue-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition">
-          <FiZap className="w-4 h-4" /> {isAvailable ? 'Buy now' : 'Sold out'}
-        </button>
+        {isManualService && (
+          <Link to={`/${shop.username}/product/${product.id}`} className="mt-4 text-center text-xs font-black text-blue-700 hover:text-blue-800">
+            Choose a package
+          </Link>
+        )}
+        {!isManualService && (isAvailable ? (
+          <Link to={`/${shop.username}/product/${product.id}`} className="mt-4 w-full rounded-xl bg-blue-700 py-2.5 text-center text-xs sm:text-sm text-white font-black hover:bg-blue-800 transition">Buy now</Link>
+        ) : (
+          <span className="mt-4 w-full rounded-xl bg-slate-200 py-2.5 text-center text-xs sm:text-sm font-black text-slate-400">Sold out</span>
+        ))}
       </div>
     </article>
   );
