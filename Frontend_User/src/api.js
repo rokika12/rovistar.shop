@@ -60,6 +60,8 @@ export const ownerLogin = (payload) => api.post('/api/auth/login', payload).then
 export const ownerCheck = (shopId, token) =>
   api.get(`/api/shops/${shopId}/owner`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
 export const verifyPayment = (payload) => api.post('/api/payments/aba/verify', payload).then((r) => r.data);
+export const lookupRobloxUsername = (username) =>
+  api.get('/api/game-lookup/roblox', { params: { username } }).then((r) => r.data);
 export const customerHistory = (payload) => api.post('/api/orders/public/history', payload).then((r) => r.data);
 export const customerSignup = (payload) => api.post('/api/customers/auth/signup', payload).then((r) => r.data);
 export const customerSignin = (payload) => api.post('/api/customers/auth/signin', payload).then((r) => r.data);
