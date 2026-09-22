@@ -96,7 +96,7 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         if product_meta.get("fulfillment_type") == "manual_service":
             service_link = str(item_variations.get("_service_link") or "").strip()
             service_platform = str(product_meta.get("service_platform") or "").lower()
-            telegram_service = service_platform == "telegram" and __import__("re").search(r"premium|star", product.name or "", __import__("re").I)
+            telegram_service = service_platform in {"telegram", "telegram_premium", "telegram_star"}
             game_target = service_platform in {"free_fire", "mobile_legends", "roblox"}
             valid_target = (
                 bool(__import__("re").fullmatch(r"@[A-Za-z][A-Za-z0-9_]{4,31}", service_link))
