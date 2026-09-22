@@ -434,10 +434,10 @@ function ProductModal({ modal, editing, form, setForm, submit, setModal, cats, m
         {manualOnly && <div className="space-y-3 rounded-xl border border-sky-200 bg-sky-50 p-4">
           <div>
             <label className="block text-sm font-semibold text-slate-800">សេវាកម្មប៊ូតដោយដៃ</label>
-            <p className="mt-1 text-xs text-slate-600">ភ្ញៀវបញ្ចូល public link មុនទូទាត់ប្រាក់។ មិនត្រូវសុំ password ឬគណនីពីភ្ញៀវទេ។</p>
+            <p className="mt-1 text-xs text-slate-600">ភ្ញៀវបញ្ចូល public link, username ឬ game ID មុនទូទាត់ប្រាក់។ មិនត្រូវសុំ password ឬគណនីពីភ្ញៀវទេ។</p>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div><label className="mb-1 block text-xs font-semibold text-slate-600">Platform</label><select value={form.service_platform} onChange={(e) => setForm({ ...form, service_platform: e.target.value })} className={inputCls}><option value="tiktok">TikTok</option><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="youtube">YouTube</option><option value="telegram">Telegram</option></select></div>
+            <div><label className="mb-1 block text-xs font-semibold text-slate-600">Platform</label><select value={form.service_platform} onChange={(e) => setForm({ ...form, service_platform: e.target.value })} className={inputCls}><option value="tiktok">TikTok</option><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="youtube">YouTube</option><option value="telegram">Telegram</option><option value="free_fire">Free Fire</option><option value="mobile_legends">Mobile Legends</option><option value="roblox">Roblox</option></select></div>
             <div><label className="mb-1 block text-xs font-semibold text-slate-600">ប្រភេទសេវាកម្ម</label><input value={form.service_type} onChange={(e) => setForm({ ...form, service_type: e.target.value })} className={inputCls} placeholder="ឧ. ការផ្សព្វផ្សាយដោយដៃ" /></div>
           </div>
           <div><label className="mb-1 block text-xs font-semibold text-slate-600">វីដេអូណែនាំក្រោយបង់ប្រាក់</label><input type="file" accept="video/mp4,video/webm" onChange={(e) => uploadGuideVideo(e.target.files?.[0])} className="block w-full text-xs" />{form.service_video_url && <p className="mt-2 break-all text-xs text-emerald-700">បានភ្ជាប់វីដេអូរួច</p>}</div>
