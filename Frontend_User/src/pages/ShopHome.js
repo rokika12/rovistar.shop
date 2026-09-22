@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FiCreditCard, FiHeadphones, FiShoppingBag, FiSmartphone,
-  FiTruck,
+  FiTruck, FiZap,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -49,11 +49,14 @@ export default function ShopHome() {
 
   if (!shop) return null;
   const featuredProducts = featured.length ? featured : allProducts.slice(0, 4);
+  const flashSaleProducts = allProducts.filter((product) => (
+    product.sale_price != null && Number(product.sale_price) < Number(product.price)
+  )).slice(0, 8);
 
   return (
     <div>
       <ShopSearchBar />
-      {categories.length > 0 && <CategoryNav categories={categories} />}
+      {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
 
       {slides.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 pt-6 md:pt-8">
@@ -89,9 +92,47 @@ export default function ShopHome() {
         </div>
       </section>
 
+      {!loading && flashSaleProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 pt-2 pb-5">
+          <div className="store-section-heading store-flash-heading">
+            <div>
+              <span className="store-section-kicker"><FiZap /> Limited-time prices</span>
+              <h2>Flash Sale</h2>
+            </div>
+            <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
+          </div>
+          <div className="flash-sale-track no-scrollbar">
+            {flashSaleProducts.map((product) => {
+              const salePrice = Number(product.sale_price);
+              const originalPrice = Number(product.price);
+              const discount = Math.round((1 - salePrice / originalPrice) * 100);
+              return (
+                <Link key={product.id} to={`/${shop.username}/product/${product.id}`} className="flash-sale-card">
+                  <div className="flash-sale-image">
+                    {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt={product.name} /> : <FiShoppingBag />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="flash-sale-label">FLASH DEAL</span>
+                    <h3>{product.name}</h3>
+                    <div className="flash-sale-price-row">
+                      <strong>${salePrice.toFixed(2)}</strong>
+                      <del>${originalPrice.toFixed(2)}</del>
+                    </div>
+                  </div>
+                  <span className="flash-sale-discount">-{discount}%</span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       <section className="max-w-7xl mx-auto px-4 pb-7">
         <div className="store-section-heading">
-          <h2>{t('featuredProducts')}</h2>
+          <div>
+            <span className="store-section-kicker">Picked for you</span>
+            <h2>Popular Products</h2>
+          </div>
           <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
         </div>
         {loading ? (
@@ -107,7 +148,7 @@ export default function ShopHome() {
           <p className="text-gray-400 text-center py-10">{t('noFeatured')}</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {featuredProducts.map((product) => <ProductCard key={product.id} product={product} />)}
+            {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
           </div>
         )}
       </section>
