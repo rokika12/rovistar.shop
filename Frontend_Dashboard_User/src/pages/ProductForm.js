@@ -325,7 +325,9 @@ export default function ProductForm() {
                   <option value="facebook">Facebook</option>
                   <option value="instagram">Instagram</option>
                   <option value="tiktok">TikTok</option>
-                  <option value="telegram">Telegram</option>
+                  <option value="telegram_bot">Telegram Bot (public link)</option>
+                  <option value="telegram_premium">Telegram Premium (username)</option>
+                  <option value="telegram_star">Telegram Star (username)</option>
                   <option value="free_fire">Free Fire</option>
                   <option value="mobile_legends">Mobile Legends</option>
                   <option value="roblox">Roblox</option>
