@@ -65,7 +65,7 @@ export default function Slideshow({ slides }) {
 
   return (
     <div
-      className="relative w-full aspect-[3/1] min-h-[180px] max-h-[520px] overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 touch-pan-y"
+      className="relative w-full aspect-[3/1] min-h-[132px] max-h-[520px] md:min-h-[180px] overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 touch-pan-y"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -78,8 +78,8 @@ export default function Slideshow({ slides }) {
         >
           {/* Keep a designed fallback instead of exposing broken-image alt text. */}
           {failedSlides.has(i) ? (
-            <div className="w-full h-full bg-gradient-to-br from-blue-700 via-blue-600 to-sky-400 flex items-end p-7 text-white">
-              <div><span className="text-xs font-black tracking-[0.16em]">ROVISTAR UPDATE</span><p className="mt-2 text-2xl font-black">ថ្មីៗ សម្រាប់អ្នក</p></div>
+            <div className="w-full h-full bg-gradient-to-br from-blue-700 via-blue-600 to-sky-400 flex items-end p-4 sm:p-7 text-white">
+              <div><span className="text-[10px] sm:text-xs font-black tracking-[0.16em]">ROVISTAR</span><p className="mt-1 sm:mt-2 text-lg sm:text-2xl font-black">New arrivals</p></div>
             </div>
           ) : (
             <img

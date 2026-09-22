@@ -6,7 +6,6 @@ import { useLanguage } from '../i18n';
 import ShopHeader from './ShopHeader';
 import ShopFooter from './ShopFooter';
 import CartSidebar from './CartSidebar';
-import BottomNav from './BottomNav';
 import ShopSkeleton from './ShopSkeleton';
 
 export default function ShopLayout() {
@@ -47,30 +46,26 @@ export default function ShopLayout() {
       <div className="brand-ticker bg-[var(--brand-blue)] text-white">
         <div className="brand-ticker-track">
           <span>{isAccountTemplate
-            ? 'សេវាកម្មឌីជីថលពិតប្រាកដ · ទទួលបានភ្លាមៗបន្ទាប់ពីបង់ប្រាក់ · សេវាកម្មមានការគាំទ្រ'
-            : 'ទំនិញមានគុណភាព · ដឹកជញ្ជូនតាមទីតាំង · សេវាកម្មរហ័ស និងអាចទុកចិត្តបាន'}</span>
-          <span aria-hidden="true">{isAccountTemplate
-            ? 'សេវាកម្មឌីជីថលពិតប្រាកដ · ទទួលបានភ្លាមៗបន្ទាប់ពីបង់ប្រាក់ · សេវាកម្មមានការគាំទ្រ'
-            : 'ទំនិញមានគុណភាព · ដឹកជញ្ជូនតាមទីតាំង · សេវាកម្មរហ័ស និងអាចទុកចិត្តបាន'}</span>
+            ? 'Secure digital services · Instant access after verified payment'
+            : 'Reliable products · Simple checkout · Fast customer support'}</span>
         </div>
       </div>
       <ShopHeader />
-      <main className="storefront-main flex-1 pb-20 md:pb-0">
+      <main className="storefront-main flex-1">
         <Outlet />
       </main>
       <ShopFooter />
       {!isAccountTemplate && <CartSidebar />}
-      <BottomNav />
 
-      {/* Floating "Contact this shop owner" button — fixed on screen */}
+      {/* Keep one compact support action without duplicating mobile navigation. */}
       {tgContact && (
         <a
           href={tgContact}
           target="_blank"
           rel="noreferrer"
-          className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-6 right-4 z-[60] inline-flex max-w-[calc(100vw-2rem)] items-center gap-2 bg-[#229ED9] hover:bg-[#1d8cc1] text-white font-bold text-xs md:text-sm px-4 py-3 rounded-full shadow-2xl transition"
+          className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] md:bottom-6 right-3 z-[60] inline-flex items-center justify-center gap-2 bg-[#229ED9] hover:bg-[#1d8cc1] text-white font-bold text-xs md:text-sm p-3 sm:px-4 sm:py-3 rounded-full shadow-xl transition"
         >
-          <FiSend className="w-4 h-4 shrink-0" /> <span className="truncate">{t('contactThisOwner')}</span>
+          <FiSend className="w-4 h-4 shrink-0" /> <span className="hidden sm:inline">{t('contactThisOwner')}</span>
         </a>
       )}
     </div>
