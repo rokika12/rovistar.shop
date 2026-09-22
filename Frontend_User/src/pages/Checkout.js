@@ -16,8 +16,8 @@ const initialForm = {
   customer_country: '', customer_note: '',
 };
 
-// ABA mark attribution is retained in public/ABA_LOGO_ATTRIBUTION.txt.
 const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-bank-logo.png`;
+const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-logo.png`;
 
 export default function Checkout() {
   const { shop } = useShop();
@@ -231,12 +231,7 @@ export default function Checkout() {
           </button>
           <div className="max-w-sm mx-auto flex flex-col items-center">
             <div className="w-full mb-4 flex items-center gap-3">
-              <img
-                src={ABA_LOGO_URL}
-                alt="ABA Bank"
-                className="aba-payment-logo"
-                onError={(event) => { event.currentTarget.style.display = 'none'; }}
-              />
+              <div className="checkout-payment-marks"><img className="checkout-aba-logo" src={ABA_LOGO_URL} alt="ABA Bank" /><img src={KHQR_LOGO_URL} alt="KHQR" /></div>
               <div><p className="text-[10px] font-black tracking-[0.12em] text-slate-400">SECURE PAYMENT</p><h2 className="text-xl font-black text-slate-900 dark:text-white">ABA KHQR</h2></div>
             </div>
           {/* Header: ABA PayWay + timer */}

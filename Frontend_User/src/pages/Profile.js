@@ -8,8 +8,9 @@ import { useLanguage } from '../i18n';
 import { fullUrl, getMyOrders, getMyWallet, topUpWallet, updateMyProfile, changeMyPassword, verifyPayment } from '../api';
 import CustomerAuth from '../components/CustomerAuth';
 
-// ABA mark attribution is retained in public/ABA_LOGO_ATTRIBUTION.txt.
 const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-bank-logo.png`;
+const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-logo.png`;
+const TOPUP_OPTIONS = [5, 10, 20, 50];
 
 export default function Profile() {
   const { shop } = useShop();
@@ -223,33 +224,27 @@ export default function Profile() {
 
       {shop.template_type === 'account' && (
         <section className="wallet-topup-card mb-6">
+          <header className="wallet-topup-header">
+            <div><p>ACCOUNT BALANCE</p><strong>${Number(wallet.balance || 0).toFixed(2)}</strong></div>
+            <span>{customer?.name || customer?.username}</span>
+          </header>
           <div className="wallet-topup-main">
-            <p className="wallet-topup-label">DIGITAL WALLET</p>
-            <p className="wallet-topup-balance">${Number(wallet.balance || 0).toFixed(2)}</p>
-            <div className="wallet-topup-controls">
-              <input
-                type="number"
-                min="0.10"
-                max="1000"
-                step="0.10"
-                value={topupAmount}
-                onChange={(event) => setTopupAmount(event.target.value)}
-                aria-label="Top-up amount"
-              />
-              <button type="button" onClick={startTopup} disabled={topupBusy}>{topupBusy ? 'Loading...' : 'Add Balance'}</button>
-            </div>
-            <div className="wallet-topup-presets">
-              {[0.1, 1, 2, 5, 10, 100, 1000].map((amount) => (
-                <button key={amount} type="button" onClick={() => setTopupAmount(String(amount))}>${amount.toFixed(2)}</button>
+            <div className="wallet-step-heading"><b>1</b><div><strong>Choose amount</strong><span>Select a top-up value or enter your own.</span></div></div>
+            <div className="wallet-amount-grid">
+              {TOPUP_OPTIONS.map((amount) => (
+                <button key={amount} type="button" onClick={() => setTopupAmount(String(amount))} className={Number(topupAmount) === amount ? 'wallet-amount-selected' : ''}>
+                  <strong>${amount}</strong><span>{amount === 10 ? 'Popular' : amount === 50 ? 'Best value' : 'Top up'}</span>
+                </button>
               ))}
             </div>
-            <p className="wallet-topup-note">Top up from $0.10 to $1,000.00 with ABA KHQR.</p>
+            <label className="wallet-custom-amount"><span>Custom amount</span><div><b>$</b><input type="number" min="0.10" max="1000" step="0.10" value={topupAmount} onChange={(event) => setTopupAmount(event.target.value)} aria-label="Custom top-up amount" /></div></label>
+            <div className="wallet-step-heading wallet-payment-heading"><b>2</b><div><strong>Payment method</strong><span>Pay securely with the selected method.</span></div></div>
+            <button type="button" className="wallet-payment-option wallet-payment-selected" aria-pressed="true">
+              <img className="wallet-aba-logo" src={ABA_LOGO_URL} alt="ABA Bank" /><img src={KHQR_LOGO_URL} alt="KHQR" /><span><strong>ABA KHQR</strong><small>Scan with ABA Mobile or any KHQR bank app</small></span><i>✓</i>
+            </button>
+            <button type="button" onClick={startTopup} disabled={topupBusy} className="wallet-pay-button">{topupBusy ? 'Preparing payment...' : `Pay $${Number(topupAmount || 0).toFixed(2)} with ABA KHQR`}</button>
+            <p className="wallet-topup-note">Top up from $0.10 to $1,000.00. Your balance updates after payment confirmation.</p>
           </div>
-          <aside className="wallet-topup-aba">
-            <p>PAYMENT METHOD</p>
-            <div className="wallet-aba-badge"><img src={ABA_LOGO_URL} alt="ABA Bank" onError={(event) => { event.currentTarget.style.display = 'none'; }} /><strong>ABA<br />KHQR</strong></div>
-            <span>Scan securely with ABA Mobile</span>
-          </aside>
           {topup && <div className="wallet-topup-qr"><p>Scan the ABA KHQR below, then confirm your payment.</p>{topup.payment?.qr_code_url && <img src={fullUrl(topup.payment.qr_code_url)} alt="ABA KHQR payment QR" />}<button type="button" onClick={confirmTopup}>Confirm top-up</button></div>}
         </section>
       )}
