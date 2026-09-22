@@ -76,6 +76,11 @@ def _mark_paid(db, order, transaction_id, amount=None):
 def _process_first_payment(db, order, shop):
     """Side effects for the FIRST successful payment confirmation:
     generate receipt, send Telegram payment alert, low-stock alert, activity log."""
+    # A paid manual-service request is now in the service team's queue.
+    if any(models.JSONText.loads(item.variations, {}).get("_service_link") for item in order.items):
+        order.order_status = "processing"
+        db.commit()
+        db.refresh(order)
     try:
         items = [i.to_dict() for i in order.items]
         order.receipt_url = pdf_service.generate_receipt(order, shop, items)
@@ -220,4 +225,3 @@ def test_payment(shop_id: int, db: Session = Depends(get_db),
         "hash": h,
         "checkout_url": checkout_url,
     }
-
