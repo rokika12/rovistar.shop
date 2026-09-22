@@ -86,8 +86,8 @@ export default function Products() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold dark:text-gray-100">{t('products')}</h1>
-        <div className="flex items-center gap-2">
-          <form onSubmit={applySearch} className="flex-1 md:flex-none">
+        <div className="product-list-filters">
+          <form onSubmit={applySearch} className="product-list-search">
             <div className="relative">
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
