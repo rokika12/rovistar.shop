@@ -73,7 +73,7 @@ export default function ProductDetail() {
   const varOptions = (attrName) => [...new Set((product.variations || []).map((v) => v.attrs?.[attrName]).filter(Boolean))];
   const manualService = product.metadata?.fulfillment_type === 'manual_service';
   const servicePlatform = String(product.metadata?.service_platform || '').toLowerCase();
-  const telegramService = manualService && servicePlatform === 'telegram' && /premium|star/i.test(product.name || '');
+  const telegramService = manualService && ['telegram', 'telegram_premium', 'telegram_star'].includes(servicePlatform);
   const freeFireService = manualService && servicePlatform === 'free_fire';
   const mobileLegendsService = manualService && servicePlatform === 'mobile_legends';
   const robloxService = manualService && servicePlatform === 'roblox';
