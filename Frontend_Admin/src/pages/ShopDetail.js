@@ -5,12 +5,12 @@ import { FiArrowLeft, FiEdit, FiEye, FiPlus, FiTrash2 } from 'react-icons/fi';
 import {
   createCategory, createProduct, deleteCategory, deleteCustomer, deleteOrder,
   deleteProduct, exportShopBackup, fullUrl, getOrder, getShopDetail,
-  listShopCategories, listShopCustomers, listShopOrders, listShopProducts, uploadImage, uploadProductImages,
+  listShopCategories, listShopCustomers, listShopOrders, listShopProducts, uploadImage, uploadProductImages, uploadServiceVideo,
   setShopExpiry, setShopLimits, updateCategory, updateOrderStatus, updateProduct, updateShop, updateShopStatus,
 } from '../api';
 import { Empty, Loading, Modal, btnDanger, btnGhost, btnPrimary, inputCls } from '../components/ui';
 
-const TABS = ['Overview', 'Products', 'Orders', 'Customers', 'Categories'];
+const TABS = ['Overview', 'Products', 'សេវាកម្មប៊ូតដោយដៃ', 'Orders', 'Customers', 'Categories'];
 const isExpired = (shop) => !!shop?.expires_at && new Date(shop.expires_at) < new Date();
 const STORE_URL = process.env.REACT_APP_STORE_URL || 'http://localhost:3000';
 
@@ -90,6 +90,7 @@ export default function ShopDetail() {
 
       {tab === 'Overview' && <OverviewTab shop={shop} setExpiry={setExpiry} toggleStatus={toggleStatus} onSaved={loadShop} />}
       {tab === 'Products' && <ProductsTab shopId={shopId} />}
+      {tab === 'សេវាកម្មប៊ូតដោយដៃ' && <ProductsTab shopId={shopId} manualOnly />}
       {tab === 'Orders' && <OrdersTab shopId={shopId} />}
       {tab === 'Customers' && <CustomersTab shopId={shopId} />}
       {tab === 'Categories' && <CategoriesTab shopId={shopId} />}
@@ -271,14 +272,15 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
   );
 }
 
-function ProductsTab({ shopId }) {
+function ProductsTab({ shopId, manualOnly = false }) {
   const [products, setProducts] = useState([]);
   const [cats, setCats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const emptyCredential = { email: '', password: '', license_key: '' };
-  const [form, setForm] = useState({ name: '', description: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '' });
+  const blankForm = (manual = false) => ({ name: '', description: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '', fulfillment_type: manual ? 'manual_service' : 'instant_code', service_platform: 'tiktok', service_type: 'manual', service_video_url: '', variations: [] });
+  const [form, setForm] = useState(blankForm(manualOnly));
 
   const load = () => Promise.all([listShopProducts(shopId), listShopCategories(shopId)])
     .then(([p, c]) => { setProducts(p); setCats(c); })
@@ -286,11 +288,11 @@ function ProductsTab({ shopId }) {
     .finally(() => setLoading(false));
   useEffect(() => { load(); }, [shopId]);
 
-  const openCreate = () => { setEditing(null); setForm({ name: '', description: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '' }); setModal(true); };
+  const openCreate = () => { setEditing(null); setForm(blankForm(manualOnly)); setModal(true); };
   const openEdit = (p) => {
     setEditing(p);
     const savedCredentials = p.metadata?.digital_delivery?.credentials || [];
-    setForm({ name: p.name, description: p.description || '', price: p.price ?? '', sale_price: p.sale_price ?? '', quantity: p.quantity ?? '', category_id: p.category_id ?? '', status: p.status || 'active', featured: !!p.featured, product_type: p.metadata?.product_type || 'digital', duration: p.metadata?.duration || '', delivery_email: p.metadata?.digital_delivery?.email || '', delivery_password: p.metadata?.digital_delivery?.password || '', license_key: p.metadata?.digital_delivery?.license_key || '', credentials: savedCredentials.length ? savedCredentials : [emptyCredential], images: p.images || [], promo_enabled: !!p.metadata?.promotion?.enabled, promo_text: p.metadata?.promotion?.text || '', promo_start: p.metadata?.promotion?.start_at || '', promo_end: p.metadata?.promotion?.end_at || '' });
+    setForm({ name: p.name, description: p.description || '', price: p.price ?? '', sale_price: p.sale_price ?? '', quantity: p.quantity ?? '', category_id: p.category_id ?? '', status: p.status || 'active', featured: !!p.featured, product_type: p.metadata?.product_type || 'digital', duration: p.metadata?.duration || '', delivery_email: p.metadata?.digital_delivery?.email || '', delivery_password: p.metadata?.digital_delivery?.password || '', license_key: p.metadata?.digital_delivery?.license_key || '', credentials: savedCredentials.length ? savedCredentials : [emptyCredential], images: p.images || [], promo_enabled: !!p.metadata?.promotion?.enabled, promo_text: p.metadata?.promotion?.text || '', promo_start: p.metadata?.promotion?.start_at || '', promo_end: p.metadata?.promotion?.end_at || '', fulfillment_type: p.metadata?.fulfillment_type || 'instant_code', service_platform: p.metadata?.service_platform || 'tiktok', service_type: p.metadata?.service_type || 'manual', service_video_url: p.metadata?.service_video_url || '', variations: (p.variations || []).map((variation) => ({ name: Object.values(variation.attrs || {}).join(' · '), price: variation.price ?? '' })) });
     setModal(true);
   };
 
@@ -299,11 +301,12 @@ function ProductsTab({ shopId }) {
     if (!form.name) { toast.error('Name is required'); return; }
     const payload = {
       shop_id: shopId, name: form.name, description: form.description,
-      price: Number(form.price) || 0, sale_price: form.sale_price === '' ? null : Number(form.sale_price), quantity: form.product_type === 'digital' ? form.credentials.filter((entry) => entry.email || entry.password).length : Number(form.quantity) || 0,
+      price: Number(form.price) || 0, sale_price: form.sale_price === '' ? null : Number(form.sale_price), quantity: form.fulfillment_type === 'manual_service' ? 0 : (form.product_type === 'digital' ? form.credentials.filter((entry) => entry.email || entry.password).length : Number(form.quantity) || 0),
       category_id: form.category_id ? Number(form.category_id) : null,
       images: form.images,
       status: form.status, featured: form.featured,
-      metadata: { product_type: form.product_type, duration: form.duration, digital_delivery: { email: form.delivery_email, password: form.delivery_password, license_key: form.license_key, credentials: form.credentials.filter((entry) => entry.email || entry.password) }, promotion: { enabled: form.promo_enabled, text: form.promo_text, start_at: form.promo_start, end_at: form.promo_end } },
+      variations: form.variations.map((item) => ({ attrs: { Package: item.name }, price: Number(item.price) || 0, quantity: 0 })),
+      metadata: { product_type: form.product_type, duration: form.duration, fulfillment_type: form.fulfillment_type, service_platform: form.service_platform, service_type: form.service_type, service_video_url: form.service_video_url.trim(), digital_delivery: { email: form.delivery_email, password: form.delivery_password, license_key: form.license_key, credentials: form.fulfillment_type === 'manual_service' ? [] : form.credentials.filter((entry) => entry.email || entry.password) }, promotion: { enabled: form.promo_enabled, text: form.promo_text, start_at: form.promo_start, end_at: form.promo_end } },
     };
     try {
       if (editing) { await updateProduct(editing.id, payload); toast.success('Product updated'); }
@@ -318,15 +321,19 @@ function ProductsTab({ shopId }) {
     catch (err) { toast.error(err?.response?.data?.detail || 'Failed to delete'); }
   };
 
+  const visibleProducts = manualOnly
+    ? products.filter((product) => product.metadata?.fulfillment_type === 'manual_service')
+    : products.filter((product) => product.metadata?.fulfillment_type !== 'manual_service');
+
   if (loading) return <Loading />;
 
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <div className="p-5 border-b flex items-center justify-between">
-        <h2 className="font-bold">Products ({products.length})</h2>
-        <button className={btnPrimary} onClick={openCreate}><FiPlus className="inline mr-1" /> Add Product</button>
+        <div><h2 className="font-bold">{manualOnly ? 'សេវាកម្មប៊ូតដោយដៃ' : 'Products'} ({visibleProducts.length})</h2>{manualOnly && <p className="mt-1 text-xs text-slate-500">អតិថិជនបញ្ចូល Link មុនបង់។ មិនរក្សាទុក password ឬគណនីអតិថិជនទេ។</p>}</div>
+        <button className={btnPrimary} onClick={openCreate}><FiPlus className="inline mr-1" /> {manualOnly ? 'បន្ថែមសេវាកម្ម' : 'Add Product'}</button>
       </div>
-      {products.length === 0 ? <Empty message="No products" /> : (
+      {visibleProducts.length === 0 ? <Empty message={manualOnly ? 'មិនទាន់មានសេវាកម្មធ្វើដោយដៃទេ' : 'No products'} /> : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -339,7 +346,7 @@ function ProductsTab({ shopId }) {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {products.map((p) => (
+              {visibleProducts.map((p) => (
                 <tr key={p.id} className="hover:bg-slate-50">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
@@ -367,12 +374,12 @@ function ProductsTab({ shopId }) {
         </div>
       )}
 
-      <ProductModal modal={modal} editing={editing} form={form} setForm={setForm} submit={submit} setModal={setModal} cats={cats} />
+      <ProductModal modal={modal} editing={editing} form={form} setForm={setForm} submit={submit} setModal={setModal} cats={cats} manualOnly={manualOnly} />
     </div>
   );
 }
 
-function ProductModal({ modal, editing, form, setForm, submit, setModal, cats }) {
+function ProductModal({ modal, editing, form, setForm, submit, setModal, cats, manualOnly }) {
   const uploadImages = async (files) => {
     if (!files.length) return;
     try {
@@ -382,21 +389,45 @@ function ProductModal({ modal, editing, form, setForm, submit, setModal, cats })
     } catch (e) { toast.error(e?.response?.data?.detail || 'Image upload failed'); }
   };
 
+  const uploadGuideVideo = async (file) => {
+    if (!file) return;
+    try {
+      const result = await uploadServiceVideo(file);
+      setForm((value) => ({ ...value, service_video_url: result.url }));
+      toast.success('វីដេអូបានរក្សាទុករួច');
+    } catch (e) { toast.error(e?.response?.data?.detail || 'មិនអាច upload វីដេអូបាន'); }
+  };
+
   return (
     <Modal open={modal} title={editing ? `Edit ${editing.name}` : 'Add Product'} onClose={() => setModal(false)}>
       <form onSubmit={submit} className="space-y-4">
         <div>
           <label className="text-sm font-medium text-gray-700 block">Product type</label>
-          <select value={form.product_type} onChange={(e) => setForm({ ...form, product_type: e.target.value })} className={inputCls}>
+          <select value={form.product_type} disabled={manualOnly} onChange={(e) => setForm({ ...form, product_type: e.target.value })} className={inputCls}>
             <option value="digital">Digital product / subscription</option>
             <option value="physical">Physical product</option>
           </select>
         </div>
+        {manualOnly && <div className="space-y-3 rounded-xl border border-sky-200 bg-sky-50 p-4">
+          <div>
+            <label className="block text-sm font-semibold text-slate-800">សេវាកម្មប៊ូតដោយដៃ</label>
+            <p className="mt-1 text-xs text-slate-600">ភ្ញៀវបញ្ចូល public link មុនទូទាត់ប្រាក់។ មិនត្រូវសុំ password ឬគណនីពីភ្ញៀវទេ។</p>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div><label className="mb-1 block text-xs font-semibold text-slate-600">Platform</label><select value={form.service_platform} onChange={(e) => setForm({ ...form, service_platform: e.target.value })} className={inputCls}><option value="tiktok">TikTok</option><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="youtube">YouTube</option><option value="telegram">Telegram</option></select></div>
+            <div><label className="mb-1 block text-xs font-semibold text-slate-600">ប្រភេទសេវាកម្ម</label><input value={form.service_type} onChange={(e) => setForm({ ...form, service_type: e.target.value })} className={inputCls} placeholder="ឧ. ការផ្សព្វផ្សាយដោយដៃ" /></div>
+          </div>
+          <div><label className="mb-1 block text-xs font-semibold text-slate-600">វីដេអូណែនាំក្រោយបង់ប្រាក់</label><input type="file" accept="video/mp4,video/webm" onChange={(e) => uploadGuideVideo(e.target.files?.[0])} className="block w-full text-xs" />{form.service_video_url && <p className="mt-2 break-all text-xs text-emerald-700">បានភ្ជាប់វីដេអូរួច</p>}</div>
+          <div>
+            <div className="mb-2 flex items-center justify-between"><label className="text-xs font-semibold text-slate-600">Package និងតម្លៃ</label><button type="button" className={btnGhost} onClick={() => setForm({ ...form, variations: [...form.variations, { name: '', price: '' }] })}>+ បន្ថែម Package</button></div>
+            <div className="space-y-2">{form.variations.map((item, index) => <div key={index} className="grid grid-cols-[1fr_7rem_auto] gap-2"><input value={item.name} onChange={(e) => setForm({ ...form, variations: form.variations.map((row, rowIndex) => rowIndex === index ? { ...row, name: e.target.value } : row) })} className={inputCls} placeholder="ឈ្មោះ Package" /><input type="number" min="0" step="0.01" value={item.price} onChange={(e) => setForm({ ...form, variations: form.variations.map((row, rowIndex) => rowIndex === index ? { ...row, price: e.target.value } : row) })} className={inputCls} placeholder="USD" /><button type="button" className="rounded-lg bg-red-100 px-3 text-xs font-bold text-red-700" onClick={() => setForm({ ...form, variations: form.variations.filter((_, rowIndex) => rowIndex !== index) })}>លុប</button></div>)}</div>
+          </div>
+        </div>}
         <div>
           <label className="text-sm font-medium text-gray-700 block">Duration</label>
           <input value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} className={inputCls} placeholder="1 week, 1 month, 3 months" />
         </div>
-        {form.product_type === 'digital' && <div className="border border-indigo-100 bg-indigo-50 rounded-lg p-3 space-y-3">
+        {form.product_type === 'digital' && !manualOnly && <div className="border border-indigo-100 bg-indigo-50 rounded-lg p-3 space-y-3">
           <p className="text-sm font-semibold text-indigo-800">Digital delivery credentials</p>
           <p className="text-xs text-indigo-600">ដាក់ Gmail និង Password តាមចំនួនស្តុក។ អតិថិជនទិញមួយ នឹងទទួលបានមួយឈុត ហើយឈុតនោះត្រូវបានដកចេញបន្ទាប់ពីបង់ប្រាក់។</p>
           {(form.credentials || []).map((entry, index) => (
@@ -433,7 +464,7 @@ function ProductModal({ modal, editing, form, setForm, submit, setModal, cats })
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700 block">Quantity</label>
-            <input type="number" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} className={inputCls} />
+            <input type="number" disabled={manualOnly} value={manualOnly ? 0 : form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} className={inputCls} />
           </div>
         </div>
         <div className="border border-amber-200 bg-amber-50 rounded-lg p-3 space-y-3">
