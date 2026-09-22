@@ -8,7 +8,7 @@ import { useLanguage } from '../i18n';
  * The strip is sticky below the navbar so categories stay visible while the
  * user scrolls down the page.
  */
-export default function CategoryNav({ categories }) {
+export default function CategoryNav({ categories, products = [] }) {
   const { shop } = useShop();
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -24,23 +24,30 @@ export default function CategoryNav({ categories }) {
   if (!categories || categories.length === 0) return null;
 
   const chip = (isActive) =>
-    `shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition ${isActive ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'}`;
+    `store-category-pill ${isActive ? 'store-category-pill-active' : ''}`;
+  const countFor = (category) => (
+    typeof category.product_count === 'number'
+      ? category.product_count
+      : products.filter((product) => String(product.category_id) === String(category.id)).length
+  );
 
   return (
-    <div className="store-category-nav sticky z-30 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-100 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 py-2.5">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
-          <button onClick={() => select(null)} className={chip(!active)}>
+    <div className="store-category-nav sticky z-30 w-full">
+      <div className="max-w-7xl mx-auto store-category-nav-inner">
+        <div className="store-category-track no-scrollbar" aria-label="Product categories">
+          <button onClick={() => select(null)} className={chip(!active)} aria-current={!active ? 'page' : undefined}>
             {t('all')}
+            <span className="store-category-count">{products.length || categories.reduce((total, category) => total + (category.product_count || 0), 0)}</span>
           </button>
           {categories.map((c) => (
             <button
               key={c.id}
               onClick={() => select(c.id)}
               className={chip(String(active) === String(c.id))}
+              aria-current={String(active) === String(c.id) ? 'page' : undefined}
             >
               {c.name}
-              {c.product_count > 0 && <span className="ml-1 text-xs opacity-70">({c.product_count})</span>}
+              <span className="store-category-count">{countFor(c)}</span>
             </button>
           ))}
         </div>
