@@ -69,6 +69,7 @@ export default function ProductDetail() {
     : [];
   const varOptions = (attrName) => [...new Set((product.variations || []).map((v) => v.attrs?.[attrName]).filter(Boolean))];
   const manualService = product.metadata?.fulfillment_type === 'manual_service';
+  const isAvailable = manualService || effectiveStock > 0;
   const videoUrl = String(product.metadata?.service_video_url || '').trim();
   const youtubeMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
   const isDirectVideo = /\.(mp4|webm)(?:\?.*)?$/i.test(videoUrl);
@@ -103,7 +104,7 @@ export default function ProductDetail() {
       toast.error('Please enter your public TikTok link');
       return;
     }
-    if (effectiveStock <= 0) { toast.error('This item is out of stock'); return; }
+    if (!isAvailable) { toast.error('This item is out of stock'); return; }
     addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, manualService ? { ...selectedVariations, _service_link: serviceLink.trim() } : selectedVariations);
     setOpen(false);
     navigate(`/${shop.username}/checkout`);
@@ -163,7 +164,9 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {effectiveStock > 0 ? (
+          {manualService ? (
+            <p className="text-sm text-green-600 mt-1">✓ Available · manual service</p>
+          ) : effectiveStock > 0 ? (
             <p className="text-sm text-green-600 mt-1">✓ {t('inStock')} ({effectiveStock})</p>
           ) : (
             <p className="text-sm text-red-500 mt-1">✗ {t('outOfStock')}</p>
@@ -240,7 +243,7 @@ export default function ProductDetail() {
 
           {/* Direct digital purchase */}
           <div className="flex items-center gap-4 mt-8">
-            <button onClick={buyNow} disabled={effectiveStock <= 0} className="flex-1 px-5 py-3 rounded-xl bg-primary text-white font-bold hover:brightness-95 disabled:opacity-50 flex items-center justify-center gap-2">
+            <button onClick={buyNow} disabled={!isAvailable} className="flex-1 px-5 py-3 rounded-xl bg-primary text-white font-bold hover:brightness-95 disabled:opacity-50 flex items-center justify-center gap-2">
               <FiZap /> {manualService ? 'Continue' : 'Buy Now'}
             </button>
           </div>
