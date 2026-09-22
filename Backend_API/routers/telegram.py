@@ -1,5 +1,5 @@
 """Telegram notification endpoints + bot webhook + activity log endpoints."""
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 
 import models
@@ -10,6 +10,15 @@ from security import get_current_admin, get_current_user, require_shop_access
 from services import stock_service, telegram_service
 
 router = APIRouter(prefix="/api", tags=["telegram"])
+
+
+@router.get("/telegram/public-profile")
+def public_telegram_profile(username: str = Query(...)):
+    """Preview a public Telegram username before a customer buys a service."""
+    result = telegram_service.resolve_public_profile_username(username)
+    if not result.get("ok"):
+        raise HTTPException(status_code=404, detail=result.get("detail", "Telegram username not found"))
+    return result
 
 
 @router.post("/telegram/webhook/{token}")
