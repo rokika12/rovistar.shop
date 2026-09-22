@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FiCheckCircle, FiClock, FiCopy, FiDownload, FiHelpCircle, FiPackage, FiTruck } from 'react-icons/fi';
+import { FiCheckCircle, FiClock, FiCopy, FiDownload, FiHelpCircle, FiPackage, FiPlayCircle, FiTruck } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
@@ -47,6 +47,9 @@ export default function OrderSuccess() {
 
   const isPaid = order.payment_status === 'paid';
   const manualServiceItems = order.items.filter((item) => item.service_request_required);
+  const serviceVideoUrl = order.items.map((item) => item.service_video_url).find(Boolean) || '';
+  const serviceVideoEmbed = serviceVideoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  const isDirectServiceVideo = /\.(mp4|webm)(?:\?.*)?$/i.test(serviceVideoUrl);
   const stageNames = ['Order placed', 'Paid', 'Prepared', 'Delivered', 'Completed'];
   const orderStage = String(order.order_status || '').toLowerCase();
   const stageIndex = !isPaid ? 0 : (orderStage === 'completed' ? 4 : orderStage === 'delivered' ? 3 : orderStage === 'prepared' || orderStage === 'processing' ? 2 : 1);
@@ -176,6 +179,21 @@ export default function OrderSuccess() {
                     {sendingServiceRequest ? 'Sending...' : 'Send link securely'}
                   </button>
                 </form>
+              )}
+            </div>
+          )}
+          {isPaid && serviceVideoUrl && (
+            <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50/60 p-4">
+              <h3 className="mb-2 flex items-center gap-2 font-bold text-blue-950"><FiPlayCircle /> Watch before we start</h3>
+              <p className="mb-3 text-sm text-blue-900">Your payment is confirmed. Watch this short guide while your service is being processed.</p>
+              {serviceVideoEmbed ? (
+                <div className="aspect-video overflow-hidden rounded-xl bg-slate-900">
+                  <iframe className="h-full w-full" src={`https://www.youtube-nocookie.com/embed/${serviceVideoEmbed[1]}`} title="Service guide" allowFullScreen />
+                </div>
+              ) : isDirectServiceVideo ? (
+                <video className="w-full rounded-xl bg-slate-900" controls preload="metadata" src={fullUrl(serviceVideoUrl)} />
+              ) : (
+                <a href={serviceVideoUrl} target="_blank" rel="noreferrer" className="inline-flex rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white">Watch the service guide</a>
               )}
             </div>
           )}

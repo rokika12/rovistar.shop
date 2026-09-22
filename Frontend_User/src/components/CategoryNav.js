@@ -27,7 +27,7 @@ export default function CategoryNav({ categories }) {
     `shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition ${isActive ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'}`;
 
   return (
-    <div className="sticky top-16 z-30 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-100 dark:border-gray-800">
+    <div className="store-category-nav sticky z-30 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur border-b border-gray-100 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 py-2.5">
         <div className="flex gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
           <button onClick={() => select(null)} className={chip(!active)}>

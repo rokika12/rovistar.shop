@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiTrash2, FiUpload } from 'react-icons/fi';
-import { createProduct, getProduct, getShopDetail, listCategories, updateProduct, uploadImages, fullUrl } from '../api';
+import { FiTrash2, FiUpload, FiVideo } from 'react-icons/fi';
+import { createProduct, getProduct, getShopDetail, listCategories, updateProduct, uploadImages, uploadServiceVideo, fullUrl } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import AttributeBuilder from '../components/AttributeBuilder';
 import VariationBuilder from '../components/VariationBuilder';
@@ -23,6 +23,7 @@ export default function ProductForm() {
   const [form, setForm] = useState(emptyProduct);
   const [categories, setCategories] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [storeType, setStoreType] = useState('clothing');
   const isEdit = !!id;
 
@@ -70,6 +71,22 @@ export default function ProductForm() {
 
   const removeImage = (idx) => {
     setForm({ ...form, images: form.images.filter((_, i) => i !== idx) });
+  };
+
+  const handleServiceVideo = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadingVideo(true);
+    try {
+      const result = await uploadServiceVideo(file);
+      setForm({ ...form, metadata: { ...form.metadata, service_video_url: result.url } });
+      toast.success('វីដេអូបានបញ្ចូលរួច');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'មិនអាចបញ្ចូលវីដេអូបាន');
+    } finally {
+      setUploadingVideo(false);
+      event.target.value = '';
+    }
   };
 
   const credentials = form.metadata?.digital_delivery?.credentials || [];
@@ -252,6 +269,11 @@ export default function ProductForm() {
                   placeholder="https://www.youtube.com/watch?v=..."
                 />
               </label>
+              <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-cyan-300 bg-white px-3 py-2 text-sm font-semibold text-cyan-800 hover:bg-cyan-50">
+                <FiVideo /> {uploadingVideo ? 'កំពុងបញ្ចូលវីដេអូ...' : 'បញ្ចូលវីដេអូ MP4 / WebM'}
+                <input type="file" accept="video/mp4,video/webm" className="hidden" disabled={uploadingVideo} onChange={handleServiceVideo} />
+              </label>
+              <p className="text-xs text-gray-500">វីដេអូត្រូវតែតូចជាង 25MB ហើយនឹងបង្ហាញឲ្យភ្ញៀវមើលក្រោយពេលបង់ប្រាក់។</p>
             </>
           )}
         </div>

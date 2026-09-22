@@ -37,6 +37,16 @@ def _save_media(content: bytes, filename: str, db: Session) -> str:
     return media_name
 
 
+def _validate_service_video(content: bytes, filename: str, content_type: str) -> None:
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in config.ALLOWED_VIDEO_EXT:
+        raise HTTPException(status_code=400, detail="Only MP4 and WebM videos are allowed")
+    if len(content) > config.MAX_SERVICE_VIDEO_SIZE:
+        raise HTTPException(status_code=400, detail="Video is too large (max 25MB)")
+    if not (content_type or "").startswith("video/"):
+        raise HTTPException(status_code=400, detail="Invalid video file")
+
+
 @router.post("")
 async def upload_file(
     file: UploadFile = File(...),
@@ -79,6 +89,25 @@ async def upload_product_images(
         db.rollback()
         raise HTTPException(status_code=500, detail="Could not save product images")
     return {"urls": urls}
+
+
+@router.post("/service-video")
+async def upload_service_video(
+    file: UploadFile = File(...),
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Store one short product tutorial video in the persistent media store."""
+    content = await file.read()
+    source_name = file.filename or "service-guide.mp4"
+    _validate_service_video(content, source_name, file.content_type or "")
+    filename = _save_media(content, source_name, db)
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Could not save video")
+    return {"url": f"/api/uploads/media/{filename}", "filename": filename}
 
 
 @router.get("/media/{filename}")

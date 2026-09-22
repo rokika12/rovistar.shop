@@ -67,19 +67,40 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
 
     items_total = 0.0
     digital_only = True
+    manual_service_links = []
     for item in data.items:
         product = db.query(models.Product).filter(models.Product.id == item.product_id).first()
-        unit_price = item.price
-        if product:
-            unit_price = product.sale_price if product.sale_price is not None else product.price
-            # Stock is NOT deducted here — it is deducted automatically when the
-            # payment is confirmed successful (see payments._mark_paid).
-        items_total += float(unit_price) * item.quantity
         item_variations = dict(item.variations or {})
+        if not product or product.shop_id != data.shop_id:
+            raise HTTPException(status_code=400, detail=f"Product #{item.product_id} is not available in this shop")
+        unit_price = product.sale_price if product.sale_price is not None else product.price
+        # The server, not the browser, selects the package price. Internal service
+        # fields such as _service_link never affect the product variation match.
+        variations = models.JSONText.loads(product.variations, []) if product.variations else []
+        variation_keys = {key for variation in variations for key in (variation.get("attrs") or {})}
+        if variation_keys:
+            match = next((variation for variation in variations if all(
+                str((variation.get("attrs") or {}).get(key)) == str(item_variations.get(key))
+                for key in variation_keys
+            )), None)
+            if not match:
+                raise HTTPException(status_code=400, detail="Please choose a valid service package")
+            if match.get("price") is not None:
+                unit_price = float(match["price"])
+        # Stock is NOT deducted here — it is deducted automatically when the
+        # payment is confirmed successful (see payments._mark_paid).
+        items_total += float(unit_price) * item.quantity
         product_meta = models.JSONText.loads(product.metadata_json, {}) if product else {}
         digital_only = digital_only and product_meta.get("product_type") == "digital"
         if product_meta.get("fulfillment_type") == "manual_service":
-            item_variations["_service_request_required"] = True
+            service_link = str(item_variations.get("_service_link") or "").strip()
+            if len(service_link) > 2048 or not service_link.startswith(("https://", "http://")):
+                raise HTTPException(status_code=400, detail="Please enter a valid public service link before payment")
+            item_variations["_service_link"] = service_link
+            service_video_url = str(product_meta.get("service_video_url") or "").strip()
+            if service_video_url:
+                item_variations["_service_video_url"] = service_video_url
+            manual_service_links.append(service_link)
         delivery = None
         if product_meta.get("product_type") == "digital":
             pool = (product_meta.get("digital_delivery") or {}).get("credentials") or []
@@ -155,6 +176,14 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
                 product.metadata_json = models.JSONText.dumps(metadata)
         db.commit()
         db.refresh(order)
+        # Wallet orders are already paid in this endpoint, so send the public
+        # service link to the shop here. ABA orders notify after verification.
+        if order.payment_method == "wallet" and manual_service_links:
+            shop = db.query(models.Shop).filter(models.Shop.id == order.shop_id).first()
+            if shop:
+                from services.telegram_service import notify_shop_service_request
+                for service_link in manual_service_links:
+                    notify_shop_service_request(shop, order, service_link)
 
     # NOTE: no "new order" Telegram notification here — the shop's Telegram group
     # only receives a message when the payment is CONFIRMED SUCCESSFUL

@@ -43,14 +43,19 @@ export default function ShopLayout() {
 
   return (
     <div className="min-h-screen flex flex-col dark:bg-gray-900" data-template={shop.template_type || 'login'} style={themeStyle}>
-      <div className="brand-ticker bg-[var(--brand-blue)] text-white">
-        <div className="brand-ticker-track">
-          <span>{isAccountTemplate
-            ? 'Secure digital services · Instant access after verified payment'
-            : 'Reliable products · Simple checkout · Fast customer support'}</span>
+      <div className="store-sticky-shell">
+        <div className="brand-ticker bg-[var(--brand-blue)] text-white" aria-label="Store security notice">
+          <div className="brand-ticker-track">
+            <span>{isAccountTemplate
+              ? 'SECURE CHECKOUT · VERIFIED PAYMENTS · DIGITAL SERVICE SUPPORT · '
+              : 'SECURE CHECKOUT · VERIFIED PAYMENTS · FAST CUSTOMER SUPPORT · '}</span>
+            <span aria-hidden="true">{isAccountTemplate
+              ? 'SECURE CHECKOUT · VERIFIED PAYMENTS · DIGITAL SERVICE SUPPORT'
+              : 'SECURE CHECKOUT · VERIFIED PAYMENTS · FAST CUSTOMER SUPPORT'}</span>
+          </div>
         </div>
+        <ShopHeader />
       </div>
-      <ShopHeader />
       <main className="storefront-main flex-1">
         <Outlet />
       </main>

@@ -326,6 +326,8 @@ class OrderItem(Base):
         variations = JSONText.loads(self.variations, {})
         delivery = variations.pop("_digital_delivery", None) if self.order and self.order.payment_status == "paid" else None
         service_request_required = bool(variations.pop("_service_request_required", False))
+        service_video_url = variations.pop("_service_video_url", "")
+        variations.pop("_service_link", None)
         result = {
             "id": self.id,
             "order_id": self.order_id,
@@ -339,6 +341,8 @@ class OrderItem(Base):
             result["digital_delivery"] = delivery
         if service_request_required:
             result["service_request_required"] = True
+        if service_video_url:
+            result["service_video_url"] = service_video_url
         return result
 
 
@@ -495,4 +499,3 @@ class TelegramCode(Base):
     code_hash = Column(String, default="")
     expires_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-

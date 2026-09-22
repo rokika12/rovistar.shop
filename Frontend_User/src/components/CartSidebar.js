@@ -40,9 +40,9 @@ export default function CartSidebar() {
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate">{item.name}</p>
-                    {Object.keys(item.variations).length > 0 && (
+                    {Object.keys(item.variations).some((key) => !key.startsWith('_')) && (
                       <p className="text-xs text-gray-500">
-                        {Object.entries(item.variations).map(([k, v]) => `${k}: ${v}`).join(' · ')}
+                        {Object.entries(item.variations).filter(([key]) => !key.startsWith('_')).map(([k, v]) => `${k}: ${v}`).join(' · ')}
                       </p>
                     )}
                     <div className="flex items-center justify-between mt-2">

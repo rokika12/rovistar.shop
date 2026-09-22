@@ -104,6 +104,11 @@ export const uploadImages = (files) => {
   files.forEach((f) => fd.append('files', f));
   return api.post('/api/uploads/product', fd).then((r) => r.data);
 };
+export const uploadServiceVideo = (file) => {
+  const fd = new FormData();
+  fd.append('file', file);
+  return api.post('/api/uploads/service-video', fd).then((r) => r.data);
+};
 
 // Payments / Telegram
 export const testPayment = (shopId) => api.post('/api/payments/aba/test', null, { params: { shop_id: shopId } }).then((r) => r.data);

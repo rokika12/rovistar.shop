@@ -1,14 +1,23 @@
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
+from fastapi import HTTPException
 
 from database import SessionLocal
 from main import app
 import models
 from security import create_access_token
+from routers.uploads import _validate_service_video
 
 
 client = TestClient(app)
+
+
+def test_service_video_validation_allows_small_mp4_only():
+    _validate_service_video(b"not-decoded-in-this-route", "guide.mp4", "video/mp4")
+    with pytest.raises(HTTPException):
+        _validate_service_video(b"bad", "guide.mov", "video/quicktime")
 
 
 def test_paid_manual_service_request_requires_owner_and_saves_link():
@@ -55,5 +64,66 @@ def test_paid_manual_service_request_requires_owner_and_saves_link():
 
         db.refresh(order)
         assert order.customer_note.startswith("[service-request]\nLink: https://www.tiktok.com/")
+    finally:
+        db.close()
+
+
+def test_manual_service_requires_link_before_payment_and_keeps_video_for_receipt():
+    db = SessionLocal()
+    try:
+        suffix = uuid.uuid4().hex[:8]
+        shop = models.Shop(username=f"manual_{suffix}", shop_name="Manual Shop", status="active")
+        db.add(shop)
+        db.flush()
+        customer = models.Customer(shop_id=shop.id, name="Customer", phone="012345679")
+        product = models.Product(
+            shop_id=shop.id,
+            name="TikTok campaign setup",
+            price=3.0,
+            quantity=10,
+            variations=models.JSONText.dumps([{"attrs": {"Package": "Pro"}, "price": 9.0, "quantity": 10}]),
+            metadata_json=models.JSONText.dumps({
+                "product_type": "digital",
+                "fulfillment_type": "manual_service",
+                "service_video_url": "/api/uploads/media/guide.mp4",
+            }),
+        )
+        db.add_all([customer, product])
+        db.commit()
+        db.refresh(customer)
+        db.refresh(product)
+        token = create_access_token({"sub": str(customer.id), "role": "customer"})
+        headers = {"Authorization": f"Bearer {token}"}
+        base_order = {
+            "shop_id": shop.id,
+            "customer_name": "Customer",
+            "customer_phone": "digital",
+            "customer_address": "Digital delivery",
+            "customer_city": "Online",
+            "customer_country": "Online",
+            "payment_method": "khqr",
+        }
+
+        missing = client.post("/api/orders", json={
+            **base_order,
+            "items": [{"product_id": product.id, "name": product.name, "price": 3.0, "quantity": 1, "variations": {"Package": "Pro"}}],
+        }, headers=headers)
+        assert missing.status_code == 400, missing.text
+
+        created = client.post("/api/orders", json={
+            **base_order,
+            "items": [{
+                "product_id": product.id,
+                "name": product.name,
+                "price": 3.0,
+                "quantity": 1,
+                "variations": {"Package": "Pro", "_service_link": "https://www.tiktok.com/@creator/video/123"},
+            }],
+        }, headers=headers)
+        assert created.status_code == 200, created.text
+        item = created.json()["items"][0]
+        assert item["price"] == 9.0
+        assert item["service_video_url"] == "/api/uploads/media/guide.mp4"
+        assert "_service_link" not in item["variations"]
     finally:
         db.close()

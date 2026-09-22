@@ -24,7 +24,9 @@ class Config:
         os.makedirs(d, exist_ok=True)
 
     MAX_UPLOAD_SIZE = 8 * 1024 * 1024  # 8 MB
+    MAX_SERVICE_VIDEO_SIZE = 25 * 1024 * 1024  # 25 MB tutorial clips only
     ALLOWED_IMAGE_EXT = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+    ALLOWED_VIDEO_EXT = {".mp4", ".webm"}
     ALLOWED_FILE_EXT = {".json", ".zip", ".xlsx"}
 
     RATE_LIMIT_REQUESTS = 60

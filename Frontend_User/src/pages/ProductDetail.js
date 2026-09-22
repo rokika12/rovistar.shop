@@ -20,6 +20,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedVariations, setSelectedVariations] = useState({});
   const [activeImage, setActiveImage] = useState(0);
+  const [serviceLink, setServiceLink] = useState('');
 
   useEffect(() => {
     if (!shop) return;
@@ -98,8 +99,12 @@ export default function ProductDetail() {
   const buyNow = () => {
     const missing = selectableAttrs.find((a) => !selectedVariations[a.key]);
     if (missing) { toast.error(`Please select ${missing.label}`); return; }
+    if (manualService && !serviceLink.trim().startsWith(('https://'))) {
+      toast.error('Please enter your public TikTok link');
+      return;
+    }
     if (effectiveStock <= 0) { toast.error('This item is out of stock'); return; }
-    addItem(product, 1, selectedVariations);
+    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, manualService ? { ...selectedVariations, _service_link: serviceLink.trim() } : selectedVariations);
     setOpen(false);
     navigate(`/${shop.username}/checkout`);
   };
@@ -147,7 +152,7 @@ export default function ProductDetail() {
             </span>
           )}
           {manualService && (
-            <p className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-900">Manual service · After payment, send your public link securely. We never request your TikTok password.</p>
+            <p className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-900">Choose a package and paste your public TikTok link before payment. We never request your TikTok password.</p>
           )}
 
           <div className="flex items-center gap-3 mt-4">
@@ -166,15 +171,18 @@ export default function ProductDetail() {
 
           {/* Selectable options — size, color, ... (clickable) */}
           {selectableAttrs.length > 0 && (
-            <div className="mt-6 space-y-4">
+            <div className={`mt-6 space-y-4 ${manualService ? 'service-package-selector' : ''}`}>
               {selectableAttrs.map((attr) => (
                 <div key={attr.key}>
                   <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 block mb-2">
                     {attr.label}{attr.required ? ' *' : ''}
                   </label>
-                  <div className="flex flex-wrap gap-2">
-                    {attr.options.map((opt) =>
-                      attr.type === 'color' ? (
+                  <div className={`flex flex-wrap gap-2 ${manualService ? 'service-package-options' : ''}`}>
+                    {attr.options.map((opt) => {
+                      const optionPrice = manualService
+                        ? product.variations.find((variation) => variation.attrs?.[attr.key] === opt)?.price
+                        : null;
+                      return attr.type === 'color' ? (
                         <button
                           key={opt}
                           type="button"
@@ -199,19 +207,34 @@ export default function ProductDetail() {
                           key={opt}
                           type="button"
                           onClick={() => setSelectedVariations((prev) => ({ ...prev, [attr.key]: opt }))}
-                          className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition ${
+                          className={`${manualService ? 'service-package-option' : 'px-4 py-2 rounded-lg'} border-2 text-sm font-medium transition ${
                             selectedVariations[attr.key] === opt
                               ? 'border-primary bg-primary text-white'
                               : 'border-gray-200 text-gray-700 hover:border-gray-400 dark:border-gray-600 dark:text-gray-300'
                           }`}
                         >
-                          {opt}
+                          <span>{opt}</span>
+                          {manualService && optionPrice != null && <small>{Number(optionPrice).toFixed(2)} {shop.currency}</small>}
                         </button>
                       )
-                    )}
+                    })}
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {manualService && (
+            <div className="service-link-card mt-5">
+              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">TikTok link</label>
+              <p>Paste the public video or profile link before payment.</p>
+              <input
+                id="service-link"
+                value={serviceLink}
+                onChange={(event) => setServiceLink(event.target.value)}
+                type="url"
+                placeholder="https://www.tiktok.com/@..."
+              />
             </div>
           )}
 
@@ -244,7 +267,7 @@ export default function ProductDetail() {
               <p className="text-gray-600 dark:text-gray-400 whitespace-pre-line text-sm leading-relaxed">{product.description}</p>
             </div>
           )}
-          {videoUrl && (
+          {videoUrl && !manualService && (
             <div className="mt-6 border-t pt-6">
               <h3 className="mb-3 flex items-center gap-2 font-bold"><FiPlayCircle /> How it works</h3>
               {youtubeMatch ? (

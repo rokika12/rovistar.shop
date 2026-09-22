@@ -60,7 +60,7 @@ body {
 @keyframes trust-scroll { from { transform: translateX(-25%); } to { transform: translateX(0); } }
 
 .brand-ticker {
-  min-height: 34px;
+  min-height: 30px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -70,11 +70,84 @@ body {
 }
 .brand-ticker-track {
   display: flex;
-  width: 100%;
-  justify-content: center;
-  padding: 0.5rem 0.75rem;
-  text-align: center;
+  width: max-content;
+  min-width: 200%;
+  align-items: center;
+  gap: 2.2rem;
+  padding: 0.42rem 0;
+  white-space: nowrap;
   line-height: 1.25;
+  animation: brand-ticker-scroll 22s linear infinite;
+}
+.store-sticky-shell {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.08), 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+.store-sticky-shell .store-header {
+  position: relative;
+  z-index: 1;
+}
+.store-category-nav { top: 106px; }
+[data-template='account'] .store-category-nav { top: 118px; }
+.service-package-selector {
+  border: 1px solid #dbeafe;
+  border-radius: 1.25rem;
+  background: linear-gradient(145deg, #f8fbff, #eef6ff);
+  padding: 1rem;
+}
+.service-package-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+.service-package-option {
+  display: flex;
+  min-height: 3.5rem;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 0.9rem;
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+}
+.service-package-option small {
+  margin-top: 0.15rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  opacity: 0.82;
+}
+.service-link-card {
+  border: 1px solid #bae6fd;
+  border-radius: 1rem;
+  background: #f0f9ff;
+  padding: 1rem;
+}
+.service-link-card p {
+  margin: 0.2rem 0 0.65rem;
+  color: #475569;
+  font-size: 0.78rem;
+}
+.service-link-card input {
+  width: 100%;
+  border: 1px solid #bae6fd;
+  border-radius: 0.7rem;
+  background: #fff;
+  padding: 0.72rem 0.8rem;
+  color: #0f172a;
+  font-size: 0.86rem;
+  outline: none;
+}
+.service-link-card input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+@media (max-width: 380px) {
+  .service-package-options { grid-template-columns: 1fr; }
+}
+@media (max-width: 767px) {
+  .store-category-nav { top: 96px; }
+  [data-template='account'] .store-category-nav { top: 108px; }
 }
 
 @media (max-width: 480px) {
@@ -88,7 +161,7 @@ body {
   min-height: 42px;
   font-size: 14px;
 }
-[data-template='account'] > header {
+[data-template='account'] .store-header {
   border-bottom: 3px solid var(--secondary);
 }
 [data-template='account'] > main {
@@ -108,6 +181,10 @@ body {
 @keyframes brand-ticker-scroll {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-ticker-track { animation: none; min-width: 100%; justify-content: center; }
+  .brand-ticker-track span + span { display: none; }
 }
 
 /* Hide horizontal scrollbar on product rows while keeping scrollability */

@@ -66,7 +66,7 @@ export default function ShopHeader() {
   const navClass = ({ isActive }) => `store-nav-link ${isActive ? 'store-nav-link-active' : ''}`;
 
   return (
-    <header className="store-header sticky top-0 z-40">
+    <header className="store-header">
       <div className="store-header-inner">
         <Link to={base} onClick={closePanels} className="store-brand" aria-label={`${shop.shop_name || shop.username} home`}>
           <ShopLogo shop={shop} className="h-10 w-10 rounded-2xl" textClassName="hidden" />
