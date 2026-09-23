@@ -75,6 +75,11 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
             raise HTTPException(status_code=400, detail=f"Product #{item.product_id} is not available in this shop")
         unit_price = product.sale_price if product.sale_price is not None else product.price
         product_meta = models.JSONText.loads(product.metadata_json, {})
+        if product.status != "active":
+            raise HTTPException(status_code=400, detail=f"Product #{item.product_id} is not available")
+        if (product_meta.get("fulfillment_type") == "manual_service"
+                and product_meta.get("manual_service_out_of_stock")):
+            raise HTTPException(status_code=400, detail="This manual service is out of stock")
         # Package choices apply only to manual services. Regular products can
         # retain optional variations without blocking checkout.
         variations = models.JSONText.loads(product.variations, []) if product.variations else []
