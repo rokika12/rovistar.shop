@@ -128,6 +128,10 @@ export default function Checkout() {
       toast.error(t('signInRequired'));
       return;
     }
+    if (!/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(form.customer_telegram.trim())) {
+      toast.error('Please enter a valid Telegram username starting with @');
+      return;
+    }
     if (!digitalOnly && (!form.customer_name || !form.customer_phone || !form.customer_address || !form.customer_city || !form.customer_country)) {
       toast.error(t('fillRequired'));
       return;
@@ -353,6 +357,11 @@ export default function Checkout() {
             {items.map((item) => <div key={item.product_id} className="flex justify-between border-b border-blue-100 dark:border-gray-600 py-2 text-sm"><span>{item.name} × {item.quantity}</span><strong>{(item.price * item.quantity).toFixed(2)} {shop.currency}</strong></div>)}
             <div className="flex justify-between pt-3 font-black"><span>Total</span><span>{totals.subtotal.toFixed(2)} {shop.currency}</span></div>
           </div>
+          <div className="mb-5 text-left">
+            <label className="text-sm font-bold text-slate-800 dark:text-white">Telegram username *</label>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">Required so we can send your order and delivery updates.</p>
+            <input value={form.customer_telegram} onChange={set('customer_telegram')} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900" placeholder="@yourusername" autoCapitalize="none" />
+          </div>
           {!freeDigitalOrder && (
             <div className="mb-5 text-left">
               <p className="font-bold mb-2">Choose payment method</p>
@@ -431,7 +440,7 @@ export default function Checkout() {
               <input value={form.customer_phone} onChange={set('customer_phone')} className="mt-1 w-full border rounded-lg px-3 py-2 text-sm" placeholder="+855 12 345 678" />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('telegramOpt')}</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Telegram username *</label>
               <input value={form.customer_telegram} onChange={set('customer_telegram')} className="mt-1 w-full border rounded-lg px-3 py-2 text-sm" placeholder="@username" />
             </div>
           </div>
