@@ -74,6 +74,22 @@ export default function ProductForm() {
     setForm({ ...form, images: form.images.filter((_, i) => i !== idx) });
   };
 
+  const handleVariationImage = async (index, event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const result = await uploadImages([file]);
+      const image = result.urls?.[0];
+      if (!image) throw new Error('No image returned');
+      setForm((current) => ({ ...current, variations: current.variations.map((variation, i) => i === index ? { ...variation, image } : variation) }));
+      toast.success('Package image uploaded');
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Package image upload failed');
+    } finally {
+      event.target.value = '';
+    }
+  };
+
   const handleServiceVideo = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -386,7 +402,7 @@ export default function ProductForm() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <VariationBuilder variations={form.variations} onChange={(v) => setForm({ ...form, variations: v })} />
+          <VariationBuilder variations={form.variations} onChange={(v) => setForm({ ...form, variations: v })} onUploadImage={handleVariationImage} />
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6">
