@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from datetime import datetime
+import re
 
 import models
 import schemas
@@ -36,6 +37,11 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
     if customer and customer.shop_id != data.shop_id:
         raise HTTPException(status_code=403, detail="This account is not registered at this shop")
 
+    # Every purchase has a Telegram contact so delivery updates can reach the buyer.
+    customer_telegram = (data.customer_telegram or (customer.telegram if customer else "")).strip()
+    if not re.fullmatch(r"@[A-Za-z][A-Za-z0-9_]{4,31}", customer_telegram):
+        raise HTTPException(status_code=400, detail="Enter a valid Telegram username starting with @")
+
     customer_email = (data.customer_email or "").strip().lower()
     if config.REQUIRE_ORDER_EMAIL_VERIFICATION and customer_email:
         token = (data.email_verification_token or "").strip()
@@ -47,7 +53,6 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         raise HTTPException(status_code=400, detail="Invalid payment method")
 
     # Link the order to the logged-in Telegram customer
-    customer_telegram = data.customer_telegram or (customer.telegram if customer else "") or (f"tg{customer.telegram_id}" if customer else "")
     order = models.Order(
         shop_id=data.shop_id,
         customer_id=customer.id if customer else None,
@@ -55,7 +60,7 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         customer_name=data.customer_name or (customer.name if customer else "Digital Customer"),
         customer_email=data.customer_email,
         customer_phone=data.customer_phone or (customer.phone if customer else "digital"),
-        customer_telegram=customer_telegram if customer else "",
+        customer_telegram=customer_telegram,
         customer_address=data.customer_address,
         customer_city=data.customer_city,
         customer_country=data.customer_country,
@@ -103,9 +108,23 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
             service_platform = str(product_meta.get("service_platform") or "").lower()
             telegram_service = service_platform in {"telegram", "telegram_premium", "telegram_star"}
             game_target = service_platform in {"free_fire", "mobile_legends", "roblox"}
+            game_recipient = item_variations.get("_game_recipient") or {}
+            if game_target and not isinstance(game_recipient, dict):
+                raise HTTPException(status_code=400, detail="Please enter valid game account details")
             valid_target = (
                 bool(__import__("re").fullmatch(r"@[A-Za-z][A-Za-z0-9_]{4,31}", service_link))
-                if telegram_service else bool(service_link)
+                if telegram_service else (
+                    game_recipient.get("platform") == "free_fire"
+                    and bool(re.fullmatch(r"\d{5,20}", str(game_recipient.get("player_id") or "")))
+                ) if service_platform == "free_fire" else (
+                    game_recipient.get("platform") == "mobile_legends"
+                    and bool(re.fullmatch(r"\d{5,20}", str(game_recipient.get("game_id") or "")))
+                    and bool(re.fullmatch(r"\d{3,10}", str(game_recipient.get("server_id") or "")))
+                ) if service_platform == "mobile_legends" else (
+                    game_recipient.get("platform") == "roblox"
+                    and bool(re.fullmatch(r"\d+", str(game_recipient.get("user_id") or "")))
+                    and bool(re.fullmatch(r"[A-Za-z0-9_]{3,20}", str(game_recipient.get("username") or "")))
+                ) if service_platform == "roblox" else bool(service_link)
                 if game_target else service_link.startswith(("https://", "http://"))
             )
             if len(service_link) > 2048 or not valid_target:
