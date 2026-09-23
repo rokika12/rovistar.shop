@@ -272,17 +272,17 @@ def test_telegram_order_buttons_update_storefront_status(monkeypatch):
     })
     assert shipping.status_code == 200, shipping.text
     assert shipping.json()["order_status"] == "shipped"
-    assert button_updates[-1][-1] == [[{"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order_id}:completed"}]]
+    assert button_updates[-1][-1] == [[{"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order_id}:delivered"}]]
 
     completed = client.post(f"/api/telegram/webhook/{webhook_token}", json={
-        "callback_query": {"id": "callback-2", "data": f"order:{order_id}:completed", "message": {"chat": {"id": 101}, "message_id": 42}},
+        "callback_query": {"id": "callback-2", "data": f"order:{order_id}:delivered", "message": {"chat": {"id": 101}, "message_id": 42}},
     })
     assert completed.status_code == 200, completed.text
-    assert completed.json()["order_status"] == "completed"
+    assert completed.json()["order_status"] == "delivered"
     assert button_updates[-1][-1] == []
 
     db = SessionLocal()
     try:
-        assert db.query(models.Order).filter(models.Order.id == order_id).first().order_status == "completed"
+        assert db.query(models.Order).filter(models.Order.id == order_id).first().order_status == "delivered"
     finally:
         db.close()
