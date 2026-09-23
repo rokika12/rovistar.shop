@@ -380,16 +380,19 @@ export default function Checkout() {
   // 🔒 Customer account is REQUIRED before buying — block checkout if not signed in.
   if (!currentShopLoggedIn) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-16">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-8 max-w-md mx-auto">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 mx-auto rounded-full bg-sky-100 flex items-center justify-center mb-4">
-              <FiUser className="w-8 h-8 text-sky-600" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-800">{t('signInRequired')}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">{t('signInRequiredDesc')}</p>
+      <div className="store-checkout-auth min-h-[calc(100vh-8rem)] px-4 py-8">
+        <div className="store-full-login-panel">
+          <div className="store-full-login-intro">
+            <div className="store-checkout-auth-icon"><FiUser /></div>
+            <p>SECURE CHECKOUT</p>
+            <h1>{shop.shop_name || shop.username}</h1>
+            <span>Create your account once, then keep every purchase, Telegram update, and payment receipt in one place.</span>
           </div>
-          <CustomerAuth />
+          <section className="store-full-login-card">
+            <h2>{t('signInRequired')}</h2>
+            <p>{t('signInRequiredDesc')}</p>
+            <CustomerAuth />
+          </section>
         </div>
       </div>
     );
