@@ -386,7 +386,17 @@ export default function ProductForm() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <VariationBuilder variations={form.variations} onChange={(v) => setForm({ ...form, variations: v })} />
+          <VariationBuilder
+            variations={form.variations}
+            onChange={(v) => setForm({ ...form, variations: v })}
+            onUploadImage={async (file) => {
+              const result = await uploadImages([file]);
+              const url = result.urls?.[0];
+              if (!url) throw new Error('Image upload did not return a URL');
+              toast.success('Package image uploaded');
+              return url;
+            }}
+          />
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6">

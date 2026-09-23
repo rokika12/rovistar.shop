@@ -62,6 +62,7 @@ export default function ProductDetail() {
 
   const effectivePrice = currentVariation?.price ?? product?.sale_price ?? product?.price ?? 0;
   const effectiveStock = currentVariation?.quantity ?? product?.quantity ?? 0;
+  const packageImage = currentVariation?.image_url || null;
 
   if (loading) return <Loading />;
   if (!product) {
@@ -161,8 +162,8 @@ export default function ProductDetail() {
         {/* Gallery */}
         <div>
           <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden">
-            {product.images && product.images.length > 0 ? (
-              <img src={fullUrl(product.images[activeImage])} alt={product.name} className="w-full h-full object-cover" />
+            {packageImage || (product.images && product.images.length > 0) ? (
+              <img src={fullUrl(packageImage || product.images[activeImage])} alt={packageImage ? 'Selected package' : product.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
                 <FiShoppingBag className="w-16 h-16" />

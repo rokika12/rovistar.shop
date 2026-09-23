@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { createPortal } from 'react-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   FiChevronDown, FiCreditCard, FiGrid, FiHome, FiLogOut, FiMenu,
   FiPackage, FiPlusCircle, FiSearch, FiShoppingBag, FiUser, FiX,
@@ -21,6 +22,7 @@ export default function ShopHeader() {
   const [walletBalance, setWalletBalance] = useState(customer?.wallet_balance || 0);
   const [isMyShop, setIsMyShop] = useState(false);
   const accountMenuRef = useRef(null);
+  const navigate = useNavigate();
   const base = `/${shop.username}`;
   const isAccountTemplate = shop.template_type === 'account';
   const displayName = customer?.first_name || customer?.name?.split(' ')[0] || 'Account';
@@ -62,6 +64,11 @@ export default function ShopHeader() {
   const closePanels = () => {
     setMenuOpen(false);
     setAccountOpen(false);
+  };
+
+  const finishFullLogin = () => {
+    setFullLoginOpen(false);
+    navigate(`${base}/products`);
   };
 
   const navClass = ({ isActive }) => `store-nav-link ${isActive ? 'store-nav-link-active' : ''}`;
@@ -154,7 +161,7 @@ export default function ShopHeader() {
           <NavLink to={`${base}/about`} onClick={closePanels} className={navClass}><FiGrid /> About</NavLink>
         </div>
       )}
-      {fullLoginOpen && (
+      {fullLoginOpen && createPortal(
         <div className="store-full-login" role="dialog" aria-modal="true" aria-label="Sign in">
           <div className="store-full-login-panel">
             <div className="store-full-login-intro">
@@ -167,10 +174,11 @@ export default function ShopHeader() {
               <button type="button" onClick={() => setFullLoginOpen(false)} className="store-full-login-close" aria-label="Close sign in"><FiX /></button>
               <h2>Sign in to your account</h2>
               <p>Use your Rovistar account details to continue.</p>
-              <CustomerAuth onSuccess={() => setFullLoginOpen(false)} />
+              <CustomerAuth onSuccess={finishFullLogin} />
             </section>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </header>
   );

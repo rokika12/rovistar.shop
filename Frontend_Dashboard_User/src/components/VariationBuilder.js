@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { FiPlus, FiTrash2, FiZap } from 'react-icons/fi';
+import { FiImage, FiPlus, FiTrash2, FiUpload, FiZap } from 'react-icons/fi';
 import { inputCls, btnGhost } from './ui';
 
-export default function VariationBuilder({ variations, onChange }) {
+export default function VariationBuilder({ variations, onChange, onUploadImage }) {
   const [attrName, setAttrName] = useState('');
   const [attrOptions, setAttrOptions] = useState('');
+  const [uploadingIndex, setUploadingIndex] = useState(null);
 
   const addVariation = () => {
     onChange([...variations, { attrs: {}, price: 0, quantity: 0, sku: '' }]);
@@ -12,6 +13,16 @@ export default function VariationBuilder({ variations, onChange }) {
 
   const update = (idx, field, val) => {
     onChange(variations.map((v, i) => (i === idx ? { ...v, [field]: val } : v)));
+  };
+
+  const uploadImage = async (idx, file) => {
+    if (!file || !onUploadImage) return;
+    setUploadingIndex(idx);
+    try {
+      update(idx, 'image_url', await onUploadImage(file));
+    } finally {
+      setUploadingIndex(null);
+    }
   };
 
   const updateAttr = (idx, key, val) => {
@@ -113,6 +124,14 @@ export default function VariationBuilder({ variations, onChange }) {
               <label className="text-xs text-gray-500 block mb-0.5">SKU</label>
               <input value={v.sku} onChange={(e) => update(idx, 'sku', e.target.value)} className={inputCls} placeholder="optional" />
             </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-white p-2">
+            {v.image_url ? <img src={v.image_url} alt="Package preview" className="h-10 w-10 rounded object-cover" /> : <FiImage className="h-5 w-5 text-slate-400" />}
+            <label className="cursor-pointer text-xs font-semibold text-sky-700">
+              <FiUpload className="mr-1 inline" /> {uploadingIndex === idx ? 'Uploading...' : 'Upload package image'}
+              <input type="file" accept="image/*" className="hidden" disabled={uploadingIndex === idx} onChange={(event) => uploadImage(idx, event.target.files?.[0])} />
+            </label>
+            {v.image_url && <button type="button" className="ml-auto text-xs text-rose-600" onClick={() => update(idx, 'image_url', '')}>Remove</button>}
           </div>
         </div>
       ))}

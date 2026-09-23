@@ -48,8 +48,11 @@ export default function TelegramSettings() {
         admin_chat_ids: tg.admin_chat_id.trim() ? [tg.admin_chat_id.trim()] : [],
         enabled: tg.enabled,
       } });
+      if (tg.enabled) {
+        await setTelegramWebhook(user.shop_id);
+      }
       setTg((current) => ({ ...current, bot_token: '', bot_token_configured: true }));
-      toast.success('Telegram settings saved!');
+      toast.success(tg.enabled ? 'Telegram saved and webhook connected!' : 'Telegram settings saved!');
       return true;
     } catch (err) {
       toast.error(err?.response?.data?.detail || 'Failed to save');

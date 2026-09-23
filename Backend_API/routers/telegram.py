@@ -77,16 +77,26 @@ async def telegram_bot_webhook(token: str, request: Request, db: Session = Depen
         if not order:
             telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Order not found")
             return {"ok": True}
-        next_status = match.group(2)
+        action = match.group(2)
+        if order.payment_status != "paid":
+            telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Payment is not confirmed")
+            return {"ok": True}
+        if order.order_status in ("delivered", "completed", "cancelled"):
+            telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Order is already closed")
+            return {"ok": True}
+        if action == "completed" and order.order_status not in ("shipped", "processing"):
+            telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Mark this order as shipped first")
+            return {"ok": True}
+        next_status = "delivered" if action == "completed" else "shipped"
         order.order_status = next_status
         db.commit()
-        completed = next_status == "completed"
+        delivered = next_status == "delivered"
         telegram_service.send_telegram_callback_reply(
             bot_token, callback.get("id", ""),
-            "បានបញ្ជូនជោគជ័យ" if completed else "បានកំណត់ថាកំពុងផ្ញើ",
+            "បានបញ្ជូនជោគជ័យ" if delivered else "បានកំណត់ថាកំពុងផ្ញើ",
         )
         message = callback.get("message") or {}
-        next_buttons = [] if completed else [[
+        next_buttons = [] if delivered else [[
             {"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order.id}:completed"},
         ]]
         telegram_service.update_telegram_order_buttons(
