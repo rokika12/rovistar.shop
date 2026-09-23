@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { FiPlus, FiTrash2, FiZap } from 'react-icons/fi';
+import { FiImage, FiPlus, FiTrash2, FiZap } from 'react-icons/fi';
 import { inputCls, btnGhost } from './ui';
 
-export default function VariationBuilder({ variations, onChange }) {
+export default function VariationBuilder({ variations, onChange, onUploadImage }) {
   const [attrName, setAttrName] = useState('');
   const [attrOptions, setAttrOptions] = useState('');
 
   const addVariation = () => {
-    onChange([...variations, { attrs: {}, price: 0, quantity: 0, sku: '' }]);
+    onChange([...variations, { attrs: {}, price: 0, quantity: 0, sku: '', image: '' }]);
   };
 
   const update = (idx, field, val) => {
@@ -34,7 +34,7 @@ export default function VariationBuilder({ variations, onChange }) {
     const name = attrName.trim();
     const options = attrOptions.split(',').map((o) => o.trim()).filter(Boolean);
     if (!name || options.length === 0) return;
-    onChange(options.map((opt) => ({ attrs: { [name]: opt }, price: 0, quantity: 0, sku: '' })));
+    onChange(options.map((opt) => ({ attrs: { [name]: opt }, price: 0, quantity: 0, sku: '', image: '' })));
     setAttrName('');
     setAttrOptions('');
   };
@@ -113,6 +113,14 @@ export default function VariationBuilder({ variations, onChange }) {
               <label className="text-xs text-gray-500 block mb-0.5">SKU</label>
               <input value={v.sku} onChange={(e) => update(idx, 'sku', e.target.value)} className={inputCls} placeholder="optional" />
             </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-white p-2">
+            {v.image ? <img src={v.image} alt="Package" className="h-12 w-12 rounded-lg object-cover" /> : <span className="grid h-12 w-12 place-items-center rounded-lg bg-slate-100 text-slate-400"><FiImage /></span>}
+            <label className="cursor-pointer text-xs font-bold text-indigo-700 hover:underline">
+              {v.image ? 'Change package image' : 'Upload package image'}
+              <input type="file" accept="image/*" className="hidden" onChange={(event) => onUploadImage?.(idx, event)} />
+            </label>
+            {v.image && <button type="button" onClick={() => update(idx, 'image', '')} className="ml-auto text-xs font-bold text-rose-600 hover:underline">Remove</button>}
           </div>
         </div>
       ))}
