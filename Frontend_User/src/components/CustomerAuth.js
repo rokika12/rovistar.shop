@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FiEye, FiEyeOff, FiUserPlus } from 'react-icons/fi';
-import { FcGoogle } from 'react-icons/fc';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
 import { useOwner } from '../contexts/OwnerContext';
@@ -121,7 +120,7 @@ export default function CustomerAuth({ onSuccess }) {
           onClick={() => setMode('signin')}
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${mode === 'signin' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}
         >
-          <span className="inline-flex items-center justify-center gap-1.5"><FcGoogle className="w-4 h-4" /> {t('signIn')}</span>
+          {t('signIn')}
         </button>
         <button
           onClick={() => setMode('signup')}
