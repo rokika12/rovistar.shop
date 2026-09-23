@@ -228,6 +228,9 @@ export default function ProductDetail() {
                       const optionPrice = manualService
                         ? product.variations.find((variation) => variation.attrs?.[attr.key] === opt)?.price
                         : null;
+                      const optionImage = manualService
+                        ? product.variations.find((variation) => variation.attrs?.[attr.key] === opt)?.image
+                        : '';
                       return attr.type === 'color' ? (
                         <button
                           key={opt}
@@ -259,7 +262,7 @@ export default function ProductDetail() {
                               : 'border-gray-200 text-gray-700 hover:border-gray-400 dark:border-gray-600 dark:text-gray-300'
                           }`}
                         >
-                          {manualService && <span className="service-package-option-image" aria-hidden="true">{product.images?.[0] ? <img src={fullUrl(product.images[0])} alt="" /> : <FiShoppingBag />}</span>}
+                          {manualService && <span className="service-package-option-image" aria-hidden="true">{optionImage || product.images?.[0] ? <img src={fullUrl(optionImage || product.images[0])} alt="" /> : <FiShoppingBag />}</span>}
                           <span className="service-package-option-copy">
                             <span className={`service-package-mark ${isTikTokService ? 'service-package-mark-sale' : ''}`}>{serviceBadge}</span>
                             <strong>{opt}</strong>
