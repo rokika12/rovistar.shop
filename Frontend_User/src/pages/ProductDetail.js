@@ -79,6 +79,8 @@ export default function ProductDetail() {
   const freeFireService = manualService && servicePlatform === 'free_fire';
   const mobileLegendsService = manualService && servicePlatform === 'mobile_legends';
   const robloxService = manualService && servicePlatform === 'roblox';
+  const serviceBadge = telegramService ? '✦ VIP' : freeFireService ? '🔥 FREE FIRE' : mobileLegendsService ? '⚔ MLBB' : robloxService ? '◇ ROBLOX' : servicePlatform === 'tiktok' ? '🔥 បញ្ចុះតម្លៃ' : '✦ PACKAGE';
+  const isTikTokService = manualService && servicePlatform === 'tiktok';
   const isAvailable = manualService ? !product.metadata?.manual_service_out_of_stock : effectiveStock > 0;
   const videoUrl = String(product.metadata?.service_video_url || '').trim();
   const youtubeMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
@@ -257,6 +259,7 @@ export default function ProductDetail() {
                               : 'border-gray-200 text-gray-700 hover:border-gray-400 dark:border-gray-600 dark:text-gray-300'
                           }`}
                         >
+                          <span className={`service-package-mark ${isTikTokService ? 'service-package-mark-sale' : ''}`}>{serviceBadge}</span>
                           <span>{opt}</span>
                           {manualService && optionPrice != null && <small>{Number(optionPrice).toFixed(2)} {shop.currency}</small>}
                         </button>
