@@ -17,6 +17,7 @@ export default function ShopHeader() {
   const { owner, token, isLoggedIn: isOwnerLoggedIn, logout: ownerLogout } = useOwner();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [fullLoginOpen, setFullLoginOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState(customer?.wallet_balance || 0);
   const [isMyShop, setIsMyShop] = useState(false);
   const accountMenuRef = useRef(null);
@@ -90,7 +91,15 @@ export default function ShopHeader() {
           <div className="store-account-menu-wrap" ref={accountMenuRef}>
             <button
               type="button"
-              onClick={() => { setAccountOpen(!accountOpen); setMenuOpen(false); }}
+              onClick={() => {
+                if (!isLoggedIn) {
+                  setFullLoginOpen(true);
+                  setMenuOpen(false);
+                  return;
+                }
+                setAccountOpen(!accountOpen);
+                setMenuOpen(false);
+              }}
               className={`store-account-trigger ${accountOpen ? 'store-account-trigger-open' : ''}`}
               aria-expanded={accountOpen}
               aria-label={isLoggedIn ? `${displayName} account` : 'Open account'}
@@ -143,6 +152,24 @@ export default function ShopHeader() {
           <NavLink to={`${base}/products`} onClick={closePanels} className={navClass}><FiShoppingBag /> Products</NavLink>
           <NavLink to={`${base}/my-orders`} onClick={closePanels} className={navClass}><FiPackage /> My orders</NavLink>
           <NavLink to={`${base}/about`} onClick={closePanels} className={navClass}><FiGrid /> About</NavLink>
+        </div>
+      )}
+      {fullLoginOpen && (
+        <div className="store-full-login" role="dialog" aria-modal="true" aria-label="Sign in">
+          <div className="store-full-login-panel">
+            <div className="store-full-login-intro">
+              <ShopLogo shop={shop} className="h-14 w-14 rounded-2xl" textClassName="hidden" />
+              <p>WELCOME TO</p>
+              <h1>{shop.shop_name || shop.username}</h1>
+              <span>Sign in once to keep your orders, payment records, and account details together.</span>
+            </div>
+            <section className="store-full-login-card">
+              <button type="button" onClick={() => setFullLoginOpen(false)} className="store-full-login-close" aria-label="Close sign in"><FiX /></button>
+              <h2>Sign in to your account</h2>
+              <p>Use your Rovistar account details to continue.</p>
+              <CustomerAuth onSuccess={() => setFullLoginOpen(false)} />
+            </section>
+          </div>
         </div>
       )}
     </header>

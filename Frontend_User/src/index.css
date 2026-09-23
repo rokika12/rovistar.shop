@@ -594,8 +594,25 @@ body {
 .store-account-login-heading span { color: var(--market-blue); font-size: 0.62rem; font-weight: 900; letter-spacing: 0.12em; }
 .store-account-login-heading h2 { margin: 0.25rem 0 0; color: var(--market-ink); font-size: 1.25rem; font-weight: 900; }
 .store-account-login > p { margin: 0.7rem 0 1rem; color: #71809a; font-size: 0.8rem; line-height: 1.55; }
+.store-full-login { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; overflow-y: auto; padding: 1rem; background: rgba(4, 18, 41, 0.72); backdrop-filter: blur(12px); }
+.store-full-login-panel { display: grid; width: min(900px, 100%); min-height: min(580px, calc(100vh - 2rem)); grid-template-columns: 0.9fr 1.1fr; overflow: hidden; border-radius: 1.6rem; background: #fff; box-shadow: 0 28px 90px rgba(1, 31, 70, 0.35); }
+.store-full-login-intro { display: flex; flex-direction: column; justify-content: center; padding: clamp(2rem, 5vw, 4.4rem); background: radial-gradient(circle at 14% 16%, #437fd6 0, transparent 34%), linear-gradient(145deg, #011f46, #123b3a); color: #fff; }
+.store-full-login-intro p { margin: 1.5rem 0 0; color: #a9cffd; font-size: 0.67rem; font-weight: 900; letter-spacing: 0.15em; }
+.store-full-login-intro h1 { margin: 0.45rem 0 1rem; font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1; font-weight: 900; word-break: break-word; }
+.store-full-login-intro span { max-width: 20rem; color: #d8e9ff; font-size: 0.9rem; line-height: 1.65; }
+.store-full-login-card { position: relative; align-self: center; padding: clamp(2rem, 5vw, 4rem); }
+.store-full-login-card h2 { margin: 0; color: #10223d; font-size: 1.7rem; font-weight: 900; }
+.store-full-login-card > p { margin: 0.6rem 0 1.75rem; color: #71809a; font-size: 0.88rem; }
+.store-full-login-close { position: absolute; top: 1.1rem; right: 1.1rem; display: inline-flex; height: 2.2rem; width: 2.2rem; align-items: center; justify-content: center; border-radius: 0.7rem; color: #71809a; }
+.store-full-login-close:hover { background: #edf3ff; color: var(--market-blue); }
 
 @media (max-width: 767px) {
+  .store-full-login { align-items: start; padding: 0; }
+  .store-full-login-panel { min-height: 100vh; grid-template-columns: 1fr; border-radius: 0; }
+  .store-full-login-intro { min-height: 13rem; padding: 2rem 1.5rem; }
+  .store-full-login-intro p { margin-top: 1rem; }
+  .store-full-login-intro h1 { font-size: 2rem; }
+  .store-full-login-card { padding: 2rem 1.5rem 3rem; }
   .store-account-menu { top: calc(100% + 0.55rem); width: min(348px, calc(100vw - 1rem)); }
   .store-account-chevron { display: none; }
 }
