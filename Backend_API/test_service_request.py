@@ -110,6 +110,7 @@ def test_manual_service_requires_link_before_payment_and_keeps_video_for_receipt
             "shop_id": shop.id,
             "customer_name": "Customer",
             "customer_phone": "digital",
+            "customer_telegram": "@customer_service",
             "customer_address": "Digital delivery",
             "customer_city": "Online",
             "customer_country": "Online",
