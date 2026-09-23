@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FiCheckCircle, FiClock, FiCopy, FiDownload, FiHelpCircle, FiPackage, FiPlayCircle, FiTruck } from 'react-icons/fi';
 import toast from 'react-hot-toast';
@@ -18,6 +18,7 @@ export default function OrderSuccess() {
   const [serviceLink, setServiceLink] = useState('');
   const [serviceNote, setServiceNote] = useState('');
   const [sendingServiceRequest, setSendingServiceRequest] = useState(false);
+  const latestStatus = useRef('');
 
   const orderNumber = params.get('order');
 
@@ -31,6 +32,24 @@ export default function OrderSuccess() {
       .catch(() => setLoading(false))
       .finally(() => setLoading(false));
   }, [orderNumber, token]);
+
+  useEffect(() => {
+    if (!orderNumber || !order) return undefined;
+    latestStatus.current = String(order.order_status || '');
+    const timer = window.setInterval(async () => {
+      try {
+        const updated = await trackOrder(orderNumber, token);
+        if (updated.order_status !== latestStatus.current) {
+          latestStatus.current = updated.order_status;
+          setOrder(updated);
+          toast.success(updated.order_status === 'completed' ? 'Your order has been delivered successfully!' : 'Your order is on the way!');
+        }
+      } catch (_) {
+        // The next check retries automatically without interrupting the customer.
+      }
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [order, orderNumber, token]);
 
   if (loading) return <Loading />;
 
@@ -53,7 +72,7 @@ export default function OrderSuccess() {
   const isDirectServiceVideo = /\.(mp4|webm)(?:\?.*)?$/i.test(serviceVideoUrl);
   const stageNames = ['Order placed', 'Paid', 'Prepared', 'Delivered', 'Completed'];
   const orderStage = String(order.order_status || '').toLowerCase();
-  const stageIndex = !isPaid ? 0 : (orderStage === 'completed' ? 4 : orderStage === 'delivered' ? 3 : orderStage === 'prepared' || orderStage === 'processing' ? 2 : 1);
+  const stageIndex = !isPaid ? 0 : (orderStage === 'completed' ? 4 : orderStage === 'delivered' || orderStage === 'shipped' ? 3 : orderStage === 'prepared' || orderStage === 'processing' ? 2 : 1);
   const stageIcons = [FiPackage, FiCheckCircle, FiPackage, FiTruck, FiCheckCircle];
 
   const sendServiceRequest = async (event) => {

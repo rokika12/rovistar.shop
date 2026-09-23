@@ -240,3 +240,48 @@ def test_shop_update_keeps_permanent_storefront_username():
         assert saved.username == original
     finally:
         db.close()
+
+
+def test_telegram_order_buttons_update_storefront_status(monkeypatch):
+    shop_id, _ = _create_shop_owner({"bot_token": "order-button-token", "enabled": True})
+    db = SessionLocal()
+    try:
+        suffix = uuid.uuid4().hex[:8]
+        order = models.Order(
+            shop_id=shop_id,
+            order_number=f"BUTTON-{suffix}",
+            customer_name="Customer",
+            payment_status="paid",
+            order_status="processing",
+            total=5,
+        )
+        db.add(order)
+        db.commit()
+        order_id = order.id
+    finally:
+        db.close()
+
+    replies = []
+    button_updates = []
+    monkeypatch.setattr(telegram_service, "send_telegram_callback_reply", lambda *args: replies.append(args))
+    monkeypatch.setattr(telegram_service, "update_telegram_order_buttons", lambda *args: button_updates.append(args))
+
+    shipping = client.post(f"/api/telegram/webhook/order-button-token", json={
+        "callback_query": {"id": "callback-1", "data": f"order:{order_id}:shipped", "message": {"chat": {"id": 101}, "message_id": 42}},
+    })
+    assert shipping.status_code == 200, shipping.text
+    assert shipping.json()["order_status"] == "shipped"
+    assert button_updates[-1][-1] == [[{"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order_id}:completed"}]]
+
+    completed = client.post(f"/api/telegram/webhook/order-button-token", json={
+        "callback_query": {"id": "callback-2", "data": f"order:{order_id}:completed", "message": {"chat": {"id": 101}, "message_id": 42}},
+    })
+    assert completed.status_code == 200, completed.text
+    assert completed.json()["order_status"] == "completed"
+    assert button_updates[-1][-1] == []
+
+    db = SessionLocal()
+    try:
+        assert db.query(models.Order).filter(models.Order.id == order_id).first().order_status == "completed"
+    finally:
+        db.close()

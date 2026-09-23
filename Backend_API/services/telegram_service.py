@@ -66,6 +66,55 @@ def send_telegram_message(bot_token: str, chat_id: str, text: str) -> bool:
     return False
 
 
+def send_telegram_message_with_buttons(bot_token: str, chat_id: str, text: str, buttons: list[list[dict]]) -> bool:
+    """Send a shop alert with Telegram inline action buttons for order updates."""
+    if not bot_token or not chat_id:
+        return False
+    try:
+        with httpx.Client(timeout=15) as client:
+            response = client.post(
+                f"https://api.telegram.org/bot{bot_token}/sendMessage",
+                json={
+                    "chat_id": chat_id,
+                    "text": text,
+                    "parse_mode": "HTML",
+                    "disable_web_page_preview": True,
+                    "reply_markup": {"inline_keyboard": buttons},
+                },
+            )
+            return response.status_code == 200 and response.json().get("ok") is True
+    except Exception:
+        return False
+
+
+def send_telegram_callback_reply(bot_token: str, callback_id: str, text: str = "") -> None:
+    """Dismiss Telegram's button spinner after a shop owner changes an order."""
+    if not bot_token or not callback_id:
+        return
+    try:
+        with httpx.Client(timeout=15) as client:
+            client.post(
+                f"https://api.telegram.org/bot{bot_token}/answerCallbackQuery",
+                json={"callback_query_id": callback_id, "text": text},
+            )
+    except Exception:
+        pass
+
+
+def update_telegram_order_buttons(bot_token: str, chat_id, message_id, buttons: list[list[dict]]) -> None:
+    """Keep only the next valid status action after a Telegram button is pressed."""
+    if not bot_token or not chat_id or not message_id:
+        return
+    try:
+        with httpx.Client(timeout=15) as client:
+            client.post(
+                f"https://api.telegram.org/bot{bot_token}/editMessageReplyMarkup",
+                json={"chat_id": chat_id, "message_id": message_id, "reply_markup": {"inline_keyboard": buttons}},
+            )
+    except Exception:
+        pass
+
+
 def ensure_shop_profile(shop) -> dict:
     """
     Make sure the shop has a bot Profile ID (used to link the Telegram bot to a shop)
@@ -440,7 +489,20 @@ def notify_shop_payment_success_full(shop, order, stock_summary=None) -> bool:
         lines.append("")
         lines.append(f"🧾 <b>បង្កាន់ដៃ:</b> {_html(receipt_link)}")
 
-    return send_shop_notification(shop, "\n".join(lines))
+    text = "\n".join(lines)
+    buttons = [[
+        {"text": "🚚 អីវ៉ាន់កំពុងផ្ញើ", "callback_data": f"order:{order.id}:shipped"},
+        {"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order.id}:completed"},
+    ]]
+    tg = shop.telegram_dict()
+    bot_token = (tg.get("bot_token") or "").strip()
+    if not bot_token:
+        return False
+    sent = False
+    for chat_id in recipient_chat_ids(tg):
+        if send_telegram_message_with_buttons(bot_token, chat_id, text, buttons):
+            sent = True
+    return sent
 
 
 def telegram_settings_enabled(shop) -> bool:
