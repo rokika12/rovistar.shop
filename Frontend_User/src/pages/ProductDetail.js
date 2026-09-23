@@ -146,7 +146,14 @@ export default function ProductDetail() {
         : freeFireService
           ? `Free Fire Player ID: ${serviceLink.trim()}`
           : serviceLink.trim();
-    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, manualService ? { ...selectedVariations, _service_link: serviceTarget } : selectedVariations);
+    const gameRecipient = freeFireService
+      ? { platform: 'free_fire', player_id: serviceLink.trim() }
+      : mobileLegendsService
+        ? { platform: 'mobile_legends', game_id: serviceLink.trim(), server_id: gameServerId.trim() }
+        : robloxService
+          ? { platform: 'roblox', username: robloxAccount.username, user_id: String(robloxAccount.id), display_name: robloxAccount.display_name }
+          : null;
+    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, manualService ? { ...selectedVariations, _service_link: serviceTarget, ...(gameRecipient ? { _game_recipient: gameRecipient } : {}) } : selectedVariations);
     setOpen(false);
     navigate(`/${shop.username}/checkout`);
   };
