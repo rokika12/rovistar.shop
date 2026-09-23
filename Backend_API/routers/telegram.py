@@ -58,6 +58,42 @@ async def telegram_bot_webhook(token: str, request: Request, db: Session = Depen
                     break
         return {"ok": True}
 
+    # The token is part of the webhook URL, so resolve its owning shop before
+    # handling either a normal message or an inline-button callback.
+    shop = next((s for s in db.query(models.Shop).all()
+                 if (s.telegram_dict().get("bot_token") or "").strip() == token), None)
+    if not shop:
+        return {"ok": True}
+    bot_token = token
+
+    callback = update.get("callback_query") or {}
+    if callback:
+        data = str(callback.get("data") or "")
+        match = __import__("re").fullmatch(r"order:(\d+):(shipped|completed)", data)
+        if not match:
+            telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Action unavailable")
+            return {"ok": True}
+        order = db.query(models.Order).filter(models.Order.id == int(match.group(1)), models.Order.shop_id == shop.id).first()
+        if not order:
+            telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Order not found")
+            return {"ok": True}
+        next_status = match.group(2)
+        order.order_status = next_status
+        db.commit()
+        completed = next_status == "completed"
+        telegram_service.send_telegram_callback_reply(
+            bot_token, callback.get("id", ""),
+            "បានបញ្ជូនជោគជ័យ" if completed else "បានកំណត់ថាកំពុងផ្ញើ",
+        )
+        message = callback.get("message") or {}
+        next_buttons = [] if completed else [[
+            {"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order.id}:completed"},
+        ]]
+        telegram_service.update_telegram_order_buttons(
+            bot_token, (message.get("chat") or {}).get("id"), message.get("message_id"), next_buttons,
+        )
+        return {"ok": True, "order_id": order.id, "order_status": order.order_status}
+
     message = update.get("message") or {}
     chat = message.get("chat") or {}
     chat_id = chat.get("id")
@@ -65,16 +101,6 @@ async def telegram_bot_webhook(token: str, request: Request, db: Session = Depen
     if not chat_id or not text:
         return {"ok": True}
 
-    # Find the shop that owns this bot token
-    shop = None
-    for s in db.query(models.Shop).all():
-        if (s.telegram_dict().get("bot_token") or "").strip() == token:
-            shop = s
-            break
-    if not shop:
-        return {"ok": True}
-
-    bot_token = token
     lower = text.lower()
 
     if lower == "/start" or lower == "start":
@@ -153,7 +179,7 @@ def set_telegram_webhook(shop_id: int, db: Session = Depends(get_db),
         with httpx.Client(timeout=20) as client:
             resp = client.post(
                 f"https://api.telegram.org/bot{bot_token}/setWebhook",
-                json={"url": webhook_url, "allowed_updates": ["message", "my_chat_member"]})
+                json={"url": webhook_url, "allowed_updates": ["message", "my_chat_member", "callback_query"]})
             data = resp.json()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not reach Telegram: {e}")
