@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiChevronLeft, FiPlayCircle, FiShoppingBag, FiZap } from 'react-icons/fi';
+import { FiCheck, FiChevronLeft, FiPlayCircle, FiShoppingBag, FiZap } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../i18n';
@@ -228,6 +228,9 @@ export default function ProductDetail() {
                       const optionPrice = manualService
                         ? product.variations.find((variation) => variation.attrs?.[attr.key] === opt)?.price
                         : null;
+                      const optionImage = manualService
+                        ? product.variations.find((variation) => variation.attrs?.[attr.key] === opt)?.image
+                        : '';
                       return attr.type === 'color' ? (
                         <button
                           key={opt}
@@ -259,9 +262,13 @@ export default function ProductDetail() {
                               : 'border-gray-200 text-gray-700 hover:border-gray-400 dark:border-gray-600 dark:text-gray-300'
                           }`}
                         >
-                          <span className={`service-package-mark ${isTikTokService ? 'service-package-mark-sale' : ''}`}>{serviceBadge}</span>
-                          <span>{opt}</span>
-                          {manualService && optionPrice != null && <small>{Number(optionPrice).toFixed(2)} {shop.currency}</small>}
+                          {manualService && <span className="service-package-option-image" aria-hidden="true">{optionImage || product.images?.[0] ? <img src={fullUrl(optionImage || product.images[0])} alt="" /> : <FiShoppingBag />}</span>}
+                          <span className="service-package-option-copy">
+                            <span className={`service-package-mark ${isTikTokService ? 'service-package-mark-sale' : ''}`}>{serviceBadge}</span>
+                            <strong>{opt}</strong>
+                            {manualService && optionPrice != null && <small>{Number(optionPrice).toFixed(2)} {shop.currency}</small>}
+                          </span>
+                          {manualService && selectedVariations[attr.key] === opt && <FiCheck className="service-package-option-check" aria-label="Selected" />}
                         </button>
                       )
                     })}

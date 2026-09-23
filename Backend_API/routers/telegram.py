@@ -69,7 +69,7 @@ async def telegram_bot_webhook(token: str, request: Request, db: Session = Depen
     callback = update.get("callback_query") or {}
     if callback:
         data = str(callback.get("data") or "")
-        match = __import__("re").fullmatch(r"order:(\d+):(shipped|completed)", data)
+        match = __import__("re").fullmatch(r"order:(\d+):(shipped|delivered)", data)
         if not match:
             telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Action unavailable")
             return {"ok": True}
@@ -80,14 +80,14 @@ async def telegram_bot_webhook(token: str, request: Request, db: Session = Depen
         next_status = match.group(2)
         order.order_status = next_status
         db.commit()
-        completed = next_status == "completed"
+        delivered = next_status == "delivered"
         telegram_service.send_telegram_callback_reply(
             bot_token, callback.get("id", ""),
-            "បានបញ្ជូនជោគជ័យ" if completed else "បានកំណត់ថាកំពុងផ្ញើ",
+            "បានបញ្ជូនជោគជ័យ" if delivered else "បានកំណត់ថាកំពុងផ្ញើ",
         )
         message = callback.get("message") or {}
-        next_buttons = [] if completed else [[
-            {"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order.id}:completed"},
+        next_buttons = [] if delivered else [[
+            {"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order.id}:delivered"},
         ]]
         telegram_service.update_telegram_order_buttons(
             bot_token, (message.get("chat") or {}).get("id"), message.get("message_id"), next_buttons,

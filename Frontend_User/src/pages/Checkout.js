@@ -34,7 +34,6 @@ export default function Checkout() {
   const [qrFailed, setQrFailed] = useState(false); // QR image failed to load → show fallback
   const [paymentMethod, setPaymentMethod] = useState('khqr');
   const [walletBalance, setWalletBalance] = useState(0);
-  const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   useEffect(() => {
     setQrFailed(false);
@@ -121,7 +120,7 @@ export default function Checkout() {
   const currentShopLoggedIn = !!token && customer?.shop_id === shop.id;
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
-  const handleSubmit = async (e, paymentConfirmed = false) => {
+  const handleSubmit = async (e, selectedPaymentMethod = paymentMethod) => {
     e.preventDefault();
     const shopToken = customer?.shop_id === shop.id ? token : null;
     const shopLoggedIn = !!shopToken;
@@ -133,11 +132,6 @@ export default function Checkout() {
       toast.error(t('fillRequired'));
       return;
     }
-    if (!paymentConfirmed) {
-      setConfirmationOpen(true);
-      return;
-    }
-    setConfirmationOpen(false);
     setSubmitting(true);
     try {
       const newOrder = await createOrderAsCustomer({
@@ -152,7 +146,7 @@ export default function Checkout() {
           product_id: i.product_id, name: i.name, price: i.price,
           quantity: i.quantity, variations: i.variations,
         })),
-        payment_method: digitalOnly ? paymentMethod : 'khqr',
+        payment_method: digitalOnly ? selectedPaymentMethod : 'khqr',
       }, shopToken);
       const guestOrderKey = `ms_guest_orders_${shop.id}`;
       const guestOrders = JSON.parse(localStorage.getItem(guestOrderKey) || '[]');
@@ -162,7 +156,7 @@ export default function Checkout() {
         navigate(`/${shop.username}/order-success?order=${newOrder.order_number}`);
         return;
       }
-      if (paymentMethod === 'wallet') {
+      if (selectedPaymentMethod === 'wallet') {
         clear();
         navigate(`/${shop.username}/order-success?order=${newOrder.order_number}`);
         return;
@@ -222,29 +216,6 @@ export default function Checkout() {
 
   const shipping = 0;
   const grandTotal = Math.round((totals.subtotal + shipping) * 100) / 100;
-  const paymentConfirmationModal = confirmationOpen ? (
-    <div className="payment-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="payment-confirm-title">
-      <section className="payment-confirm-modal">
-        <div className="payment-confirm-heading">
-          <div><p>ORDER REVIEW</p><h2 id="payment-confirm-title">Confirm payment</h2></div>
-          <button type="button" onClick={() => setConfirmationOpen(false)} aria-label="Cancel payment"><FiX /></button>
-        </div>
-        <p className="payment-confirm-copy">Review the payment details before generating your secure QR code.</p>
-        <div className="payment-confirm-rows">
-          <div><span>Items</span><strong>{items.length} product{items.length === 1 ? '' : 's'}</strong></div>
-          <div><span>Wallet credit</span><strong className="payment-confirm-positive">${grandTotal.toFixed(2)}</strong></div>
-          <div><span>Payment method</span><strong>{paymentMethod === 'wallet' ? 'Wallet balance' : 'ABA KHQR'}</strong></div>
-        </div>
-        <div className="payment-confirm-total"><span>AMOUNT TO PAY</span><strong>${grandTotal.toFixed(2)} <small>{shop.currency}</small></strong></div>
-        <p className="payment-confirm-note">After confirming, keep this page open while your payment is verified.</p>
-        <div className="payment-confirm-actions">
-          <button type="button" onClick={() => setConfirmationOpen(false)}>Go back</button>
-          <button type="button" onClick={() => handleSubmit({ preventDefault: () => {} }, true)} disabled={submitting}>{submitting ? 'Preparing...' : 'Confirm & pay'}</button>
-        </div>
-      </section>
-    </div>
-  ) : null;
-
   if (payment) {
     const payAmount = Number(payment.amount || order?.total || 0).toFixed(2);
     return (
@@ -371,7 +342,6 @@ export default function Checkout() {
   if (digitalOnly) {
     return (
       <div className="max-w-xl mx-auto px-4 py-16">
-        {paymentConfirmationModal}
         <div className="rounded-3xl bg-white dark:bg-gray-800 p-7 shadow-xl text-center">
           <h1 className="text-2xl font-black text-gray-900 dark:text-white">Digital checkout</h1>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
@@ -383,21 +353,24 @@ export default function Checkout() {
             {items.map((item) => <div key={item.product_id} className="flex justify-between border-b border-blue-100 dark:border-gray-600 py-2 text-sm"><span>{item.name} × {item.quantity}</span><strong>{(item.price * item.quantity).toFixed(2)} {shop.currency}</strong></div>)}
             <div className="flex justify-between pt-3 font-black"><span>Total</span><span>{totals.subtotal.toFixed(2)} {shop.currency}</span></div>
           </div>
-          {currentShopLoggedIn && !freeDigitalOrder && (
+          {!freeDigitalOrder && (
             <div className="mb-5 text-left">
               <p className="font-bold mb-2">Choose payment method</p>
-              <div className="grid grid-cols-2 gap-3">
-                <button type="button" onClick={() => setPaymentMethod('wallet')} className={`rounded-xl border-2 p-3 ${paymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50' : 'border-gray-200'}`}>
-                  <b>Wallet</b><span className="block text-xs text-gray-500 mt-1">${Number(walletBalance).toFixed(2)}</span>
-                </button>
-                <button type="button" onClick={() => setPaymentMethod('khqr')} className={`rounded-xl border-2 p-3 ${paymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
-                  <b>ABA KHQR</b><span className="block text-xs text-gray-500 mt-1">Scan QR</span>
+              <div className={`grid gap-3 ${currentShopLoggedIn ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                {currentShopLoggedIn && (
+                  <button type="button" onClick={() => setPaymentMethod('wallet')} className={`rounded-xl border-2 p-3 ${paymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50' : 'border-gray-200'}`}>
+                    <b>Wallet</b><span className="block text-xs text-gray-500 mt-1">${Number(walletBalance).toFixed(2)}</span>
+                  </button>
+                )}
+                <button type="button" onClick={(event) => { setPaymentMethod('khqr'); handleSubmit(event, 'khqr'); }} disabled={submitting} className={`ios-aba-payment-card ${paymentMethod === 'khqr' ? 'is-selected' : ''}`}>
+                  <span className="ios-aba-payment-icon"><img src={ABA_LOGO_URL} alt="" /></span>
+                  <span><b>ABA KHQR</b><small>Tap to show QR now</small></span>
                 </button>
               </div>
             </div>
           )}
-          <button onClick={handleSubmit} disabled={submitting} className="w-full rounded-2xl bg-blue-600 py-4 font-black text-white hover:bg-blue-700 disabled:opacity-50">
-            {submitting ? 'Preparing...' : (freeDigitalOrder ? 'Get free access' : paymentMethod === 'wallet' ? 'Pay with wallet' : 'Continue to ABA KHQR')}
+          <button onClick={(event) => handleSubmit(event, paymentMethod)} disabled={submitting} className="w-full rounded-2xl bg-blue-600 py-4 font-black text-white hover:bg-blue-700 disabled:opacity-50">
+            {submitting ? 'Preparing...' : (freeDigitalOrder ? 'Get free access' : paymentMethod === 'wallet' ? 'Pay with wallet' : 'Show ABA QR')}
           </button>
         </div>
       </div>
@@ -407,16 +380,19 @@ export default function Checkout() {
   // 🔒 Customer account is REQUIRED before buying — block checkout if not signed in.
   if (!currentShopLoggedIn) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-16">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-8 max-w-md mx-auto">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 mx-auto rounded-full bg-sky-100 flex items-center justify-center mb-4">
-              <FiUser className="w-8 h-8 text-sky-600" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-800">{t('signInRequired')}</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">{t('signInRequiredDesc')}</p>
+      <div className="store-checkout-auth min-h-[calc(100vh-8rem)] px-4 py-8">
+        <div className="store-full-login-panel">
+          <div className="store-full-login-intro">
+            <div className="store-checkout-auth-icon"><FiUser /></div>
+            <p>SECURE CHECKOUT</p>
+            <h1>{shop.shop_name || shop.username}</h1>
+            <span>Create your account once, then keep every purchase, Telegram update, and payment receipt in one place.</span>
           </div>
-          <CustomerAuth />
+          <section className="store-full-login-card">
+            <h2>{t('signInRequired')}</h2>
+            <p>{t('signInRequiredDesc')}</p>
+            <CustomerAuth />
+          </section>
         </div>
       </div>
     );
@@ -424,7 +400,6 @@ export default function Checkout() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {paymentConfirmationModal}
       <h1 className="text-2xl font-bold mb-6">{t('checkout')}</h1>
       {/* Logged-in customer banner */}
       <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 mb-6">

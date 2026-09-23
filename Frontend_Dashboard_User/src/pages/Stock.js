@@ -158,6 +158,9 @@ export default function Stock() {
                       <button onClick={() => openSetModal(p)} className="bg-slate-100 hover:bg-slate-200 text-gray-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold" title="Set stock">
                         Set
                       </button>
+                      <button onClick={() => setStockModal({ product: p, qty: 0, mode: 'set' })} className="bg-rose-50 hover:bg-rose-100 text-rose-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold" title="Stop selling by setting stock to zero">
+                        Stop
+                      </button>
                     </div>
                   </td>
                 </tr>

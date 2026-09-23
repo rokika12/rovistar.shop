@@ -490,7 +490,7 @@ def notify_shop_payment_success_full(shop, order, stock_summary=None) -> bool:
     text = "\n".join(lines)
     buttons = [[
         {"text": "🚚 អីវ៉ាន់កំពុងផ្ញើ", "callback_data": f"order:{order.id}:shipped"},
-        {"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order.id}:completed"},
+        {"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order.id}:delivered"},
     ]]
     tg = shop.telegram_dict()
     bot_token = (tg.get("bot_token") or "").strip()
