@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-export const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// Render builds this dashboard without browser environment variables.
+// Use the production API unless a deployment explicitly overrides it.
+export const API_BASE = process.env.REACT_APP_API_URL || 'https://api.rovistar.shop';
 
 const api = axios.create({ baseURL: API_BASE });
 
