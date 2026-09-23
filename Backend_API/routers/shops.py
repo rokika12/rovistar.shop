@@ -136,6 +136,10 @@ def update_shop(shop_id: int, data: schemas.ShopUpdate, db: Session = Depends(ge
     for src, dst in fields.items():
         val = getattr(data, src)
         if val is not None:
+            # The username is the permanent storefront URL. Never let a partial
+            # settings save blank it out or silently move the shop's public link.
+            if src == "username":
+                continue
             if src == "store_type":
                 val = val.strip().lower()
                 if val not in ("clothing", "digital"):

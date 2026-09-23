@@ -11,7 +11,7 @@ import { btnGhost, btnPrimary, inputCls } from '../components/ui';
 const emptyProduct = {
   name: '', description: '', price: 0, sale_price: '', quantity: 0,
   category_id: '', images: [], custom_attributes: [], variations: [], featured: false, status: 'active',
-  metadata: { product_type: 'physical', fulfillment_type: 'instant_code', service_video_url: '', is_khsmm_service: false, service_platform: '', service_type: '', api_package_id: '', service_url: 'https://khmer-smm.com/', digital_delivery: { credentials: [] } },
+  metadata: { product_type: 'physical', fulfillment_type: 'instant_code', service_video_url: '', manual_service_out_of_stock: false, is_khsmm_service: false, service_platform: '', service_type: '', api_package_id: '', service_url: 'https://khmer-smm.com/', digital_delivery: { credentials: [] } },
 };
 
 const emptyCredential = { email: '', password: '', license_key: '' };
@@ -42,6 +42,7 @@ export default function ProductForm() {
             product_type: p.metadata?.product_type || 'physical',
             fulfillment_type: p.metadata?.fulfillment_type || 'instant_code',
             service_video_url: p.metadata?.service_video_url || '',
+            manual_service_out_of_stock: !!p.metadata?.manual_service_out_of_stock,
             is_khsmm_service: !!p.metadata?.is_khsmm_service,
             service_platform: p.metadata?.service_platform || '',
             service_type: p.metadata?.service_type || '',
@@ -260,6 +261,15 @@ export default function ProductForm() {
           {manualService && (
             <>
               <p className="rounded-lg bg-cyan-50 p-3 text-sm text-cyan-900">អតិថិជននឹងជ្រើស package និងបញ្ចូល TikTok link, Telegram username ឬ game ID មុនបង់ប្រាក់។ ក្រោយទូទាត់ជោគជ័យ Website បញ្ជូនព័ត៌មានទាំងនេះទៅ Telegram របស់ហាង ហើយមិនបង្ហាញ password ឬ code ទេ។</p>
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900">
+                <input
+                  type="checkbox"
+                  checked={!!form.metadata?.manual_service_out_of_stock}
+                  onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, manual_service_out_of_stock: e.target.checked } })}
+                  className="mt-0.5 h-4 w-4"
+                />
+                <span><b>បិទស្តុក / Out of stock</b><br /><span className="text-xs">ពេល tick រួច ភ្ញៀវនឹងឃើញ “Out of stock” ហើយមិនអាចបន្តបង់ប្រាក់បានទេ។</span></span>
+              </label>
               <label className="block text-sm font-medium text-gray-700">
                 Link វីដេអូណែនាំ (YouTube ឬ MP4 public)
                 <input

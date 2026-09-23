@@ -14,7 +14,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
   const description = (product.description || '').replace(/\s+/g, ' ').trim();
   const isDigital = metadata.product_type === 'digital';
   const isManualService = metadata.fulfillment_type === 'manual_service';
-  const isAvailable = isManualService || product.quantity > 0;
+  const isAvailable = isManualService ? !metadata.manual_service_out_of_stock : product.quantity > 0;
 
   return (
     <article className={`store-product-card store-product-card-${variant} bg-white dark:bg-gray-800 overflow-hidden transition group flex flex-col h-full`}>
@@ -57,11 +57,13 @@ export default function ProductCard({ product, variant = 'standard' }) {
           <span className={isAvailable ? 'text-emerald-600' : 'text-rose-600'}>{isAvailable ? '● Available' : '● Sold out'}</span>
           <span className="text-slate-400">{isManualService ? 'Manual service' : (isDigital ? 'Instant access' : 'Ready to order')}</span>
         </div>
-        {isManualService && (
+        {isManualService && (isAvailable ? (
           <Link to={`/${shop.username}/product/${product.id}`} className="mt-4 text-center text-xs font-black text-blue-700 hover:text-blue-800">
             Choose a package
           </Link>
-        )}
+        ) : (
+          <span className="mt-4 w-full rounded-xl bg-slate-200 py-2.5 text-center text-xs sm:text-sm font-black text-slate-400">Out of stock</span>
+        ))}
         {!isManualService && (isAvailable ? (
           <Link to={`/${shop.username}/product/${product.id}`} className="mt-4 w-full rounded-xl bg-blue-700 py-2.5 text-center text-xs sm:text-sm text-white font-black hover:bg-blue-800 transition">Buy now</Link>
         ) : (

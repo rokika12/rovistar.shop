@@ -216,3 +216,27 @@ def test_legacy_shop_update_preserves_hidden_token_and_linked_chats(monkeypatch)
         assert saved["profile_id"] == "PROFILE"
     finally:
         db.close()
+
+
+def test_shop_update_keeps_permanent_storefront_username():
+    shop_id, headers = _create_shop_owner({})
+    db = SessionLocal()
+    try:
+        original = db.query(models.Shop).filter(models.Shop.id == shop_id).first().username
+    finally:
+        db.close()
+
+    response = client.put(
+        f"/api/shops/{shop_id}/update",
+        json={"username": ""},
+        headers=headers,
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["username"] == original
+
+    db = SessionLocal()
+    try:
+        saved = db.query(models.Shop).filter(models.Shop.id == shop_id).first()
+        assert saved.username == original
+    finally:
+        db.close()

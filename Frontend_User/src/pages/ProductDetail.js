@@ -79,7 +79,7 @@ export default function ProductDetail() {
   const freeFireService = manualService && servicePlatform === 'free_fire';
   const mobileLegendsService = manualService && servicePlatform === 'mobile_legends';
   const robloxService = manualService && servicePlatform === 'roblox';
-  const isAvailable = manualService || effectiveStock > 0;
+  const isAvailable = manualService ? !product.metadata?.manual_service_out_of_stock : effectiveStock > 0;
   const videoUrl = String(product.metadata?.service_video_url || '').trim();
   const youtubeMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
   const isDirectVideo = /\.(mp4|webm)(?:\?.*)?$/i.test(videoUrl);
@@ -206,7 +206,7 @@ export default function ProductDetail() {
           )}
 
           {manualService ? (
-            <p className="text-sm text-green-600 mt-1">✓ Available · manual service</p>
+            <p className={`text-sm mt-1 ${isAvailable ? 'text-green-600' : 'text-red-500'}`}>{isAvailable ? '✓ Available · manual service' : '✗ Out of stock · manual service'}</p>
           ) : effectiveStock > 0 ? (
             <p className="text-sm text-green-600 mt-1">✓ {t('inStock')} ({effectiveStock})</p>
           ) : (

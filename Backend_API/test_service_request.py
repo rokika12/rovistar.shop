@@ -137,5 +137,24 @@ def test_manual_service_requires_link_before_payment_and_keeps_video_for_receipt
         assert item["price"] == 9.0
         assert item["service_video_url"] == "/api/uploads/media/guide.mp4"
         assert "_service_link" not in item["variations"]
+
+        product.metadata_json = models.JSONText.dumps({
+            "product_type": "digital",
+            "fulfillment_type": "manual_service",
+            "manual_service_out_of_stock": True,
+        })
+        db.commit()
+        unavailable = client.post("/api/orders", json={
+            **base_order,
+            "items": [{
+                "product_id": product.id,
+                "name": product.name,
+                "price": 3.0,
+                "quantity": 1,
+                "variations": {"Package": "Pro", "_service_link": "https://www.tiktok.com/@creator/video/123"},
+            }],
+        }, headers=headers)
+        assert unavailable.status_code == 400, unavailable.text
+        assert unavailable.json()["detail"] == "This manual service is out of stock"
     finally:
         db.close()
