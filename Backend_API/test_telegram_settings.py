@@ -243,7 +243,8 @@ def test_shop_update_keeps_permanent_storefront_username():
 
 
 def test_telegram_order_buttons_update_storefront_status(monkeypatch):
-    shop_id, _ = _create_shop_owner({"bot_token": "order-button-token", "enabled": True})
+    webhook_token = f"order-button-{uuid.uuid4().hex}"
+    shop_id, _ = _create_shop_owner({"bot_token": webhook_token, "enabled": True})
     db = SessionLocal()
     try:
         suffix = uuid.uuid4().hex[:8]
@@ -266,14 +267,14 @@ def test_telegram_order_buttons_update_storefront_status(monkeypatch):
     monkeypatch.setattr(telegram_service, "send_telegram_callback_reply", lambda *args: replies.append(args))
     monkeypatch.setattr(telegram_service, "update_telegram_order_buttons", lambda *args: button_updates.append(args))
 
-    shipping = client.post(f"/api/telegram/webhook/order-button-token", json={
+    shipping = client.post(f"/api/telegram/webhook/{webhook_token}", json={
         "callback_query": {"id": "callback-1", "data": f"order:{order_id}:shipped", "message": {"chat": {"id": 101}, "message_id": 42}},
     })
     assert shipping.status_code == 200, shipping.text
     assert shipping.json()["order_status"] == "shipped"
     assert button_updates[-1][-1] == [[{"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order_id}:completed"}]]
 
-    completed = client.post(f"/api/telegram/webhook/order-button-token", json={
+    completed = client.post(f"/api/telegram/webhook/{webhook_token}", json={
         "callback_query": {"id": "callback-2", "data": f"order:{order_id}:completed", "message": {"chat": {"id": 101}, "message_id": 42}},
     })
     assert completed.status_code == 200, completed.text

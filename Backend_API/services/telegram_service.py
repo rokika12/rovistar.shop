@@ -274,19 +274,17 @@ def resolve_public_profile_username(username: str) -> dict:
     except httpx.HTTPError:
         return {"ok": False, "detail": "Telegram could not be reached. Please try again."}
 
-    title_match = re.search(r'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)', page, re.I)
-    image_match = re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)', page, re.I)
-    if not title_match:
-        return {"ok": False, "detail": "This Telegram username is not publicly visible. Private accounts cannot be previewed by username."}
-    name = __import__("html").unescape(title_match.group(1)).strip()
-    # Telegram hides a private user's display name on its public landing page.
-    if name.lower() == f"telegram: contact @{normalized}".lower():
-        name = ""
+    if "tgme_page" not in page and "telegram.me" not in page and "t.me" not in str(response.url):
+        return {"ok": False, "detail": "This Telegram username is not publicly visible."}
+    # Telegram's public page metadata is not a verified identity record. Do not
+    # show its title or image as a customer's name/avatar because it can be
+    # stale or refer to a channel, which caused incorrect names to be displayed.
     return {
         "ok": True,
         "username": normalized,
-        "name": name,
-        "avatar_url": __import__("html").unescape(image_match.group(1)).strip() if image_match else "",
+        "name": "",
+        "avatar_url": "",
+        "detail": "Public username found. Telegram does not expose a verified display name or avatar by public username.",
     }
 
 

@@ -127,7 +127,7 @@ export default function ShopHome() {
         </section>
       )}
 
-      <section className="max-w-7xl mx-auto px-4 pb-7">
+      <section className="max-w-7xl mx-auto px-4 pt-10 md:pt-14 pb-7">
         <div className="store-section-heading">
           <div>
             <span className="store-section-kicker">Picked for you</span>
