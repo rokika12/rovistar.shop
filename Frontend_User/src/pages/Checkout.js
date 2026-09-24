@@ -386,13 +386,9 @@ export default function Checkout() {
           {currentShopLoggedIn && !freeDigitalOrder && !new URLSearchParams(window.location.search).has('payment') && (
             <div className="mb-5 text-left">
               <p className="font-bold mb-2">Choose payment method</p>
-              <div className="grid grid-cols-2 gap-3">
-                <button type="button" onClick={() => setPaymentMethod('wallet')} className={`rounded-xl border-2 p-3 ${paymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50' : 'border-gray-200'}`}>
-                  <b>Wallet</b><span className="block text-xs text-gray-500 mt-1">${Number(walletBalance).toFixed(2)}</span>
-                </button>
-                <button type="button" onClick={() => setPaymentMethod('khqr')} className={`rounded-xl border-2 p-3 ${paymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
-                  <b>ABA KHQR</b><span className="block text-xs text-gray-500 mt-1">Scan QR</span>
-                </button>
+              <div className="space-y-3">
+                <button type="button" onClick={() => setPaymentMethod('khqr')} className={`flex w-full items-center gap-4 rounded-2xl border-2 p-4 text-left transition ${paymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white'}`}><img src={ABA_LOGO_URL} alt="ABA" className="h-11 w-11 rounded-xl object-contain" /><span><b className="block text-blue-900">ABA KHQR</b><small className="mt-1 block text-blue-600">Scan to pay with any banking app</small></span></button>
+                <button type="button" onClick={() => setPaymentMethod('wallet')} className={`flex w-full items-center gap-4 rounded-2xl border-2 p-4 text-left transition ${paymentMethod === 'wallet' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white'}`}><span className="grid h-11 w-11 place-items-center rounded-xl bg-blue-600 text-white"><FiCreditCard className="h-6 w-6" /></span><span><b className="block text-blue-900">Wallet Balance</b><small className="mt-1 block text-blue-600">Pay instantly from your balance · ${Number(walletBalance).toFixed(2)}</small></span></button>
               </div>
             </div>
           )}
