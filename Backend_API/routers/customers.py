@@ -34,19 +34,13 @@ def customer_signup(data: schemas.CustomerSignup, db: Session = Depends(get_db))
         raise HTTPException(status_code=404, detail="Shop not found")
     if len(data.password) < 4:
         raise HTTPException(status_code=400, detail="Password must be at least 4 characters")
-    if not data.phone.strip():
-        raise HTTPException(status_code=400, detail="Phone number is required")
+    email = data.email.strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="A valid Gmail address is required")
 
-    username = _normalize_username(data.username)
-    if not username:
-        raise HTTPException(status_code=400, detail="Username is required")
-
-    # Full name — accept a single "full_name" or the legacy first/last split.
-    full_name = (data.full_name or "").strip()
-    if not full_name:
-        full_name = " ".join(x for x in [data.first_name.strip(), data.last_name.strip()] if x)
-    if not full_name:
-        raise HTTPException(status_code=400, detail="Full name is required")
+    # Email-only registration: generate the legacy username/name fields internally.
+    username = _normalize_username(data.username) or email.split("@", 1)[0]
+    full_name = (data.full_name or "").strip() or username
     name_parts = full_name.split()
     first_name = name_parts[0]
     last_name = " ".join(name_parts[1:])

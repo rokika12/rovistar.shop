@@ -23,10 +23,7 @@ export default function CustomerAuth({ onSuccess }) {
     localStorage.removeItem('ms_saved_username');
     localStorage.removeItem('ms_saved_password');
   }, []);
-  const [signupForm, setSignupForm] = useState({
-    full_name: '', username: '', gender: '', email: '',
-    phone: '', telegram_phone: '', password: '', confirm_password: '',
-  });
+  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirm_password: '' });
 
   const [showLoginPw, setShowLoginPw] = useState(false);
   const [showSignupPw, setShowSignupPw] = useState(false);
@@ -67,7 +64,7 @@ export default function CustomerAuth({ onSuccess }) {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    if (!signupForm.full_name || !signupForm.username || !signupForm.phone || !signupForm.password) {
+    if (!signupForm.email || !signupForm.password) {
       toast.error(t('fillRequired'));
       return;
     }
@@ -155,44 +152,13 @@ export default function CustomerAuth({ onSuccess }) {
       ) : (
         <form onSubmit={handleSignup} className="space-y-3 text-left">
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('fullName')} *</label>
-            <input value={signupForm.full_name} onChange={set(signupForm, setSignupForm)('full_name')} className={inputCls} placeholder="e.g. Sok Dara" autoComplete="name" />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('username')} *</label>
-            <input
-              value={signupForm.username}
-              onChange={set(signupForm, setSignupForm)('username')}
-              className={inputCls}
-              placeholder="e.g. sokdara"
-              autoCapitalize="none"
-              autoComplete="username"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('gender')}</label>
-            <select value={signupForm.gender} onChange={set(signupForm, setSignupForm)('gender')} className={inputCls}>
-              <option value="">—</option>
-              <option value="male">{t('male')}</option>
-              <option value="female">{t('female')}</option>
-              <option value="other">{t('other')}</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('gmail')}</label>
-            <input type="email" value={signupForm.email} onChange={set(signupForm, setSignupForm)('email')} className={inputCls} placeholder="you@gmail.com" />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('phone')} *</label>
-            <input value={signupForm.phone} onChange={set(signupForm, setSignupForm)('phone')} className={inputCls} placeholder="+855 12 345 678" />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('telegramPhone')}</label>
-            <input value={signupForm.telegram_phone} onChange={set(signupForm, setSignupForm)('telegram_phone')} className={inputCls} placeholder="+855 ..." />
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">Gmail *</label>
+            <input type="email" value={signupForm.email} onChange={set(signupForm, setSignupForm)('email')} className={inputCls} placeholder="you@gmail.com" autoComplete="email" />
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('password')} *</label>
             {passwordInput(signupForm.password, set(signupForm, setSignupForm)('password'), showSignupPw, setShowSignupPw)}
+            <div className="mt-2 grid grid-cols-3 gap-1 text-[10px] font-bold"><span className={`rounded px-2 py-1 text-center ${signupForm.password.length >= 4 ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-400'}`}>Level 1</span><span className={`rounded px-2 py-1 text-center ${signupForm.password.length >= 8 && /[A-Z]/.test(signupForm.password) && /\d/.test(signupForm.password) ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-400'}`}>Level 2</span><span className={`rounded px-2 py-1 text-center ${signupForm.password.length >= 12 && /[A-Z]/.test(signupForm.password) && /\d/.test(signupForm.password) && /[^A-Za-z0-9]/.test(signupForm.password) ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-400'}`}>Level 3</span></div>
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('confirmPassword')} *</label>

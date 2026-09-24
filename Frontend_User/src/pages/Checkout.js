@@ -368,7 +368,7 @@ export default function Checkout() {
     );
   }
 
-  if (digitalOnly) {
+  if (digitalOnly && currentShopLoggedIn) {
     return (
       <div className="max-w-xl mx-auto px-4 py-16">
         {paymentConfirmationModal}

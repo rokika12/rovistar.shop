@@ -313,7 +313,7 @@ class CustomerSignup(BaseModel):
     last_name: str = ""
     gender: str = ""          # male | female | other
     email: str = ""           # gmail
-    phone: str
+    phone: str = ""
     telegram_username: str = ""
     telegram_phone: str = ""
     password: str
