@@ -54,7 +54,7 @@ export default function ShopHome() {
   )).slice(0, 8);
 
   return (
-    <div>
+    <div className={shop.username === 'domi' ? 'domi-storefront' : ''}>
       <ShopSearchBar />
       {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
 
