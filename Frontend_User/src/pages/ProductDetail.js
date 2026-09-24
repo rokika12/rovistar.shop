@@ -230,7 +230,7 @@ export default function ProductDetail() {
                         ? product.variations.find((variation) => variation.attrs?.[attr.key] === opt)
                         : null;
                       const optionPrice = selectedOption?.price ?? null;
-                      const optionImage = selectedOption?.image_url || selectedOption?.image || product.images?.[0] || '';
+                      const optionImage = selectedOption?.image_url || selectedOption?.image || '';
                       return attr.type === 'color' ? (
                         <button
                           key={opt}
