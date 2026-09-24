@@ -33,6 +33,7 @@ export default function ShopLayout() {
     || '';
   const theme = shop.theme || {};
   const isAccountTemplate = shop.template_type === 'account';
+  const announcement = theme.appearance?.marquee_text || (isAccountTemplate ? 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · គាំទ្រសេវាកម្មឌីជីថល' : 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · ក្រុមការងារគាំទ្ររហ័ស');
   const themeStyle = {
     '--primary': theme.primary || '#123B3A',
     '--secondary': theme.secondary || '#F4C95D',
@@ -46,12 +47,8 @@ export default function ShopLayout() {
       <div className="store-sticky-shell">
         <div className="brand-ticker bg-[var(--brand-blue)] text-white" aria-label="Store security notice">
           <div className="brand-ticker-track">
-            <span>{isAccountTemplate
-              ? 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · គាំទ្រសេវាកម្មឌីជីថល · '
-              : 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · ក្រុមការងារគាំទ្ររហ័ស · '}</span>
-            <span aria-hidden="true">{isAccountTemplate
-              ? 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · គាំទ្រសេវាកម្មឌីជីថល'
-              : 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · ក្រុមការងារគាំទ្ររហ័ស'}</span>
+            <span>{announcement} · {announcement} ·</span>
+            <span aria-hidden="true">{announcement} · {announcement} ·</span>
           </div>
         </div>
         <ShopHeader />
