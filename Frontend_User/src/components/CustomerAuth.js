@@ -115,12 +115,14 @@ export default function CustomerAuth({ onSuccess }) {
     <div>
       <div className="flex bg-gray-100 rounded-xl p-1 mb-4">
         <button
+          type="button"
           onClick={() => setMode('signin')}
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${mode === 'signin' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}
         >
           <span className="inline-flex items-center justify-center gap-1.5"><FcGoogle className="w-4 h-4" /> {t('signIn')}</span>
         </button>
         <button
+          type="button"
           onClick={() => setMode('signup')}
           className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${mode === 'signup' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}
         >

@@ -59,7 +59,7 @@ export default function ShopHome() {
   const saleRailClass = appearance.sale_direction === 'left' ? 'domi-rail-left' : 'domi-rail-right';
 
   return (
-    <div className={`domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'}>
+    <div className={`domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>
       <ShopSearchBar />
       {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
 

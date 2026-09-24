@@ -788,6 +788,9 @@ body {
 .marquee-product-text-pink a, .marquee-sale-text-pink a { color: #dc2874 !important; }
 .marquee-product-text-green a, .marquee-sale-text-green a { color: #128052 !important; }
 .marquee-product-text-black a, .marquee-sale-text-black a { color: #111827 !important; }
+.domi-storefront .store-section-kicker { color: var(--section-kicker, #b88712) !important; }
+.domi-storefront .store-section-heading h2 { color: var(--section-title, #d62468) !important; }
+.domi-storefront .store-section-heading h2::before { background: var(--section-accent, #1677db) !important; }
 .domi-storefront[data-palette="ocean"] .domi-rail-sale { background: #edf8ff; }
 .domi-storefront[data-palette="ocean"] .domi-rail-track b, .domi-storefront[data-palette="ocean"] .domi-rail-track strong { background: #087bb5; }
 .domi-storefront[data-palette="emerald"] .domi-rail-sale { background: #effcf5; }
