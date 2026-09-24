@@ -768,8 +768,8 @@ body {
 .domi-rail-track b, .domi-rail-track strong { margin-left: auto; border-radius: 999px; background: #f03878; padding: .28rem .58rem; color: #fff; font-size: .68rem; letter-spacing: .06em; }
 .domi-rail-track strong { background: #b81f59; }
 .domi-rail-track em { border-radius: 999px; background: #fcd5e3; padding: .22rem .45rem; color: #b51c55; font-size: .68rem; font-style: normal; }
-.domi-rail-left { animation: domi-slide-left 28s linear infinite; }
-.domi-rail-right { animation: domi-slide-left 28s linear infinite; }
+.domi-rail-left { animation: domi-slide-left 12s linear infinite; }
+.domi-rail-right { animation: domi-slide-left 12s linear infinite; }
 .domi-rail:hover .domi-rail-track, .domi-rail:focus-within .domi-rail-track { animation-play-state: paused; }
 @keyframes domi-slide-left { to { transform: translateX(-50%); } }
 @keyframes domi-slide-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }

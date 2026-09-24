@@ -53,8 +53,10 @@ export default function ShopHome() {
     product.sale_price != null && Number(product.sale_price) < Number(product.price)
   )).slice(0, 8);
 
+  const isDomi = shop.username?.toLowerCase() === 'domi';
+
   return (
-    <div className={shop.username === 'domi' ? 'domi-storefront' : ''}>
+    <div className={isDomi ? 'domi-storefront' : ''}>
       <ShopSearchBar />
       {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
 
@@ -84,14 +86,14 @@ export default function ShopHome() {
         </section>
       )}
 
-      {shop.username === 'domi' && !loading && allProducts.length > 0 && (
+      {isDomi && !loading && allProducts.length > 0 && (
         <section className="domi-promo-rails" aria-label="Featured offers">
           <div className="domi-rail"><div className="domi-rail-track domi-rail-left">{Array.from({ length: 6 }, () => allProducts).flat().map((product, index) => <Link key={`product-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><b>VIEW</b></Link>)}</div></div>
           <div className="domi-rail domi-rail-sale"><div className="domi-rail-track domi-rail-right">{Array.from({ length: 10 }, () => (flashSaleProducts.length ? flashSaleProducts : allProducts)).flat().map((product, index) => <Link key={`price-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><strong>${Number(product.sale_price ?? product.price).toFixed(2)}</strong>{product.sale_price != null && Number(product.sale_price) < Number(product.price) && <em>-{Math.round((1 - Number(product.sale_price) / Number(product.price)) * 100)}%</em>}</Link>)}</div></div>
         </section>
       )}
 
-      {!loading && shop.username !== 'domi' && <section className="max-w-7xl mx-auto px-4 py-7">
+      {!loading && !isDomi && <section className="max-w-7xl mx-auto px-4 py-7">
         <div className="store-trust-grid">
           <div className="store-trust-card"><FiSmartphone /><strong>ងាយស្រួលប្រើ</strong><p>រកទំនិញ និងបញ្ជាទិញបានល្អទាំងទូរស័ព្ទ និងកុំព្យូទ័រ។</p></div>
           <div className="store-trust-card"><FiCreditCard /><strong>បង់ប្រាក់មានសុវត្ថិភាព</strong><p>ប្រើ ABA KHQR និងពិនិត្យស្ថានភាពការបង់ប្រាក់ដោយស្វ័យប្រវត្តិ។</p></div>
@@ -99,7 +101,7 @@ export default function ShopHome() {
         </div>
       </section>}
 
-      {!loading && shop.username !== 'domi' && flashSaleProducts.length > 0 && (
+      {!loading && !isDomi && flashSaleProducts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 pt-2 pb-5">
           <div className="store-section-heading store-flash-heading">
             <div>
