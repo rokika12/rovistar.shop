@@ -226,9 +226,11 @@ export default function ProductDetail() {
                   </label>
                   <div className={`flex flex-wrap gap-2 ${manualService ? 'service-package-options' : ''}`}>
                     {attr.options.map((opt) => {
-                      const optionPrice = manualService
-                        ? product.variations.find((variation) => variation.attrs?.[attr.key] === opt)?.price
+                      const selectedOption = manualService
+                        ? product.variations.find((variation) => variation.attrs?.[attr.key] === opt)
                         : null;
+                      const optionPrice = selectedOption?.price ?? null;
+                      const optionImage = selectedOption?.image_url || selectedOption?.image || '';
                       return attr.type === 'color' ? (
                         <button
                           key={opt}
@@ -260,6 +262,7 @@ export default function ProductDetail() {
                               : 'border-gray-200 text-gray-700 hover:border-gray-400 dark:border-gray-600 dark:text-gray-300'
                           }`}
                         >
+                          {manualService && optionImage && <img src={fullUrl(optionImage)} alt="" className="service-package-image" />}
                           <span className={`service-package-mark ${isTikTokService ? 'service-package-mark-sale' : ''}`}>{serviceBadge}</span>
                           <span>{opt}</span>
                           {manualService && optionPrice != null && <small>{Number(optionPrice).toFixed(2)} {shop.currency}</small>}
