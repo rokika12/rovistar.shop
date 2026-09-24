@@ -10,7 +10,7 @@ import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
 
 const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
-const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-logo.png`;
+const WALLET_ICON_URL = `${process.env.PUBLIC_URL}/rovistar-wallet.svg`;
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -322,12 +322,12 @@ export default function ProductDetail() {
             <div className="mt-5">
               <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
               <div className="space-y-3">
-                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`flex w-full items-center gap-3 rounded-xl border-2 p-4 text-left transition ${servicePaymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>
-                  <span className="flex h-12 w-20 shrink-0 items-center justify-center gap-1 rounded-lg bg-[#061d3a] px-1 shadow-sm"><img src={ABA_LOGO_URL} alt="ABA" className="h-7 max-w-[43px] object-contain" /><img src={KHQR_LOGO_URL} alt="KHQR" className="h-6 max-w-[30px] object-contain" /></span>
+                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>
+                  <span className="h-14 w-14 shrink-0 overflow-hidden rounded-xl shadow-sm"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="h-full w-full object-cover" /></span>
                   <span className="min-w-0 flex-1"><strong className="block text-blue-950">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Scan a real KHQR after payment is created</span></span>
                   <strong className="shrink-0 text-sm text-blue-900">{Number(effectivePrice).toFixed(2)} {shop.currency}</strong>
                 </button>
-                <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`w-full rounded-xl border-2 p-4 text-left transition ${servicePaymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50' : 'border-slate-200 bg-white'}`}><strong className="block text-slate-900">Wallet Balance</strong><span className="mt-1 block text-xs text-slate-600">Pay instantly from your balance</span></button>
+                <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}><img src={WALLET_ICON_URL} alt="Rovistar wallet" className="h-14 w-14 shrink-0 rounded-xl shadow-sm" /><span><strong className="block text-slate-900">Wallet Balance</strong><span className="mt-1 block text-xs text-slate-600">Pay instantly from your balance</span></span></button>
                 <button type="button" onClick={() => buyNow(servicePaymentMethod)} className="w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700">Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now</button>
               </div>
             </div>
