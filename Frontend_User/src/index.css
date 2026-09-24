@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -763,7 +763,8 @@ body {
 .domi-rail { overflow: hidden; border-bottom: 1px solid #f1dfe3; }
 .domi-rail-sale { border: 0; background: #fff4f7; }
 .domi-rail-track { display: flex; width: max-content; gap: .65rem; padding: .65rem; }
-.domi-rail-track a { display: inline-flex; align-items: center; gap: .8rem; min-width: 14rem; border-radius: 999px; background: #fff; padding: .58rem .8rem .58rem 1rem; color: #7b1f47; box-shadow: 0 3px 10px rgba(158,40,89,.1); font-family: 'Kantumruy Pro', sans-serif; font-weight: 800; }
+.domi-rail-track a { display: inline-flex; align-items: center; gap: .8rem; min-width: 14rem; border-radius: 999px; background: #fff; padding: .58rem .8rem .58rem 1rem; color: #7b1f47; box-shadow: 0 3px 10px rgba(158,40,89,.1); font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-size: 1.05rem; font-weight: 700; }
+.domi-storefront .promo-marquee a { border-radius: 999px; color: #d62468 !important; font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-size: 1rem; }
 .domi-rail-track b, .domi-rail-track strong { margin-left: auto; border-radius: 999px; background: #f03878; padding: .28rem .58rem; color: #fff; font-size: .68rem; letter-spacing: .06em; }
 .domi-rail-track strong { background: #b81f59; }
 .domi-rail-track em { border-radius: 999px; background: #fcd5e3; padding: .22rem .45rem; color: #b51c55; font-size: .68rem; font-style: normal; }
