@@ -774,6 +774,7 @@ body {
 .domi-rail-left { animation: domi-slide-left var(--rail-duration, 12s) linear infinite; }
 .domi-rail-right { animation: domi-slide-right var(--rail-duration, 12s) linear infinite; }
 .shop-announcement { overflow: hidden; border-block: 1px solid #fbc5d9; background: #fff4f7; color: #b51c55; font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-weight: 800; white-space: nowrap; }
+.shop-announcement-top { border: 0; background: #092f45; color: #f5d77a; }
 .shop-announcement > div { display: flex; width: max-content; gap: 4rem; padding: .5rem 1rem; }
 .shop-announcement-left { animation: domi-slide-left 16s linear infinite; }
 .shop-announcement-right { animation: domi-slide-right 16s linear infinite; }

@@ -60,10 +60,9 @@ export default function ShopHome() {
 
   return (
     <div className={`domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>
+      {appearance.marquee_text && <div className="shop-announcement shop-announcement-top"><div className={appearance.product_direction === 'right' ? 'shop-announcement-right' : 'shop-announcement-left'}>{[appearance.marquee_text, appearance.marquee_text, appearance.marquee_text].map((text, index) => <span key={index}>{text}</span>)}</div></div>}
       <ShopSearchBar />
       {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
-
-      {appearance.marquee_text && <div className="shop-announcement"><div className={appearance.product_direction === 'right' ? 'shop-announcement-right' : 'shop-announcement-left'}>{[appearance.marquee_text, appearance.marquee_text, appearance.marquee_text].map((text, index) => <span key={index}>{text}</span>)}</div></div>}
 
       {slides.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 pt-6 md:pt-8">
