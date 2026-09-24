@@ -73,7 +73,7 @@ export default function ShopHome() {
         <section className="mx-auto max-w-7xl px-4 pt-5">
           <div className={`overflow-hidden rounded-2xl border ${isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-blue-100 bg-white text-slate-900'}`}>
             <div className="overflow-hidden py-3">
-              <div className="promo-marquee flex w-max items-center gap-3">
+              <div className={`promo-marquee promo-marquee-${appearance.product_direction === 'right' ? 'right' : 'left'} flex w-max items-center gap-3`} style={{ '--promo-duration': appearance.product_speed === 'fast' ? '7s' : appearance.product_speed === 'normal' ? '12s' : '20s' }}>
                 {[...allProducts, ...allProducts].map((product, index) => (
                   <Link key={`${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`} className={`flex shrink-0 items-center gap-3 rounded-xl px-3 py-2 whitespace-nowrap ${isDark ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-50 hover:bg-blue-50'}`}>
                     <div className={`h-10 w-10 overflow-hidden rounded-lg ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}>

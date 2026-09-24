@@ -54,8 +54,11 @@ body {
   transform: translateY(-1px);
 }
 
-.promo-marquee { animation: promo-scroll 18s linear infinite; }
-@keyframes promo-scroll { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+.promo-marquee { animation: promo-scroll-right var(--promo-duration, 18s) linear infinite; }
+.promo-marquee-left { animation-name: promo-scroll-left; }
+.promo-marquee-right { animation-name: promo-scroll-right; }
+@keyframes promo-scroll-left { to { transform: translateX(-50%); } }
+@keyframes promo-scroll-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
 .trust-marquee { animation: trust-scroll 34s linear infinite; }
 @keyframes trust-scroll { from { transform: translateX(-25%); } to { transform: translateX(0); } }
 
