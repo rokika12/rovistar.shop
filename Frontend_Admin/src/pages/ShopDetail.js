@@ -121,6 +121,10 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
     product_speed: shop.theme?.appearance?.product_speed || 'slow',
     sale_speed: shop.theme?.appearance?.sale_speed || 'slow',
     hero_motion: shop.theme?.appearance?.hero_motion || 'none',
+    marquee_text: shop.theme?.appearance?.marquee_text || '',
+    text_color: shop.theme?.appearance?.text_color || 'default',
+    show_marquee_images: shop.theme?.appearance?.show_marquee_images !== false,
+    show_marquee_discount: shop.theme?.appearance?.show_marquee_discount !== false,
   });
   const [telegram, setTelegram] = useState({
     bot_token: shop.telegram_settings?.bot_token || '',
@@ -252,6 +256,8 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
                 <label className="text-xs font-semibold">ល្បឿនជួរបញ្ចុះតម្លៃ<select value={appearance.sale_speed} onChange={(e) => setAppearance({ ...appearance, sale_speed: e.target.value })} className={`${inputCls} mt-1`}><option value="slow">យឺត</option><option value="normal">មធ្យម</option><option value="fast">លឿន</option></select></label>
               </div>
               <div className="mt-3 flex flex-wrap gap-5 text-sm"><label className="flex items-center gap-2"><input type="checkbox" checked={appearance.show_product_marquee} onChange={(e) => setAppearance({ ...appearance, show_product_marquee: e.target.checked })} /> បង្ហាញជួរទំនិញ</label><label className="flex items-center gap-2"><input type="checkbox" checked={appearance.show_sale_marquee} onChange={(e) => setAppearance({ ...appearance, show_sale_marquee: e.target.checked })} /> បង្ហាញជួរតម្លៃបញ្ចុះ</label></div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2"><input value={appearance.marquee_text} onChange={(e) => setAppearance({ ...appearance, marquee_text: e.target.value })} className={inputCls} placeholder="អក្សររត់ខាងលើ (ឧ. ប្រម៉ូសិនថ្ងៃនេះ)" /><label className="text-xs font-semibold">ពណ៌អក្សរ<select value={appearance.text_color} onChange={(e) => setAppearance({ ...appearance, text_color: e.target.value })} className={`${inputCls} mt-1`}><option value="default">ពណ៌តាម theme</option><option value="blue">ខៀវ</option><option value="red">ក្រហម</option><option value="pink">ផ្កាឈូក</option><option value="green">បៃតង</option><option value="black">ខ្មៅ</option><option value="white">ស</option></select></label></div>
+              <div className="mt-3 flex flex-wrap gap-5 text-sm"><label className="flex items-center gap-2"><input type="checkbox" checked={appearance.show_marquee_images} onChange={(e) => setAppearance({ ...appearance, show_marquee_images: e.target.checked })} /> បង្ហាញរូបទំនិញក្នុងជួររត់</label><label className="flex items-center gap-2"><input type="checkbox" checked={appearance.show_marquee_discount} onChange={(e) => setAppearance({ ...appearance, show_marquee_discount: e.target.checked })} /> បង្ហាញផ្លាក % បញ្ចុះតម្លៃ</label></div>
             </div>
           </div>
           <button onClick={saveBrand} className={`${btnPrimary} mt-3`}>Save Website Branding</button>

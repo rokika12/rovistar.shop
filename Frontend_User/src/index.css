@@ -773,6 +773,16 @@ body {
 .domi-rail-track em { border-radius: 999px; background: #fcd5e3; padding: .22rem .45rem; color: #b51c55; font-size: .68rem; font-style: normal; }
 .domi-rail-left { animation: domi-slide-left var(--rail-duration, 12s) linear infinite; }
 .domi-rail-right { animation: domi-slide-right var(--rail-duration, 12s) linear infinite; }
+.shop-announcement { overflow: hidden; border-block: 1px solid #fbc5d9; background: #fff4f7; color: #b51c55; font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-weight: 800; white-space: nowrap; }
+.shop-announcement > div { display: flex; width: max-content; gap: 4rem; padding: .5rem 1rem; }
+.shop-announcement-left { animation: domi-slide-left 16s linear infinite; }
+.shop-announcement-right { animation: domi-slide-right 16s linear infinite; }
+.marquee-text-blue .domi-rail-track a, .marquee-text-blue .shop-announcement { color: #1264c7 !important; }
+.marquee-text-red .domi-rail-track a, .marquee-text-red .shop-announcement { color: #c02432 !important; }
+.marquee-text-pink .domi-rail-track a, .marquee-text-pink .shop-announcement { color: #dc2874 !important; }
+.marquee-text-green .domi-rail-track a, .marquee-text-green .shop-announcement { color: #128052 !important; }
+.marquee-text-black .domi-rail-track a, .marquee-text-black .shop-announcement { color: #111827 !important; }
+.marquee-text-white .domi-rail-track a, .marquee-text-white .shop-announcement { color: #fff !important; background: #25314a; }
 .domi-storefront[data-palette="ocean"] .domi-rail-sale { background: #edf8ff; }
 .domi-storefront[data-palette="ocean"] .domi-rail-track b, .domi-storefront[data-palette="ocean"] .domi-rail-track strong { background: #087bb5; }
 .domi-storefront[data-palette="emerald"] .domi-rail-sale { background: #effcf5; }

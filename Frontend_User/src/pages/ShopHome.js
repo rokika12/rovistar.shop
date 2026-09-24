@@ -59,9 +59,11 @@ export default function ShopHome() {
   const saleRailClass = appearance.sale_direction === 'left' ? 'domi-rail-left' : 'domi-rail-right';
 
   return (
-    <div className="domi-storefront" data-palette={appearance.palette || 'rose'}>
+    <div className={`domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'}>
       <ShopSearchBar />
       {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
+
+      {appearance.marquee_text && <div className="shop-announcement"><div className={appearance.product_direction === 'right' ? 'shop-announcement-right' : 'shop-announcement-left'}>{[appearance.marquee_text, appearance.marquee_text, appearance.marquee_text].map((text, index) => <span key={index}>{text}</span>)}</div></div>}
 
       {slides.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 pt-6 md:pt-8">
@@ -76,9 +78,7 @@ export default function ShopHome() {
               <div className={`promo-marquee promo-marquee-${appearance.product_direction === 'right' ? 'right' : 'left'} flex w-max items-center gap-3`} style={{ '--promo-duration': appearance.product_speed === 'fast' ? '7s' : appearance.product_speed === 'normal' ? '12s' : '20s' }}>
                 {[...allProducts, ...allProducts].map((product, index) => (
                   <Link key={`${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`} className={`flex shrink-0 items-center gap-3 rounded-xl px-3 py-2 whitespace-nowrap ${isDark ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-50 hover:bg-blue-50'}`}>
-                    <div className={`h-10 w-10 overflow-hidden rounded-lg ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}>
-                      {product.images?.[0] && <img src={fullUrl(product.images[0])} alt="" className="h-full w-full object-cover" />}
-                    </div>
+                    {appearance.show_marquee_images !== false && <div className={`h-10 w-10 overflow-hidden rounded-lg ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}>{product.images?.[0] && <img src={fullUrl(product.images[0])} alt="" className="h-full w-full object-cover" />}</div>}
                     <span className="font-bold text-blue-700 dark:text-white">{product.name}</span>
                     <span className="font-black text-blue-600 dark:text-amber-300">${Number(product.sale_price ?? product.price).toFixed(2)}</span>
                   </Link>
@@ -92,7 +92,7 @@ export default function ShopHome() {
       {!loading && allProducts.length > 0 && (appearance.show_product_marquee !== false || appearance.show_sale_marquee !== false) && (
         <section className="domi-promo-rails" aria-label="Featured offers">
           {appearance.show_product_marquee !== false && <div className="domi-rail"><div className={`domi-rail-track ${productRailClass}`} style={{ '--rail-duration': appearance.product_speed === 'fast' ? '7s' : appearance.product_speed === 'normal' ? '12s' : '20s' }}>{Array.from({ length: 6 }, () => allProducts).flat().map((product, index) => <Link key={`product-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><b>VIEW</b></Link>)}</div></div>}
-          {appearance.show_sale_marquee !== false && <div className="domi-rail domi-rail-sale"><div className={`domi-rail-track ${saleRailClass}`} style={{ '--rail-duration': appearance.sale_speed === 'fast' ? '7s' : appearance.sale_speed === 'normal' ? '12s' : '20s' }}>{Array.from({ length: 10 }, () => (flashSaleProducts.length ? flashSaleProducts : allProducts)).flat().map((product, index) => <Link key={`price-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><strong>${Number(product.sale_price ?? product.price).toFixed(2)}</strong>{product.sale_price != null && Number(product.sale_price) < Number(product.price) && <em>-{Math.round((1 - Number(product.sale_price) / Number(product.price)) * 100)}%</em>}</Link>)}</div></div>}
+          {appearance.show_sale_marquee !== false && <div className="domi-rail domi-rail-sale"><div className={`domi-rail-track ${saleRailClass}`} style={{ '--rail-duration': appearance.sale_speed === 'fast' ? '7s' : appearance.sale_speed === 'normal' ? '12s' : '20s' }}>{Array.from({ length: 10 }, () => (flashSaleProducts.length ? flashSaleProducts : allProducts)).flat().map((product, index) => <Link key={`price-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><strong>${Number(product.sale_price ?? product.price).toFixed(2)}</strong>{appearance.show_marquee_discount !== false && product.sale_price != null && Number(product.sale_price) < Number(product.price) && <em>-{Math.round((1 - Number(product.sale_price) / Number(product.price)) * 100)}%</em>}</Link>)}</div></div>}
         </section>
       )}
 
