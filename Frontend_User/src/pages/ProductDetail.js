@@ -181,6 +181,12 @@ export default function ProductDetail() {
               ))}
             </div>
           )}
+          {product.description && (
+            <div className="mt-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <h3 className="mb-2 font-bold">{t('description')}</h3>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-gray-600 dark:text-gray-400">{product.description}</p>
+            </div>
+          )}
         </div>
 
         {/* Purchase panel */}
@@ -340,13 +346,6 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* Description */}
-          {product.description && (
-            <div className="mt-6 border-t pt-6">
-              <h3 className="font-bold mb-2">{t('description')}</h3>
-              <p className="text-gray-600 dark:text-gray-400 whitespace-pre-line text-sm leading-relaxed">{product.description}</p>
-            </div>
-          )}
           {videoUrl && !manualService && (
             <div className="mt-6 border-t pt-6">
               <h3 className="mb-3 flex items-center gap-2 font-bold"><FiPlayCircle /> How it works</h3>
