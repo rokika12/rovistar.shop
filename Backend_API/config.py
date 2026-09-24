@@ -56,6 +56,10 @@ class Config:
     # Provide via the TELEGRAM_BOT_TOKEN environment variable; never hard-code.
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 
+    # Authenticates the long-polling worker that acts on behalf of shop bots.
+    BOT_SERVICE_KEY = os.getenv("BOT_SERVICE_KEY", "")
+    BOT_SERVICE_ENABLED = os.getenv("BOT_SERVICE_ENABLED", "false").lower() == "true"
+
     # Default admin account (single admin for the whole platform)
     DEFAULT_ADMIN_USERNAME = "admin"
     DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD", "ChangeMe123!")  # CHANGE ME in production!

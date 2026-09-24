@@ -87,6 +87,21 @@ def send_telegram_message_with_buttons(bot_token: str, chat_id: str, text: str, 
         return False
 
 
+def send_telegram_photo(bot_token: str, chat_id: str, photo_url: str, caption: str) -> bool:
+    """Send a selected product photo before the full text order notification."""
+    if not bot_token or not chat_id or not photo_url:
+        return False
+    try:
+        with httpx.Client(timeout=20) as client:
+            response = client.post(
+                f"https://api.telegram.org/bot{bot_token}/sendPhoto",
+                json={"chat_id": chat_id, "photo": photo_url, "caption": caption[:1024], "parse_mode": "HTML"},
+            )
+            return response.status_code == 200 and response.json().get("ok") is True
+    except Exception:
+        return False
+
+
 def send_telegram_callback_reply(bot_token: str, callback_id: str, text: str = "") -> None:
     """Dismiss Telegram's button spinner after a shop owner changes an order."""
     if not bot_token or not callback_id:
@@ -113,6 +128,22 @@ def update_telegram_order_buttons(bot_token: str, chat_id, message_id, buttons: 
             )
     except Exception:
         pass
+
+
+def telegram_order_buttons(order_id: int, order_status: str) -> list[list[dict]]:
+    """Render the remaining valid status controls for an order notification."""
+    done = {"text": "✅ Order completed", "callback_data": f"order:{order_id}:done"}
+    if order_status in ("delivered", "completed", "cancelled"):
+        return [[done]]
+    if order_status == "shipped":
+        return [[
+            {"text": "✅ Marked as shipped", "callback_data": f"order:{order_id}:done"},
+            {"text": "✅ Mark delivered", "callback_data": f"order:{order_id}:completed"},
+        ]]
+    return [[
+        {"text": "🚚 Mark as shipped", "callback_data": f"order:{order_id}:shipped"},
+        {"text": "✅ Mark delivered", "callback_data": f"order:{order_id}:completed"},
+    ]]
 
 
 def ensure_shop_profile(shop) -> dict:
@@ -380,6 +411,16 @@ def _public_receipt_url(order) -> str:
     return ""
 
 
+def _public_product_image_url(image: str) -> str:
+    """Turn a stored product-image reference into a Telegram-fetchable URL."""
+    image = str(image or "").strip()
+    if image.startswith(("https://", "http://")):
+        return image
+    if image.startswith("/"):
+        return f"{config.BASE_URL.rstrip('/')}{image}"
+    return ""
+
+
 def notify_shop_payment_success_full(shop, order, stock_summary=None) -> bool:
     """
     Send a FULL payment-success notification (in Khmer) to every chat linked to
@@ -488,16 +529,20 @@ def notify_shop_payment_success_full(shop, order, stock_summary=None) -> bool:
         lines.append(f"🧾 <b>បង្កាន់ដៃ:</b> {_html(receipt_link)}")
 
     text = "\n".join(lines)
-    buttons = [[
-        {"text": "🚚 អីវ៉ាន់កំពុងផ្ញើ", "callback_data": f"order:{order.id}:shipped"},
-        {"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order.id}:completed"},
-    ]]
+    buttons = telegram_order_buttons(order.id, order.order_status)
     tg = shop.telegram_dict()
     bot_token = (tg.get("bot_token") or "").strip()
     if not bot_token:
         return False
     sent = False
+    image_url = next((_public_product_image_url(getattr(item, "image", ""))
+                      for item in order.items if getattr(item, "image", "")), "")
     for chat_id in recipient_chat_ids(tg):
+        if image_url:
+            send_telegram_photo(
+                bot_token, chat_id, image_url,
+                f"🛍️ <b>Order #{_html(order.order_number)}</b> product image",
+            )
         if send_telegram_message_with_buttons(bot_token, chat_id, text, buttons):
             sent = True
     return sent

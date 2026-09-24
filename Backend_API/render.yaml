@@ -51,6 +51,10 @@ services:
         value: demo
       - key: REFERRAL_SECRET
         generateValue: true
+      - key: BOT_SERVICE_ENABLED
+        value: true
+      - key: BOT_SERVICE_KEY
+        sync: false   # set to the same value as MINI_BOT_SERVICE_KEY on the worker
 
 databases:
   - name: rokika-db

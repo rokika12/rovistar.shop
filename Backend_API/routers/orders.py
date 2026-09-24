@@ -19,6 +19,15 @@ from routers.payments import _mark_paid, _process_first_payment
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
 
+def _selected_product_image(product, requested_image: str) -> str:
+    """Keep only a customer selection that belongs to the product's gallery."""
+    images = models.JSONText.loads(product.images, []) if product.images else []
+    requested = str(requested_image or "").strip()
+    if requested and requested in images:
+        return requested
+    return str(images[0]).strip() if images else ""
+
+
 @router.post("")
 def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
                  customer: models.Customer = Depends(get_optional_customer)):
@@ -128,6 +137,7 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
             price=float(unit_price),
             quantity=item.quantity,
             variations=models.JSONText.dumps(item_variations),
+            image=_selected_product_image(product, item.image),
         ))
 
     order.items_total = round(items_total, 2)
@@ -303,6 +313,7 @@ def create_pos_order(data: schemas.POSOrderCreate, db: Session = Depends(get_db)
             price=round(float(unit_price or 0), 2),
             quantity=item.quantity,
             variations=models.JSONText.dumps(item.variations or {}),
+            image=_selected_product_image(product, item.image),
         ))
 
     order.items_total = round(items_total, 2)

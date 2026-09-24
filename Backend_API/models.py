@@ -321,6 +321,7 @@ class OrderItem(Base):
     price = Column(Float, default=0)
     quantity = Column(Integer, default=1)
     variations = Column(Text, default="{}")  # JSON dict of selected variations
+    image = Column(String, default="")       # customer-selected product image snapshot
 
     order = relationship("Order", back_populates="items")
 
@@ -338,6 +339,7 @@ class OrderItem(Base):
             "price": self.price,
             "quantity": self.quantity,
             "variations": variations,
+            "image": self.image,
         }
         if delivery:
             result["digital_delivery"] = delivery

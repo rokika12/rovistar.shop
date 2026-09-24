@@ -155,7 +155,7 @@ export default function Checkout() {
         customer_country: digitalOnly ? 'Online' : form.customer_country,
         items: items.map((i) => ({
           product_id: i.product_id, name: i.name, price: i.price,
-          quantity: i.quantity, variations: i.variations,
+          quantity: i.quantity, variations: i.variations, image: i.image,
         })),
         payment_method: digitalOnly ? paymentMethod : 'khqr',
       }, shopToken);

@@ -104,6 +104,11 @@ def _migrate_columns():
         with engine.begin() as conn:
             if "customer_id" not in cols:
                 conn.execute(sa_text("ALTER TABLE orders ADD COLUMN customer_id INTEGER"))
+    if insp.has_table("order_items"):
+        cols = [c["name"] for c in insp.get_columns("order_items")]
+        with engine.begin() as conn:
+            if "image" not in cols:
+                conn.execute(sa_text("ALTER TABLE order_items ADD COLUMN image VARCHAR DEFAULT ''"))
 
 
 def _backfill_order_customers():

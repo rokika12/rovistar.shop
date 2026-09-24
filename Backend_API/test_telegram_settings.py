@@ -3,6 +3,7 @@ import uuid
 from fastapi.testclient import TestClient
 
 import models
+from config import config
 from database import SessionLocal
 from main import app
 from security import create_access_token
@@ -244,7 +245,7 @@ def test_shop_update_keeps_permanent_storefront_username():
 
 def test_telegram_order_buttons_update_storefront_status(monkeypatch):
     webhook_token = f"order-button-{uuid.uuid4().hex}"
-    shop_id, _ = _create_shop_owner({"bot_token": webhook_token, "enabled": True})
+    shop_id, _ = _create_shop_owner({"bot_token": webhook_token, "enabled": True, "linked_chats": ["101"]})
     db = SessionLocal()
     try:
         suffix = uuid.uuid4().hex[:8]
@@ -272,17 +273,110 @@ def test_telegram_order_buttons_update_storefront_status(monkeypatch):
     })
     assert shipping.status_code == 200, shipping.text
     assert shipping.json()["order_status"] == "shipped"
-    assert button_updates[-1][-1] == [[{"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order_id}:completed"}]]
+    assert button_updates[-1][-1] == [[
+        {"text": "✅ Marked as shipped", "callback_data": f"order:{order_id}:done"},
+        {"text": "✅ Mark delivered", "callback_data": f"order:{order_id}:completed"},
+    ]]
 
     completed = client.post(f"/api/telegram/webhook/{webhook_token}", json={
         "callback_query": {"id": "callback-2", "data": f"order:{order_id}:completed", "message": {"chat": {"id": 101}, "message_id": 42}},
     })
     assert completed.status_code == 200, completed.text
     assert completed.json()["order_status"] == "delivered"
-    assert button_updates[-1][-1] == []
+    assert button_updates[-1][-1] == [[{"text": "✅ Order completed", "callback_data": f"order:{order_id}:done"}]]
+
+    completed_again = client.post(f"/api/telegram/webhook/{webhook_token}", json={
+        "callback_query": {"id": "callback-3", "data": f"order:{order_id}:done", "message": {"chat": {"id": 101}, "message_id": 42}},
+    })
+    assert completed_again.status_code == 200, completed_again.text
+    assert completed_again.json()["order_status"] == "delivered"
 
     db = SessionLocal()
     try:
         assert db.query(models.Order).filter(models.Order.id == order_id).first().order_status == "delivered"
     finally:
         db.close()
+
+
+def test_order_notification_sends_saved_customer_selected_product_image(monkeypatch):
+    class Shop:
+        @staticmethod
+        def telegram_dict():
+            return {"enabled": True, "bot_token": "bot-token", "chat_ids": ["101"]}
+
+        shop_name = "Photo Shop"
+        username = "photo-shop"
+
+    class Item:
+        product_id = 1
+        product_name = "Package"
+        price = 10
+        quantity = 1
+        variations = "{}"
+        image = "/api/uploads/media/selected-package.png"
+
+    class Order:
+        id = 123
+        order_number = "PHOTO-1"
+        currency = "USD"
+        payment_method = "khqr"
+        transaction_id = "txn"
+        paid_at = None
+        items = [Item()]
+        items_total = 10
+        shipping_fee = 0
+        discount = 0
+        total = 10
+        customer_name = "Customer"
+        customer_phone = ""
+        customer_email = ""
+        customer_telegram = ""
+        customer_address = ""
+        customer_city = ""
+        customer_country = ""
+        customer_note = ""
+        receipt_url = ""
+        order_status = "processing"
+
+    photos = []
+    messages = []
+    monkeypatch.setattr(telegram_service, "send_telegram_photo", lambda *args: photos.append(args) or True)
+    monkeypatch.setattr(telegram_service, "send_telegram_message_with_buttons", lambda *args: messages.append(args) or True)
+
+    assert telegram_service.notify_shop_payment_success_full(Shop(), Order()) is True
+    assert photos[0][2] == "http://localhost:8000/api/uploads/media/selected-package.png"
+    assert messages[0][-1] == telegram_service.telegram_order_buttons(123, "processing")
+
+
+def test_worker_order_action_requires_secret_and_updates_only_its_configured_chat(monkeypatch):
+    monkeypatch.setattr(config, "BOT_SERVICE_ENABLED", True)
+    monkeypatch.setattr(config, "BOT_SERVICE_KEY", "worker-secret")
+    shop_id, _ = _create_shop_owner({"bot_token": "bot-token", "enabled": True, "linked_chats": ["101"]})
+    db = SessionLocal()
+    try:
+        order = models.Order(
+            shop_id=shop_id, order_number=f"WORKER-{uuid.uuid4().hex[:8]}",
+            customer_name="Customer", payment_status="paid", order_status="processing", total=5,
+        )
+        db.add(order)
+        db.commit()
+        order_id = order.id
+    finally:
+        db.close()
+
+    payload = {"shop_id": shop_id, "data": f"order:{order_id}:shipped", "chat_id": 101}
+    assert client.post("/api/bot-service/order-action", json=payload).status_code == 403
+    response = client.post(
+        "/api/bot-service/order-action", json=payload,
+        headers={"X-Bot-Service-Key": "worker-secret"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["order_status"] == "shipped"
+
+    blocked = client.post(
+        "/api/bot-service/order-action",
+        json={**payload, "data": f"order:{order_id}:completed", "chat_id": 999},
+        headers={"X-Bot-Service-Key": "worker-secret"},
+    )
+    assert blocked.status_code == 200
+    assert blocked.json()["ok"] is False

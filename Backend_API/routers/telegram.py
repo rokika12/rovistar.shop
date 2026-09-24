@@ -1,4 +1,6 @@
 """Telegram notification endpoints + bot webhook + activity log endpoints."""
+import hmac
+import re
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 
@@ -10,6 +12,80 @@ from security import get_current_admin, get_current_user, require_shop_access
 from services import stock_service, telegram_service
 
 router = APIRouter(prefix="/api", tags=["telegram"])
+
+
+def _bot_service_authorized(request: Request) -> bool:
+    """Authenticate the long-polling worker without exposing bot tokens."""
+    supplied = request.headers.get("X-Bot-Service-Key", "")
+    return bool(config.BOT_SERVICE_ENABLED and config.BOT_SERVICE_KEY
+                and hmac.compare_digest(supplied, config.BOT_SERVICE_KEY))
+
+
+def _order_callback_result(db: Session, shop, data: str, chat_id) -> dict:
+    """Apply one valid transition and return the button state Telegram should show."""
+    match = re.fullmatch(r"order:(\d+):(shipped|completed|done)", str(data or ""))
+    if not match:
+        return {"ok": False, "text": "Action unavailable"}
+    if str(chat_id) not in telegram_service.recipient_chat_ids(shop.telegram_dict()):
+        return {"ok": False, "text": "This chat cannot update this order"}
+    order = (db.query(models.Order).filter(
+        models.Order.id == int(match.group(1)), models.Order.shop_id == shop.id
+    ).with_for_update().first())
+    if not order:
+        return {"ok": False, "text": "Order not found"}
+    if order.payment_status != "paid":
+        return {"ok": False, "text": "Payment is not confirmed"}
+    if order.order_status in ("delivered", "completed", "cancelled"):
+        return {"ok": True, "text": "Order is already completed", "buttons": telegram_service.telegram_order_buttons(order.id, order.order_status), "order_id": order.id, "order_status": order.order_status}
+    action = match.group(2)
+    if action == "done":
+        return {"ok": True, "text": "Order status is already recorded", "buttons": telegram_service.telegram_order_buttons(order.id, order.order_status), "order_id": order.id, "order_status": order.order_status}
+    if action == "completed" and order.order_status not in ("shipped", "processing"):
+        return {"ok": False, "text": "Mark this order as shipped first"}
+    order.order_status = "delivered" if action == "completed" else "shipped"
+    db.commit()
+    return {
+        "ok": True,
+        "text": "Order completed" if order.order_status == "delivered" else "Marked as shipped",
+        "buttons": telegram_service.telegram_order_buttons(order.id, order.order_status),
+        "order_id": order.id,
+        "order_status": order.order_status,
+    }
+
+
+@router.get("/bot-service/config")
+def bot_service_config(request: Request, db: Session = Depends(get_db)):
+    """Private worker configuration; requires the shared worker secret."""
+    if not _bot_service_authorized(request):
+        raise HTTPException(status_code=403, detail="Bot service is not authorized")
+    shops = []
+    for shop in db.query(models.Shop).all():
+        tg = shop.telegram_dict()
+        token = (tg.get("bot_token") or "").strip()
+        if token:
+            shops.append({
+                "id": shop.id, "username": shop.username, "shop_name": shop.shop_name,
+                "bio": shop.bio, "description": shop.description, "contact": shop.contact,
+                "banner": shop.banner, "logo": shop.logo, "bot_token": token,
+                "bot_username": tg.get("bot_username", ""), "mini_app_url": tg.get("mini_app_url", ""),
+            })
+    return {"shops": shops, "payment_bot": {}}
+
+
+@router.post("/bot-service/order-action")
+async def bot_service_order_action(request: Request, db: Session = Depends(get_db)):
+    """Apply a callback received by the authenticated long-polling worker."""
+    if not _bot_service_authorized(request):
+        raise HTTPException(status_code=403, detail="Bot service is not authorized")
+    payload = await request.json()
+    try:
+        shop_id = int(payload.get("shop_id"))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Invalid shop")
+    shop = db.query(models.Shop).filter(models.Shop.id == shop_id).first()
+    if not shop:
+        raise HTTPException(status_code=404, detail="Shop not found")
+    return _order_callback_result(db, shop, payload.get("data"), payload.get("chat_id"))
 
 
 @router.get("/telegram/public-profile")
@@ -68,41 +144,16 @@ async def telegram_bot_webhook(token: str, request: Request, db: Session = Depen
 
     callback = update.get("callback_query") or {}
     if callback:
-        data = str(callback.get("data") or "")
-        match = __import__("re").fullmatch(r"order:(\d+):(shipped|completed)", data)
-        if not match:
-            telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Action unavailable")
-            return {"ok": True}
-        order = db.query(models.Order).filter(models.Order.id == int(match.group(1)), models.Order.shop_id == shop.id).first()
-        if not order:
-            telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Order not found")
-            return {"ok": True}
-        action = match.group(2)
-        if order.payment_status != "paid":
-            telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Payment is not confirmed")
-            return {"ok": True}
-        if order.order_status in ("delivered", "completed", "cancelled"):
-            telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Order is already closed")
-            return {"ok": True}
-        if action == "completed" and order.order_status not in ("shipped", "processing"):
-            telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), "Mark this order as shipped first")
-            return {"ok": True}
-        next_status = "delivered" if action == "completed" else "shipped"
-        order.order_status = next_status
-        db.commit()
-        delivered = next_status == "delivered"
-        telegram_service.send_telegram_callback_reply(
-            bot_token, callback.get("id", ""),
-            "បានបញ្ជូនជោគជ័យ" if delivered else "បានកំណត់ថាកំពុងផ្ញើ",
-        )
         message = callback.get("message") or {}
-        next_buttons = [] if delivered else [[
-            {"text": "✅ អីវ៉ាន់ផ្ញើជោគជ័យ", "callback_data": f"order:{order.id}:completed"},
-        ]]
-        telegram_service.update_telegram_order_buttons(
-            bot_token, (message.get("chat") or {}).get("id"), message.get("message_id"), next_buttons,
+        result = _order_callback_result(
+            db, shop, callback.get("data"), (message.get("chat") or {}).get("id"),
         )
-        return {"ok": True, "order_id": order.id, "order_status": order.order_status}
+        telegram_service.send_telegram_callback_reply(bot_token, callback.get("id", ""), result["text"])
+        if result.get("ok"):
+            telegram_service.update_telegram_order_buttons(
+                bot_token, (message.get("chat") or {}).get("id"), message.get("message_id"), result["buttons"],
+            )
+        return {"ok": True, **{key: result[key] for key in ("order_id", "order_status") if key in result}}
 
     message = update.get("message") or {}
     chat = message.get("chat") or {}

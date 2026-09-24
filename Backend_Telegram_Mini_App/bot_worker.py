@@ -245,6 +245,27 @@ def _api_link(profile_id, secret_key, chat_id):
     return {"ok": False, "detail": "Main API unreachable - try again in a minute."}
 
 
+def _api_order_action(shop: dict, callback: dict) -> dict:
+    """Ask the API to atomically validate and apply a Telegram order action."""
+    message = callback.get("message") or {}
+    payload = {
+        "shop_id": shop.get("id"),
+        "data": callback.get("data", ""),
+        "chat_id": (message.get("chat") or {}).get("id"),
+    }
+    try:
+        with httpx.Client(timeout=25) as client:
+            response = client.post(
+                f"{BASE_URL}/api/bot-service/order-action", json=payload,
+                headers={"X-Bot-Service-Key": SERVICE_KEY},
+            )
+            if response.status_code == 200:
+                return response.json()
+    except Exception as exc:
+        log.warning("Could not apply Telegram order action: %s", exc)
+    return {"ok": False, "text": "Could not update the order. Please try again."}
+
+
 INTRO = ("👋 សូមស្វាគមន៍មកកាន់ Mini Shop Payment Bot!\n"
          "Welcome! This bot sends FULL payment-success alerts for your shop.\n\n"
          "1️⃣ Start\n"
@@ -367,6 +388,22 @@ def handle_update(update: dict, shop: dict):
     if not token:
         return
 
+    callback = update.get("callback_query") or {}
+    if callback:
+        result = _api_order_action(shop, callback)
+        _tg_post(token, "answerCallbackQuery", {
+            "callback_query_id": callback.get("id", ""),
+            "text": result.get("text", "Action unavailable"),
+        })
+        message = callback.get("message") or {}
+        if result.get("ok") and message.get("message_id"):
+            _tg_post(token, "editMessageReplyMarkup", {
+                "chat_id": (message.get("chat") or {}).get("id"),
+                "message_id": message.get("message_id"),
+                "reply_markup": {"inline_keyboard": result.get("buttons") or []},
+            })
+        return
+
     # Bot was added to a chat/group -> welcome them too.
     member = update.get("my_chat_member") or {}
     if member:
@@ -412,7 +449,7 @@ def poll_bot(shop: dict, offsets: dict):
         return
     offset = offsets.get(token, 0)
     params = {"offset": offset + 1, "timeout": 0,  # short-poll = instant replies
-              "allowed_updates": ["message", "my_chat_member"]}
+              "allowed_updates": ["message", "my_chat_member", "callback_query"]}
     try:
         with httpx.Client(timeout=15) as client:
             resp = client.get(f"{TG_API}/bot{token}/getUpdates", params=params)

@@ -29,12 +29,12 @@ when the main web API is busy or sleeping.
 
 ## Setup (2 places)
 
-### 1) Main Mini Shop backend API (no required variables anymore)
-A built-in default secret is already shared between the API and the worker, so it
-works out of the box. For stronger security you may set:
+### 1) Main Mini Shop backend API
+Set a unique high-entropy worker secret. The worker uses it to fetch the private
+bot configuration and apply order actions server-side:
 ```
-BOT_SERVICE_KEY=your-own-secret     # OPTIONAL (must match the worker if set)
-BOT_SERVICE_ENABLED=true            # RECOMMENDED (stops webhook registration)
+BOT_SERVICE_KEY=your-own-secret     # must match the worker
+BOT_SERVICE_ENABLED=true
 ```
 Then redeploy the main API.
 
@@ -43,8 +43,7 @@ Then redeploy the main API.
 - Render → **New + → Background Worker** → connect the repo.
 - Add environment variables:
   - `MINI_BACKEND_BASE_URL` = your main API, e.g. `http://localhost:8000`
-  - `MINI_BOT_SERVICE_KEY` = **only needed if you set a custom BOT_SERVICE_KEY on
-    the main API** — otherwise delete it and the built-in default is used
+  - `MINI_BOT_SERVICE_KEY` = the same `BOT_SERVICE_KEY` configured on the main API
   - `LOOP_SECONDS` = `2`
 - Start command: `python bot_worker.py`
 
@@ -64,4 +63,6 @@ python bot_worker.py
 ## Note
 - `link <ProfileID> <SecretKey>` order-alert linking is a main-API (webhook) feature;
   this worker intentionally ignores those commands so they are never hijacked.
-- The worker deletes any existing webhook on the bots it manages (needed for polling).
+- The worker deletes any existing webhook on the bots it manages (needed for polling)
+  and handles Telegram `callback_query` updates itself. It forwards each action to
+  the authenticated API, acknowledges the callback, and replaces the inline buttons.
