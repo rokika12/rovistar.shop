@@ -264,7 +264,7 @@ export default function ProductDetail() {
                           key={opt}
                           type="button"
                           onClick={() => setSelectedVariations((prev) => ({ ...prev, [attr.key]: opt }))}
-                          className={`${manualService ? 'service-package-option' : 'px-4 py-2 rounded-lg'} border-2 text-sm font-medium transition ${
+                          className={`${manualService ? `service-package-option${selectedVariations[attr.key] === opt ? ' service-package-option-selected' : ''}` : 'px-4 py-2 rounded-lg'} border-2 text-sm font-medium transition ${
                             selectedVariations[attr.key] === opt
                               ? 'border-primary bg-primary text-white'
                               : 'border-gray-200 text-gray-700 hover:border-gray-400 dark:border-gray-600 dark:text-gray-300'
