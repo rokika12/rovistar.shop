@@ -9,6 +9,9 @@ import { getProduct, getProducts, fullUrl, lookupRobloxUsername, lookupTelegramU
 import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
 
+const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
+const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-logo.png`;
+
 export default function ProductDetail() {
   const { id } = useParams();
   const { shop } = useShop();
@@ -63,8 +66,8 @@ export default function ProductDetail() {
 
   const effectivePrice = currentVariation?.price ?? product?.sale_price ?? product?.price ?? 0;
   const effectiveStock = currentVariation?.quantity ?? product?.quantity ?? 0;
-  // Keep the main product artwork stable while customers choose a package.
-  const packageImage = null;
+  // Use the package artwork throughout checkout so staff sees exactly what was selected.
+  const packageImage = currentVariation?.image_url || currentVariation?.image || null;
 
   if (loading) return <Loading />;
   if (!product) {
@@ -319,9 +322,13 @@ export default function ProductDetail() {
             <div className="mt-5">
               <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
               <div className="space-y-3">
-                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`w-full rounded-xl border-2 p-4 text-left transition ${servicePaymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white'}`}><strong className="block text-blue-900">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Scan to pay with any banking app</span></button>
+                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`flex w-full items-center gap-3 rounded-xl border-2 p-4 text-left transition ${servicePaymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>
+                  <span className="flex h-12 w-20 shrink-0 items-center justify-center gap-1 rounded-lg bg-[#061d3a] px-1 shadow-sm"><img src={ABA_LOGO_URL} alt="ABA" className="h-7 max-w-[43px] object-contain" /><img src={KHQR_LOGO_URL} alt="KHQR" className="h-6 max-w-[30px] object-contain" /></span>
+                  <span className="min-w-0 flex-1"><strong className="block text-blue-950">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Scan a real KHQR after payment is created</span></span>
+                  <strong className="shrink-0 text-sm text-blue-900">{Number(effectivePrice).toFixed(2)} {shop.currency}</strong>
+                </button>
                 <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`w-full rounded-xl border-2 p-4 text-left transition ${servicePaymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50' : 'border-slate-200 bg-white'}`}><strong className="block text-slate-900">Wallet Balance</strong><span className="mt-1 block text-xs text-slate-600">Pay instantly from your balance</span></button>
-                <button type="button" onClick={() => buyNow(servicePaymentMethod)} className="w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700">Pay Now</button>
+                <button type="button" onClick={() => buyNow(servicePaymentMethod)} className="w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700">Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now</button>
               </div>
             </div>
           )}
