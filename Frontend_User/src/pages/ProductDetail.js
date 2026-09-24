@@ -110,7 +110,7 @@ export default function ProductDetail() {
     return list;
   })();
 
-  const buyNow = () => {
+  const buyNow = (payment = '') => {
     const missing = selectableAttrs.find((a) => !selectedVariations[a.key]);
     if (missing) { toast.error(`Please select ${missing.label}`); return; }
     if (telegramService && !/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(serviceLink.trim())) {
@@ -149,7 +149,7 @@ export default function ProductDetail() {
           : serviceLink.trim();
     addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, manualService ? { ...selectedVariations, _service_link: serviceTarget } : selectedVariations);
     setOpen(false);
-    navigate(`/${shop.username}/checkout`);
+    navigate(`/${shop.username}/checkout${payment ? `?payment=${payment}` : ''}`);
   };
 
   return (
@@ -309,14 +309,22 @@ export default function ProductDetail() {
             </div>
           )}
 
+          {manualService && (
+            <div className="mt-5">
+              <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <button type="button" onClick={() => buyNow('khqr')} className="rounded-xl border-2 border-blue-500 bg-blue-50 p-4 text-left transition hover:bg-blue-100"><strong className="block text-blue-900">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Scan QR with any banking app</span></button>
+                <button type="button" onClick={() => buyNow('wallet')} className="rounded-xl border-2 border-slate-200 bg-white p-4 text-left transition hover:border-pink-400 hover:bg-pink-50"><strong className="block text-slate-900">Wallet Balance</strong><span className="mt-1 block text-xs text-slate-600">Pay instantly from your balance</span></button>
+              </div>
+            </div>
+          )}
+
           {/* Direct digital purchase */}
-          <div className="flex items-center gap-4 mt-8">
+          {!manualService && <div className="flex items-center gap-4 mt-8">
             <button onClick={buyNow} disabled={!isAvailable} className="flex-1 px-5 py-3 rounded-xl bg-primary text-white font-bold hover:brightness-95 disabled:opacity-50 flex items-center justify-center gap-2">
               <FiZap /> {manualService ? 'Continue' : 'Buy Now'}
             </button>
-          </div>
-
-          {/* Custom attributes */}
+          </div>}
           {displayAttrs.length > 0 && (
             <div className="mt-8 border-t pt-6">
               <h3 className="font-bold mb-3">{t('productDetails')}</h3>

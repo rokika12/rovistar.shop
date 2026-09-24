@@ -32,7 +32,7 @@ export default function Checkout() {
   const [checking, setChecking] = useState(false);
   const [remaining, setRemaining] = useState(180); // 3:00 countdown for payment check
   const [qrFailed, setQrFailed] = useState(false); // QR image failed to load → show fallback
-  const [paymentMethod, setPaymentMethod] = useState('khqr');
+  const [paymentMethod, setPaymentMethod] = useState(() => new URLSearchParams(window.location.search).get('payment') === 'wallet' ? 'wallet' : 'khqr');
   const [walletBalance, setWalletBalance] = useState(0);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 

@@ -346,7 +346,7 @@ def poll_platform(bot, offsets, states):
     if not (data or {}).get("ok"):
         desc = ((data or {}).get("description") or "")
         if "webhook" in desc.lower() or resp.status_code == 409:
-            _delete_webhook(token)
+            log.info("Webhook active for %s; do not poll webhook-managed bot", _short(token))
         else:
             log.error("getUpdates failed for %s: %s %s",
                       _short(token), data.get("error_code"), desc)
@@ -424,8 +424,9 @@ def poll_bot(shop: dict, offsets: dict):
     if not (data or {}).get("ok"):
         desc = ((data or {}).get("description") or "")
         if "webhook" in desc.lower() or resp.status_code == 409:
-            log.info("Webhook active for %s -> deleting it so polling works", _short(token))
-            _delete_webhook(token)
+            # This bot is webhook-managed by the API. Polling must never remove its
+            # webhook or Telegram inline callbacks stop reaching the API.
+            log.info("Webhook active for %s; skipping polling for this bot", _short(token))
         else:
             log.error("getUpdates failed for %s: %s %s",
                       _short(token), data.get("error_code"), desc)
