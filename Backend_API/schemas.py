@@ -326,6 +326,12 @@ class CustomerSignin(BaseModel):
     password: str
 
 
+class CustomerGoogleSignin(BaseModel):
+    """Google Identity Services credential for one shop's customer login."""
+    shop_id: int
+    credential: str = Field(min_length=20, max_length=12000)
+
+
 class CustomerCreate(BaseModel):
     shop_id: int
     name: str

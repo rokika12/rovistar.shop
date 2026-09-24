@@ -1,6 +1,9 @@
 """Customer CRUD endpoints + customer account auth (signup / signin)."""
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Query
+from google.auth.exceptions import GoogleAuthError
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
 from sqlalchemy import and_, func, or_
 from sqlalchemy.orm import Session
 
@@ -24,6 +27,25 @@ def _customer_token(customer) -> dict:
 def _normalize_username(value: str) -> str:
     """Usernames are case-insensitive login identifiers, stored trimmed."""
     return (value or "").strip()
+
+
+def _google_client_id(shop: models.Shop) -> str:
+    """Read the public Google OAuth client ID configured for this shop only."""
+    appearance = shop.theme_dict().get("appearance", {})
+    return str(appearance.get("google_client_id") or "").strip()
+
+
+def _available_username(db: Session, shop_id: int, email: str) -> str:
+    """Generate a customer username without colliding with an existing account."""
+    base = _normalize_username(email.split("@", 1)[0]) or "customer"
+    username = base
+    suffix = 2
+    while db.query(models.Customer.id).filter(
+            models.Customer.shop_id == shop_id,
+            func.lower(models.Customer.username) == username.lower()).first():
+        username = f"{base}-{suffix}"
+        suffix += 1
+    return username
 
 
 @router.post("/auth/signup")
@@ -92,6 +114,53 @@ def customer_signin(data: schemas.CustomerSignin, db: Session = Depends(get_db))
         raise HTTPException(status_code=401, detail="No account found. Please sign up first.")
     if not verify_password(data.password, customer.password_hash):
         raise HTTPException(status_code=401, detail="Invalid password")
+    return _customer_token(customer)
+
+
+@router.post("/auth/google")
+def customer_google_signin(data: schemas.CustomerGoogleSignin, db: Session = Depends(get_db)):
+    """Verify a shop-scoped Google ID token and create or sign in its customer."""
+    shop = db.query(models.Shop).filter(models.Shop.id == data.shop_id).first()
+    if not shop or shop.status != "active":
+        raise HTTPException(status_code=404, detail="Shop not found")
+
+    client_id = _google_client_id(shop)
+    if not client_id:
+        raise HTTPException(status_code=404, detail="Google Sign-In is not configured for this shop")
+
+    try:
+        claims = id_token.verify_oauth2_token(
+            data.credential, google_requests.Request(), audience=client_id)
+    except (GoogleAuthError, ValueError):
+        # Never trust identity fields sent by the browser; accept only Google's verified claims.
+        raise HTTPException(status_code=401, detail="Invalid Google credential")
+
+    email = str(claims.get("email") or "").strip().lower()
+    if not claims.get("sub") or claims.get("email_verified") is not True or not email or "@" not in email:
+        raise HTTPException(status_code=401, detail="Google account email is not verified")
+
+    customer = db.query(models.Customer).filter(
+        models.Customer.shop_id == shop.id,
+        func.lower(models.Customer.email) == email).first()
+    if not customer:
+        full_name = str(claims.get("name") or "").strip() or email.split("@", 1)[0]
+        name_parts = full_name.split()
+        customer = models.Customer(
+            shop_id=shop.id,
+            username=_available_username(db, shop.id, email),
+            first_name=name_parts[0],
+            last_name=" ".join(name_parts[1:]),
+            name=full_name,
+            email=email,
+            password_hash="",
+        )
+        db.add(customer)
+        db.flush()
+        log_activity(db, "customer_google_signin",
+                     f"Customer {customer.name} signed in with Google at shop {shop.id}", shop.id)
+        db.commit()
+        db.refresh(customer)
+
     return _customer_token(customer)
 
 

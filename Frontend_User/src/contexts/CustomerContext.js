@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { customerSignin, customerSignup } from '../api';
+import { customerGoogleSignin, customerSignin, customerSignup } from '../api';
 
 const CustomerContext = createContext(null);
 
@@ -31,6 +31,11 @@ export function CustomerProvider({ children }) {
     return setSession(res);
   };
 
+  const googleSignin = async (shopId, credential) => {
+    const res = await customerGoogleSignin({ shop_id: shopId, credential });
+    return setSession(res);
+  };
+
   const logout = () => {
     localStorage.removeItem('ms_customer_token');
     localStorage.removeItem('ms_customer');
@@ -39,7 +44,7 @@ export function CustomerProvider({ children }) {
   };
 
   return (
-    <CustomerContext.Provider value={{ customer, token, isLoggedIn: !!token, signin, signup, setSession, logout }}>
+    <CustomerContext.Provider value={{ customer, token, isLoggedIn: !!token, signin, signup, googleSignin, setSession, logout }}>
       {children}
     </CustomerContext.Provider>
   );

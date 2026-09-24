@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FiEye, FiEyeOff, FiUserPlus } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
@@ -7,13 +7,45 @@ import { useCustomer } from '../contexts/CustomerContext';
 import { useOwner } from '../contexts/OwnerContext';
 import { useLanguage } from '../i18n';
 
+const GOOGLE_IDENTITY_SCRIPT_ID = 'google-identity-services';
+let googleIdentityServicesPromise;
+
+function loadGoogleIdentityServices() {
+  if (window.google?.accounts?.id) return Promise.resolve();
+  if (googleIdentityServicesPromise) return googleIdentityServicesPromise;
+
+  googleIdentityServicesPromise = new Promise((resolve, reject) => {
+    const existing = document.getElementById(GOOGLE_IDENTITY_SCRIPT_ID);
+    const script = existing || document.createElement('script');
+    const onLoad = () => {
+      if (window.google?.accounts?.id) resolve();
+      else reject(new Error('Google Identity Services did not initialize'));
+    };
+
+    script.addEventListener('load', onLoad, { once: true });
+    script.addEventListener('error', () => reject(new Error('Google Identity Services could not load')), { once: true });
+    if (!existing) {
+      script.id = GOOGLE_IDENTITY_SCRIPT_ID;
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+  });
+  return googleIdentityServicesPromise;
+}
+
 export default function CustomerAuth({ onSuccess }) {
   const { shop } = useShop();
-  const { signin, signup } = useCustomer();
+  const { googleSignin, signin, signup } = useCustomer();
   const { login: ownerLogin } = useOwner();
   const { t } = useLanguage();
   const [mode, setMode] = useState('signin');
   const [busy, setBusy] = useState(false);
+  const [googleError, setGoogleError] = useState('');
+  const googleButtonRef = useRef(null);
+  const googleSigninRef = useRef(googleSignin);
+  const onSuccessRef = useRef(onSuccess);
 
   // No credentials are stored in the browser (security).
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
@@ -23,6 +55,10 @@ export default function CustomerAuth({ onSuccess }) {
     localStorage.removeItem('ms_saved_username');
     localStorage.removeItem('ms_saved_password');
   }, []);
+  useEffect(() => {
+    googleSigninRef.current = googleSignin;
+    onSuccessRef.current = onSuccess;
+  }, [googleSignin, onSuccess]);
   const [signupForm, setSignupForm] = useState({ email: '', password: '', confirm_password: '' });
 
   const [showLoginPw, setShowLoginPw] = useState(false);
@@ -30,6 +66,54 @@ export default function CustomerAuth({ onSuccess }) {
   const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   const set = (obj, setObj) => (field) => (e) => setObj({ ...obj, [field]: e.target.value });
+  const googleClientId = (shop?.theme?.appearance?.google_client_id || '').trim();
+
+  const handleGoogleCredential = useCallback(async (response) => {
+    if (!response?.credential) {
+      toast.error('Google Sign-In did not return a credential');
+      return;
+    }
+    setBusy(true);
+    try {
+      await googleSigninRef.current(shop.id, response.credential);
+      toast.success(t('tgLoginSuccess'));
+      if (onSuccessRef.current) onSuccessRef.current();
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || 'Google Sign-In failed');
+    } finally {
+      setBusy(false);
+    }
+  }, [shop?.id, t]);
+
+  useEffect(() => {
+    let active = true;
+    const container = googleButtonRef.current;
+    if (mode !== 'signin' || !googleClientId || !container) return undefined;
+
+    setGoogleError('');
+    loadGoogleIdentityServices()
+      .then(() => {
+        if (!active || !window.google?.accounts?.id) return;
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleCredential,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+        container.replaceChildren();
+        window.google.accounts.id.renderButton(container, {
+          theme: 'outline',
+          size: 'large',
+          text: 'continue_with',
+          width: Math.min(container.clientWidth || 320, 400),
+        });
+      })
+      .catch(() => {
+        if (active) setGoogleError('Google Sign-In is unavailable. Please try another login method.');
+      });
+
+    return () => { active = false; };
+  }, [googleClientId, handleGoogleCredential, mode]);
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -150,6 +234,13 @@ export default function CustomerAuth({ onSuccess }) {
           <button type="submit" disabled={busy} className="w-full btn-primary py-3 rounded-xl font-semibold disabled:opacity-60">
             {busy ? t('loading') : t('signIn')}
           </button>
+          {googleClientId && (
+            <div className="pt-1">
+              <div className="flex items-center gap-3 text-xs text-gray-400 before:h-px before:flex-1 before:bg-gray-200 after:h-px after:flex-1 after:bg-gray-200">or</div>
+              <div ref={googleButtonRef} className="mt-3 min-h-[40px] w-full" aria-label="Continue with Google" />
+              {googleError && <p className="mt-2 text-xs text-red-600">{googleError}</p>}
+            </div>
+          )}
         </form>
       ) : (
         <form onSubmit={handleSignup} className="space-y-3 text-left">
