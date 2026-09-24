@@ -6,7 +6,7 @@ import {
   createCategory, createProduct, deleteCategory, deleteCustomer, deleteOrder,
   deleteProduct, exportShopBackup, fullUrl, getOrder, getShopDetail,
   listShopCategories, listShopCustomers, listShopOrders, listShopProducts, uploadImage, uploadProductImages, uploadServiceVideo,
-  setShopExpiry, setShopLimits, updateCategory, updateOrderStatus, updateProduct, updateShop, updateShopStatus,
+  registerTelegramWebhook, setShopExpiry, setShopLimits, updateCategory, updateOrderStatus, updateProduct, updateShop, updateShopStatus,
 } from '../api';
 import { Empty, Loading, Modal, btnDanger, btnGhost, btnPrimary, inputCls } from '../components/ui';
 
@@ -204,6 +204,16 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
     } catch (e) { toast.error(e?.response?.data?.detail || 'Failed to save Telegram settings'); }
   };
 
+  const registerWebhook = async () => {
+    try {
+      const result = await registerTelegramWebhook(shop.id);
+      toast.success(result.detail || 'Telegram webhook registered');
+      onSaved();
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || 'Could not register Telegram webhook');
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -280,7 +290,11 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
             <input value={telegram.admin_chat_id} onChange={(e) => setTelegram({ ...telegram, admin_chat_id: e.target.value })} className={inputCls} placeholder="Admin 2 Chat ID (optional)" />
           </div>
           <label className="flex items-center gap-2 mt-3 text-sm"><input type="checkbox" checked={telegram.enabled} onChange={(e) => setTelegram({ ...telegram, enabled: e.target.checked })} /> បើកការជូនដំណឹង Telegram</label>
-          <button onClick={saveTelegram} className={`${btnPrimary} mt-3`}>រក្សាទុក Telegram</button>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button onClick={saveTelegram} className={btnPrimary}>រក្សាទុក Telegram</button>
+            <button type="button" onClick={registerWebhook} className={btnGhost}>🌐 ភ្ជាប់ប៊ូតុង Telegram</button>
+          </div>
+          <p className="mt-2 text-xs text-slate-500">ចុច “ភ្ជាប់ប៊ូតុង Telegram” ម្តង បន្ទាប់ពីរក្សាទុក Bot Token ដើម្បីឲ្យប៊ូតុង 🚚 និង ✅ ក្នុង Telegram ដំណើរការ។</p>
         </div>
         <div><p className="font-semibold mb-1">Bio</p><p className="text-gray-600">{shop.bio || '—'}</p></div>
         <div><p className="font-semibold mb-1">Contact</p><p className="text-gray-600">{shop.contact || '—'}</p></div>

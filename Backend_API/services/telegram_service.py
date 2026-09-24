@@ -421,6 +421,30 @@ def _public_product_image_url(image: str) -> str:
     return ""
 
 
+def _telegram_customer_username(order) -> str:
+    """Keep the delivery username readable and avoid leaking JSON-like details."""
+    for item in order.items:
+        try:
+            target = str(models.JSONText.loads(item.variations, {}).get("_service_link") or "").strip()
+        except Exception:
+            target = ""
+        if target:
+            return target if target.startswith("@") else target[:120]
+    value = str(getattr(order, "customer_telegram", "") or "").strip()
+    return value if value.startswith("@") or not value else f"@{value}"
+
+
+def _telegram_item_selection(item) -> str:
+    """Show only customer-facing package choices, never delivery payloads."""
+    try:
+        values = models.JSONText.loads(item.variations, {}) if item.variations else {}
+    except Exception:
+        values = {}
+    choices = [f"{key}: {value}" for key, value in values.items()
+               if not str(key).startswith("_") and str(value).strip()]
+    return " | ".join(choices)
+
+
 def notify_shop_payment_success_full(shop, order, stock_summary=None) -> bool:
     """
     Send a FULL payment-success notification (in Khmer) to every chat linked to
@@ -456,33 +480,25 @@ def notify_shop_payment_success_full(shop, order, stock_summary=None) -> bool:
         "aba": "ABA Pay (KHQR)",
     }.get((order.payment_method or "aba").lower(), order.payment_method or "ABA Pay")
     lines = [
-        "✅ <b>ការទូទាត់បានជោគជ័យ!</b> 🎉",
-        "",
-        f"🏪 <b>ហាង:</b> {_html(shop.shop_name or shop.username)}",
+        "✅ <b>ការទូទាត់បានជោគជ័យ</b>",
         f"🧾 <b>លេខកុម្ម៉ង់:</b> #{_html(order.order_number)}",
-        f"💳 <b>វិធីបង់ប្រាក់:</b> {method_label}",
-        f"🔢 <b>លេខប្រតិបត្តិការ:</b> <code>{_html(txn)}</code>",
-        f"🕒 <b>ពេលបង់ប្រាក់:</b> {paid_time}",
+        f"💳 <b>ទូទាត់ដោយ:</b> {method_label}",
+        f"💰 <b>សរុបបង់:</b> {_money(order.total, currency)}",
         "",
         sep,
-        "🛍️ <b>ទំនិញដែលបានទិញ</b>",
+        "🛍️ <b>ទំនិញ / Package ដែលភ្ញៀវជ្រើស</b>",
     ]
 
     stock_by_pid = {pid: s for pid, s in (stock_summary or {}).items()}
     for i in order.items:
         name = i.product_name or f"Product #{i.product_id}"
-        var = ""
-        try:
-            v = models.JSONText.loads(i.variations, {}) if i.variations else {}
-            if v:
-                var = " (" + ", ".join(f"{k}: {val}" for k, val in v.items()) + ")"
-        except Exception:
-            var = ""
+        selected = _telegram_item_selection(i)
         line_total = float(i.price or 0) * int(i.quantity or 1)
         lines.append(
-            f"▫️ <b>{_html(name)}</b>{_html(var)}\n"
-            f"    {int(i.quantity)} × {_money(i.price, currency)} = "
-            f"<b>{_money(line_total, currency)}</b>"
+            f"▫️ <b>{_html(name)}</b>\n"
+            + (f"    🎯 <b>ជ្រើស:</b> {_html(selected)}\n" if selected else "")
+            + f"    📦 <b>ចំនួន:</b> {int(i.quantity)} | 💵 <b>តម្លៃ:</b> {_money(i.price, currency)}\n"
+            + f"    💰 <b>សរុប:</b> {_money(line_total, currency)}"
         )
         s = stock_by_pid.get(i.product_id)
         if s:
@@ -504,18 +520,18 @@ def notify_shop_payment_success_full(shop, order, stock_summary=None) -> bool:
     if float(order.discount or 0) > 0:
         lines.append(f"បញ្ចុះតម្លៃ: -{_money(order.discount, currency)}")
     lines += [
-        f"<b>ថ្លៃសរុប: {_money(order.total, currency)}</b>",
         "",
         sep,
-        "👤 <b>ព័ត៌មានអតិថិជន</b>",
+        "👤 <b>ព័ត៌មានសម្រាប់ផ្ញើទំនិញ</b>",
         f"ឈ្មោះ: {_html(order.customer_name or '-')}",
     ]
+    delivery_username = _telegram_customer_username(order)
+    if delivery_username:
+        lines.append(f"🎯 <b>Username / ID ទទួល:</b> <code>{_html(delivery_username)}</code>")
     if order.customer_phone:
         lines.append(f"ទូរស័ព្ទ: {_html(order.customer_phone)}")
     if order.customer_email:
         lines.append(f"អ៊ីមែល: {_html(order.customer_email)}")
-    if order.customer_telegram:
-        lines.append(f"Telegram: {_html(order.customer_telegram)}")
     if order.customer_address:
         lines.append(f"អាសយដ្ឋាន: {_html(order.customer_address)}")
     city_country = ", ".join(x for x in [order.customer_city, order.customer_country] if x)
