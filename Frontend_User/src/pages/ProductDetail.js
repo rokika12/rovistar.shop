@@ -229,6 +229,7 @@ export default function ProductDetail() {
                         : null;
                       const optionPrice = selectedOption?.price ?? null;
                       const optionImage = selectedOption?.image_url || selectedOption?.image || '';
+                      const optionDiscount = Math.max(0, Number(selectedOption?.discount_percent) || 0);
                       return attr.type === 'color' ? (
                         <button
                           key={opt}
@@ -260,6 +261,7 @@ export default function ProductDetail() {
                               : 'border-gray-200 text-gray-700 hover:border-gray-400 dark:border-gray-600 dark:text-gray-300'
                           }`}
                         >
+                          {manualService && optionDiscount > 0 && <span className="service-package-discount">-{optionDiscount}%</span>}
                           {manualService && optionImage && <img src={fullUrl(optionImage)} alt="" className="service-package-image" />}
                           <span className={`service-package-mark ${isTikTokService ? 'service-package-mark-sale' : ''}`}>{serviceBadge}</span>
                           <span>{opt}</span>

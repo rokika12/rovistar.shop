@@ -92,12 +92,12 @@ body {
 .store-category-nav { top: 106px; }
 [data-template='account'] .store-category-nav { top: 118px; }
 .service-package-selector {
-  border: 1px solid #27385d;
+  border: 1px solid #e2e8f0;
   border-radius: 1.25rem;
-  background: radial-gradient(circle at top right, #182853, #070d20 62%);
+  background: #fff;
   padding: 1.1rem;
 }
-.service-package-selector > div > label { color: #e9eefb; }
+.service-package-selector > div > label { color: #0f172a; }
 .service-package-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -110,18 +110,19 @@ body {
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  border: 1px solid #31436c !important;
+  border: 1px solid #dbe4ef !important;
   border-radius: 1.35rem;
-  background: linear-gradient(135deg, #17284c, #101b37) !important;
+  background: #fff !important;
   padding: 0.58rem 0.82rem !important;
-  color: #f8fafc !important;
+  color: #172033 !important;
   text-align: left;
   box-shadow: inset 0 1px rgba(255,255,255,.05);
 }
 .service-package-option:hover { border-color: #f472b6 !important; transform: translateY(-2px); }
-.service-package-option.border-primary { border: 2px solid #f43f8f !important; background: linear-gradient(135deg, #42204e, #1b244b) !important; box-shadow: 0 0 0 3px rgba(244,63,143,.2); }
+.service-package-option.border-primary { border: 2px solid #f43f5e !important; background: #fff7f8 !important; box-shadow: 0 0 0 3px rgba(244,63,94,.16); }
 .service-package-option.border-primary::before { content: '✓'; position: absolute; top: -0.58rem; left: -0.48rem; z-index: 2; display: grid; width: 1.55rem; height: 1.55rem; place-items: center; border-radius: 999px; background: #f43f5e; color: #fff; font-size: .82rem; font-weight: 900; }
-.service-package-image { position: absolute; right: 0.45rem; bottom: 0.35rem; width: 4.3rem; height: 4.3rem; margin: 0; border-radius: 0; object-fit: contain; }
+.service-package-image { position: absolute; right: 0.55rem; bottom: 0.55rem; width: 3.25rem; height: 3.25rem; margin: 0; border-radius: 0; object-fit: contain; }
+.service-package-discount { position: absolute; top: 0.45rem; right: 0.5rem; border-radius: 999px; background: #ef4444; padding: 0.15rem 0.42rem; color: #fff; font-size: 0.64rem; font-weight: 900; }
 .service-package-option:has(.service-package-image) > span:not(.service-package-mark), .service-package-option:has(.service-package-image) > small { max-width: calc(100% - 4.1rem); }
 .service-package-option small { margin-top: 0.3rem; color: #ffbd4a; font-size: .76rem; font-weight: 900; opacity: 1; }
 .service-package-mark { display: none; }
