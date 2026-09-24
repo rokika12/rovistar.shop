@@ -26,6 +26,7 @@ export default function ProductDetail() {
   const [checkingRoblox, setCheckingRoblox] = useState(false);
   const [telegramAccount, setTelegramAccount] = useState(null);
   const [checkingTelegram, setCheckingTelegram] = useState(false);
+  const [servicePaymentMethod, setServicePaymentMethod] = useState('khqr');
 
   useEffect(() => {
     if (!shop) return;
@@ -62,7 +63,8 @@ export default function ProductDetail() {
 
   const effectivePrice = currentVariation?.price ?? product?.sale_price ?? product?.price ?? 0;
   const effectiveStock = currentVariation?.quantity ?? product?.quantity ?? 0;
-  const packageImage = currentVariation?.image_url || null;
+  // Keep the main product artwork stable while customers choose a package.
+  const packageImage = null;
 
   if (loading) return <Loading />;
   if (!product) {
@@ -115,10 +117,6 @@ export default function ProductDetail() {
     if (missing) { toast.error(`Please select ${missing.label}`); return; }
     if (telegramService && !/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(serviceLink.trim())) {
       toast.error('Please enter a valid Telegram username starting with @');
-      return;
-    }
-    if (telegramService && !telegramAccount) {
-      toast.error('Check the public Telegram username before continuing');
       return;
     }
     if (manualService && !telegramService && !serviceLink.trim().startsWith(('https://'))) {
@@ -312,9 +310,10 @@ export default function ProductDetail() {
           {manualService && (
             <div className="mt-5">
               <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <button type="button" onClick={() => buyNow('khqr')} className="rounded-xl border-2 border-blue-500 bg-blue-50 p-4 text-left transition hover:bg-blue-100"><strong className="block text-blue-900">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Scan QR with any banking app</span></button>
-                <button type="button" onClick={() => buyNow('wallet')} className="rounded-xl border-2 border-slate-200 bg-white p-4 text-left transition hover:border-pink-400 hover:bg-pink-50"><strong className="block text-slate-900">Wallet Balance</strong><span className="mt-1 block text-xs text-slate-600">Pay instantly from your balance</span></button>
+              <div className="space-y-3">
+                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`w-full rounded-xl border-2 p-4 text-left transition ${servicePaymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white'}`}><strong className="block text-blue-900">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Scan to pay with any banking app</span></button>
+                <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`w-full rounded-xl border-2 p-4 text-left transition ${servicePaymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50' : 'border-slate-200 bg-white'}`}><strong className="block text-slate-900">Wallet Balance</strong><span className="mt-1 block text-xs text-slate-600">Pay instantly from your balance</span></button>
+                <button type="button" onClick={() => buyNow(servicePaymentMethod)} className="w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700">Pay Now</button>
               </div>
             </div>
           )}
