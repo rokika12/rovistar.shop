@@ -748,7 +748,7 @@ body {
 .domi-storefront { background: linear-gradient(180deg, #f8f4ea 0, #fffdf8 34rem, #f5f7f6 100%); color: #153a35; }
 .domi-storefront .max-w-7xl { max-width: 88rem; }
 .domi-storefront .store-section-heading { align-items: end; border-bottom: 1px solid #d9d0bc; padding-bottom: 1rem; }
-.domi-storefront .store-section-heading h2 { color: #173f39; font-family: 'DM Serif Display', Georgia, serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 400; }
+.domi-storefront .store-section-heading h2 { color: #d62468; font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; }
 .domi-storefront .store-section-kicker { color: #a97824; }
 .domi-storefront .store-trust-grid { gap: 1.25rem; }
 .domi-storefront .store-trust-card { border: 1px solid #e5d8bd; background: rgba(255,255,255,.76); box-shadow: 0 12px 28px rgba(53,68,52,.07); }
