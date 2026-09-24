@@ -19,12 +19,21 @@ from routers.payments import _mark_paid, _process_first_payment
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
 
-def _selected_product_image(product, requested_image: str) -> str:
-    """Keep only a customer selection that belongs to the product's gallery."""
+def _selected_product_image(product, requested_image: str, selected_variations: dict | None = None) -> str:
+    """Snapshot the selected package image without accepting an arbitrary URL."""
     images = models.JSONText.loads(product.images, []) if product.images else []
+    variations = models.JSONText.loads(product.variations, []) if product.variations else []
     requested = str(requested_image or "").strip()
-    if requested and requested in images:
+    variation_images = [str(item.get("image_url") or "").strip() for item in variations]
+    if requested and requested in [*images, *variation_images]:
         return requested
+    selected = {str(key).strip().lower(): str(value) for key, value in (selected_variations or {}).items()}
+    for variation in variations:
+        attrs = variation.get("attrs") or {}
+        if attrs and all(str(value) == selected.get(str(key).strip().lower()) for key, value in attrs.items()):
+            image = str(variation.get("image_url") or "").strip()
+            if image:
+                return image
     return str(images[0]).strip() if images else ""
 
 
@@ -137,7 +146,7 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
             price=float(unit_price),
             quantity=item.quantity,
             variations=models.JSONText.dumps(item_variations),
-            image=_selected_product_image(product, item.image),
+            image=_selected_product_image(product, item.image, item_variations),
         ))
 
     order.items_total = round(items_total, 2)

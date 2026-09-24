@@ -348,6 +348,57 @@ def test_order_notification_sends_saved_customer_selected_product_image(monkeypa
     assert messages[0][-1] == telegram_service.telegram_order_buttons(123, "processing")
 
 
+def test_order_notification_formats_package_and_delivery_username(monkeypatch):
+    class Shop:
+        @staticmethod
+        def telegram_dict():
+            return {"enabled": True, "bot_token": "bot-token", "chat_ids": ["101"]}
+
+        shop_name = "Top Up Shop"
+        username = "top-up-shop"
+
+    class Item:
+        product_id = 1
+        product_name = "Free Fire Top Up"
+        price = 5
+        quantity = 1
+        variations = '{"Package":"520 Diamonds","_service_link":"123456789"}'
+        image = ""
+
+    class Order:
+        id = 124
+        order_number = "TOPUP-1"
+        currency = "USD"
+        payment_method = "khqr"
+        transaction_id = "txn"
+        paid_at = None
+        items = [Item()]
+        items_total = 5
+        shipping_fee = 0
+        discount = 0
+        total = 5
+        customer_name = "Customer"
+        customer_phone = ""
+        customer_email = ""
+        customer_telegram = "raw-customer-name"
+        customer_address = ""
+        customer_city = ""
+        customer_country = ""
+        customer_note = ""
+        receipt_url = ""
+        order_status = "processing"
+
+    messages = []
+    monkeypatch.setattr(telegram_service, "send_telegram_message_with_buttons", lambda *args: messages.append(args) or True)
+
+    assert telegram_service.notify_shop_payment_success_full(Shop(), Order()) is True
+    text = messages[0][2]
+    assert "Free Fire Top Up" in text
+    assert "Package: 520 Diamonds" in text
+    assert "<code>123456789</code>" in text
+    assert "_service_link" not in text
+
+
 def test_worker_order_action_requires_secret_and_updates_only_its_configured_chat(monkeypatch):
     monkeypatch.setattr(config, "BOT_SERVICE_ENABLED", True)
     monkeypatch.setattr(config, "BOT_SERVICE_KEY", "worker-secret")

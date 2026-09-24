@@ -53,6 +53,7 @@ export const updateShopStatus = (id, status) => api.put(`/api/shops/${id}/status
 export const deleteShop = (id) => api.delete(`/api/shops/${id}`).then((r) => r.data);
 export const getShopDetail = (id) => api.get(`/api/shops/${id}/detail`).then((r) => r.data);
 export const updateShop = (id, data) => api.put(`/api/shops/${id}/update`, data).then((r) => r.data);
+export const registerTelegramWebhook = (shopId) => api.post('/api/telegram/setwebhook', null, { params: { shop_id: shopId } }).then((r) => r.data);
 export const uploadImage = (file) => {
   const fd = new FormData();
   fd.append('file', file);
