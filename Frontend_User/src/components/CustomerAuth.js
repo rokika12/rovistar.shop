@@ -131,12 +131,12 @@ export default function CustomerAuth({ onSuccess }) {
       {mode === 'signin' ? (
         <form onSubmit={handleSignin} className="space-y-3 text-left">
           <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('username')} *</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">Gmail / {t('username')} *</label>
             <input
               value={loginForm.username}
               onChange={set(loginForm, setLoginForm)('username')}
               className={inputCls}
-              placeholder="e.g. sokdara"
+              placeholder="name@gmail.com"
               autoCapitalize="none"
               autoComplete="username"
             />

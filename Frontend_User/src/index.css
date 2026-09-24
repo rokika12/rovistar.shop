@@ -783,6 +783,11 @@ body {
 .marquee-text-green .domi-rail-track a, .marquee-text-green .shop-announcement { color: #128052 !important; }
 .marquee-text-black .domi-rail-track a, .marquee-text-black .shop-announcement { color: #111827 !important; }
 .marquee-text-white .domi-rail-track a, .marquee-text-white .shop-announcement { color: #fff !important; background: #25314a; }
+.marquee-product-text-blue a, .marquee-sale-text-blue a { color: #1264c7 !important; }
+.marquee-product-text-red a, .marquee-sale-text-red a { color: #c02432 !important; }
+.marquee-product-text-pink a, .marquee-sale-text-pink a { color: #dc2874 !important; }
+.marquee-product-text-green a, .marquee-sale-text-green a { color: #128052 !important; }
+.marquee-product-text-black a, .marquee-sale-text-black a { color: #111827 !important; }
 .domi-storefront[data-palette="ocean"] .domi-rail-sale { background: #edf8ff; }
 .domi-storefront[data-palette="ocean"] .domi-rail-track b, .domi-storefront[data-palette="ocean"] .domi-rail-track strong { background: #087bb5; }
 .domi-storefront[data-palette="emerald"] .domi-rail-sale { background: #effcf5; }

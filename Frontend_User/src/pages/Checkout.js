@@ -5,6 +5,7 @@ import { FiCreditCard, FiLoader, FiLock, FiSmartphone, FiUser, FiX } from 'react
 import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useCustomer } from '../contexts/CustomerContext';
+import { useOwner } from '../contexts/OwnerContext';
 import { useLanguage } from '../i18n';
 import { createOrderAsCustomer, createPayment, getMyWallet, verifyPayment, fullUrl } from '../api';
 import CustomerAuth from '../components/CustomerAuth';
@@ -23,6 +24,7 @@ export default function Checkout() {
   const { shop } = useShop();
   const { items, totals, clear } = useCart();
   const { customer, token, isLoggedIn, logout } = useCustomer();
+  const { owner, isLoggedIn: ownerLoggedIn } = useOwner();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [form, setForm] = useState(initialForm);
@@ -118,7 +120,10 @@ export default function Checkout() {
   const digitalOnly = items.length > 0 && items.every((item) => item.metadata?.product_type === 'digital');
   const manualServiceOrder = items.some((item) => item.metadata?.fulfillment_type === 'manual_service');
   const freeDigitalOrder = digitalOnly && totals.subtotal <= 0;
-  const currentShopLoggedIn = !!token && customer?.shop_id === shop.id;
+  // An owner testing their own shop is already authenticated and should not
+  // be prompted for a second customer login.
+  const currentShopLoggedIn = (!!token && customer?.shop_id === shop.id)
+    || (ownerLoggedIn && owner?.shop_id === shop.id);
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
   const handleSubmit = async (e, paymentConfirmed = false) => {
