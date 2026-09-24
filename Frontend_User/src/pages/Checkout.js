@@ -383,7 +383,7 @@ export default function Checkout() {
             {items.map((item) => <div key={item.product_id} className="flex justify-between border-b border-blue-100 dark:border-gray-600 py-2 text-sm"><span>{item.name} × {item.quantity}</span><strong>{(item.price * item.quantity).toFixed(2)} {shop.currency}</strong></div>)}
             <div className="flex justify-between pt-3 font-black"><span>Total</span><span>{totals.subtotal.toFixed(2)} {shop.currency}</span></div>
           </div>
-          {currentShopLoggedIn && !freeDigitalOrder && (
+          {currentShopLoggedIn && !freeDigitalOrder && !new URLSearchParams(window.location.search).has('payment') && (
             <div className="mb-5 text-left">
               <p className="font-bold mb-2">Choose payment method</p>
               <div className="grid grid-cols-2 gap-3">
@@ -397,7 +397,7 @@ export default function Checkout() {
             </div>
           )}
           <button onClick={handleSubmit} disabled={submitting} className="w-full rounded-2xl bg-blue-600 py-4 font-black text-white hover:bg-blue-700 disabled:opacity-50">
-            {submitting ? 'Preparing...' : (freeDigitalOrder ? 'Get free access' : paymentMethod === 'wallet' ? 'Pay with wallet' : 'Continue to ABA KHQR')}
+            {submitting ? 'Preparing...' : (freeDigitalOrder ? 'Get free access' : paymentMethod === 'wallet' ? 'Pay with wallet' : 'Pay Now — Show ABA QR')}
           </button>
         </div>
       </div>
