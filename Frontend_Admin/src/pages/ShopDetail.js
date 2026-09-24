@@ -307,7 +307,7 @@ function ProductsTab({ shopId, manualOnly = false }) {
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const emptyCredential = { email: '', password: '', license_key: '' };
-  const blankForm = (manual = false) => ({ name: '', description: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '', fulfillment_type: manual ? 'manual_service' : 'instant_code', service_platform: 'tiktok', service_type: 'manual', service_video_url: '', variations: [] });
+  const blankForm = (manual = false) => ({ name: '', description: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '', fulfillment_type: manual ? 'manual_service' : 'instant_code', service_platform: 'tiktok', service_type: 'manual', service_video_url: '', manual_service_out_of_stock: false, variations: [] });
   const [form, setForm] = useState(blankForm(manualOnly));
 
   const load = () => Promise.all([listShopProducts(shopId), listShopCategories(shopId)])
@@ -320,7 +320,7 @@ function ProductsTab({ shopId, manualOnly = false }) {
   const openEdit = (p) => {
     setEditing(p);
     const savedCredentials = p.metadata?.digital_delivery?.credentials || [];
-    setForm({ name: p.name, description: p.description || '', price: p.price ?? '', sale_price: p.sale_price ?? '', quantity: p.quantity ?? '', category_id: p.category_id ?? '', status: p.status || 'active', featured: !!p.featured, product_type: p.metadata?.product_type || 'digital', duration: p.metadata?.duration || '', delivery_email: p.metadata?.digital_delivery?.email || '', delivery_password: p.metadata?.digital_delivery?.password || '', license_key: p.metadata?.digital_delivery?.license_key || '', credentials: savedCredentials.length ? savedCredentials : [emptyCredential], images: p.images || [], promo_enabled: !!p.metadata?.promotion?.enabled, promo_text: p.metadata?.promotion?.text || '', promo_start: p.metadata?.promotion?.start_at || '', promo_end: p.metadata?.promotion?.end_at || '', fulfillment_type: p.metadata?.fulfillment_type || 'instant_code', service_platform: p.metadata?.service_platform || 'tiktok', service_type: p.metadata?.service_type || 'manual', service_video_url: p.metadata?.service_video_url || '', variations: (p.variations || []).map((variation) => ({ name: Object.values(variation.attrs || {}).join(' · '), price: variation.price ?? '' })) });
+    setForm({ name: p.name, description: p.description || '', price: p.price ?? '', sale_price: p.sale_price ?? '', quantity: p.quantity ?? '', category_id: p.category_id ?? '', status: p.status || 'active', featured: !!p.featured, product_type: p.metadata?.product_type || 'digital', duration: p.metadata?.duration || '', delivery_email: p.metadata?.digital_delivery?.email || '', delivery_password: p.metadata?.digital_delivery?.password || '', license_key: p.metadata?.digital_delivery?.license_key || '', credentials: savedCredentials.length ? savedCredentials : [emptyCredential], images: p.images || [], promo_enabled: !!p.metadata?.promotion?.enabled, promo_text: p.metadata?.promotion?.text || '', promo_start: p.metadata?.promotion?.start_at || '', promo_end: p.metadata?.promotion?.end_at || '', fulfillment_type: p.metadata?.fulfillment_type || 'instant_code', service_platform: p.metadata?.service_platform || 'tiktok', service_type: p.metadata?.service_type || 'manual', service_video_url: p.metadata?.service_video_url || '', manual_service_out_of_stock: !!p.metadata?.manual_service_out_of_stock, variations: (p.variations || []).map((variation) => ({ name: Object.values(variation.attrs || {}).join(' · '), price: variation.price ?? '', image_url: variation.image_url || '' })) });
     setModal(true);
   };
 
@@ -333,8 +333,8 @@ function ProductsTab({ shopId, manualOnly = false }) {
       category_id: form.category_id ? Number(form.category_id) : null,
       images: form.images,
       status: form.status, featured: form.featured,
-      variations: form.variations.map((item) => ({ attrs: { Package: item.name }, price: Number(item.price) || 0, quantity: 0 })),
-      metadata: { product_type: form.product_type, duration: form.duration, fulfillment_type: form.fulfillment_type, service_platform: form.service_platform, service_type: form.service_type, service_video_url: form.service_video_url.trim(), digital_delivery: { email: form.delivery_email, password: form.delivery_password, license_key: form.license_key, credentials: form.fulfillment_type === 'manual_service' ? [] : form.credentials.filter((entry) => entry.email || entry.password) }, promotion: { enabled: form.promo_enabled, text: form.promo_text, start_at: form.promo_start, end_at: form.promo_end } },
+      variations: form.variations.map((item) => ({ attrs: { Package: item.name }, price: Number(item.price) || 0, quantity: 0, image_url: item.image_url || null })),
+      metadata: { product_type: form.product_type, duration: form.duration, fulfillment_type: form.fulfillment_type, service_platform: form.service_platform, service_type: form.service_type, service_video_url: form.service_video_url.trim(), manual_service_out_of_stock: form.manual_service_out_of_stock, digital_delivery: { email: form.delivery_email, password: form.delivery_password, license_key: form.license_key, credentials: form.fulfillment_type === 'manual_service' ? [] : form.credentials.filter((entry) => entry.email || entry.password) }, promotion: { enabled: form.promo_enabled, text: form.promo_text, start_at: form.promo_start, end_at: form.promo_end } },
     };
     try {
       if (editing) { await updateProduct(editing.id, payload); toast.success('Product updated'); }
@@ -417,6 +417,17 @@ function ProductModal({ modal, editing, form, setForm, submit, setModal, cats, m
     } catch (e) { toast.error(e?.response?.data?.detail || 'Image upload failed'); }
   };
 
+  const uploadVariationImage = async (index, file) => {
+    if (!file) return;
+    try {
+      const result = await uploadProductImages([file]);
+      const image_url = result.urls?.[0];
+      if (!image_url) throw new Error('No image URL returned');
+      setForm((value) => ({ ...value, variations: value.variations.map((row, rowIndex) => rowIndex === index ? { ...row, image_url } : row) }));
+      toast.success('Package image uploaded');
+    } catch (e) { toast.error(e?.response?.data?.detail || 'Package image upload failed'); }
+  };
+
   const uploadGuideVideo = async (file) => {
     if (!file) return;
     try {
@@ -446,9 +457,10 @@ function ProductModal({ modal, editing, form, setForm, submit, setModal, cats, m
             <div><label className="mb-1 block text-xs font-semibold text-slate-600">ប្រភេទសេវាកម្ម</label><input value={form.service_type} onChange={(e) => setForm({ ...form, service_type: e.target.value })} className={inputCls} placeholder="ឧ. ការផ្សព្វផ្សាយដោយដៃ" /></div>
           </div>
           <div><label className="mb-1 block text-xs font-semibold text-slate-600">វីដេអូណែនាំក្រោយបង់ប្រាក់</label><input type="file" accept="video/mp4,video/webm" onChange={(e) => uploadGuideVideo(e.target.files?.[0])} className="block w-full text-xs" />{form.service_video_url && <p className="mt-2 break-all text-xs text-emerald-700">បានភ្ជាប់វីដេអូរួច</p>}</div>
+          <label className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-800"><input type="checkbox" checked={form.manual_service_out_of_stock} onChange={(e) => setForm({ ...form, manual_service_out_of_stock: e.target.checked })} /> បិទស្តុក / មិនទទួល Order បណ្តោះអាសន្ន</label>
           <div>
-            <div className="mb-2 flex items-center justify-between"><label className="text-xs font-semibold text-slate-600">Package និងតម្លៃ</label><button type="button" className={btnGhost} onClick={() => setForm({ ...form, variations: [...form.variations, { name: '', price: '' }] })}>+ បន្ថែម Package</button></div>
-            <div className="space-y-2">{form.variations.map((item, index) => <div key={index} className="grid grid-cols-[1fr_7rem_auto] gap-2"><input value={item.name} onChange={(e) => setForm({ ...form, variations: form.variations.map((row, rowIndex) => rowIndex === index ? { ...row, name: e.target.value } : row) })} className={inputCls} placeholder="ឈ្មោះ Package" /><input type="number" min="0" step="0.01" value={item.price} onChange={(e) => setForm({ ...form, variations: form.variations.map((row, rowIndex) => rowIndex === index ? { ...row, price: e.target.value } : row) })} className={inputCls} placeholder="USD" /><button type="button" className="rounded-lg bg-red-100 px-3 text-xs font-bold text-red-700" onClick={() => setForm({ ...form, variations: form.variations.filter((_, rowIndex) => rowIndex !== index) })}>លុប</button></div>)}</div>
+            <div className="mb-2 flex items-center justify-between"><label className="text-xs font-semibold text-slate-600">Package និងតម្លៃ</label><button type="button" className={btnGhost} onClick={() => setForm({ ...form, variations: [...form.variations, { name: '', price: '', image_url: '' }] })}>+ បន្ថែម Package</button></div>
+            <div className="space-y-3">{form.variations.map((item, index) => <div key={index} className="rounded-lg border border-slate-200 bg-white p-3"><div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_7rem_auto]"><input value={item.name} onChange={(e) => setForm({ ...form, variations: form.variations.map((row, rowIndex) => rowIndex === index ? { ...row, name: e.target.value } : row) })} className={inputCls} placeholder="ឈ្មោះ Package" /><input type="number" min="0" step="0.01" value={item.price} onChange={(e) => setForm({ ...form, variations: form.variations.map((row, rowIndex) => rowIndex === index ? { ...row, price: e.target.value } : row) })} className={inputCls} placeholder="USD" /><button type="button" className="rounded-lg bg-red-100 px-3 py-2 text-xs font-bold text-red-700" onClick={() => setForm({ ...form, variations: form.variations.filter((_, rowIndex) => rowIndex !== index) })}>លុប</button></div><div className="mt-2 flex items-center gap-3"><input type="file" accept="image/*" onChange={(e) => uploadVariationImage(index, e.target.files?.[0])} className="max-w-[14rem] text-xs" />{item.image_url && <img src={fullUrl(item.image_url)} alt="Package preview" className="h-12 w-12 rounded-lg object-cover" />}</div></div>)}</div>
           </div>
         </div>}
         <div>
