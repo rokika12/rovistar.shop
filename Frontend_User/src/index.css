@@ -768,8 +768,18 @@ body {
 .domi-rail-track b, .domi-rail-track strong { margin-left: auto; border-radius: 999px; background: #f03878; padding: .28rem .58rem; color: #fff; font-size: .68rem; letter-spacing: .06em; }
 .domi-rail-track strong { background: #b81f59; }
 .domi-rail-track em { border-radius: 999px; background: #fcd5e3; padding: .22rem .45rem; color: #b51c55; font-size: .68rem; font-style: normal; }
-.domi-rail-left { animation: domi-slide-left 12s linear infinite; }
-.domi-rail-right { animation: domi-slide-right 12s linear infinite; }
+.domi-rail-left { animation: domi-slide-left var(--rail-duration, 12s) linear infinite; }
+.domi-rail-right { animation: domi-slide-right var(--rail-duration, 12s) linear infinite; }
+.domi-storefront[data-palette="ocean"] .domi-rail-sale { background: #edf8ff; }
+.domi-storefront[data-palette="ocean"] .domi-rail-track b, .domi-storefront[data-palette="ocean"] .domi-rail-track strong { background: #087bb5; }
+.domi-storefront[data-palette="emerald"] .domi-rail-sale { background: #effcf5; }
+.domi-storefront[data-palette="emerald"] .domi-rail-track b, .domi-storefront[data-palette="emerald"] .domi-rail-track strong { background: #097a55; }
+.domi-storefront[data-palette="amber"] .domi-rail-sale { background: #fff9e8; }
+.domi-storefront[data-palette="amber"] .domi-rail-track b, .domi-storefront[data-palette="amber"] .domi-rail-track strong { background: #ba7400; }
+.domi-storefront[data-palette="violet"] .domi-rail-sale { background: #f7f0ff; }
+.domi-storefront[data-palette="violet"] .domi-rail-track b, .domi-storefront[data-palette="violet"] .domi-rail-track strong { background: #7042bb; }
+.domi-storefront[data-palette="midnight"] .domi-rail-sale { background: #eff2f8; }
+.domi-storefront[data-palette="midnight"] .domi-rail-track b, .domi-storefront[data-palette="midnight"] .domi-rail-track strong { background: #223451; }
 .domi-rail:hover .domi-rail-track, .domi-rail:focus-within .domi-rail-track { animation-play-state: paused; }
 @keyframes domi-slide-left { to { transform: translateX(-50%); } }
 @keyframes domi-slide-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }

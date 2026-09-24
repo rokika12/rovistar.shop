@@ -112,6 +112,16 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
     slideshow: shop.slideshow || [], bio: shop.bio || '', description: shop.description || '', contact: shop.contact || '',
     social_media: shop.social_media || {},
   });
+  const [appearance, setAppearance] = useState({
+    palette: shop.theme?.appearance?.palette || 'rose',
+    show_product_marquee: shop.theme?.appearance?.show_product_marquee !== false,
+    show_sale_marquee: shop.theme?.appearance?.show_sale_marquee !== false,
+    product_direction: shop.theme?.appearance?.product_direction || 'left',
+    sale_direction: shop.theme?.appearance?.sale_direction || 'right',
+    product_speed: shop.theme?.appearance?.product_speed || 'slow',
+    sale_speed: shop.theme?.appearance?.sale_speed || 'slow',
+    hero_motion: shop.theme?.appearance?.hero_motion || 'none',
+  });
   const [telegram, setTelegram] = useState({
     bot_token: shop.telegram_settings?.bot_token || '',
     chat_id: shop.telegram_settings?.chat_id || '',
@@ -167,7 +177,7 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
 
   const saveBrand = async () => {
     try {
-      await updateShop(shop.id, brand);
+      await updateShop(shop.id, { ...brand, theme: { ...(shop.theme || {}), appearance } });
       toast.success('Website branding saved');
       onSaved();
     } catch (e) { toast.error(e?.response?.data?.detail || 'Failed to save website branding'); }
@@ -230,6 +240,18 @@ function OverviewTab({ shop, setExpiry, toggleStatus, onSaved }) {
               {['facebook', 'instagram', 'telegram', 'tiktok', 'youtube', 'whatsapp'].map((network) => (
                 <input key={network} value={brand.social_media?.[network] || ''} onChange={(e) => setBrand({ ...brand, social_media: { ...brand.social_media, [network]: e.target.value } })} className={inputCls} placeholder={`${network} link`} />
               ))}
+            </div>
+            <div className="md:col-span-2 rounded-xl border border-rose-100 bg-rose-50/40 p-4">
+              <p className="mb-3 font-bold text-slate-800">រចនាបថហាង និងផ្ទាំងរត់</p>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <label className="text-xs font-semibold">ពណ៌ហាង<select value={appearance.palette} onChange={(e) => setAppearance({ ...appearance, palette: e.target.value })} className={`${inputCls} mt-1`}><option value="rose">ផ្កាឈូក</option><option value="ocean">ខៀវសមុទ្រ</option><option value="emerald">បៃតង</option><option value="amber">មាស</option><option value="violet">ស្វាយ</option><option value="midnight">ខ្មៅទឹកប៊ិច</option></select></label>
+                <label className="text-xs font-semibold">ទិសជួរទំនិញ<select value={appearance.product_direction} onChange={(e) => setAppearance({ ...appearance, product_direction: e.target.value })} className={`${inputCls} mt-1`}><option value="left">រត់ទៅឆ្វេង</option><option value="right">រត់ទៅស្តាំ</option></select></label>
+                <label className="text-xs font-semibold">ល្បឿនជួរទំនិញ<select value={appearance.product_speed} onChange={(e) => setAppearance({ ...appearance, product_speed: e.target.value })} className={`${inputCls} mt-1`}><option value="slow">យឺត</option><option value="normal">មធ្យម</option><option value="fast">លឿន</option></select></label>
+                <label className="text-xs font-semibold">ចលនា Banner<select value={appearance.hero_motion} onChange={(e) => setAppearance({ ...appearance, hero_motion: e.target.value })} className={`${inputCls} mt-1`}><option value="none">មិនរត់</option><option value="opposite">រត់បញ្ច្រាសជួរទំនិញ</option></select></label>
+                <label className="text-xs font-semibold">ទិសជួរបញ្ចុះតម្លៃ<select value={appearance.sale_direction} onChange={(e) => setAppearance({ ...appearance, sale_direction: e.target.value })} className={`${inputCls} mt-1`}><option value="left">រត់ទៅឆ្វេង</option><option value="right">រត់ទៅស្តាំ</option></select></label>
+                <label className="text-xs font-semibold">ល្បឿនជួរបញ្ចុះតម្លៃ<select value={appearance.sale_speed} onChange={(e) => setAppearance({ ...appearance, sale_speed: e.target.value })} className={`${inputCls} mt-1`}><option value="slow">យឺត</option><option value="normal">មធ្យម</option><option value="fast">លឿន</option></select></label>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-5 text-sm"><label className="flex items-center gap-2"><input type="checkbox" checked={appearance.show_product_marquee} onChange={(e) => setAppearance({ ...appearance, show_product_marquee: e.target.checked })} /> បង្ហាញជួរទំនិញ</label><label className="flex items-center gap-2"><input type="checkbox" checked={appearance.show_sale_marquee} onChange={(e) => setAppearance({ ...appearance, show_sale_marquee: e.target.checked })} /> បង្ហាញជួរតម្លៃបញ្ចុះ</label></div>
             </div>
           </div>
           <button onClick={saveBrand} className={`${btnPrimary} mt-3`}>Save Website Branding</button>

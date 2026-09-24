@@ -54,9 +54,12 @@ export default function ShopHome() {
   )).slice(0, 8);
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
+  const appearance = shop.theme?.appearance || {};
+  const productRailClass = appearance.product_direction === 'right' ? 'domi-rail-right' : 'domi-rail-left';
+  const saleRailClass = appearance.sale_direction === 'left' ? 'domi-rail-left' : 'domi-rail-right';
 
   return (
-    <div className="domi-storefront">
+    <div className="domi-storefront" data-palette={appearance.palette || 'rose'}>
       <ShopSearchBar />
       {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
 
@@ -86,10 +89,10 @@ export default function ShopHome() {
         </section>
       )}
 
-      {!loading && allProducts.length > 0 && (
+      {!loading && allProducts.length > 0 && (appearance.show_product_marquee !== false || appearance.show_sale_marquee !== false) && (
         <section className="domi-promo-rails" aria-label="Featured offers">
-          <div className="domi-rail"><div className="domi-rail-track domi-rail-left">{Array.from({ length: 6 }, () => allProducts).flat().map((product, index) => <Link key={`product-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><b>VIEW</b></Link>)}</div></div>
-          <div className="domi-rail domi-rail-sale"><div className="domi-rail-track domi-rail-right">{Array.from({ length: 10 }, () => (flashSaleProducts.length ? flashSaleProducts : allProducts)).flat().map((product, index) => <Link key={`price-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><strong>${Number(product.sale_price ?? product.price).toFixed(2)}</strong>{product.sale_price != null && Number(product.sale_price) < Number(product.price) && <em>-{Math.round((1 - Number(product.sale_price) / Number(product.price)) * 100)}%</em>}</Link>)}</div></div>
+          {appearance.show_product_marquee !== false && <div className="domi-rail"><div className={`domi-rail-track ${productRailClass}`} style={{ '--rail-duration': appearance.product_speed === 'fast' ? '7s' : appearance.product_speed === 'normal' ? '12s' : '20s' }}>{Array.from({ length: 6 }, () => allProducts).flat().map((product, index) => <Link key={`product-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><b>VIEW</b></Link>)}</div></div>}
+          {appearance.show_sale_marquee !== false && <div className="domi-rail domi-rail-sale"><div className={`domi-rail-track ${saleRailClass}`} style={{ '--rail-duration': appearance.sale_speed === 'fast' ? '7s' : appearance.sale_speed === 'normal' ? '12s' : '20s' }}>{Array.from({ length: 10 }, () => (flashSaleProducts.length ? flashSaleProducts : allProducts)).flat().map((product, index) => <Link key={`price-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><strong>${Number(product.sale_price ?? product.price).toFixed(2)}</strong>{product.sale_price != null && Number(product.sale_price) < Number(product.price) && <em>-{Math.round((1 - Number(product.sale_price) / Number(product.price)) * 100)}%</em>}</Link>)}</div></div>}
         </section>
       )}
 
