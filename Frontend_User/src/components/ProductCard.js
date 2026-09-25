@@ -26,7 +26,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
         {!isKaidoStore && hasSale && <span className="store-sale-badge absolute top-3 right-3">SALE -{discount}%</span>}
         {!isKaidoStore && product.featured && <span className="store-hot-badge absolute top-3 left-3">HOT</span>}
       </Link>
-      {!isKaidoStore && <div className="p-3 sm:p-4 flex flex-col flex-1">
+      <div className="p-3 sm:p-4 flex flex-col flex-1">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.1em] truncate">{product.category_name || 'Rovistar item'}</p>
           <FiArrowUpRight className="text-slate-400 shrink-0" />
@@ -56,7 +56,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
         ) : (
           <span className="mt-4 w-full rounded-xl bg-slate-200 py-2.5 text-center text-xs sm:text-sm font-black text-slate-400">Sold out</span>
         ))}
-      </div>}
+      </div>
     </article>
   );
 }
