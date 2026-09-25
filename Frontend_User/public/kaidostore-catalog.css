@@ -1,0 +1,16 @@
+/* KaidoStore's static catalog label, shown only above its account cards. */
+.domi-storefront section:has(.kaido-account-card)::before {
+  content: "ទំនិញទាំងអស់";
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f45b9a, #df2874);
+  box-shadow: 0 8px 18px rgba(220, 40, 116, 0.2);
+  color: #fff;
+  font-family: "Kantumruy Pro", sans-serif;
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  margin-bottom: 1rem;
+  padding: 0.52rem 1.15rem;
+}
