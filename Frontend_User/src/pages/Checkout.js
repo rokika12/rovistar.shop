@@ -227,6 +227,7 @@ export default function Checkout() {
 
   const shipping = 0;
   const grandTotal = Math.round((totals.subtotal + shipping) * 100) / 100;
+  const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const paymentConfirmationModal = confirmationOpen ? (
     <div className="payment-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="payment-confirm-title">
       <section className="payment-confirm-modal">
@@ -253,8 +254,8 @@ export default function Checkout() {
   if (payment) {
     const payAmount = Number(payment.amount || order?.total || 0).toFixed(2);
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/55 py-8 px-4 backdrop-blur-[2px]" onClick={() => navigate(`/${shop.username}/checkout`)}>
-        <div className="relative max-w-md mx-auto rounded-[1.75rem] bg-white dark:bg-gray-800 px-5 py-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className={`fixed inset-0 z-50 overflow-y-auto bg-slate-900/55 py-8 px-4 backdrop-blur-[2px] ${isKaidoStore ? 'kaido-payment-overlay' : ''}`} onClick={() => navigate(`/${shop.username}/checkout`)}>
+        <div className={`relative max-w-md mx-auto rounded-[1.75rem] bg-white dark:bg-gray-800 px-5 py-6 shadow-2xl ${isKaidoStore ? 'kaido-payment-modal' : ''}`} onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
             onClick={() => navigate(`/${shop.username}/checkout`)}
@@ -297,13 +298,13 @@ export default function Checkout() {
               </div>
               <div className="qr-divider" />
               <div className="qr-box">
-                <div style={{ position: 'relative', width: 195, height: 195 }}>
+                <div className={isKaidoStore ? 'kaido-qr-frame' : ''} style={{ position: 'relative', width: isKaidoStore ? 300 : 195, height: isKaidoStore ? 300 : 195 }}>
                   {payment.qr_code_url && !qrFailed ? (
                     <img src={fullUrl(payment.qr_code_url)} alt="KHQR"
                          className="qr-img"
                          onError={() => setQrFailed(true)} />
                   ) : (
-                    <div className="w-[195px] h-[195px] rounded-xl border border-red-200 bg-red-50 px-5 flex flex-col items-center justify-center text-center text-red-700">
+                    <div className={`${isKaidoStore ? 'w-[300px] h-[300px]' : 'w-[195px] h-[195px]'} rounded-xl border border-red-200 bg-red-50 px-5 flex flex-col items-center justify-center text-center text-red-700`}>
                       <FiSmartphone className="w-10 h-10 mb-2" />
                       <span className="text-xs font-semibold">{payment.qr_error || 'Real KHQR was not returned'}</span>
                       <button type="button" onClick={retryQr} className="mt-2 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white">Retry QR</button>
@@ -373,7 +374,7 @@ export default function Checkout() {
     );
   }
 
-  if (digitalOnly && currentShopLoggedIn) {
+  if (digitalOnly && (currentShopLoggedIn || isKaidoStore)) {
     return (
       <div className="max-w-xl mx-auto px-4 py-16">
         {paymentConfirmationModal}
@@ -388,7 +389,7 @@ export default function Checkout() {
             {items.map((item) => <div key={item.product_id} className="flex justify-between border-b border-blue-100 dark:border-gray-600 py-2 text-sm"><span>{item.name} × {item.quantity}</span><strong>{(item.price * item.quantity).toFixed(2)} {shop.currency}</strong></div>)}
             <div className="flex justify-between pt-3 font-black"><span>Total</span><span>{totals.subtotal.toFixed(2)} {shop.currency}</span></div>
           </div>
-          {currentShopLoggedIn && !freeDigitalOrder && !new URLSearchParams(window.location.search).has('payment') && (
+          {(currentShopLoggedIn || isKaidoStore) && !freeDigitalOrder && !new URLSearchParams(window.location.search).has('payment') && (
             <div className="mb-5 text-left">
               <p className="font-bold mb-2">Choose payment method</p>
               <div className="space-y-3">
@@ -406,7 +407,7 @@ export default function Checkout() {
   }
 
   // 🔒 Customer account is REQUIRED before buying — block checkout if not signed in.
-  if (!currentShopLoggedIn) {
+  if (!currentShopLoggedIn && !isKaidoStore) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-16">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-8 max-w-md mx-auto">
