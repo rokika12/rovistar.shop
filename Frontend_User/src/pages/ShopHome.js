@@ -63,7 +63,7 @@ export default function ShopHome() {
       <ShopSearchBar />
       {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
 
-      {slides.length > 0 && (
+      {!isKaidoStore && slides.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 pt-6 md:pt-8">
           <Slideshow slides={slides} />
         </section>
