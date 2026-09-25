@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { useShop } from '../contexts/ShopContext';
 import ProductCard from './ProductCard';
 
 /**
@@ -7,6 +8,7 @@ import ProductCard from './ProductCard';
  * buttons. The user scrolls left/right — NO auto-scroll. Hides the scrollbar.
  */
 export default function ProductRow({ products }) {
+  const { shop } = useShop();
   const trackRef = useRef(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
@@ -43,6 +45,7 @@ export default function ProductRow({ products }) {
   }, [updateArrows, products]);
 
   if (!products || products.length === 0) return null;
+  const isKaidoStore = shop?.username?.toLowerCase() === 'kaidostore';
 
   return (
     <div className="relative">
@@ -77,7 +80,7 @@ export default function ProductRow({ products }) {
           <div
             key={p.id}
             data-card
-            className={`${products.length === 1 ? 'w-full max-w-[260px]' : 'min-w-[calc(50vw-28px)] max-w-[190px] md:min-w-[220px] md:max-w-[220px]'} flex-shrink-0 snap-start`}
+            className={`${isKaidoStore ? 'min-w-[min(88vw,30rem)] max-w-[30rem]' : products.length === 1 ? 'w-full max-w-[260px]' : 'min-w-[calc(50vw-28px)] max-w-[190px] md:min-w-[220px] md:max-w-[220px]'} flex-shrink-0 snap-start`}
           >
             <ProductCard product={p} />
           </div>
