@@ -739,10 +739,23 @@ body {
 .kaido-account-card .text-xl { font-size: 2rem; }
 .kaido-account-card .mt-4 { min-height: 3.3rem; font-size: 1rem; }
 .kaido-account-detail { max-width: 84rem; }
-.kaido-account-gallery { aspect-ratio: 4 / 3; border: 2px solid #f3a7c4; box-shadow: 0 18px 42px rgba(205, 40, 111, 0.14); }
-.kaido-account-gallery img { object-fit: cover; background: #120d18; }
+.kaido-account-gallery { aspect-ratio: 4 / 3; border: 2px solid #f3a7c4; background: #fff; box-shadow: 0 18px 42px rgba(205, 40, 111, 0.14); }
+.kaido-gallery-main-image { position: relative; display: block; width: 100%; height: 100%; cursor: zoom-in; background: #fff; }
+.kaido-account-gallery img { object-fit: contain; background: #fff; }
+.kaido-gallery-expand { position: absolute; right: 0.85rem; bottom: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 999px; background: rgba(17, 24, 39, 0.84); padding: 0.55rem 0.8rem; color: #fff; font-size: 0.72rem; font-weight: 800; opacity: 0; transition: opacity 160ms ease; }
+.kaido-gallery-main-image:hover .kaido-gallery-expand, .kaido-gallery-main-image:focus-visible .kaido-gallery-expand { opacity: 1; }
 .kaido-account-thumbnails { overflow-x: auto; padding-bottom: 0.35rem; }
 .kaido-account-thumbnails button { width: 5.5rem; height: 5.5rem; flex: 0 0 auto; }
+.kaido-account-thumbnails img { object-fit: cover; }
+.kaido-gallery-lightbox { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1.25rem 4.5rem; background: rgba(8, 12, 24, 0.94); }
+.kaido-gallery-lightbox-image { display: block; max-width: 100%; max-height: calc(100vh - 2.5rem); object-fit: contain; }
+.kaido-gallery-close, .kaido-gallery-nav { position: absolute; display: grid; place-items: center; border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 999px; background: rgba(255, 255, 255, 0.12); color: #fff; transition: background 160ms ease; }
+.kaido-gallery-close:hover, .kaido-gallery-nav:hover { background: rgba(255, 255, 255, 0.28); }
+.kaido-gallery-close { top: 1.25rem; right: 1.25rem; width: 2.75rem; height: 2.75rem; font-size: 1.3rem; }
+.kaido-gallery-nav { top: 50%; width: 3.25rem; height: 3.25rem; font-size: 1.65rem; transform: translateY(-50%); }
+.kaido-gallery-prev { left: 1rem; }
+.kaido-gallery-next { right: 1rem; }
+.kaido-gallery-counter { position: absolute; bottom: 1rem; left: 50%; margin: 0; transform: translateX(-50%); color: #fff; font-size: 0.8rem; font-weight: 800; }
 .kaido-payment-overlay { padding: 1rem; }
 .kaido-payment-modal { max-width: 35rem; padding: 1.75rem; }
 .kaido-payment-modal .qr-card-new { width: min(100%, 25rem); border: 2px solid #f3a7c4; box-shadow: 0 16px 38px rgba(205, 40, 111, 0.14); }
@@ -754,6 +767,14 @@ body {
   .kaido-account-card > div { padding: 1rem; }
   .kaido-account-card h3 { font-size: 1.12rem; }
   .kaido-account-gallery { aspect-ratio: 1 / 1; }
+  .kaido-gallery-expand { opacity: 1; }
+  .kaido-gallery-lightbox { padding: 1rem; }
+  .kaido-gallery-lightbox-image { max-height: calc(100vh - 5rem); }
+  .kaido-gallery-close { top: 0.75rem; right: 0.75rem; }
+  .kaido-gallery-nav { top: auto; bottom: 0.85rem; transform: none; width: 2.8rem; height: 2.8rem; }
+  .kaido-gallery-prev { left: calc(50% - 3.2rem); }
+  .kaido-gallery-next { right: calc(50% - 3.2rem); }
+  .kaido-gallery-counter { bottom: 1.6rem; }
   .kaido-payment-overlay { padding: 0; }
   .kaido-payment-modal { min-height: 100%; border-radius: 0; padding: 1.25rem; }
   .kaido-payment-modal .qr-card-new { width: 100%; }
