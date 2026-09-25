@@ -69,7 +69,7 @@ export default function ShopHome() {
         </section>
       )}
 
-      {isDigitalStore && !loading && allProducts.length > 0 && (
+      {isDigitalStore && !isKaidoStore && !loading && allProducts.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pt-5">
           <div className={`overflow-hidden rounded-2xl border ${isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-blue-100 bg-white text-slate-900'}`}>
             <div className="overflow-hidden py-3">
