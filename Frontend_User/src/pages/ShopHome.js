@@ -54,6 +54,7 @@ export default function ShopHome() {
   )).slice(0, 8);
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
+  const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const appearance = shop.theme?.appearance || {};
   const productRailClass = appearance.product_direction === 'right' ? 'domi-rail-right' : 'domi-rail-left';
 
@@ -155,7 +156,7 @@ export default function ShopHome() {
         ) : featuredProducts.length === 0 ? (
           <p className="text-gray-400 text-center py-10">{t('noFeatured')}</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className={isKaidoStore ? 'kaido-account-grid' : 'grid grid-cols-2 md:grid-cols-4 gap-4'}>
             {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
           </div>
         )}
