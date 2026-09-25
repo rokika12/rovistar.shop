@@ -121,14 +121,14 @@ export default function ShopHome() {
                     {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt={product.name} /> : <FiShoppingBag />}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="flash-sale-label">FLASH DEAL</span>
+                    {!isKaidoStore && <span className="flash-sale-label">FLASH DEAL</span>}
                     <h3>{product.name}</h3>
                     <div className="flash-sale-price-row">
                       <strong>${salePrice.toFixed(2)}</strong>
                       <del>${originalPrice.toFixed(2)}</del>
                     </div>
                   </div>
-                  <span className="flash-sale-discount">-{discount}%</span>
+                  {!isKaidoStore && <span className="flash-sale-discount">-{discount}%</span>}
                 </Link>
               );
             })}
