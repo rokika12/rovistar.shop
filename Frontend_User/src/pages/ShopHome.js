@@ -63,7 +63,7 @@ export default function ShopHome() {
       <ShopSearchBar />
       {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
 
-      {!isKaidoStore && slides.length > 0 && (
+      {slides.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 pt-6 md:pt-8">
           <Slideshow slides={slides} />
         </section>
@@ -87,7 +87,7 @@ export default function ShopHome() {
         </section>
       )}
 
-      {!loading && allProducts.length > 0 && appearance.show_product_marquee !== false && (
+      {!isKaidoStore && !loading && allProducts.length > 0 && appearance.show_product_marquee !== false && (
         <section className="domi-promo-rails" aria-label="Featured offers">
           <div className={`domi-rail marquee-product-text-${appearance.product_text_color || 'default'}`}><div className={`domi-rail-track ${productRailClass}`} style={{ '--rail-duration': appearance.product_speed === 'fast' ? '7s' : appearance.product_speed === 'normal' ? '12s' : '20s' }}>{Array.from({ length: 6 }, () => allProducts).flat().map((product, index) => <Link key={`product-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><b>VIEW</b></Link>)}</div></div>
         </section>
@@ -101,7 +101,7 @@ export default function ShopHome() {
         </div>
       </section>}
 
-      {!loading && !isDomi && flashSaleProducts.length > 0 && (
+      {!isKaidoStore && !loading && !isDomi && flashSaleProducts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 pt-2 pb-5">
           <div className="store-section-heading store-flash-heading">
             <div>
@@ -136,7 +136,15 @@ export default function ShopHome() {
         </section>
       )}
 
-      <section className="max-w-7xl mx-auto px-4 pt-10 md:pt-14 pb-7">
+      {isKaidoStore && !loading && allProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 py-6">
+          <div className="kaido-account-grid">
+            {allProducts.map((product) => <ProductCard key={product.id} product={product} variant="catalog" />)}
+          </div>
+        </section>
+      )}
+
+      {!isKaidoStore && <section className="max-w-7xl mx-auto px-4 pt-10 md:pt-14 pb-7">
         <div className="store-section-heading">
           <div>
             <span className="store-section-kicker">Picked for you</span>
@@ -160,9 +168,9 @@ export default function ShopHome() {
             {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
           </div>
         )}
-      </section>
+      </section>}
 
-      {!loading && categories.map((category) => {
+      {!isKaidoStore && !loading && categories.map((category) => {
         const items = allProducts.filter((product) => product.category_id === category.id);
         if (!items.length) return null;
         return (
@@ -176,7 +184,7 @@ export default function ShopHome() {
         );
       })}
 
-      {!loading && (() => {
+      {!isKaidoStore && !loading && (() => {
         const categoryIds = new Set(categories.map((category) => category.id));
         const others = allProducts.filter((product) => !categoryIds.has(product.category_id));
         if (!others.length) return null;
@@ -188,7 +196,7 @@ export default function ShopHome() {
         );
       })()}
 
-      {shop.store_type === 'clothing' && (shop.shipping_settings?.carrier || shop.shipping_settings?.address || shop.shipping_settings?.phone) && (
+      {!isKaidoStore && shop.store_type === 'clothing' && (shop.shipping_settings?.carrier || shop.shipping_settings?.address || shop.shipping_settings?.phone) && (
         <section className="max-w-7xl mx-auto px-4 py-6">
           <div className="rounded-2xl border border-blue-100 bg-blue-50 p-5 text-center">
             <h2 className="font-bold text-blue-900">ការដឹកជញ្ជូន</h2>
@@ -197,13 +205,13 @@ export default function ShopHome() {
         </section>
       )}
 
-      <section className="mt-8 border-t border-slate-100 bg-white">
+      {!isKaidoStore && <section className="mt-8 border-t border-slate-100 bg-white">
         <div className="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-6 text-center">
           <div className="p-6"><div className="w-12 h-12 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3"><FiTruck className="w-6 h-6" /></div><h3 className="font-bold mb-2 dark:text-gray-100">{t('fastDelivery')}</h3><p className="text-sm text-gray-500 dark:text-gray-400">{t('fastDeliveryDesc')}</p></div>
           <div className="p-6"><div className="w-12 h-12 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3"><FiCreditCard className="w-6 h-6" /></div><h3 className="font-bold mb-2 dark:text-gray-100">{t('abaAccepted')}</h3><p className="text-sm text-gray-500 dark:text-gray-400">{t('abaAcceptedDesc')}</p></div>
           <div className="p-6"><div className="w-12 h-12 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3"><FiHeadphones className="w-6 h-6" /></div><h3 className="font-bold mb-2 dark:text-gray-100">{t('support')}</h3><p className="text-sm text-gray-500 dark:text-gray-400">{t('supportDesc')}</p></div>
         </div>
-      </section>
+      </section>}
     </div>
   );
 }
