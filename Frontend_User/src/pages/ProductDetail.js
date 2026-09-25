@@ -83,6 +83,7 @@ export default function ProductDetail() {
   const servicePlatform = String(product.metadata?.service_platform || '').toLowerCase();
   const telegramService = manualService && ['telegram', 'telegram_premium', 'telegram_star'].includes(servicePlatform);
   const freeFireService = manualService && servicePlatform === 'free_fire';
+  const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const mobileLegendsService = manualService && servicePlatform === 'mobile_legends';
   const robloxService = manualService && servicePlatform === 'roblox';
   const serviceBadge = telegramService ? '✦ VIP' : freeFireService ? '🔥 FREE FIRE' : mobileLegendsService ? '⚔ MLBB' : robloxService ? '◇ ROBLOX' : servicePlatform === 'tiktok' ? '🔥 បញ្ចុះតម្លៃ' : '✦ PACKAGE';
@@ -154,7 +155,7 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className={`max-w-7xl mx-auto px-4 py-8 ${isKaidoStore ? 'kaido-account-detail' : ''}`}>
       <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mb-4 text-sm">
         <FiChevronLeft /> {t('back')}
       </button>
@@ -162,7 +163,7 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Gallery */}
         <div>
-          <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden">
+          <div className={`aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden ${isKaidoStore ? 'kaido-account-gallery' : ''}`}>
             {packageImage || (product.images && product.images.length > 0) ? (
               <img src={fullUrl(packageImage || product.images[activeImage])} alt={packageImage ? 'Selected package' : product.name} className="w-full h-full object-cover" />
             ) : (
@@ -172,7 +173,7 @@ export default function ProductDetail() {
             )}
           </div>
           {product.images && product.images.length > 1 && (
-            <div className="flex gap-2 mt-3">
+            <div className={`flex gap-2 mt-3 ${isKaidoStore ? 'kaido-account-thumbnails' : ''}`}>
               {product.images.map((img, i) => (
                 <button
                   key={i}
