@@ -11,13 +11,14 @@ export default function ProductCard({ product, variant = 'standard' }) {
   const hasSale = product.sale_price != null && product.sale_price < product.price;
   const discount = hasSale ? Math.round((1 - price / product.price) * 100) : 0;
   const metadata = product.metadata || {};
+  const isKaidoStore = shop?.username?.toLowerCase() === 'kaidostore';
   const description = (product.description || '').replace(/\s+/g, ' ').trim();
   const isDigital = metadata.product_type === 'digital';
   const isManualService = metadata.fulfillment_type === 'manual_service';
   const isAvailable = isManualService ? !metadata.manual_service_out_of_stock : product.quantity > 0;
 
   return (
-    <article className={`store-product-card store-product-card-${variant} bg-white dark:bg-gray-800 overflow-hidden transition group flex flex-col h-full`}>
+    <article className={`store-product-card store-product-card-${variant} ${isKaidoStore ? 'kaido-account-card' : ''} bg-white dark:bg-gray-800 overflow-hidden transition group flex flex-col h-full`}>
       <Link to={`/${shop.username}/product/${product.id}`} className="block relative">
         <div className="store-product-image aspect-[1.35/1] bg-slate-100 dark:bg-gray-700 overflow-hidden">
           {product.images?.[0] && !imageFailed ? (
