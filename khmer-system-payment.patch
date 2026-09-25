@@ -1,0 +1,489 @@
+From 941f2d1461b8869bded23bdcba64e95968b24b03 Mon Sep 17 00:00:00 2001
+From: Heng Gaming <HengGaming@users.noreply.github.com>
+Date: Fri, 25 Sep 2026 10:51:49 +0000
+Subject: [PATCH] Add Khmer System KHQR gateway
+
+---
+ Backend_API/models.py                         |   6 +-
+ Backend_API/routers/payments.py               |  32 +++-
+ Backend_API/services/khmer_system_service.py  | 159 ++++++++++++++++++
+ Backend_API/test_khmer_system_service.py      |  60 +++++++
+ .../src/pages/PaymentSettings.js              |  24 +--
+ Frontend_User/src/pages/Checkout.js           |  12 +-
+ README.md                                     |  12 +-
+ 7 files changed, 280 insertions(+), 25 deletions(-)
+ create mode 100644 Backend_API/services/khmer_system_service.py
+ create mode 100644 Backend_API/test_khmer_system_service.py
+
+diff --git a/Backend_API/models.py b/Backend_API/models.py
+index a469191..0463577 100644
+--- a/Backend_API/models.py
++++ b/Backend_API/models.py
+@@ -88,7 +88,7 @@ class Shop(Base):
+     slideshow = Column(Text, default="[]")          # JSON list of image urls
+     social_media = Column(Text, default="{}")        # JSON dict
+     theme = Column(Text, default="{}")               # JSON dict {primary, secondary, font_family}
+-    aba_settings = Column(Text, default="{}")        # JSON dict {profile_id, secret_key, test_mode}
++    aba_settings = Column(Text, default="{}")        # JSON dict for the selected checkout gateway
+     telegram_settings = Column(Text, default="{}")   # JSON dict {bot_token, chat_id, chat_ids, enabled}
+     shipping_settings = Column(Text, default="{}")   # JSON dict for physical-store delivery
+     currency = Column(String, default="USD")
+@@ -274,8 +274,12 @@ class Order(Base):
+     paid_at = Column(DateTime, nullable=True)
+ 
+     shop = relationship("Shop", back_populates="orders")
++    customer = relationship("Customer", foreign_keys=[customer_id])
+     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+ 
++    def payment_detail_dict(self):
++        return JSONText.loads(self.payment_detail, {})
++
+     def to_dict(self, include_items=True):
+         d = {
+             "id": self.id,
+diff --git a/Backend_API/routers/payments.py b/Backend_API/routers/payments.py
+index 8887570..08b6ab8 100644
+--- a/Backend_API/routers/payments.py
++++ b/Backend_API/routers/payments.py
+@@ -6,7 +6,7 @@ import models
+ import schemas
+ from database import get_db
+ from security import get_current_user, log_activity, require_shop_access
+-from services import aba_service, pdf_service, stock_service, telegram_service
++from services import aba_service, khmer_system_service, pdf_service, stock_service, telegram_service
+ from services.aba_service import PaymentGatewayUnavailable, PaymentNotConfigured
+ 
+ router = APIRouter(prefix="/api/payments", tags=["payments"])
+@@ -107,7 +107,11 @@ def payment_status(shop_id: int, db: Session = Depends(get_db)):
+     shop = db.query(models.Shop).filter(models.Shop.id == shop_id).first()
+     if not shop:
+         raise HTTPException(status_code=404, detail="Shop not found")
+-    return {"shop_id": shop_id, "configured": aba_service.is_configured(shop)}
++    settings = shop.aba_dict()
++    provider = settings.get("provider", "aba")
++    configured = (khmer_system_service.is_configured(shop) if provider == "khmer_system"
++                  else aba_service.is_configured(shop))
++    return {"shop_id": shop_id, "configured": configured, "provider": provider}
+ 
+ 
+ @router.post("/aba/create")
+@@ -118,15 +122,21 @@ def create_aba_payment(data: schemas.PaymentCreate, db: Session = Depends(get_db
+         raise HTTPException(status_code=404, detail="Order not found")
+     shop = db.query(models.Shop).filter(models.Shop.id == order.shop_id).first()
+ 
++    provider = shop.aba_dict().get("provider", "aba")
+     try:
+-        result = aba_service.build_checkout_url(
+-            order, shop, success_url=data.success_url, error_url=data.error_url, cancel_url=data.cancel_url)
+-    except PaymentNotConfigured as e:
++        if provider == "khmer_system":
++            result = khmer_system_service.existing_payment(order) or khmer_system_service.create_payment(order, shop)
++        else:
++            result = aba_service.build_checkout_url(
++                order, shop, success_url=data.success_url, error_url=data.error_url, cancel_url=data.cancel_url)
++    except (PaymentNotConfigured, khmer_system_service.PaymentNotConfigured) as e:
+         raise HTTPException(status_code=400, detail=str(e))
+-    except PaymentGatewayUnavailable as e:
++    except (PaymentGatewayUnavailable, khmer_system_service.PaymentGatewayUnavailable) as e:
+         raise HTTPException(status_code=502, detail=str(e))
+ 
+     order.transaction_id = result["transaction_id"]
++    if result.get("payment_detail"):
++        order.payment_detail = models.JSONText.dumps(result["payment_detail"])
+     db.commit()
+     return result
+ 
+@@ -139,11 +149,19 @@ def verify_aba_payment(data: schemas.PaymentVerify, db: Session = Depends(get_db
+         raise HTTPException(status_code=404, detail="Order not found")
+     shop = db.query(models.Shop).filter(models.Shop.id == order.shop_id).first()
+ 
+-    result = aba_service.verify_payment(order, shop, transaction_id=data.transaction_id)
++    provider = shop.aba_dict().get("provider", "aba")
++    try:
++        result = (khmer_system_service.verify_payment(order, shop)
++                  if provider == "khmer_system"
++                  else aba_service.verify_payment(order, shop, transaction_id=data.transaction_id))
++    except khmer_system_service.PaymentGatewayUnavailable as e:
++        raise HTTPException(status_code=502, detail=str(e))
+     if result.get("verified"):
+         newly_paid = _mark_paid(db, order, result.get("transaction_id") or data.transaction_id, result.get("amount"))
+         if newly_paid:
+             _process_first_payment(db, order, shop)
++        if provider == "khmer_system":
++            khmer_system_service.confirm_payment(order, shop)
+     return result
+ 
+ 
+diff --git a/Backend_API/services/khmer_system_service.py b/Backend_API/services/khmer_system_service.py
+new file mode 100644
+index 0000000..17efd92
+--- /dev/null
++++ b/Backend_API/services/khmer_system_service.py
+@@ -0,0 +1,159 @@
++"""KHMER SYSTEM payment gateway client.
++
++The provider requires a unique 10-character verify key and the authenticated
++customer's Telegram ID for every payment. Keys never leave the backend.
++"""
++import secrets
++import string
++
++import httpx
++
++
++BASE_URL = "https://pay.khmer-system.com"
++
++
++class PaymentNotConfigured(Exception):
++    """Raised when a shop has not saved its KHMER SYSTEM merchant key."""
++
++
++class PaymentGatewayUnavailable(Exception):
++    """Raised when KHMER SYSTEM cannot create a usable payment."""
++
++
++def _config(shop):
++    settings = shop.aba_dict()
++    return (settings.get("khmer_system_secret_key") or "").strip()
++
++
++def is_configured(shop) -> bool:
++    return bool(_config(shop))
++
++
++def generate_verify_key() -> str:
++    """Return the provider-required 10-character alphanumeric idempotency key."""
++    alphabet = string.ascii_letters + string.digits
++    return "".join(secrets.choice(alphabet) for _ in range(10))
++
++
++def _payment_identity(order):
++    customer = getattr(order, "customer", None)
++    telegram_id = getattr(customer, "telegram_id", None)
++    if not telegram_id:
++        raise PaymentNotConfigured(
++            "KHMER SYSTEM requires the customer to sign in with Telegram before payment."
++        )
++    return str(telegram_id)
++
++
++def _request(method: str, path: str, *, json=None, params=None) -> dict:
++    try:
++        with httpx.Client(timeout=httpx.Timeout(12.0, connect=4.0)) as client:
++            response = client.request(method, f"{BASE_URL}{path}", json=json, params=params)
++            response.raise_for_status()
++            payload = response.json()
++    except (httpx.HTTPError, ValueError) as exc:
++        raise PaymentGatewayUnavailable("KHMER SYSTEM is temporarily unavailable. Please try again.") from exc
++
++    if not isinstance(payload, dict) or not payload.get("success"):
++        message = payload.get("error") if isinstance(payload, dict) else "Invalid response from KHMER SYSTEM"
++        raise PaymentGatewayUnavailable(message or "KHMER SYSTEM could not create the payment.")
++    return payload
++
++
++def create_payment(order, shop) -> dict:
++    secret_key = _config(shop)
++    if not secret_key:
++        raise PaymentNotConfigured("KHMER SYSTEM secret key is not configured for this shop.")
++
++    telegram_user_id = _payment_identity(order)
++    verify_key = generate_verify_key()
++    payload = _request("POST", "/api/v1/payment/generate", json={
++        "secret_key": secret_key,
++        "amount": round(float(order.total or 0), 2),
++        "verify_key": verify_key,
++        "telegram_user_id": telegram_user_id,
++    })
++
++    transaction_id = str(payload.get("transaction_id") or "").strip()
++    qr_image_url = str(payload.get("qr_image_url") or "").strip()
++    if not transaction_id or not qr_image_url:
++        raise PaymentGatewayUnavailable("KHMER SYSTEM returned no transaction ID or QR image.")
++
++    return {
++        "transaction_id": transaction_id,
++        "amount": payload.get("amount", order.total),
++        "currency": payload.get("currency", order.currency),
++        "qr_code_url": qr_image_url,
++        "qr_content": payload.get("qr_string", ""),
++        "status": payload.get("status", "pending"),
++        "expired_at": payload.get("expired_at"),
++        "provider": "khmer_system",
++        "payment_detail": {
++            "provider": "khmer_system",
++            "verify_key": verify_key,
++            "telegram_user_id": telegram_user_id,
++            "qr_code_url": qr_image_url,
++            "amount": payload.get("amount", order.total),
++            "currency": payload.get("currency", order.currency),
++            "expired_at": payload.get("expired_at"),
++        },
++    }
++
++
++def existing_payment(order) -> dict | None:
++    """Reuse an unexpired provider payment when the storefront retries the QR."""
++    detail = order.payment_detail_dict()
++    if detail.get("provider") != "khmer_system" or not order.transaction_id or not detail.get("qr_code_url"):
++        return None
++    return {
++        "transaction_id": order.transaction_id,
++        "amount": detail.get("amount", order.total),
++        "currency": detail.get("currency", order.currency),
++        "qr_code_url": detail["qr_code_url"],
++        "status": "pending",
++        "expired_at": detail.get("expired_at"),
++        "provider": "khmer_system",
++    }
++
++
++def verify_payment(order, shop) -> dict:
++    secret_key = _config(shop)
++    if not secret_key:
++        return {"verified": False, "status": "not_configured", "error": "KHMER SYSTEM is not configured"}
++
++    detail = order.payment_detail_dict()
++    verify_key = str(detail.get("verify_key") or "").strip()
++    telegram_user_id = str(detail.get("telegram_user_id") or "").strip()
++    if not verify_key or not telegram_user_id:
++        return {"verified": False, "status": "error", "detail": "Payment reference is missing"}
++
++    payload = _request("GET", "/api/v1/payment/check", params={
++        "secret_key": secret_key,
++        "verify_key": verify_key,
++        "telegram_user_id": telegram_user_id,
++    })
++    status = str(payload.get("status") or "pending").lower()
++    return {
++        "verified": status == "completed",
++        "status": status,
++        "transaction_id": order.transaction_id,
++        "amount": payload.get("amount"),
++        "detail": payload,
++    }
++
++
++def confirm_payment(order, shop) -> None:
++    """Record the completed credit at the provider after local fulfillment starts."""
++    secret_key = _config(shop)
++    detail = order.payment_detail_dict()
++    if not secret_key or not detail.get("verify_key") or not detail.get("telegram_user_id"):
++        return
++    try:
++        _request("POST", "/api/v1/payment/confirm", json={
++            "secret_key": secret_key,
++            "verify_key": detail["verify_key"],
++            "telegram_user_id": detail["telegram_user_id"],
++        })
++    except PaymentGatewayUnavailable:
++        # Payment is already captured locally; later status checks can retry this audit call.
++        return
+diff --git a/Backend_API/test_khmer_system_service.py b/Backend_API/test_khmer_system_service.py
+new file mode 100644
+index 0000000..6ff12d7
+--- /dev/null
++++ b/Backend_API/test_khmer_system_service.py
+@@ -0,0 +1,60 @@
++"""Focused contract tests for the KHMER SYSTEM adapter."""
++import sys
++import unittest
++from types import SimpleNamespace
++
++sys.path.insert(0, ".")
++
++from services import khmer_system_service as service
++
++
++class KhmerSystemServiceTests(unittest.TestCase):
++    def setUp(self):
++        self.shop = SimpleNamespace(aba_dict=lambda: {"khmer_system_secret_key": "sk_live_test"})
++        self.order = SimpleNamespace(
++            total=5.50,
++            currency="USD",
++            transaction_id="TXN_1",
++            customer=SimpleNamespace(telegram_id=123456),
++            payment_detail_dict=lambda: {"verify_key": "Ab12Cd34Ef", "telegram_user_id": "123456"},
++        )
++
++    def test_create_payment_maps_provider_response(self):
++        original = service._request
++        captured = {}
++
++        def fake_request(method, path, **kwargs):
++            captured.update({"method": method, "path": path, **kwargs})
++            return {"success": True, "transaction_id": "TXN_1", "qr_image_url": "https://pay.example/qr", "status": "pending"}
++
++        service._request = fake_request
++        try:
++            result = service.create_payment(self.order, self.shop)
++        finally:
++            service._request = original
++
++        self.assertEqual(captured["method"], "POST")
++        self.assertEqual(captured["path"], "/api/v1/payment/generate")
++        self.assertEqual(captured["json"]["telegram_user_id"], "123456")
++        self.assertRegex(captured["json"]["verify_key"], r"^[A-Za-z0-9]{10}$")
++        self.assertEqual(result["provider"], "khmer_system")
++
++    def test_verify_completed_payment(self):
++        original = service._request
++        service._request = lambda *args, **kwargs: {"success": True, "status": "completed", "amount": 5.50}
++        try:
++            result = service.verify_payment(self.order, self.shop)
++        finally:
++            service._request = original
++
++        self.assertTrue(result["verified"])
++        self.assertEqual(result["status"], "completed")
++
++    def test_missing_telegram_identity_is_rejected(self):
++        self.order.customer.telegram_id = None
++        with self.assertRaises(service.PaymentNotConfigured):
++            service.create_payment(self.order, self.shop)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/Frontend_Dashboard_User/src/pages/PaymentSettings.js b/Frontend_Dashboard_User/src/pages/PaymentSettings.js
+index b8a3740..1ebbb34 100644
+--- a/Frontend_Dashboard_User/src/pages/PaymentSettings.js
++++ b/Frontend_Dashboard_User/src/pages/PaymentSettings.js
+@@ -7,7 +7,7 @@ import { Loading, btnPrimary, btnGhost, inputCls } from '../components/ui';
+ 
+ export default function PaymentSettings() {
+   const { user } = useAuth();
+-  const [aba, setAba] = useState({ profile_id: '', secret_key: '', test_mode: true });
++  const [aba, setAba] = useState({ provider: 'aba', profile_id: '', secret_key: '', khmer_system_secret_key: '', test_mode: true });
+   const [loading, setLoading] = useState(true);
+   const [saving, setSaving] = useState(false);
+   const [testing, setTesting] = useState(false);
+@@ -16,8 +16,10 @@ export default function PaymentSettings() {
+   useEffect(() => {
+     getShopDetail(user.shop_id).then((s) => {
+       setAba({
++        provider: s.aba_settings?.provider || 'aba',
+         profile_id: s.aba_settings?.profile_id || '',
+         secret_key: s.aba_settings?.secret_key || '',
++        khmer_system_secret_key: s.aba_settings?.khmer_system_secret_key || '',
+         test_mode: s.aba_settings?.test_mode ?? true,
+       });
+     }).finally(() => setLoading(false));
+@@ -39,7 +41,7 @@ export default function PaymentSettings() {
+     setTesting(true);
+     try {
+       const res = await testPayment(user.shop_id);
+-      toast.success('ABA configuration valid!');
++      toast.success('Payment configuration valid!');
+       setTestResult(res);
+     } catch (err) {
+       toast.error(err?.response?.data?.detail || 'Test failed');
+@@ -59,20 +61,20 @@ export default function PaymentSettings() {
+         <div className="flex flex-wrap items-start justify-between gap-4">
+           <div className="flex gap-3">
+             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15"><FiCreditCard className="text-xl" /></span>
+-            <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-200">Payment setup</p><h1 className="text-2xl font-black">ABA Pay / KHQR</h1><p className="mt-1 max-w-lg text-sm text-blue-100">Save your merchant details once. Customers will then receive a secure KHQR at checkout.</p></div>
++            <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-200">Payment setup</p><h1 className="text-2xl font-black">KHQR Payment</h1><p className="mt-1 max-w-lg text-sm text-blue-100">Choose your gateway and save the merchant details once. Customers will then receive a secure KHQR at checkout.</p></div>
+           </div>
+-          <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${aba.profile_id && aba.secret_key ? 'bg-emerald-400/20 text-emerald-100' : 'bg-amber-300/20 text-amber-100'}`}>{aba.profile_id && aba.secret_key ? '● Ready to test' : '● Credentials needed'}</span>
++          <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${(aba.provider === 'khmer_system' ? aba.khmer_system_secret_key : aba.profile_id && aba.secret_key) ? 'bg-emerald-400/20 text-emerald-100' : 'bg-amber-300/20 text-amber-100'}`}>{(aba.provider === 'khmer_system' ? aba.khmer_system_secret_key : aba.profile_id && aba.secret_key) ? '● Ready to test' : '● Credentials needed'}</span>
+         </div>
+       </div>
+ 
+       <div className="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-slate-100 space-y-5">
+-        <div><h2 className="font-bold text-slate-900">ព័ត៌មានគណនី ABA</h2><p className="mt-1 text-sm text-slate-500">បញ្ចូល Profile ID និង Secret Key ដែលទទួលពី ABA Pay / KHQRcc។ ព័ត៌មាននេះគឺសម្រាប់ហាងនេះតែប៉ុណ្ណោះ។</p></div>
+-        <div className="grid gap-4 md:grid-cols-2">
+-          <div><label className="mb-1.5 block text-sm font-bold text-slate-700">Profile ID / Merchant ID</label><input value={aba.profile_id} onChange={(e) => setAba({ ...aba, profile_id: e.target.value })} className={inputCls} placeholder="e.g. 102001234567890" autoComplete="off" /></div>
+-          <div><label className="mb-1.5 block text-sm font-bold text-slate-700">Secret Key</label><div className="relative"><input type={showSecret ? 'text' : 'password'} value={aba.secret_key} onChange={(e) => setAba({ ...aba, secret_key: e.target.value })} className={`${inputCls} pr-11`} placeholder="Paste your secret key" autoComplete="new-password" /><button type="button" onClick={() => setShowSecret(!showSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700" aria-label={showSecret ? 'Hide secret key' : 'Show secret key'}>{showSecret ? <FiEyeOff /> : <FiEye />}</button></div></div>
+-        </div>
+-        <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 ${aba.test_mode ? 'border-amber-200 bg-amber-50' : 'border-emerald-200 bg-emerald-50'}`}><input type="checkbox" checked={aba.test_mode} onChange={(e) => setAba({ ...aba, test_mode: e.target.checked })} className="mt-0.5 h-4 w-4" /><span><b className="block text-slate-800">Test mode</b><span className="text-xs text-slate-600">{aba.test_mode ? 'Test payments auto-succeed. Turn this off only when you are ready for real customer payments.' : 'Live mode is enabled. Customers will make real ABA payments.'}</span></span></label>
+-        <div className="flex flex-wrap items-center gap-3 border-t pt-5"><button onClick={save} disabled={saving} className={btnPrimary}>{saving ? 'Saving...' : 'Save ABA settings'}</button><button onClick={runTest} disabled={testing || !aba.profile_id || !aba.secret_key} className={btnGhost}>{testing ? 'Testing...' : <><FiRefreshCw className="inline" /> Test connection</>}</button><span className="flex items-center gap-1 text-xs text-slate-400"><FiLock /> Stored securely for this shop</span></div>
++        <div><h2 className="font-bold text-slate-900">Payment gateway</h2><p className="mt-1 text-sm text-slate-500">Select the payment provider for this shop. The merchant key stays on the server and is never sent to customers.</p></div>
++        <div><label className="mb-1.5 block text-sm font-bold text-slate-700">Provider</label><select value={aba.provider} onChange={(e) => setAba({ ...aba, provider: e.target.value })} className={inputCls}><option value="aba">ABA Pay / KHQRcc</option><option value="khmer_system">KHMER SYSTEM</option></select></div>
++        {aba.provider === 'khmer_system' ? (
++          <div><label className="mb-1.5 block text-sm font-bold text-slate-700">KHMER SYSTEM Secret Key</label><div className="relative"><input type={showSecret ? 'text' : 'password'} value={aba.khmer_system_secret_key} onChange={(e) => setAba({ ...aba, khmer_system_secret_key: e.target.value })} className={`${inputCls} pr-11`} placeholder="sk_live_..." autoComplete="new-password" /><button type="button" onClick={() => setShowSecret(!showSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700" aria-label={showSecret ? 'Hide secret key' : 'Show secret key'}>{showSecret ? <FiEyeOff /> : <FiEye />}</button></div><p className="mt-2 text-xs text-slate-500">Uses the official KHMER SYSTEM API at pay.khmer-system.com. Customers must sign in with Telegram because the provider requires their Telegram ID for each payment.</p></div>
++        ) : <div className="grid gap-4 md:grid-cols-2"><div><label className="mb-1.5 block text-sm font-bold text-slate-700">Profile ID / Merchant ID</label><input value={aba.profile_id} onChange={(e) => setAba({ ...aba, profile_id: e.target.value })} className={inputCls} placeholder="e.g. 102001234567890" autoComplete="off" /></div><div><label className="mb-1.5 block text-sm font-bold text-slate-700">Secret Key</label><div className="relative"><input type={showSecret ? 'text' : 'password'} value={aba.secret_key} onChange={(e) => setAba({ ...aba, secret_key: e.target.value })} className={`${inputCls} pr-11`} placeholder="Paste your secret key" autoComplete="new-password" /><button type="button" onClick={() => setShowSecret(!showSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700" aria-label={showSecret ? 'Hide secret key' : 'Show secret key'}>{showSecret ? <FiEyeOff /> : <FiEye />}</button></div></div></div>}
++        {aba.provider === 'aba' && <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 ${aba.test_mode ? 'border-amber-200 bg-amber-50' : 'border-emerald-200 bg-emerald-50'}`}><input type="checkbox" checked={aba.test_mode} onChange={(e) => setAba({ ...aba, test_mode: e.target.checked })} className="mt-0.5 h-4 w-4" /><span><b className="block text-slate-800">Test mode</b><span className="text-xs text-slate-600">{aba.test_mode ? 'Test payments auto-succeed. Turn this off only when you are ready for real customer payments.' : 'Live mode is enabled. Customers will make real ABA payments.'}</span></span></label>}
++        <div className="flex flex-wrap items-center gap-3 border-t pt-5"><button onClick={save} disabled={saving} className={btnPrimary}>{saving ? 'Saving...' : 'Save payment settings'}</button>{aba.provider === 'aba' && <button onClick={runTest} disabled={testing || !aba.profile_id || !aba.secret_key} className={btnGhost}>{testing ? 'Testing...' : <><FiRefreshCw className="inline" /> Test connection</>}</button>}<span className="flex items-center gap-1 text-xs text-slate-400"><FiLock /> Stored securely for this shop</span></div>
+ 
+         {testResult && (
+           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm">
+diff --git a/Frontend_User/src/pages/Checkout.js b/Frontend_User/src/pages/Checkout.js
+index 794fa60..3d5232d 100644
+--- a/Frontend_User/src/pages/Checkout.js
++++ b/Frontend_User/src/pages/Checkout.js
+@@ -252,6 +252,8 @@ export default function Checkout() {
+ 
+   if (payment) {
+     const payAmount = Number(payment.amount || order?.total || 0).toFixed(2);
++    const isKhmerSystem = payment.provider === 'khmer_system';
++    const paymentTitle = isKhmerSystem ? 'KHMER SYSTEM KHQR' : 'ABA KHQR';
+     return (
+       <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/55 py-8 px-4 backdrop-blur-[2px]" onClick={() => navigate(`/${shop.username}/checkout`)}>
+         <div className="relative max-w-md mx-auto rounded-[1.75rem] bg-white dark:bg-gray-800 px-5 py-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+@@ -265,14 +267,14 @@ export default function Checkout() {
+           </button>
+           <div className="max-w-sm mx-auto flex flex-col items-center">
+             <div className="w-full mb-4 flex items-center gap-3">
+-              <div className="checkout-payment-marks"><img className="checkout-aba-logo" src={ABA_LOGO_URL} alt="ABA Bank" /><img src={KHQR_LOGO_URL} alt="KHQR" /></div>
+-              <div><p className="text-[10px] font-black tracking-[0.12em] text-slate-400">SECURE PAYMENT</p><h2 className="text-xl font-black text-slate-900 dark:text-white">ABA KHQR</h2></div>
++              <div className="checkout-payment-marks">{!isKhmerSystem && <img className="checkout-aba-logo" src={ABA_LOGO_URL} alt="ABA Bank" />}<img src={KHQR_LOGO_URL} alt="KHQR" /></div>
++              <div><p className="text-[10px] font-black tracking-[0.12em] text-slate-400">SECURE PAYMENT</p><h2 className="text-xl font-black text-slate-900 dark:text-white">{paymentTitle}</h2></div>
+             </div>
+           {/* Header: ABA PayWay + timer */}
+           <div className="hdr">
+             <div className="hdr-inner">
+               <div className="hdr-row">
+-                <h3>ABA PayWay</h3>
++                <h3>{isKhmerSystem ? 'KHMER SYSTEM' : 'ABA PayWay'}</h3>
+                 <div className="timer-box">
+                   <FiLoader className="timer-spin" />
+                   <span className="timer-txt">
+@@ -289,7 +291,7 @@ export default function Checkout() {
+           <div className="qr-area">
+             <div className="qr-card-new">
+               <div className="qr-info pt-5">
+-                <span className="block text-sm font-bold text-[var(--primary)]">ABA KHQR · REAL PAYMENT</span>
++                <span className="block text-sm font-bold text-[var(--primary)]">{paymentTitle} · REAL PAYMENT</span>
+                 <span className="qr-merch">{(shop.shop_name || shop.username).toUpperCase()}</span>
+                 <div className="qr-amt-row">
+                   {payAmount} <span className="qr-amt-cur">{shop.currency}</span>
+@@ -333,7 +335,7 @@ export default function Checkout() {
+           {/* Payments stay on the storefront; the QR is scanned in ABA Mobile. */}
+           <div className="space-y-3 mt-6 w-full">
+             <div className="w-full rounded-xl bg-[var(--primary)] px-4 py-3.5 text-center font-bold text-white shadow-sm">
+-              Scan the QR above with ABA Mobile
++              Scan the QR above with your banking app
+             </div>
+             <button
+               onClick={handleAlreadyPaid}
+diff --git a/README.md b/README.md
+index 90f2bc7..a929fd3 100644
+--- a/README.md
++++ b/README.md
+@@ -1,4 +1,4 @@
+-﻿# MiniShop - Multi-Store E-Commerce Platform
++# MiniShop - Multi-Store E-Commerce Platform
+ 
+ A complete multi-tenant e-commerce platform where every shop gets its own storefront, dashboard, POS, ABA Pay (KHQR) checkout, PDF invoices, Telegram notifications, and reseller commissions.
+ 
+@@ -104,6 +104,16 @@ This project is designed for development and learning. Before deploying to produ
+ | Rate limiting | Add API rate limiting |
+ | Backups | Set up automatic backups |
+ 
++### KHMER SYSTEM KHQR gateway
++
++Each shop can select **KHMER SYSTEM** in Shop Dashboard -> Payment Settings and
++save its merchant `sk_live_...` secret key. The server calls the official
++`https://pay.khmer-system.com` API to generate a unique QR, poll payment status,
++and confirm the credit after the order is marked paid. The provider requires the
++paying customer to have signed in with Telegram because its API uses that
++customer's numeric Telegram ID for each transaction. Never put the secret key in
++frontend environment variables or client-side code.
++
+ ### Security Features Built In
+ - bcrypt password hashing
+ - JWT bearer tokens with expiration
+-- 
+2.47.3
+
