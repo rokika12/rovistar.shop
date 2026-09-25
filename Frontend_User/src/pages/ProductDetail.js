@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiChevronLeft, FiPlayCircle, FiShoppingBag, FiZap } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiMaximize2, FiPlayCircle, FiShoppingBag, FiX, FiZap } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../i18n';
@@ -23,6 +23,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedVariations, setSelectedVariations] = useState({});
   const [activeImage, setActiveImage] = useState(0);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const [serviceLink, setServiceLink] = useState('');
   const [gameServerId, setGameServerId] = useState('');
   const [robloxAccount, setRobloxAccount] = useState(null);
@@ -68,6 +69,23 @@ export default function ProductDetail() {
   const effectiveStock = currentVariation?.quantity ?? product?.quantity ?? 0;
   // Use the package artwork throughout checkout so staff sees exactly what was selected.
   const packageImage = currentVariation?.image_url || currentVariation?.image || null;
+  const galleryImages = [...new Set([packageImage, ...(product?.images || [])].filter(Boolean))];
+  const displayedImage = galleryImages[activeImage] || galleryImages[0] || null;
+
+  const selectGalleryImage = (index) => {
+    setActiveImage((index + galleryImages.length) % galleryImages.length);
+  };
+
+  useEffect(() => {
+    if (!galleryOpen) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setGalleryOpen(false);
+      if (galleryImages.length > 1 && event.key === 'ArrowLeft') setActiveImage((current) => (current - 1 + galleryImages.length) % galleryImages.length);
+      if (galleryImages.length > 1 && event.key === 'ArrowRight') setActiveImage((current) => (current + 1) % galleryImages.length);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [galleryImages.length, galleryOpen]);
 
   if (loading) return <Loading />;
   if (!product) {
@@ -164,20 +182,23 @@ export default function ProductDetail() {
         {/* Gallery */}
         <div>
           <div className={`aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden ${isKaidoStore ? 'kaido-account-gallery' : ''}`}>
-            {packageImage || (product.images && product.images.length > 0) ? (
-              <img src={fullUrl(packageImage || product.images[activeImage])} alt={packageImage ? 'Selected package' : product.name} className="w-full h-full object-cover" />
+            {displayedImage ? (
+              <button type="button" className="kaido-gallery-main-image" onClick={() => setGalleryOpen(true)} aria-label="View full size image">
+                <img src={fullUrl(displayedImage)} alt={packageImage && displayedImage === packageImage ? 'Selected package' : product.name} className="w-full h-full object-cover" />
+                <span className="kaido-gallery-expand"><FiMaximize2 /> មើលរូបពេញ</span>
+              </button>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
                 <FiShoppingBag className="w-16 h-16" />
               </div>
             )}
           </div>
-          {product.images && product.images.length > 1 && (
+          {galleryImages.length > 1 && (
             <div className={`flex gap-2 mt-3 ${isKaidoStore ? 'kaido-account-thumbnails' : ''}`}>
-              {product.images.map((img, i) => (
+              {galleryImages.map((img, i) => (
                 <button
                   key={i}
-                  onClick={() => setActiveImage(i)}
+                  onClick={() => selectGalleryImage(i)}
                   className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${activeImage === i ? 'border-primary' : 'border-transparent'}`}
                 >
                   <img src={fullUrl(img)} alt="" className="w-full h-full object-cover" />
@@ -384,6 +405,16 @@ export default function ProductDetail() {
           )}
         </div>
       </div>
+
+      {galleryOpen && displayedImage && (
+        <div className="kaido-gallery-lightbox" role="dialog" aria-modal="true" aria-label="Full size product image" onClick={() => setGalleryOpen(false)}>
+          <button type="button" className="kaido-gallery-close" onClick={() => setGalleryOpen(false)} aria-label="Close full size image"><FiX /></button>
+          {galleryImages.length > 1 && <button type="button" className="kaido-gallery-nav kaido-gallery-prev" onClick={(event) => { event.stopPropagation(); selectGalleryImage(activeImage - 1); }} aria-label="Previous image"><FiChevronLeft /></button>}
+          <img src={fullUrl(displayedImage)} alt={product.name} className="kaido-gallery-lightbox-image" onClick={(event) => event.stopPropagation()} />
+          {galleryImages.length > 1 && <button type="button" className="kaido-gallery-nav kaido-gallery-next" onClick={(event) => { event.stopPropagation(); selectGalleryImage(activeImage + 1); }} aria-label="Next image"><FiChevronRight /></button>}
+          {galleryImages.length > 1 && <p className="kaido-gallery-counter">{activeImage + 1} / {galleryImages.length}</p>}
+        </div>
+      )}
 
       {/* Related products */}
       {related.length > 0 && (
