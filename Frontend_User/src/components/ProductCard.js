@@ -19,13 +19,13 @@ export default function ProductCard({ product, variant = 'standard' }) {
 
   return (
     <article className={`store-product-card store-product-card-${variant} ${isKaidoStore ? 'kaido-account-card' : ''} bg-white dark:bg-gray-800 overflow-hidden transition group flex flex-col h-full`}>
-      {!isKaidoStore && <Link to={`/${shop.username}/product/${product.id}`} className="block relative">
+      <Link to={`/${shop.username}/product/${product.id}`} className="block relative">
         <div className="store-product-image aspect-[1.35/1] bg-slate-100 dark:bg-gray-700 overflow-hidden">
           {product.images?.[0] && !imageFailed ? <img src={fullUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover bg-slate-50 group-hover:scale-105 transition duration-300" onError={() => setImageFailed(true)} /> : <div className="w-full h-full flex items-center justify-center bg-slate-100 text-blue-500"><FiShoppingBag className="w-10 h-10" /></div>}
         </div>
         {hasSale && <span className="store-sale-badge absolute top-3 right-3">SALE -{discount}%</span>}
         {product.featured && <span className="store-hot-badge absolute top-3 left-3">HOT</span>}
-      </Link>}
+      </Link>
       <div className="p-3 sm:p-4 flex flex-col flex-1">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.1em] truncate">{product.category_name || 'Rovistar item'}</p>
