@@ -729,7 +729,7 @@ body {
 .dark .store-product-detail-panel { border-color: #334155; background: #1f2937; }
 
 /* KaidoStore sells visual game accounts, so only this shop uses large catalog art and a scan-first payment view. */
-.kaido-account-grid { display: grid; grid-template-columns: minmax(0, 42rem); justify-content: center; gap: 1.5rem; }
+.kaido-account-grid { display: none; }
 .kaido-account-card { border: 2px solid #f3a7c4; border-radius: 1.5rem; box-shadow: 0 18px 42px rgba(205, 40, 111, 0.14); }
 .kaido-account-card .store-product-image { aspect-ratio: 16 / 10; background: #251027; }
 .kaido-account-card .store-product-image img { object-fit: contain; background: #120d18; }
