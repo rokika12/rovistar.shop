@@ -338,11 +338,22 @@ export default function ProductDetail() {
           )}
 
           {/* Direct digital purchase */}
-          {!manualService && <div className="flex items-center gap-4 mt-8">
+          {!manualService && (isKaidoStore ? (
+            <div className="mt-8 space-y-3">
+              <div className="flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 border-blue-500 bg-blue-50 p-3 text-left shadow-sm">
+                <span className="h-14 w-14 shrink-0 overflow-hidden rounded-xl shadow-sm"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="h-full w-full object-cover" /></span>
+                <span className="min-w-0 flex-1"><strong className="block text-blue-950">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Pay securely and receive a QR code to scan</span></span>
+                <strong className="shrink-0 text-sm text-blue-900">{Number(effectivePrice).toFixed(2)} {shop.currency}</strong>
+              </div>
+              <button onClick={() => buyNow('khqr')} disabled={!isAvailable} className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold text-white hover:bg-blue-700 disabled:opacity-50">
+                <FiZap /> Pay with ABA KHQR
+              </button>
+            </div>
+          ) : <div className="flex items-center gap-4 mt-8">
             <button onClick={buyNow} disabled={!isAvailable} className="flex-1 px-5 py-3 rounded-xl bg-primary text-white font-bold hover:brightness-95 disabled:opacity-50 flex items-center justify-center gap-2">
-              <FiZap /> {manualService ? 'Continue' : 'Buy Now'}
+              <FiZap /> Buy Now
             </button>
-          </div>}
+          </div>)}
           {displayAttrs.length > 0 && (
             <div className="mt-8 border-t pt-6">
               <h3 className="font-bold mb-3">{t('productDetails')}</h3>
