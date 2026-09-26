@@ -741,30 +741,49 @@ body {
 .kaido-support-link span, .kaido-support-link b, .kaido-support-link small { display: block; }
 .kaido-support-link b { color: #0f4870; font-size: 0.78rem; font-weight: 900; }
 .kaido-support-link small { margin-top: 0.1rem; color: #4182a3; font-size: 0.66rem; font-weight: 700; }
-.kaido-quick-strip { display: flex; gap: 0.65rem; overflow-x: auto; margin: 0 -0.25rem 1.75rem; padding: 0.25rem 0.25rem 0.55rem; scrollbar-width: none; scroll-snap-type: x mandatory; }
-.kaido-quick-strip::-webkit-scrollbar { display: none; }
-.kaido-quick-item { display: flex; min-width: 16.5rem; align-items: center; gap: 0.62rem; border: 1px solid #d9e6f2; border-radius: 1rem; background: #fff; padding: 0.55rem; color: #17355a; box-shadow: 0 8px 20px rgba(31, 63, 107, 0.07); scroll-snap-align: start; transition: transform 160ms ease, box-shadow 160ms ease; }
-.kaido-quick-item:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(31, 63, 107, 0.12); }
-.kaido-quick-image { display: grid; width: 2.9rem; height: 2.9rem; flex: 0 0 auto; place-items: center; overflow: hidden; border-radius: 0.7rem; background: #eff4fa; }
-.kaido-quick-image img { width: 100%; height: 100%; object-fit: contain; }
-.kaido-quick-copy { min-width: 0; flex: 1; }
-.kaido-quick-copy b, .kaido-quick-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kaido-quick-copy b { font-size: 0.76rem; font-weight: 900; }
-.kaido-quick-copy small { margin-top: 0.12rem; color: #136fd1; font-size: 0.73rem; font-weight: 900; }
-.kaido-quick-item em { border-radius: 999px; background: #fbe1eb; padding: 0.25rem 0.42rem; color: #bf2768; font-size: 0.56rem; font-style: normal; font-weight: 950; letter-spacing: 0.06em; }
+.kaido-filter-pills { display: flex; flex-wrap: wrap; gap: 0.48rem; margin-bottom: 1.35rem; }
+.kaido-filter-pill { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.35rem; border: 1px solid #dbe3ee; border-radius: 999px; background: rgba(255, 255, 255, 0.86); padding: 0.32rem 0.42rem 0.32rem 0.82rem; color: #52617a; font-size: 0.72rem; font-weight: 850; box-shadow: 0 4px 14px rgba(31, 63, 107, 0.05); transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease; }
+.kaido-filter-pill:hover { border-color: #ef8ab3; color: #b62161; transform: translateY(-1px); }
+.kaido-filter-pill b { display: grid; min-width: 1.65rem; height: 1.65rem; place-items: center; border-radius: 999px; background: #edf2f7; padding: 0 0.35rem; color: #637189; font-size: 0.65rem; font-weight: 950; }
+.kaido-filter-pill-active { border-color: #d62b72; background: #d62b72; color: #fff; box-shadow: 0 7px 18px rgba(198, 37, 105, 0.22); }
+.kaido-filter-pill-active:hover { border-color: #b91f5b; background: #b91f5b; color: #fff; }
+.kaido-filter-pill-active b { background: #fff; color: #c82570; }
 .kaido-catalog-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 0.85rem; border-bottom: 1px solid #e8dce3; padding-bottom: 0.75rem; }
 .kaido-catalog-heading h2 { margin: 0.25rem 0 0; color: #17213e; font-size: 1.3rem; font-weight: 950; letter-spacing: -0.04em; }
 .kaido-catalog-heading > b { color: #637189; font-size: 0.72rem; font-weight: 900; }
 .kaido-account-list { display: grid; gap: 1rem; }
-.kaido-account-list .kaido-account-card { display: grid; grid-template-columns: minmax(13.5rem, 31%) minmax(0, 1fr); min-height: 15rem; }
-.kaido-account-list .kaido-account-card > a { min-width: 0; height: 100%; }
-.kaido-account-list .kaido-account-card .store-product-image { height: 100%; min-height: 15rem; }
-.kaido-account-list .kaido-account-card .store-product-image { background: linear-gradient(135deg, #f6f9fc, #eef4fb); }
-.kaido-account-list .kaido-account-card .store-product-image img { height: 100%; object-fit: contain; }
-.kaido-account-list .kaido-account-card > div { justify-content: center; padding: 1.4rem 1.6rem; }
-.kaido-account-list .kaido-account-card h3 { margin-right: 2rem; font-size: 1.23rem; }
-.kaido-account-list .kaido-account-card p { max-width: 45rem; }
-.kaido-account-list .kaido-account-card .mt-4 { align-self: flex-start; width: min(100%, 16rem); min-height: 0; }
+.kaido-promo-card { display: grid; grid-template-columns: 12.5rem minmax(0, 1fr) 9.5rem 9.25rem; min-height: 8.75rem; overflow: hidden; border: 1px solid #e2d7de; border-radius: 1.1rem; background: #fff; box-shadow: 0 12px 30px rgba(67, 43, 59, 0.08); transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; }
+.kaido-promo-card:hover { border-color: #eca3c0; box-shadow: 0 17px 36px rgba(147, 45, 89, 0.14); transform: translateY(-2px); }
+.kaido-promo-artwork { position: relative; display: grid; min-width: 0; place-items: center; overflow: hidden; background: linear-gradient(135deg, #eff4f8, #e9eff5); }
+.kaido-promo-artwork::after { position: absolute; inset: 0; background: linear-gradient(90deg, transparent 70%, rgba(255, 255, 255, 0.16)); content: ''; pointer-events: none; }
+.kaido-promo-artwork img { width: 100%; height: 100%; min-height: 8.75rem; object-fit: cover; transition: transform 300ms ease; }
+.kaido-promo-card:hover .kaido-promo-artwork img { transform: scale(1.035); }
+.kaido-promo-artwork > span { display: grid; width: 100%; height: 100%; min-height: 8.75rem; place-items: center; color: #cf3376; }
+.kaido-promo-artwork svg { width: 2.25rem; height: 2.25rem; }
+.kaido-promo-info { display: flex; min-width: 0; flex-direction: column; justify-content: center; padding: 0.9rem 1.1rem; }
+.kaido-promo-category { overflow: hidden; margin: 0; color: #c82570; font-size: 0.61rem; font-weight: 950; letter-spacing: 0.11em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.kaido-promo-info h3 { overflow: hidden; margin: 0.28rem 0 0; color: #17213e; font-size: 1rem; font-weight: 950; letter-spacing: -0.025em; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; transition: color 160ms ease; }
+.kaido-promo-info h3:hover { color: #c82570; }
+.kaido-promo-description { display: -webkit-box; overflow: hidden; margin: 0.28rem 0 0; color: #718096; font-size: 0.68rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+.kaido-promo-price { display: flex; align-items: baseline; gap: 0.38rem; margin-top: 0.38rem; }
+.kaido-promo-price strong { color: #1169c4; font-size: 1.28rem; font-weight: 950; letter-spacing: -0.045em; }
+.kaido-promo-price span { color: #93a0b2; font-size: 0.56rem; font-weight: 900; }
+.kaido-promo-price del { color: #a8b1bf; font-size: 0.67rem; font-weight: 700; }
+.kaido-promo-benefits { display: grid; align-content: center; gap: 0.48rem; margin: 0; border-left: 1px solid #edf0f4; padding: 0.8rem 1rem; list-style: none; }
+.kaido-promo-benefits li { display: flex; align-items: center; gap: 0.48rem; color: #46566d; font-size: 0.67rem; font-weight: 800; white-space: nowrap; }
+.kaido-promo-benefits svg { width: 0.95rem; height: 0.95rem; flex: 0 0 auto; color: #0da979; }
+.kaido-promo-action { display: flex; flex-direction: column; justify-content: center; gap: 0.55rem; padding: 0.85rem; text-align: center; }
+.kaido-promo-action small { font-size: 0.58rem; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; }
+.kaido-stock-available { color: #10936b; }
+.kaido-stock-sold { color: #d34c5b; }
+.kaido-promo-action a, .kaido-promo-action > span { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; gap: 0.42rem; border-radius: 0.78rem; padding: 0.65rem 0.8rem; color: #fff; font-size: 0.76rem; font-weight: 950; }
+.kaido-promo-action a { background: linear-gradient(135deg, #f13d7b, #c62168 58%, #1769c6); box-shadow: 0 9px 18px rgba(198, 33, 104, 0.22); transition: box-shadow 160ms ease, transform 160ms ease; }
+.kaido-promo-action a:hover { box-shadow: 0 12px 22px rgba(198, 33, 104, 0.3); transform: translateY(-1px); }
+.kaido-promo-action a svg { width: 0.95rem; height: 0.95rem; }
+.kaido-promo-action > span { background: #a8b1bf; }
+.kaido-filter-empty { display: grid; min-height: 10rem; place-items: center; align-content: center; gap: 0.7rem; border: 1px dashed #dfbdca; border-radius: 1rem; background: rgba(255, 255, 255, 0.68); color: #8792a5; text-align: center; }
+.kaido-filter-empty svg { width: 1.75rem; height: 1.75rem; color: #cf5b89; }
+.kaido-filter-empty p { margin: 0; font-size: 0.78rem; font-weight: 750; }
 .kaido-account-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.9rem; }
 .kaido-account-card { border: 2px solid #f3a7c4; border-radius: 1rem; box-shadow: 0 12px 28px rgba(205, 40, 111, 0.12); }
 .kaido-account-card .store-product-image { aspect-ratio: auto; height: auto; background: #fff; }
@@ -803,15 +822,20 @@ body {
   .kaido-catalog-intro h1 { font-size: 2.2rem; }
   .kaido-catalog-intro p { font-size: 0.8rem; }
   .kaido-support-link { width: 100%; min-width: 0; margin-top: 1rem; }
-  .kaido-quick-strip { margin-bottom: 1.25rem; }
-  .kaido-quick-item { min-width: min(82vw, 17rem); }
+  .kaido-filter-pills { flex-wrap: nowrap; overflow-x: auto; margin-right: -1rem; margin-bottom: 1.15rem; padding-right: 1rem; padding-bottom: 0.2rem; scrollbar-width: none; }
+  .kaido-filter-pills::-webkit-scrollbar { display: none; }
+  .kaido-filter-pill { flex: 0 0 auto; min-height: 2.2rem; }
   .kaido-account-list { gap: 0.75rem; }
-  .kaido-account-list .kaido-account-card { display: flex; min-height: 0; }
-  .kaido-account-list .kaido-account-card .store-product-image { min-height: 0; height: auto; }
-  .kaido-account-list .kaido-account-card .store-product-image img { height: auto; object-fit: contain; }
-  .kaido-account-list .kaido-account-card > div { padding: 1rem; }
-  .kaido-account-list .kaido-account-card h3 { font-size: 1.05rem; }
-  .kaido-account-list .kaido-account-card .mt-4 { width: 100%; }
+  .kaido-promo-card { display: flex; min-height: 0; flex-direction: column; }
+  .kaido-promo-artwork { min-height: 10.5rem; aspect-ratio: 16 / 9; }
+  .kaido-promo-artwork img, .kaido-promo-artwork > span { min-height: 10.5rem; }
+  .kaido-promo-info { padding: 0.9rem 1rem 0.65rem; }
+  .kaido-promo-info h3 { font-size: 1.02rem; white-space: normal; }
+  .kaido-promo-description { -webkit-line-clamp: 2; }
+  .kaido-promo-benefits { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.3rem; border-top: 1px solid #edf0f4; border-left: 0; padding: 0.68rem 1rem; }
+  .kaido-promo-benefits li { gap: 0.3rem; font-size: 0.58rem; white-space: normal; }
+  .kaido-promo-action { padding: 0 1rem 1rem; }
+  .kaido-promo-action a, .kaido-promo-action > span { width: 100%; }
   .kaido-account-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
   .kaido-account-card > div { padding: 1rem; }
   .kaido-account-card h3 { font-size: 1.12rem; }

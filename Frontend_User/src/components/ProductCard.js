@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowUpRight, FiShoppingBag } from 'react-icons/fi';
+import { FiArrowRight, FiArrowUpRight, FiHeadphones, FiShield, FiShoppingBag, FiZap } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { fullUrl } from '../api';
 
@@ -16,6 +16,50 @@ export default function ProductCard({ product, variant = 'standard' }) {
   const isDigital = metadata.product_type === 'digital';
   const isManualService = metadata.fulfillment_type === 'manual_service';
   const isAvailable = isManualService ? !metadata.manual_service_out_of_stock : product.quantity > 0;
+
+  if (isKaidoStore && variant === 'kaido-list') {
+    const productLink = `/${shop.username}/product/${product.id}`;
+
+    return (
+      <article className="kaido-promo-card">
+        <Link to={productLink} className="kaido-promo-artwork" aria-label={`View ${product.name}`}>
+          {product.images?.[0] && !imageFailed ? (
+            <img src={fullUrl(product.images[0])} alt={product.name} onError={() => setImageFailed(true)} />
+          ) : (
+            <span><FiShoppingBag /></span>
+          )}
+        </Link>
+
+        <div className="kaido-promo-info">
+          <p className="kaido-promo-category">{product.category_name || 'Game account'}</p>
+          <Link to={productLink}><h3>{product.name}</h3></Link>
+          <p className="kaido-promo-description">{description || 'A verified game account, ready for its next player.'}</p>
+          <div className="kaido-promo-price">
+            <strong>${Number(price).toFixed(2)}</strong>
+            <span>{shop.currency}</span>
+            {hasSale && <del>${Number(product.price).toFixed(2)}</del>}
+          </div>
+        </div>
+
+        <ul className="kaido-promo-benefits" aria-label="Purchase benefits">
+          <li><FiZap /><span>Instant access</span></li>
+          <li><FiShield /><span>100% safe</span></li>
+          <li><FiHeadphones /><span>Support</span></li>
+        </ul>
+
+        <div className="kaido-promo-action">
+          <small className={isAvailable ? 'kaido-stock-available' : 'kaido-stock-sold'}>
+            {isAvailable ? 'Ready to play' : 'Currently unavailable'}
+          </small>
+          {isAvailable ? (
+            <Link to={productLink}>Buy Now <FiArrowRight /></Link>
+          ) : (
+            <span>Sold out</span>
+          )}
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className={`store-product-card store-product-card-${variant} ${isKaidoStore ? 'kaido-account-card' : ''} bg-white dark:bg-gray-800 overflow-hidden transition group flex flex-col h-full`}>

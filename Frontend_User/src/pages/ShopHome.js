@@ -22,6 +22,7 @@ export default function ShopHome() {
   const [categories, setCategories] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [kaidoFilter, setKaidoFilter] = useState('all');
 
   useEffect(() => {
     if (!shop) return;
@@ -55,6 +56,22 @@ export default function ShopHome() {
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
+  const categoryNames = new Map(categories.map((category) => [String(category.id), category.name]));
+  const getKaidoProductType = (product) => {
+    const categoryName = product.category_name || categoryNames.get(String(product.category_id)) || '';
+    const searchableText = `${categoryName} ${product.name || ''}`.toLowerCase();
+    if (searchableText.includes('free fire')) return 'free-fire';
+    if (searchableText.includes('mlbb') || searchableText.includes('mobile legends')) return 'mlbb';
+    return 'other';
+  };
+  const kaidoFilters = [
+    { id: 'all', label: 'All', count: allProducts.length },
+    { id: 'free-fire', label: 'Account Free Fire', count: allProducts.filter((product) => getKaidoProductType(product) === 'free-fire').length },
+    { id: 'mlbb', label: 'Account MLBB', count: allProducts.filter((product) => getKaidoProductType(product) === 'mlbb').length },
+  ];
+  const kaidoProducts = kaidoFilter === 'all'
+    ? allProducts
+    : allProducts.filter((product) => getKaidoProductType(product) === kaidoFilter);
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : '');
   const appearance = shop.theme?.appearance || {};
@@ -153,24 +170,34 @@ export default function ShopHome() {
               </a>
             )}
           </div>
-          <div className="kaido-quick-strip" aria-label="Quick account picks">
-            {allProducts.map((product) => (
-              <Link key={`quick-${product.id}`} to={`/${shop.username}/product/${product.id}`} className="kaido-quick-item">
-                <span className="kaido-quick-image">
-                  {product.images?.[0] && <img src={fullUrl(product.images[0])} alt="" />}
-                </span>
-                <span className="kaido-quick-copy"><b>{product.name}</b><small>${Number(product.sale_price ?? product.price).toFixed(2)}</small></span>
-                <em>VIEW</em>
-              </Link>
+          <div className="kaido-filter-pills" role="group" aria-label="Filter game accounts">
+            {kaidoFilters.map((filter) => (
+              <button
+                key={filter.id}
+                type="button"
+                className={kaidoFilter === filter.id ? 'kaido-filter-pill kaido-filter-pill-active' : 'kaido-filter-pill'}
+                aria-pressed={kaidoFilter === filter.id}
+                onClick={() => setKaidoFilter(filter.id)}
+              >
+                <span>{filter.label}</span>
+                <b>{filter.count}</b>
+              </button>
             ))}
           </div>
           <div className="kaido-catalog-heading">
             <div><span>AVAILABLE NOW</span><h2>Game accounts</h2></div>
-            <b>{allProducts.length} accounts</b>
+            <b>{kaidoProducts.length} {kaidoProducts.length === 1 ? 'account' : 'accounts'}</b>
           </div>
-          <div className="kaido-account-list">
-            {allProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-list" />)}
-          </div>
+          {kaidoProducts.length > 0 ? (
+            <div className="kaido-account-list">
+              {kaidoProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-list" />)}
+            </div>
+          ) : (
+            <div className="kaido-filter-empty">
+              <FiShoppingBag />
+              <p>No accounts are available in this category yet.</p>
+            </div>
+          )}
         </section>
       )}
 
