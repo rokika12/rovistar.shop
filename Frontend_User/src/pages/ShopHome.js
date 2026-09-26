@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FiCreditCard, FiHeadphones, FiShoppingBag, FiSmartphone,
+  FiCreditCard, FiHeadphones, FiMessageCircle, FiShield, FiShoppingBag, FiSmartphone,
   FiTruck, FiZap,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
@@ -55,6 +55,8 @@ export default function ShopHome() {
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
+  const supportLink = shop.social_media?.telegram
+    || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : '');
   const appearance = shop.theme?.appearance || {};
   const productRailClass = appearance.product_direction === 'right' ? 'domi-rail-right' : 'domi-rail-left';
 
@@ -87,7 +89,7 @@ export default function ShopHome() {
         </section>
       )}
 
-      {!loading && allProducts.length > 0 && appearance.show_product_marquee !== false && (
+      {!isKaidoStore && !loading && allProducts.length > 0 && appearance.show_product_marquee !== false && (
         <section className="domi-promo-rails" aria-label="Featured offers">
           <div className={`domi-rail marquee-product-text-${appearance.product_text_color || 'default'}`}><div className={`domi-rail-track ${productRailClass}`} style={{ '--rail-duration': appearance.product_speed === 'fast' ? '7s' : appearance.product_speed === 'normal' ? '12s' : '20s' }}>{Array.from({ length: 6 }, () => allProducts).flat().map((product, index) => <Link key={`product-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><b>VIEW</b></Link>)}</div></div>
         </section>
@@ -137,8 +139,27 @@ export default function ShopHome() {
       )}
 
       {isKaidoStore && !loading && allProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-6">
-          <ProductRow products={allProducts} />
+        <section className="kaido-catalog max-w-6xl mx-auto px-4 py-7 md:py-10">
+          <div className="kaido-catalog-intro">
+            <div>
+              <span className="kaido-eyebrow"><FiShield /> Verified game accounts</span>
+              <h1>Pick your next account.</h1>
+              <p>មើល Account ពេញលេញ រួចជ្រើសរើសទិញបានភ្លាមៗ។ ទំនិញថ្មីៗបង្ហាញចុះក្រោម ងាយស្រួលមើល និងប្រៀបធៀប។</p>
+            </div>
+            {supportLink && (
+              <a className="kaido-support-link" href={supportLink} target="_blank" rel="noreferrer">
+                <FiMessageCircle />
+                <span><b>Need help choosing?</b><small>Chat with Kaido Store support</small></span>
+              </a>
+            )}
+          </div>
+          <div className="kaido-catalog-heading">
+            <div><span>AVAILABLE NOW</span><h2>Game accounts</h2></div>
+            <b>{allProducts.length} accounts</b>
+          </div>
+          <div className="kaido-account-list">
+            {allProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-list" />)}
+          </div>
         </section>
       )}
 
