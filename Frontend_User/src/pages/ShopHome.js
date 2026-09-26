@@ -153,6 +153,17 @@ export default function ShopHome() {
               </a>
             )}
           </div>
+          <div className="kaido-quick-strip" aria-label="Quick account picks">
+            {allProducts.map((product) => (
+              <Link key={`quick-${product.id}`} to={`/${shop.username}/product/${product.id}`} className="kaido-quick-item">
+                <span className="kaido-quick-image">
+                  {product.images?.[0] && <img src={fullUrl(product.images[0])} alt="" />}
+                </span>
+                <span className="kaido-quick-copy"><b>{product.name}</b><small>${Number(product.sale_price ?? product.price).toFixed(2)}</small></span>
+                <em>VIEW</em>
+              </Link>
+            ))}
+          </div>
           <div className="kaido-catalog-heading">
             <div><span>AVAILABLE NOW</span><h2>Game accounts</h2></div>
             <b>{allProducts.length} accounts</b>
