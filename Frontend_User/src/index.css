@@ -1216,3 +1216,7 @@ body {
 .kaido-game-card-body { padding: 1.05rem; }.kaido-game-card h3 { color: #142b4e; font-family: 'Kantumruy Pro', 'Manrope', sans-serif; font-size: 1.05rem; }.kaido-game-card h3:hover { color: #dc2c7c; }.kaido-game-card-body > p { color: #667d9d; font-weight: 700; }.kaido-game-assurance { color: #168a72; }.kaido-game-card-footer strong { color: #142b4e; }.kaido-game-card-footer small { color: #dc2c7c; }.kaido-game-card-footer > a { border-radius: 999px; background: linear-gradient(135deg, #e83787, #ff86ba); padding: 0.62rem 0.85rem; box-shadow: 0 7px 14px rgba(232, 55, 135, 0.22); }.kaido-game-card-footer > span { border-radius: 999px; background: #e9eef5; color: #71829a; }
 .kaido-trust-card { border-color: #e0e8f3; background: #fff; box-shadow: 0 12px 25px rgba(25, 65, 117, 0.08); }.kaido-trust-copy p { color: #dc2c7c; }.kaido-trust-copy h3 { color: #17365f; }.kaido-trust-copy > span { color: #52749d; background: #f4f8fc; border-color: #e1e9f3; }
 @media (max-width: 960px) { .kaido-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Keep the Kaido wordmark readable on its white header. */
+.kaido-store-shell .store-brand-kaido .store-brand-copy strong { background: none; color: #111827; -webkit-text-fill-color: #111827; text-shadow: none; }
+.kaido-store-shell .store-brand-kaido .store-brand-copy small { color: #334155; }
