@@ -61,8 +61,7 @@ export default function ShopHome() {
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
-  const discountedProducts = allProducts.filter((product) => getValidDiscount(product) !== null);
-  const kaidoDiscountedAccounts = discountedProducts.slice(0, 8);
+  const kaidoRailProducts = allProducts.slice(0, 10);
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : 'https://t.me/kaidokmglaor');
   const appearance = shop.theme?.appearance || {};
@@ -102,12 +101,39 @@ export default function ShopHome() {
       {slides.length > 0 && (
         <section className={`${isKaidoStore ? 'kaido-banner-wrap' : 'max-w-7xl mx-auto px-4 pt-6 md:pt-8'}`}>
           <Slideshow slides={slides} />
-          {isKaidoStore && (
-            <a className="kaido-banner-assistant" href={supportLink} target="_blank" rel="noreferrer" aria-label="Chat with Kaido assistant on Telegram">
-              <img src="/assets/kaido-support-mascot.svg" alt="Kaido assistant" />
-              <span><b>Need help?</b><small>Chat with Kaido</small></span>
-            </a>
-          )}
+        </section>
+      )}
+
+      {isKaidoStore && !loading && kaidoRailProducts.length > 0 && (
+        <section className="kaido-discount-section" aria-labelledby="kaido-discounted-accounts-title">
+          <div className="kaido-discount-heading">
+            <div>
+              <span className="kaido-discount-kicker"><FiZap /> Kaido game deals</span>
+              <h2 id="kaido-discounted-accounts-title">Discount Coupons</h2>
+              <p>ទំនិញថ្មីៗកំពុងរត់ <span>Live game accounts</span></p>
+            </div>
+            <span className="kaido-discount-count">{kaidoRailProducts.length} accounts</span>
+          </div>
+          <div className="kaido-discount-rail" aria-label="Kaido game account gallery">
+            <div className="kaido-discount-track">
+              {[...kaidoRailProducts, ...kaidoRailProducts].map((product, index) => {
+                const discount = getValidDiscount(product);
+                const displayPrice = Number(product.sale_price ?? product.price);
+                return (
+                  <Link key={`${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`} className="kaido-discount-ticket">
+                    <span className="kaido-ticket-image">
+                      {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt={product.name} /> : <FiShoppingBag />}
+                    </span>
+                    <span className="kaido-ticket-copy">
+                      <b>{product.name}</b>
+                      <small>${displayPrice.toFixed(2)}</small>
+                    </span>
+                    {discount && <span className="kaido-ticket-sale">-{discount}%</span>}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         </section>
       )}
 
@@ -116,38 +142,6 @@ export default function ShopHome() {
           <div><FiZap /><span><b>INSTANT DELIVERY</b><small>Ready after payment</small></span></div>
           <div><FiShield /><span><b>SAFE & SECURE</b><small>Verified accounts</small></span></div>
           <div><FiHeadphones /><span><b>24/7 SUPPORT</b><small>Here when you need us</small></span></div>
-        </section>
-      )}
-
-      {isKaidoStore && !loading && kaidoDiscountedAccounts.length > 0 && (
-        <section className="kaido-discount-section" aria-labelledby="kaido-discounted-accounts-title">
-          <div className="kaido-discount-heading">
-            <div>
-              <span className="kaido-discount-kicker"><FiZap /> Price drops, live now</span>
-              <h2 id="kaido-discounted-accounts-title">Discounted Accounts</h2>
-              <p>គណនីបញ្ចុះតម្លៃថ្មីៗ <span>New sale accounts</span></p>
-            </div>
-            <span className="kaido-discount-count">{kaidoDiscountedAccounts.length} offers</span>
-          </div>
-          <div className="kaido-discount-rail" aria-label="Discounted Kaido accounts">
-            <div className="kaido-discount-track">
-              {[...kaidoDiscountedAccounts, ...kaidoDiscountedAccounts].map((product, index) => {
-                const discount = getValidDiscount(product);
-                return (
-                  <Link key={`${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`} className="kaido-discount-ticket">
-                    <span className="kaido-ticket-image">
-                      {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt="" /> : <FiShoppingBag />}
-                    </span>
-                    <span className="kaido-ticket-copy">
-                      <b>{product.name}</b>
-                      <small>${Number(product.sale_price).toFixed(2)}</small>
-                    </span>
-                    <span className="kaido-ticket-sale">-{discount}%</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
         </section>
       )}
 

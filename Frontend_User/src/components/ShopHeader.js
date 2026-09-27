@@ -85,11 +85,13 @@ export default function ShopHeader() {
           </span>
         </Link>
 
-        <nav className="store-desktop-nav" aria-label="Shop navigation">
-          <NavLink to={base} end className={navClass}>Home</NavLink>
-          <NavLink to={`${base}/products`} className={navClass}>{isKaidoStore ? 'Game Accounts' : 'Products'}</NavLink>
-          <NavLink to={`${base}/my-orders`} className={navClass}>My orders</NavLink>
-        </nav>
+        {!isKaidoStore && (
+          <nav className="store-desktop-nav" aria-label="Shop navigation">
+            <NavLink to={base} end className={navClass}>Home</NavLink>
+            <NavLink to={`${base}/products`} className={navClass}>Products</NavLink>
+            <NavLink to={`${base}/my-orders`} className={navClass}>My orders</NavLink>
+          </nav>
+        )}
 
         <div className="store-header-actions">
           <Link to={`${base}/products`} className="store-icon-action" aria-label="Search products" title="Search products"><FiSearch /></Link>
