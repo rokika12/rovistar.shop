@@ -61,11 +61,10 @@ export default function ShopHome() {
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
-  // Keep the promotion visible even before sale prices are configured.
   const discountedProducts = allProducts.filter((product) => getValidDiscount(product) !== null);
-  const kaidoDiscountedAccounts = (discountedProducts.length ? discountedProducts : allProducts).slice(0, 6);
+  const kaidoDiscountedAccounts = discountedProducts.slice(0, 8);
   const supportLink = shop.social_media?.telegram
-    || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : '');
+    || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : 'https://t.me/kaidokmglaor');
   const appearance = shop.theme?.appearance || {};
   const productRailClass = appearance.product_direction === 'right' ? 'domi-rail-right' : 'domi-rail-left';
   const kaidoTrustFeatures = [
@@ -103,6 +102,12 @@ export default function ShopHome() {
       {slides.length > 0 && (
         <section className={`${isKaidoStore ? 'kaido-banner-wrap' : 'max-w-7xl mx-auto px-4 pt-6 md:pt-8'}`}>
           <Slideshow slides={slides} />
+          {isKaidoStore && (
+            <a className="kaido-banner-assistant" href={supportLink} target="_blank" rel="noreferrer" aria-label="Chat with Kaido assistant on Telegram">
+              <img src="/assets/kaido-support-mascot.svg" alt="Kaido assistant" />
+              <span><b>Need help?</b><small>Chat with Kaido</small></span>
+            </a>
+          )}
         </section>
       )}
 
@@ -117,18 +122,31 @@ export default function ShopHome() {
       {isKaidoStore && !loading && kaidoDiscountedAccounts.length > 0 && (
         <section className="kaido-discount-section" aria-labelledby="kaido-discounted-accounts-title">
           <div className="kaido-discount-heading">
-            <div className="kaido-discount-greeting">
-              <img src="/assets/kaido-support-mascot.svg" alt="Kaido Store support mascot giving a thumbs up" />
-              <div>
-                <span className="kaido-discount-bubble">សួស្តី! មើលគណនីបញ្ចុះតម្លៃថ្មីៗ</span>
-                <span className="kaido-discount-kicker"><FiZap /> Limited game deals</span>
-                <h2 id="kaido-discounted-accounts-title">Discounted Accounts</h2>
-              </div>
+            <div>
+              <span className="kaido-discount-kicker"><FiZap /> Price drops, live now</span>
+              <h2 id="kaido-discounted-accounts-title">Discounted Accounts</h2>
+              <p>គណនីបញ្ចុះតម្លៃថ្មីៗ <span>New sale accounts</span></p>
             </div>
             <span className="kaido-discount-count">{kaidoDiscountedAccounts.length} offers</span>
           </div>
-          <div className="kaido-discount-grid">
-            {kaidoDiscountedAccounts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-discount" />)}
+          <div className="kaido-discount-rail" aria-label="Discounted Kaido accounts">
+            <div className="kaido-discount-track">
+              {[...kaidoDiscountedAccounts, ...kaidoDiscountedAccounts].map((product, index) => {
+                const discount = getValidDiscount(product);
+                return (
+                  <Link key={`${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`} className="kaido-discount-ticket">
+                    <span className="kaido-ticket-image">
+                      {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt="" /> : <FiShoppingBag />}
+                    </span>
+                    <span className="kaido-ticket-copy">
+                      <b>{product.name}</b>
+                      <small>${Number(product.sale_price).toFixed(2)}</small>
+                    </span>
+                    <span className="kaido-ticket-sale">-{discount}%</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </section>
       )}
