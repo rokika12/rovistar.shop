@@ -1177,3 +1177,25 @@ body {
 @keyframes kaido-discount-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (max-width: 700px) { .kaido-banner-assistant { bottom: -1.75rem; left: 50%; min-height: 3.8rem; padding-right: 0.72rem; }.kaido-banner-assistant img { width: 3.1rem; height: 3.1rem; }.kaido-banner-assistant b { font-size: 0.68rem; }.kaido-discount-section { padding-top: 1.25rem; }.kaido-discount-heading > div > p { font-size: 0.71rem; }.kaido-discount-heading > div > p span { display: block; margin: 0.18rem 0 0; }.kaido-discount-track { gap: 0.55rem; animation-duration: 23s; }.kaido-discount-ticket { width: min(16.5rem, calc(100vw - 3.4rem)); min-height: 4.75rem; }.kaido-ticket-image { width: 3.75rem; height: 3.75rem; } }
 @media (prefers-reduced-motion: reduce) { .kaido-banner-assistant, .kaido-discount-ticket { transition: none; }.kaido-discount-track { width: 100%; animation: none; overflow-x: auto; } }
+
+/* Kaido's Khmer-first neon palette stays isolated from every other storefront. */
+.kaido-store-shell, .kaido-storefront { --kaido-pink: #ff79b8; --kaido-pink-bright: #ffb1d6; --kaido-blue: #0965dc; --kaido-blue-light: #39c9ff; }
+.kaido-storefront { background: radial-gradient(ellipse 76% 45% at 12% 0%, rgba(16, 111, 255, 0.35), transparent 68%), radial-gradient(ellipse 48% 28% at 88% 22%, rgba(255, 76, 164, 0.12), transparent 72%), linear-gradient(180deg, #041b4a 0%, #061a3d 38%, #031126 100%); }
+.kaido-store-shell .store-header { background: linear-gradient(105deg, #041b4a 0%, #073a8d 56%, #071c43 100%); }
+.kaido-storefront .store-category-pill-active, .kaido-storefront .store-category-pill:hover { border-color: var(--kaido-pink); background: rgba(255, 105, 181, 0.16); color: #fff; }
+.kaido-storefront .store-category-count { color: var(--kaido-pink-bright); }
+.kaido-discount-heading h2, .kaido-trust-heading h2 { color: var(--kaido-pink-bright); }
+.kaido-discount-heading > div > p { color: var(--kaido-pink-bright); font-family: 'Kantumruy Pro', 'Baloo 2', sans-serif; font-weight: 900; }
+.kaido-discount-heading > div > p span { color: #75e8ff; }
+.kaido-catalog-heading { align-items: start; border-top: 1px solid rgba(105, 205, 255, 0.24); padding-top: 2rem; }
+.kaido-catalog-heading h1 { max-width: 43rem; color: #f8fbff; font-family: 'Kantumruy Pro', 'Baloo 2', sans-serif; font-weight: 900; letter-spacing: -0.035em; line-height: 1.15; }
+.kaido-catalog-heading h1 em { color: var(--kaido-pink-bright); font-style: normal; text-shadow: 0 0 22px rgba(255, 105, 181, 0.35); }
+.kaido-catalog-heading p { margin: 0.85rem 0 0; color: var(--kaido-pink-bright); font-family: 'Kantumruy Pro', 'Baloo 2', sans-serif; font-size: 0.92rem; font-weight: 900; line-height: 1.6; }
+.kaido-catalog-heading p i { color: #65e5ff; font-style: normal; }
+.kaido-catalog-all { display: grid; gap: 0.12rem; border: 1px solid rgba(255, 134, 195, 0.52); border-radius: 0.65rem; background: linear-gradient(135deg, #c82c78, #f16bab); padding: 0.75rem 1rem; color: #fff; font-family: 'Kantumruy Pro', sans-serif; font-size: 0.79rem; font-weight: 900; box-shadow: 0 10px 23px rgba(226, 49, 132, 0.24); }
+.kaido-catalog-all:hover { filter: brightness(1.1); color: #fff; }.kaido-catalog-all span { color: #ffe5f2; font-family: 'Manrope', sans-serif; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.kaido-filter-pill { font-family: 'Kantumruy Pro', 'Baloo 2', sans-serif; font-weight: 900; }.kaido-filter-pill-active, .kaido-filter-pill-active:hover { border-color: #ff91c4; background: linear-gradient(135deg, #be2f77, #f474ae); box-shadow: 0 8px 20px rgba(229, 56, 139, 0.25); }
+.kaido-product-count b { color: var(--kaido-pink-bright); }.kaido-game-type { color: #8eeaff; }.kaido-game-sale { border-color: #ffd2e6; background: #e13483; }
+.kaido-game-card { border-color: rgba(73, 181, 255, 0.3); background: linear-gradient(165deg, rgba(15, 72, 145, 0.96), rgba(4, 25, 70, 0.98)); }.kaido-game-card:hover { border-color: var(--kaido-pink); box-shadow: 0 19px 38px rgba(0, 0, 0, 0.34), 0 0 26px rgba(255, 89, 173, 0.18); }
+.kaido-game-card h3 { font-family: 'Kantumruy Pro', 'Baloo 2', sans-serif; color: #fff; }.kaido-game-card h3:hover { color: var(--kaido-pink-bright); }.kaido-game-card-body > p { color: #ffc1de; font-family: 'Kantumruy Pro', sans-serif; font-weight: 700; }.kaido-game-assurance { color: #7de9ff; }.kaido-game-card-footer > a { background: linear-gradient(135deg, #c42d78, #f377b1); }
+@media (max-width: 700px) { .kaido-catalog-heading h1 { font-size: 2rem; }.kaido-catalog-heading p { font-size: 0.8rem; }.kaido-catalog-all { width: 100%; text-align: center; }.kaido-catalog-heading { padding-top: 1.5rem; } }
