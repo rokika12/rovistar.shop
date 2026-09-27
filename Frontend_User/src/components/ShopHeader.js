@@ -25,6 +25,7 @@ export default function ShopHeader() {
   const navigate = useNavigate();
   const base = `/${shop.username}`;
   const isAccountTemplate = shop.template_type === 'account';
+  const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const displayName = customer?.first_name || customer?.name?.split(' ')[0] || 'Account';
   const initial = (customer?.name || customer?.username || 'R')[0].toUpperCase();
 
@@ -76,11 +77,11 @@ export default function ShopHeader() {
   return (
     <header className="store-header">
       <div className="store-header-inner">
-        <Link to={base} onClick={closePanels} className="store-brand" aria-label={`${shop.shop_name || shop.username} home`}>
+        <Link to={base} onClick={closePanels} className={`store-brand ${isKaidoStore ? 'store-brand-kaido' : ''}`} aria-label={`${shop.shop_name || shop.username} home`}>
           <ShopLogo shop={shop} className="h-10 w-10 rounded-2xl" textClassName="hidden" />
           <span className="store-brand-copy">
-            <strong>{shop.shop_name || shop.username}</strong>
-            <small>Rovistar marketplace</small>
+            <strong>{isKaidoStore ? 'kaidostore' : (shop.shop_name || shop.username)}</strong>
+            <small>{isKaidoStore ? 'Verified game accounts' : 'Rovistar marketplace'}</small>
           </span>
         </Link>
 

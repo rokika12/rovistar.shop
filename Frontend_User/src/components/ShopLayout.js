@@ -7,6 +7,7 @@ import ShopHeader from './ShopHeader';
 import ShopFooter from './ShopFooter';
 import CartSidebar from './CartSidebar';
 import ShopSkeleton from './ShopSkeleton';
+import KaidoGreeter from './KaidoGreeter';
 
 export default function ShopLayout() {
   const { shop, loading, error } = useShop();
@@ -33,6 +34,7 @@ export default function ShopLayout() {
     || '';
   const theme = shop.theme || {};
   const isAccountTemplate = shop.template_type === 'account';
+  const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const announcement = theme.appearance?.marquee_text || (isAccountTemplate ? 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · គាំទ្រសេវាកម្មឌីជីថល' : 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · ក្រុមការងារគាំទ្ររហ័ស');
   const themeStyle = {
     '--primary': theme.primary || '#123B3A',
@@ -59,8 +61,10 @@ export default function ShopLayout() {
       <ShopFooter />
       {!isAccountTemplate && <CartSidebar />}
 
+      {isKaidoStore && <KaidoGreeter />}
+
       {/* Keep one compact support action without duplicating mobile navigation. */}
-      {tgContact && (
+      {!isKaidoStore && tgContact && (
         <a
           href={tgContact}
           target="_blank"
