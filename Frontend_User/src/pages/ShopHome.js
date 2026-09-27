@@ -22,6 +22,7 @@ export default function ShopHome() {
   const [categories, setCategories] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [kaidoCategory, setKaidoCategory] = useState('all');
 
   useEffect(() => {
     if (!shop) return;
@@ -62,6 +63,9 @@ export default function ShopHome() {
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const kaidoRailProducts = allProducts.slice(0, 10);
+  const kaidoCatalogProducts = allProducts.filter((product) => (
+    kaidoCategory === 'all' || String(product.category_id) === kaidoCategory
+  ));
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : 'https://t.me/kaidokmglaor');
   const appearance = shop.theme?.appearance || {};
@@ -142,6 +146,37 @@ export default function ShopHome() {
           <div><FiZap /><span><b>INSTANT DELIVERY</b><small>Ready after payment</small></span></div>
           <div><FiShield /><span><b>SAFE & SECURE</b><small>Verified accounts</small></span></div>
           <div><FiHeadphones /><span><b>24/7 SUPPORT</b><small>Here when you need us</small></span></div>
+        </section>
+      )}
+
+      {isKaidoStore && !loading && (
+        <section className="kaido-catalog" aria-labelledby="kaido-catalog-title">
+          <div className="kaido-catalog-heading">
+            <div>
+              <span>GAME ACCOUNT MARKETPLACE</span>
+              <h1 id="kaido-catalog-title"><em>គណនីហ្គេម</em> ជ្រើសរើសសម្រាប់អ្នក</h1>
+              <p>Featured accounts <i>•</i> រូបទំនិញពិត អាចចុចមើល និងទិញបានភ្លាមៗ</p>
+            </div>
+            <Link className="kaido-catalog-all" to={`/${shop.username}/products`}>មើលទាំងអស់ <span>View all</span></Link>
+          </div>
+
+          <div className="kaido-filter-pills" role="tablist" aria-label="Filter accounts by category">
+            <button type="button" className={`kaido-filter-pill ${kaidoCategory === 'all' ? 'kaido-filter-pill-active' : ''}`} onClick={() => setKaidoCategory('all')}>ទាំងអស់ <b>{allProducts.length}</b></button>
+            {categories.map((category) => {
+              const count = allProducts.filter((product) => String(product.category_id) === String(category.id)).length;
+              if (!count) return null;
+              return <button type="button" key={category.id} className={`kaido-filter-pill ${kaidoCategory === String(category.id) ? 'kaido-filter-pill-active' : ''}`} onClick={() => setKaidoCategory(String(category.id))}>{category.name} <b>{count}</b></button>;
+            })}
+          </div>
+
+          <div className="kaido-product-count"><span>SELECTED ACCOUNTS</span><b>{kaidoCatalogProducts.length} accounts ready to view</b></div>
+          {kaidoCatalogProducts.length ? (
+            <div className="kaido-product-grid">
+              {kaidoCatalogProducts.slice(0, 8).map((product) => <ProductCard key={product.id} product={product} variant="kaido-grid" />)}
+            </div>
+          ) : (
+            <div className="kaido-filter-empty">No accounts in this category yet.</div>
+          )}
         </section>
       )}
 
