@@ -78,9 +78,9 @@ export default function ShopHome() {
   const kaidoProducts = kaidoFilter === 'all'
     ? allProducts
     : allProducts.filter((product) => getKaidoProductType(product) === kaidoFilter);
-  const kaidoDiscountedAccounts = allProducts
-    .filter((product) => getValidDiscount(product) !== null)
-    .slice(0, 6);
+  // Keep the promotion visible even before sale prices are configured.
+  const discountedProducts = allProducts.filter((product) => getValidDiscount(product) !== null);
+  const kaidoDiscountedAccounts = (discountedProducts.length ? discountedProducts : allProducts).slice(0, 6);
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : '');
   const appearance = shop.theme?.appearance || {};
