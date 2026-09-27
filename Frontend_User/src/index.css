@@ -1151,27 +1151,29 @@ body {
 
 /* Kaido-only moving sale gallery, driven by products with an active sale price. */
 .kaido-banner-wrap { position: relative; }
+.kaido-banner-wrap > div { background: #061a3d; }
+.kaido-banner-wrap > div img { object-fit: contain !important; }
 .kaido-banner-assistant { position: absolute; bottom: clamp(-2rem, -3vw, -1rem); left: 50%; z-index: 25; display: inline-flex; min-height: 4.25rem; align-items: center; gap: 0.55rem; border: 1px solid rgba(166, 242, 255, 0.72); border-radius: 999px; background: linear-gradient(135deg, rgba(4, 41, 96, 0.96), rgba(9, 132, 201, 0.92)); padding: 0.3rem 0.9rem 0.3rem 0.35rem; color: #fff; box-shadow: 0 10px 26px rgba(0, 3, 29, 0.45), 0 0 22px rgba(34, 211, 255, 0.3); transform: translateX(-50%); transition: transform 180ms ease, filter 180ms ease; }
 .kaido-banner-assistant:hover { filter: brightness(1.12); transform: translateX(-50%) translateY(-3px) scale(1.02); }
 .kaido-banner-assistant img { width: 3.5rem; height: 3.5rem; object-fit: contain; filter: drop-shadow(0 5px 7px rgba(0, 0, 0, 0.35)); }
 .kaido-banner-assistant span { display: grid; line-height: 1.08; }
 .kaido-banner-assistant b { font-size: 0.74rem; font-weight: 950; }
 .kaido-banner-assistant small { margin-top: 0.22rem; color: #b9f2ff; font-size: 0.6rem; font-weight: 800; }
-.kaido-discount-section { padding-top: 3.5rem; }
+.kaido-discount-section { padding-top: 1.5rem; }
 .kaido-discount-heading > div > p { margin: 0.45rem 0 0; color: #9fd9ef; font-family: 'Kantumruy Pro', sans-serif; font-size: 0.78rem; font-weight: 700; }
 .kaido-discount-heading > div > p span { margin-left: 0.38rem; color: #61dfff; font-family: 'Manrope', sans-serif; font-size: 0.62rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
 .kaido-discount-rail { overflow: hidden; border: 1px solid rgba(85, 211, 255, 0.27); border-radius: 1rem; background: linear-gradient(115deg, rgba(5, 26, 67, 0.88), rgba(7, 65, 123, 0.64), rgba(4, 24, 62, 0.9)); padding: 0.68rem; box-shadow: inset 0 1px rgba(255, 255, 255, 0.12), 0 16px 30px rgba(0, 2, 20, 0.28); }
-.kaido-discount-track { display: flex; width: max-content; align-items: stretch; gap: 0.7rem; animation: kaido-discount-scroll 28s linear infinite; }
+.kaido-discount-track { display: flex; width: max-content; align-items: stretch; gap: 0.7rem; animation: kaido-discount-scroll 28s linear infinite reverse; }
 .kaido-discount-rail:hover .kaido-discount-track { animation-play-state: paused; }
 .kaido-discount-ticket { display: flex; width: min(19rem, calc(100vw - 4rem)); min-height: 5.2rem; align-items: center; gap: 0.65rem; overflow: hidden; border: 1px solid rgba(158, 236, 255, 0.34); border-radius: 0.75rem; background: rgba(5, 27, 70, 0.9); padding: 0.48rem 0.58rem; color: #eefbff; box-shadow: inset 0 1px rgba(255, 255, 255, 0.08); transition: border-color 160ms ease, transform 160ms ease; }
 .kaido-discount-ticket:hover { border-color: #78ecff; transform: translateY(-2px); }
 .kaido-ticket-image { display: grid; width: 4.25rem; height: 4.25rem; flex: 0 0 auto; place-items: center; overflow: hidden; border-radius: 0.52rem; background: #0b407f; color: #76eaff; }
-.kaido-ticket-image img { width: 100%; height: 100%; object-fit: cover; }
+.kaido-ticket-image img { width: 100%; height: 100%; object-fit: contain; background: #061a3d; }
 .kaido-ticket-image svg { width: 1.5rem; height: 1.5rem; }
 .kaido-ticket-copy { display: grid; min-width: 0; flex: 1; gap: 0.38rem; }
 .kaido-ticket-copy b { overflow: hidden; color: #fff; font-size: 0.78rem; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
 .kaido-ticket-copy small { color: #7eeaff; font-size: 0.92rem; font-weight: 950; }
 .kaido-ticket-sale { flex: 0 0 auto; border-radius: 0.4rem; background: linear-gradient(135deg, #f6387d, #bd145c); padding: 0.42rem 0.38rem; color: #fff; font-size: 0.66rem; font-weight: 950; box-shadow: 0 5px 12px rgba(227, 35, 107, 0.35); }
 @keyframes kaido-discount-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-@media (max-width: 700px) { .kaido-banner-assistant { bottom: -1.75rem; left: 50%; min-height: 3.8rem; padding-right: 0.72rem; }.kaido-banner-assistant img { width: 3.1rem; height: 3.1rem; }.kaido-banner-assistant b { font-size: 0.68rem; }.kaido-discount-section { padding-top: 3rem; }.kaido-discount-heading > div > p { font-size: 0.71rem; }.kaido-discount-heading > div > p span { display: block; margin: 0.18rem 0 0; }.kaido-discount-track { gap: 0.55rem; animation-duration: 23s; }.kaido-discount-ticket { width: min(16.5rem, calc(100vw - 3.4rem)); min-height: 4.75rem; }.kaido-ticket-image { width: 3.75rem; height: 3.75rem; } }
+@media (max-width: 700px) { .kaido-banner-assistant { bottom: -1.75rem; left: 50%; min-height: 3.8rem; padding-right: 0.72rem; }.kaido-banner-assistant img { width: 3.1rem; height: 3.1rem; }.kaido-banner-assistant b { font-size: 0.68rem; }.kaido-discount-section { padding-top: 1.25rem; }.kaido-discount-heading > div > p { font-size: 0.71rem; }.kaido-discount-heading > div > p span { display: block; margin: 0.18rem 0 0; }.kaido-discount-track { gap: 0.55rem; animation-duration: 23s; }.kaido-discount-ticket { width: min(16.5rem, calc(100vw - 3.4rem)); min-height: 4.75rem; }.kaido-ticket-image { width: 3.75rem; height: 3.75rem; } }
 @media (prefers-reduced-motion: reduce) { .kaido-banner-assistant, .kaido-discount-ticket { transition: none; }.kaido-discount-track { width: 100%; animation: none; overflow-x: auto; } }
