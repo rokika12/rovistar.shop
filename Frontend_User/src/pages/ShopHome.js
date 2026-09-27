@@ -62,7 +62,6 @@ export default function ShopHome() {
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const kaidoRailProducts = allProducts.slice(0, 10);
-  const kaidoCatalogProducts = allProducts;
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : 'https://t.me/kaidokmglaor');
   const appearance = shop.theme?.appearance || {};
@@ -97,7 +96,7 @@ export default function ShopHome() {
   return (
     <div className={isKaidoStore ? 'kaido-storefront' : `domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>
       <ShopSearchBar />
-      {!isKaidoStore && categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
+      {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
 
       {slides.length > 0 && (
         <section className={`${isKaidoStore ? 'kaido-banner-wrap' : 'max-w-7xl mx-auto px-4 pt-6 md:pt-8'}`}>
@@ -147,30 +146,19 @@ export default function ShopHome() {
       )}
 
       {isKaidoStore && !loading && (
-        <section className="kaido-catalog" aria-labelledby="kaido-catalog-title">
-          <div className="kaido-catalog-heading">
+        <section className="kaido-classic-products" aria-labelledby="kaido-classic-products-title">
+          <div className="kaido-classic-heading">
             <div>
-              <span>GAME ACCOUNT MARKETPLACE</span>
-              <h1 id="kaido-catalog-title"><em>គណនីហ្គេម</em> ជ្រើសរើសសម្រាប់អ្នក</h1>
-              <p>Featured accounts <i>•</i> រូបទំនិញពិត អាចចុចមើល និងទិញបានភ្លាមៗ</p>
+              <span>PICKED FOR YOU</span>
+              <h2 id="kaido-classic-products-title">Popular Products</h2>
             </div>
-            <Link className="kaido-catalog-all" to={`/${shop.username}/products`}>មើលទាំងអស់ <span>View all</span></Link>
+            <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
           </div>
-
-          <div className="kaido-filter-pills" aria-label="Browse game accounts">
-            <Link className="kaido-filter-pill kaido-filter-pill-active" to={`/${shop.username}/products`}>All <b>{allProducts.length}</b></Link>
-            <Link className="kaido-filter-pill" to={`/${shop.username}/products`}>Free Fire Mobile</Link>
-            <Link className="kaido-filter-pill" to={`/${shop.username}/products`}>Roblox</Link>
-          </div>
-
-          <div className="kaido-product-count"><span>SELECTED ACCOUNTS</span><b>{kaidoCatalogProducts.length} accounts ready to view</b></div>
-          {kaidoCatalogProducts.length ? (
-            <div className="kaido-product-grid">
-              {kaidoCatalogProducts.slice(0, 8).map((product) => <ProductCard key={product.id} product={product} variant="kaido-grid" />)}
+          {featuredProducts.length ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
             </div>
-          ) : (
-            <div className="kaido-filter-empty">No accounts in this category yet.</div>
-          )}
+          ) : <p className="kaido-filter-empty">{t('noFeatured')}</p>}
         </section>
       )}
 

@@ -1224,3 +1224,11 @@ body {
 /* Catalog game controls belong below the banner and align with the product section. */
 .kaido-catalog .kaido-filter-pills { justify-content: flex-start; }
 .kaido-catalog .kaido-filter-pill { min-height: 2.4rem; padding: 0.52rem 0.9rem; text-decoration: none; }
+
+/* Restored marketplace grid above the Kaido robot promise cards. */
+.kaido-classic-products { width: min(1200px, calc(100% - 2rem)); margin: 0 auto; padding: 2.7rem 0 3.1rem; }
+.kaido-classic-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid #dfe7f2; padding: 0 0 0.9rem 0.9rem; }
+.kaido-classic-heading > div { position: relative; }.kaido-classic-heading > div::before { position: absolute; top: 0.1rem; bottom: 0.1rem; left: -0.9rem; width: 0.24rem; border-radius: 99px; background: #176ee5; content: ''; }
+.kaido-classic-heading span { color: #176ee5; font-size: 0.62rem; font-weight: 950; letter-spacing: 0.13em; }.kaido-classic-heading h2 { margin: 0.3rem 0 0; color: #d72c48; font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 900; letter-spacing: -0.045em; }.kaido-classic-heading > a { color: #176ee5; font-size: 0.77rem; font-weight: 900; }
+.kaido-classic-products .store-product-card { border: 1px solid #dce6f3; border-radius: 1rem; box-shadow: 0 10px 24px rgba(21, 66, 120, 0.09); }.kaido-classic-products .store-product-image img { object-fit: cover; }.kaido-classic-products .store-product-card:hover { border-color: #3a83ef; transform: translateY(-3px); }.kaido-classic-products .store-product-card a:last-child { background: #176ee5; border-radius: 999px; }
+@media (max-width: 700px) { .kaido-classic-products { padding-top: 2rem; }.kaido-classic-heading { align-items: start; flex-direction: column; }.kaido-classic-heading h2 { font-size: 1.8rem; } }
