@@ -22,7 +22,6 @@ export default function ShopHome() {
   const [categories, setCategories] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [kaidoFilter, setKaidoFilter] = useState('all');
 
   useEffect(() => {
     if (!shop) return;
@@ -62,22 +61,6 @@ export default function ShopHome() {
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
-  const categoryNames = new Map(categories.map((category) => [String(category.id), category.name]));
-  const getKaidoProductType = (product) => {
-    const categoryName = product.category_name || categoryNames.get(String(product.category_id)) || '';
-    const searchableText = `${categoryName} ${product.name || ''}`.toLowerCase();
-    if (searchableText.includes('free fire')) return 'free-fire';
-    if (searchableText.includes('mlbb') || searchableText.includes('mobile legends')) return 'mlbb';
-    return 'other';
-  };
-  const kaidoFilters = [
-    { id: 'all', label: 'All', count: allProducts.length },
-    { id: 'free-fire', label: 'Account Free Fire', count: allProducts.filter((product) => getKaidoProductType(product) === 'free-fire').length },
-    { id: 'mlbb', label: 'Account MLBB', count: allProducts.filter((product) => getKaidoProductType(product) === 'mlbb').length },
-  ];
-  const kaidoProducts = kaidoFilter === 'all'
-    ? allProducts
-    : allProducts.filter((product) => getKaidoProductType(product) === kaidoFilter);
   // Keep the promotion visible even before sale prices are configured.
   const discountedProducts = allProducts.filter((product) => getValidDiscount(product) !== null);
   const kaidoDiscountedAccounts = (discountedProducts.length ? discountedProducts : allProducts).slice(0, 6);
@@ -85,6 +68,32 @@ export default function ShopHome() {
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : '');
   const appearance = shop.theme?.appearance || {};
   const productRailClass = appearance.product_direction === 'right' ? 'domi-rail-right' : 'domi-rail-left';
+  const kaidoTrustFeatures = [
+    {
+      id: 'verified',
+      icon: FiShield,
+      title: 'Verified Accounts',
+      copy: 'Every account is checked before listing.',
+      label: 'Verified by Kaido',
+      robotPose: 'guard',
+    },
+    {
+      id: 'payment',
+      icon: FiCreditCard,
+      title: 'Secure KHQR Payment',
+      copy: 'Pay safely with instant payment confirmation.',
+      label: 'Protected checkout',
+      robotPose: 'scan',
+    },
+    {
+      id: 'delivery',
+      icon: FiZap,
+      title: 'Instant Delivery',
+      copy: 'Receive your account details after payment.',
+      label: 'Ready after payment',
+      robotPose: 'deliver',
+    },
+  ];
 
   return (
     <div className={isKaidoStore ? 'kaido-storefront' : `domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>
@@ -191,10 +200,13 @@ export default function ShopHome() {
         </section>
       )}
 
-      {isKaidoStore && !loading && allProducts.length > 0 && (
-        <section className="kaido-catalog">
-          <div className="kaido-catalog-heading">
-            <div><span><FiZap /> Fresh accounts, ready to play</span><h1>Hot Products</h1></div>
+      {isKaidoStore && !loading && (
+        <section className="kaido-trust-section" aria-labelledby="kaido-trust-title">
+          <div className="kaido-trust-heading">
+            <div>
+              <span><FiZap /> The Kaido promise</span>
+              <h2 id="kaido-trust-title">Built for a safer game account purchase.</h2>
+            </div>
             {supportLink && (
               <a className="kaido-support-link" href={supportLink} target="_blank" rel="noreferrer">
                 <FiMessageCircle />
@@ -202,34 +214,27 @@ export default function ShopHome() {
               </a>
             )}
           </div>
-          <div className="kaido-filter-pills" role="group" aria-label="Filter game accounts">
-            {kaidoFilters.map((filter) => (
-              <button
-                key={filter.id}
-                type="button"
-                className={kaidoFilter === filter.id ? 'kaido-filter-pill kaido-filter-pill-active' : 'kaido-filter-pill'}
-                aria-pressed={kaidoFilter === filter.id}
-                onClick={() => setKaidoFilter(filter.id)}
-              >
-                <span>{filter.label}</span>
-                <b>{filter.count}</b>
-              </button>
+          <div className="kaido-trust-grid">
+            {kaidoTrustFeatures.map(({ id, icon: Icon, title, copy, label, robotPose }) => (
+              <article key={id} className={`kaido-trust-card kaido-trust-card-${id}`}>
+                <div className={`kaido-robot kaido-robot-${robotPose}`} aria-hidden="true">
+                  <span className="kaido-robot-antenna" />
+                  <span className="kaido-robot-head"><i /><i /></span>
+                  <span className="kaido-robot-arm kaido-robot-arm-left" />
+                  <span className="kaido-robot-arm kaido-robot-arm-right" />
+                  <span className="kaido-robot-body"><i /></span>
+                  <span className="kaido-robot-leg kaido-robot-leg-left" />
+                  <span className="kaido-robot-leg kaido-robot-leg-right" />
+                </div>
+                <div className="kaido-trust-icon"><Icon /></div>
+                <div className="kaido-trust-copy">
+                  <p>{title}</p>
+                  <h3>{copy}</h3>
+                  <span>{label}</span>
+                </div>
+              </article>
             ))}
           </div>
-          <div className="kaido-product-count">
-            <span>EXPLORE THE COLLECTION</span>
-            <b>{kaidoProducts.length} {kaidoProducts.length === 1 ? 'account' : 'accounts'} available</b>
-          </div>
-          {kaidoProducts.length > 0 ? (
-            <div className="kaido-product-grid">
-              {kaidoProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-grid" />)}
-            </div>
-          ) : (
-            <div className="kaido-filter-empty">
-              <FiShoppingBag />
-              <p>No accounts are available in this category yet.</p>
-            </div>
-          )}
         </section>
       )}
 
