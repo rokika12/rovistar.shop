@@ -1,5 +1,5 @@
-import React from 'react';
-import { FiSend } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiArrowUp, FiSend } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 
 function getTelegramUrl(shop) {
@@ -16,6 +16,16 @@ function getTelegramUrl(shop) {
 export default function KaidoGreeter() {
   const { shop } = useShop();
   const supportUrl = getTelegramUrl(shop);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const updateVisibility = () => setShowBackToTop(window.scrollY > 360);
+    updateVisibility();
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+    return () => window.removeEventListener('scroll', updateVisibility);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   const content = (
     <>
       <span className="kaido-greeter-bubble">សួស្តី! ត្រូវការជំនួយទេ?</span>
@@ -29,13 +39,17 @@ export default function KaidoGreeter() {
     </>
   );
 
-  if (supportUrl) {
-    return (
+  return (
+    <>
+      {supportUrl ? (
       <a className="kaido-greeter" href={supportUrl} target="_blank" rel="noreferrer" aria-label="Chat with Kaido Store support on Telegram">
         {content}
       </a>
-    );
-  }
-
-  return <div className="kaido-greeter" aria-label="Kaido Store greeting">{content}</div>;
+      ) : <div className="kaido-greeter" aria-label="Kaido Store greeting">{content}</div>}
+      <div className="kaido-quick-controls">
+        {supportUrl && <a href={supportUrl} target="_blank" rel="noreferrer" className="kaido-telegram-control" aria-label="Open Kaido Store Telegram"><FiSend /></a>}
+        {showBackToTop && <button type="button" onClick={scrollToTop} className="kaido-back-top" aria-label="Back to top"><FiArrowUp /></button>}
+      </div>
+    </>
+  );
 }

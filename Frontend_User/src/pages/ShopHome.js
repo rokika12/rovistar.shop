@@ -78,13 +78,21 @@ export default function ShopHome() {
   const productRailClass = appearance.product_direction === 'right' ? 'domi-rail-right' : 'domi-rail-left';
 
   return (
-    <div className={`domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>
+    <div className={isKaidoStore ? 'kaido-storefront' : `domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>
       <ShopSearchBar />
       {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
 
       {slides.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 pt-6 md:pt-8">
+        <section className={`${isKaidoStore ? 'kaido-banner-wrap' : 'max-w-7xl mx-auto px-4 pt-6 md:pt-8'}`}>
           <Slideshow slides={slides} />
+        </section>
+      )}
+
+      {isKaidoStore && (
+        <section className="kaido-service-strip" aria-label="Kaido Store benefits">
+          <div><FiZap /><span><b>INSTANT DELIVERY</b><small>Ready after payment</small></span></div>
+          <div><FiShield /><span><b>SAFE & SECURE</b><small>Verified accounts</small></span></div>
+          <div><FiHeadphones /><span><b>24/7 SUPPORT</b><small>Here when you need us</small></span></div>
         </section>
       )}
 
@@ -156,17 +164,13 @@ export default function ShopHome() {
       )}
 
       {isKaidoStore && !loading && allProducts.length > 0 && (
-        <section className="kaido-catalog max-w-6xl mx-auto px-4 py-7 md:py-10">
-          <div className="kaido-catalog-intro">
-            <div>
-              <span className="kaido-eyebrow"><FiShield /> Verified game accounts</span>
-              <h1>Pick your next account.</h1>
-              <p>មើល Account ពេញលេញ រួចជ្រើសរើសទិញបានភ្លាមៗ។ ទំនិញថ្មីៗបង្ហាញចុះក្រោម ងាយស្រួលមើល និងប្រៀបធៀប។</p>
-            </div>
+        <section className="kaido-catalog">
+          <div className="kaido-catalog-heading">
+            <div><span><FiZap /> Fresh accounts, ready to play</span><h1>Hot Products</h1></div>
             {supportLink && (
               <a className="kaido-support-link" href={supportLink} target="_blank" rel="noreferrer">
                 <FiMessageCircle />
-                <span><b>Need help choosing?</b><small>Chat with Kaido Store support</small></span>
+                <span><b>Need help?</b><small>Chat with Kaido support</small></span>
               </a>
             )}
           </div>
@@ -184,13 +188,13 @@ export default function ShopHome() {
               </button>
             ))}
           </div>
-          <div className="kaido-catalog-heading">
-            <div><span>AVAILABLE NOW</span><h2>Game accounts</h2></div>
-            <b>{kaidoProducts.length} {kaidoProducts.length === 1 ? 'account' : 'accounts'}</b>
+          <div className="kaido-product-count">
+            <span>EXPLORE THE COLLECTION</span>
+            <b>{kaidoProducts.length} {kaidoProducts.length === 1 ? 'account' : 'accounts'} available</b>
           </div>
           {kaidoProducts.length > 0 ? (
-            <div className="kaido-account-list">
-              {kaidoProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-list" />)}
+            <div className="kaido-product-grid">
+              {kaidoProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-grid" />)}
             </div>
           ) : (
             <div className="kaido-filter-empty">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiArrowUpRight, FiHeadphones, FiShield, FiShoppingBag, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiArrowUpRight, FiCheck, FiHeadphones, FiShield, FiShoppingBag, FiZap } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { fullUrl } from '../api';
 
@@ -56,6 +56,33 @@ export default function ProductCard({ product, variant = 'standard' }) {
           ) : (
             <span>Sold out</span>
           )}
+        </div>
+      </article>
+    );
+  }
+
+  if (isKaidoStore && variant === 'kaido-grid') {
+    const productLink = `/${shop.username}/product/${product.id}`;
+
+    return (
+      <article className="kaido-game-card">
+        <Link to={productLink} className="kaido-game-artwork" aria-label={`View ${product.name}`}>
+          {product.images?.[0] && !imageFailed ? (
+            <img src={fullUrl(product.images[0])} alt={product.name} onError={() => setImageFailed(true)} />
+          ) : (
+            <span><FiShoppingBag /></span>
+          )}
+          <span className="kaido-game-type">{product.category_name || 'Game account'}</span>
+          {hasSale && <span className="kaido-game-sale">-{discount}%</span>}
+        </Link>
+        <div className="kaido-game-card-body">
+          <Link to={productLink}><h3>{product.name}</h3></Link>
+          <p>{description || 'Verified account with secure delivery after payment.'}</p>
+          <div className="kaido-game-assurance"><FiCheck /> Verified for delivery</div>
+          <div className="kaido-game-card-footer">
+            <div><strong>${Number(price).toFixed(2)}</strong><small>{shop.currency}</small>{hasSale && <del>${Number(product.price).toFixed(2)}</del>}</div>
+            {isAvailable ? <Link to={productLink}>View <FiArrowRight /></Link> : <span>Sold out</span>}
+          </div>
         </div>
       </article>
     );

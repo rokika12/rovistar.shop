@@ -75,7 +75,7 @@ export default function ShopHeader() {
   const navClass = ({ isActive }) => `store-nav-link ${isActive ? 'store-nav-link-active' : ''}`;
 
   return (
-    <header className="store-header">
+    <header className={`store-header ${isKaidoStore ? 'kaido-store-header' : ''}`}>
       <div className="store-header-inner">
         <Link to={base} onClick={closePanels} className={`store-brand ${isKaidoStore ? 'store-brand-kaido' : ''}`} aria-label={`${shop.shop_name || shop.username} home`}>
           <ShopLogo shop={shop} className="h-10 w-10 rounded-2xl" textClassName="hidden" />
@@ -87,7 +87,7 @@ export default function ShopHeader() {
 
         <nav className="store-desktop-nav" aria-label="Shop navigation">
           <NavLink to={base} end className={navClass}>Home</NavLink>
-          <NavLink to={`${base}/products`} className={navClass}>Products</NavLink>
+          <NavLink to={`${base}/products`} className={navClass}>{isKaidoStore ? 'Game Accounts' : 'Products'}</NavLink>
           <NavLink to={`${base}/my-orders`} className={navClass}>My orders</NavLink>
         </nav>
 

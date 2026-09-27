@@ -16,6 +16,7 @@ export default function ShopSearchBar() {
   const [open, setOpen] = useState(false);
   const boxRef = useRef(null);
   const base = `/${shop.username}`;
+  const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
 
   useEffect(() => {
     const onClick = (e) => {
@@ -40,7 +41,7 @@ export default function ShopSearchBar() {
   }, [q, shop.id]);
 
   return (
-    <div className="w-full bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+    <div className={`w-full bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 ${isKaidoStore ? 'kaido-search-bar' : ''}`}>
       <div ref={boxRef} className="relative max-w-7xl mx-auto px-4 py-3">
         <form
           onSubmit={(e) => {
