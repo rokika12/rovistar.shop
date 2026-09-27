@@ -1220,3 +1220,7 @@ body {
 /* Keep the Kaido wordmark readable on its white header. */
 .kaido-store-shell .store-brand-kaido .store-brand-copy strong { background: none; color: #111827; -webkit-text-fill-color: #111827; text-shadow: none; }
 .kaido-store-shell .store-brand-kaido .store-brand-copy small { color: #334155; }
+
+/* Catalog game controls belong below the banner and align with the product section. */
+.kaido-catalog .kaido-filter-pills { justify-content: flex-start; }
+.kaido-catalog .kaido-filter-pill { min-height: 2.4rem; padding: 0.52rem 0.9rem; text-decoration: none; }

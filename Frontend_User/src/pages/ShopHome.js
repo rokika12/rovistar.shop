@@ -97,7 +97,7 @@ export default function ShopHome() {
   return (
     <div className={isKaidoStore ? 'kaido-storefront' : `domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>
       <ShopSearchBar />
-      {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
+      {!isKaidoStore && categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
 
       {slides.length > 0 && (
         <section className={`${isKaidoStore ? 'kaido-banner-wrap' : 'max-w-7xl mx-auto px-4 pt-6 md:pt-8'}`}>
@@ -157,8 +157,10 @@ export default function ShopHome() {
             <Link className="kaido-catalog-all" to={`/${shop.username}/products`}>មើលទាំងអស់ <span>View all</span></Link>
           </div>
 
-          <div className="kaido-filter-pills" aria-label="All accounts">
-            <span className="kaido-filter-pill kaido-filter-pill-active">All <b>{allProducts.length}</b></span>
+          <div className="kaido-filter-pills" aria-label="Browse game accounts">
+            <Link className="kaido-filter-pill kaido-filter-pill-active" to={`/${shop.username}/products`}>All <b>{allProducts.length}</b></Link>
+            <Link className="kaido-filter-pill" to={`/${shop.username}/products`}>Free Fire Mobile</Link>
+            <Link className="kaido-filter-pill" to={`/${shop.username}/products`}>Roblox</Link>
           </div>
 
           <div className="kaido-product-count"><span>SELECTED ACCOUNTS</span><b>{kaidoCatalogProducts.length} accounts ready to view</b></div>
