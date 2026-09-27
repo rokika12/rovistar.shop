@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiArrowUpRight, FiCheck, FiHeadphones, FiShield, FiShoppingBag, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiArrowUpRight, FiCheck, FiHeadphones, FiHeart, FiShield, FiShoppingBag, FiZap } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { fullUrl } from '../api';
 
 export default function ProductCard({ product, variant = 'standard' }) {
   const { shop } = useShop();
   const [imageFailed, setImageFailed] = useState(false);
-  const price = product.sale_price ?? product.price;
-  const hasSale = product.sale_price != null && product.sale_price < product.price;
-  const discount = hasSale ? Math.round((1 - price / product.price) * 100) : 0;
+  const originalPrice = Number(product.price);
+  const proposedSalePrice = Number(product.sale_price);
+  const proposedDiscount = product.sale_price != null
+    && Number.isFinite(originalPrice)
+    && Number.isFinite(proposedSalePrice)
+    && originalPrice > 0
+    && proposedSalePrice > 0
+    && proposedSalePrice < originalPrice
+    ? Math.round((1 - proposedSalePrice / originalPrice) * 100)
+    : 0;
+  const hasSale = proposedDiscount >= 1 && proposedDiscount <= 99;
+  const price = hasSale ? proposedSalePrice : originalPrice;
+  const discount = hasSale ? proposedDiscount : 0;
   const metadata = product.metadata || {};
   const isKaidoStore = shop?.username?.toLowerCase() === 'kaidostore';
   const description = (product.description || '').replace(/\s+/g, ' ').trim();
@@ -82,6 +92,45 @@ export default function ProductCard({ product, variant = 'standard' }) {
           <div className="kaido-game-card-footer">
             <div><strong>${Number(price).toFixed(2)}</strong><small>{shop.currency}</small>{hasSale && <del>${Number(product.price).toFixed(2)}</del>}</div>
             {isAvailable ? <Link to={productLink}>View <FiArrowRight /></Link> : <span>Sold out</span>}
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  if (isKaidoStore && variant === 'kaido-discount') {
+    const productLink = `/${shop.username}/product/${product.id}`;
+    const status = product.featured ? 'POPULAR' : discount >= 25 ? 'BESTSELLER' : 'NEW';
+    const cardDescription = description || product.category_name || '';
+
+    return (
+      <article className="kaido-discount-card">
+        <Link to={productLink} className="kaido-discount-artwork" aria-label={`View ${product.name}`}>
+          {product.images?.[0] && !imageFailed ? (
+            <img src={fullUrl(product.images[0])} alt={product.name} onError={() => setImageFailed(true)} />
+          ) : (
+            <span><FiShoppingBag /></span>
+          )}
+        </Link>
+        <div className="kaido-discount-card-body">
+          <div className="kaido-discount-card-meta">
+            <span>{status}</span>
+            {hasSale && <b>-{discount}%</b>}
+            <FiHeart aria-label="Game account" />
+          </div>
+          <Link to={productLink}><h3>{product.name}</h3></Link>
+          {cardDescription && <p>{cardDescription}</p>}
+          <div className="kaido-discount-chips" aria-label="Account service benefits">
+            <span><FiZap /> Instant delivery</span>
+            <span><FiShield /> Safe transfer</span>
+          </div>
+          <div className="kaido-discount-price">
+            <div>
+              <strong>${Number(price).toFixed(2)}</strong>
+              <small>{shop.currency}</small>
+              {hasSale && <del>${originalPrice.toFixed(2)}</del>}
+            </div>
+            <Link to={productLink}>ចូលមើលទំនិញ <FiArrowRight /></Link>
           </div>
         </div>
       </article>

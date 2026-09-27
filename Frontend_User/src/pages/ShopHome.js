@@ -50,9 +50,15 @@ export default function ShopHome() {
 
   if (!shop) return null;
   const featuredProducts = featured.length ? featured : allProducts.slice(0, 4);
-  const flashSaleProducts = allProducts.filter((product) => (
-    product.sale_price != null && Number(product.sale_price) < Number(product.price)
-  )).slice(0, 8);
+  const getValidDiscount = (product) => {
+    const originalPrice = Number(product.price);
+    const salePrice = Number(product.sale_price);
+    if (product.sale_price == null || !Number.isFinite(originalPrice) || !Number.isFinite(salePrice)
+      || originalPrice <= 0 || salePrice <= 0 || salePrice >= originalPrice) return null;
+    const discount = Math.round((1 - salePrice / originalPrice) * 100);
+    return discount >= 1 && discount <= 99 ? discount : null;
+  };
+  const flashSaleProducts = allProducts.filter((product) => getValidDiscount(product) !== null).slice(0, 8);
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
@@ -72,6 +78,9 @@ export default function ShopHome() {
   const kaidoProducts = kaidoFilter === 'all'
     ? allProducts
     : allProducts.filter((product) => getKaidoProductType(product) === kaidoFilter);
+  const kaidoDiscountedAccounts = allProducts
+    .filter((product) => getValidDiscount(product) !== null)
+    .slice(0, 6);
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : '');
   const appearance = shop.theme?.appearance || {};
@@ -93,6 +102,25 @@ export default function ShopHome() {
           <div><FiZap /><span><b>INSTANT DELIVERY</b><small>Ready after payment</small></span></div>
           <div><FiShield /><span><b>SAFE & SECURE</b><small>Verified accounts</small></span></div>
           <div><FiHeadphones /><span><b>24/7 SUPPORT</b><small>Here when you need us</small></span></div>
+        </section>
+      )}
+
+      {isKaidoStore && !loading && kaidoDiscountedAccounts.length > 0 && (
+        <section className="kaido-discount-section" aria-labelledby="kaido-discounted-accounts-title">
+          <div className="kaido-discount-heading">
+            <div className="kaido-discount-greeting">
+              <img src="/assets/kaido-support-mascot.svg" alt="Kaido Store support mascot giving a thumbs up" />
+              <div>
+                <span className="kaido-discount-bubble">សួស្តី! មើលគណនីបញ្ចុះតម្លៃថ្មីៗ</span>
+                <span className="kaido-discount-kicker"><FiZap /> Limited game deals</span>
+                <h2 id="kaido-discounted-accounts-title">Discounted Accounts</h2>
+              </div>
+            </div>
+            <span className="kaido-discount-count">{kaidoDiscountedAccounts.length} offers</span>
+          </div>
+          <div className="kaido-discount-grid">
+            {kaidoDiscountedAccounts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-discount" />)}
+          </div>
         </section>
       )}
 

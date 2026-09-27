@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260" role="img" aria-labelledby="title desc">
+  <title id="title">Kaido Store support mascot</title>
+  <desc id="desc">A blue-haired chibi support character in dark blue clothes giving a thumbs up.</desc>
+  <defs>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8be9ff"/>
+      <stop offset="0.55" stop-color="#2695ed"/>
+      <stop offset="1" stop-color="#1050b8"/>
+    </linearGradient>
+    <linearGradient id="coat" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#173e81"/>
+      <stop offset="1" stop-color="#071b4d"/>
+    </linearGradient>
+  </defs>
+  <path d="M60 103C44 70 54 35 85 23c16-17 51-20 73 1 28 11 41 45 29 79l-19 27H79z" fill="#0b3e9d"/>
+  <path d="M78 65c10-34 58-45 88-13 14 16 13 45 4 64l-86-4c-12-14-13-31-6-47z" fill="url(#hair)"/>
+  <path d="M83 75c9-20 20-32 39-36-5 12-6 26-1 41 12-18 26-30 45-33-3 17 2 32 12 45l-5 25-90-5z" fill="#56c9ff"/>
+  <path d="M81 92c0-28 21-48 48-48s49 21 49 48v33c0 31-22 55-49 55s-48-24-48-55z" fill="#ffd7bc"/>
+  <path d="M80 102c8-1 16-8 20-18 18 7 48 7 69-9 1 12 5 21 11 28V77c-8-30-26-44-51-44-30 0-48 23-49 47z" fill="url(#hair)"/>
+  <ellipse cx="106" cy="118" rx="5" ry="7" fill="#102e62"/>
+  <ellipse cx="151" cy="118" rx="5" ry="7" fill="#102e62"/>
+  <path d="M119 144c7 6 16 6 23 0" fill="none" stroke="#c56c70" stroke-linecap="round" stroke-width="4"/>
+  <path d="M82 139c-12 2-18 12-15 25 3 11 11 17 22 14" fill="#ffd7bc"/>
+  <path d="M91 164c-27 2-45 31-42 75h159c-3-48-23-72-52-76z" fill="url(#coat)"/>
+  <path d="m112 165 17 19 17-19 12 23-29 31-29-31z" fill="#55cfff"/>
+  <path d="M56 177c-18 6-28 23-24 39 4 14 14 23 27 19l21-12-7-37z" fill="#143c80"/>
+  <path d="M44 194c-6-6-11-2-12 5-2 11 5 27 15 33 9 5 17-5 12-12l-7-9 7 3c10 4 15-8 6-13z" fill="#ffd7bc"/>
+  <path d="M49 200c8 4 13 10 15 20" fill="none" stroke="#d99587" stroke-linecap="round" stroke-width="2"/>
+  <path d="M95 212h68v27H95z" fill="#0a2866"/>
+  <path d="M122 218h14v8h-14z" fill="#67e5ff"/>
+</svg>
