@@ -1617,3 +1617,18 @@ body {
 @media (max-width: 640px) {
   .kaido-payment-method-mark { width: 3rem; height: 3rem; flex-basis: 3rem; }
 }
+
+/* Kaido-only mobile card alignment and complete payment marks. */
+.kaido-wallet-payment-option { grid-template-columns: 3.5rem minmax(0, 1fr) 1.25rem; }
+.kaido-account-grid { align-items: stretch; }
+.kaido-account-card { display: flex; min-width: 0; flex-direction: column; overflow: hidden; }
+.kaido-account-card .store-product-image { display: grid; aspect-ratio: 16 / 9; align-items: center; overflow: hidden; }
+.kaido-account-card .store-product-image img { width: 100%; height: 100%; object-fit: contain; object-position: center; }
+.kaido-account-card > div { display: flex; min-height: 0; flex: 1; flex-direction: column; }
+.kaido-account-card .text-xl { font-size: clamp(1.2rem, 2.7vw, 1.55rem); line-height: 1.1; }
+.kaido-account-card .mt-4 { margin-top: auto; min-height: 2.7rem; font-size: 0.85rem; }
+@media (max-width: 640px) {
+  .kaido-account-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .kaido-account-card > div { padding: 1rem; }
+  .kaido-wallet-payment-option { grid-template-columns: 3rem minmax(0, 1fr) 1.1rem; }
+}
