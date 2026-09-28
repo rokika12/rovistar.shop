@@ -100,7 +100,7 @@ export default function ShopHome() {
 
       {slides.length > 0 && (
         <section className={`${isKaidoStore ? 'kaido-banner-wrap' : 'max-w-7xl mx-auto px-4 pt-6 md:pt-8'}`}>
-          <Slideshow slides={slides} />
+          <Slideshow slides={slides} controlsAbove={isKaidoStore} />
         </section>
       )}
 
@@ -155,8 +155,8 @@ export default function ShopHome() {
             <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
           </div>
           {featuredProducts.length ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
+            <div className="kaido-product-grid">
+              {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-grid" />)}
             </div>
           ) : <p className="kaido-filter-empty">{t('noFeatured')}</p>}
         </section>
