@@ -61,7 +61,7 @@ export default function ShopHome() {
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
-  const kaidoRailProducts = allProducts.slice(0, 10);
+  const kaidoRailProducts = allProducts.filter((product) => getValidDiscount(product) !== null).slice(0, 10);
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : 'https://t.me/kaidokmglaor');
   const appearance = shop.theme?.appearance || {};
@@ -108,11 +108,11 @@ export default function ShopHome() {
         <section className="kaido-discount-section" aria-labelledby="kaido-discounted-accounts-title">
           <div className="kaido-discount-heading">
             <div>
-              <span className="kaido-discount-kicker"><FiZap /> Kaido game deals</span>
-              <h2 id="kaido-discounted-accounts-title">Discount Coupons</h2>
-              <p>ទំនិញថ្មីៗកំពុងរត់ <span>Live game accounts</span></p>
+              <span className="kaido-discount-kicker"><FiZap /> Limited game deals</span>
+              <h2 id="kaido-discounted-accounts-title">Discounted Accounts</h2>
+              <p>តម្លៃពិសេសសម្រាប់គណនីហ្គេម <span>Verified game deals</span></p>
             </div>
-            <span className="kaido-discount-count">{kaidoRailProducts.length} accounts</span>
+            <span className="kaido-discount-count">{kaidoRailProducts.length} offers</span>
           </div>
           <div className="kaido-discount-rail" aria-label="Kaido game account gallery">
             <div className="kaido-discount-track">
@@ -132,16 +132,6 @@ export default function ShopHome() {
                   </Link>
                 );
               })}
-            </div>
-          </div>
-          <div className="kaido-coupon-rail" aria-label="Kaido discount coupon gallery">
-            <div className="kaido-coupon-track">
-              {[...kaidoRailProducts, ...kaidoRailProducts].map((product, index) => (
-                <Link key={`coupon-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`} className="kaido-coupon-ticket">
-                  <span>{product.name}</span>
-                  <b>VIEW</b>
-                </Link>
-              ))}
             </div>
           </div>
         </section>
