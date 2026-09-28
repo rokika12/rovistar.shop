@@ -1330,3 +1330,53 @@ body {
   .kaido-popular-body h3 { min-height: 0; }
   .kaido-popular-body > p { min-height: 0; }
 }
+
+/* One shared component grid prevents source-image and name-length differences from shifting rows. */
+.kaido-discount-track {
+  align-items: stretch;
+}
+.kaido-discount-ticket {
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr) auto;
+  min-height: 5.2rem;
+  align-items: center;
+}
+.kaido-ticket-image {
+  width: 4.25rem;
+  height: 4.25rem;
+}
+.kaido-ticket-image img {
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+.kaido-ticket-copy {
+  grid-template-rows: 1rem 1.15rem;
+  align-content: center;
+  gap: 0.35rem;
+}
+.kaido-ticket-copy b,
+.kaido-ticket-copy small {
+  display: block;
+  line-height: 1;
+}
+.kaido-classic-heading {
+  align-items: center;
+}
+.kaido-classic-heading > a {
+  display: inline-flex;
+  min-height: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+@media (max-width: 700px) {
+  .kaido-discount-ticket {
+    grid-template-columns: 3.75rem minmax(0, 1fr) auto;
+    min-height: 4.75rem;
+  }
+  .kaido-ticket-image {
+    width: 3.75rem;
+    height: 3.75rem;
+  }
+}
