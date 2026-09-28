@@ -9,12 +9,10 @@ import { fullUrl, getMyOrders, getMyWallet, topUpWallet, updateMyProfile, change
 import CustomerAuth from '../components/CustomerAuth';
 
 const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
-const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-logo.png`;
 const TOPUP_OPTIONS = [5, 10, 20, 50];
 
 export default function Profile() {
   const { shop } = useShop();
-  const isKaidoStore = shop?.username?.toLowerCase() === 'kaidostore';
   const { customer, token, isLoggedIn, logout, setSession } = useCustomer();
   const { t } = useLanguage();
   const [ordersCount, setOrdersCount] = useState(0);
@@ -240,8 +238,8 @@ export default function Profile() {
             </div>
             <label className="wallet-custom-amount"><span>Custom amount</span><div><b>$</b><input type="number" min="0.10" max="1000" step="0.10" value={topupAmount} onChange={(event) => setTopupAmount(event.target.value)} aria-label="Custom top-up amount" /></div></label>
             <div className="wallet-step-heading wallet-payment-heading"><b>2</b><div><strong>Payment method</strong><span>Pay securely with the selected method.</span></div></div>
-            <button type="button" className={`wallet-payment-option wallet-payment-selected ${isKaidoStore ? 'kaido-wallet-payment-option' : ''}`} aria-pressed="true">
-              <>{isKaidoStore ? <span className="kaido-payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span> : <><img className="wallet-aba-logo" src={ABA_LOGO_URL} alt="ABA Bank" /><img src={KHQR_LOGO_URL} alt="KHQR" /></>}</><span><strong>ABA KHQR</strong><small>Scan with ABA Mobile or any KHQR bank app</small></span><i>✓</i>
+            <button type="button" className="wallet-payment-option wallet-payment-selected" aria-pressed="true">
+              <span className="payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span><span><strong>ABA KHQR</strong><small>Scan with ABA Mobile or any KHQR bank app</small></span><i>✓</i>
             </button>
             <button type="button" onClick={startTopup} disabled={topupBusy} className="wallet-pay-button">{topupBusy ? 'Preparing payment...' : `Pay $${Number(topupAmount || 0).toFixed(2)} with ABA KHQR`}</button>
             <p className="wallet-topup-note">Top up from $0.10 to $1,000.00. Your balance updates after payment confirmation.</p>

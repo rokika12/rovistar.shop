@@ -1632,3 +1632,9 @@ body {
   .kaido-account-card > div { padding: 1rem; }
   .kaido-wallet-payment-option { grid-template-columns: 3rem minmax(0, 1fr) 1.1rem; }
 }
+
+/* Shared payment method marks: consistent full logo box in every storefront. */
+.payment-method-mark { display: inline-flex; width: 3.5rem; height: 3.5rem; flex: 0 0 3.5rem; align-items: center; justify-content: center; }
+.payment-method-mark .payment-method-logo { width: 100%; height: 100%; object-fit: contain; }
+.wallet-payment-option { grid-template-columns: 3.5rem minmax(0, 1fr) 1.25rem; }
+@media (max-width: 640px) { .payment-method-mark { width: 3rem; height: 3rem; flex-basis: 3rem; } .wallet-payment-option { grid-template-columns: 3rem minmax(0, 1fr) 1.1rem; } }
