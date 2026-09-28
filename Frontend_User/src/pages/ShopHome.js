@@ -134,6 +134,16 @@ export default function ShopHome() {
               })}
             </div>
           </div>
+          <div className="kaido-coupon-rail" aria-label="Kaido discount coupon gallery">
+            <div className="kaido-coupon-track">
+              {[...kaidoRailProducts, ...kaidoRailProducts].map((product, index) => (
+                <Link key={`coupon-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`} className="kaido-coupon-ticket">
+                  <span>{product.name}</span>
+                  <b>VIEW</b>
+                </Link>
+              ))}
+            </div>
+          </div>
         </section>
       )}
 

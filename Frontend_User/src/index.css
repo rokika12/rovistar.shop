@@ -1380,3 +1380,70 @@ body {
     height: 3.75rem;
   }
 }
+
+/* A separate coupon rail follows the moving product strip, matching the storefront reference. */
+.kaido-coupon-rail {
+  margin-top: 0.8rem;
+  overflow: hidden;
+  border: 1px solid #dfe8f5;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.65rem;
+  box-shadow: 0 10px 24px rgba(27, 70, 126, 0.08);
+}
+.kaido-coupon-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 0.65rem;
+  animation: kaido-coupon-scroll 30s linear infinite;
+}
+.kaido-coupon-rail:hover .kaido-coupon-track,
+.kaido-coupon-rail:focus-within .kaido-coupon-track {
+  animation-play-state: paused;
+}
+.kaido-coupon-ticket {
+  display: inline-flex;
+  min-width: 12rem;
+  min-height: 2.55rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  border: 1px solid #edf1f6;
+  border-radius: 999px;
+  background: #fff;
+  padding: 0.35rem 0.4rem 0.35rem 0.85rem;
+  color: #173b70;
+  box-shadow: 0 4px 12px rgba(27, 70, 126, 0.08);
+  font-size: 0.69rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.kaido-coupon-ticket > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kaido-coupon-ticket > b {
+  border-radius: 999px;
+  background: #e83787;
+  padding: 0.38rem 0.52rem;
+  color: #fff;
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+}
+.kaido-coupon-ticket:hover { color: #d72c78; }
+@keyframes kaido-coupon-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (max-width: 700px) {
+  .kaido-coupon-rail { margin-top: 0.65rem; }
+  .kaido-coupon-ticket { min-width: 10.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kaido-coupon-track {
+    width: 100%;
+    overflow-x: auto;
+    animation: none;
+  }
+}
