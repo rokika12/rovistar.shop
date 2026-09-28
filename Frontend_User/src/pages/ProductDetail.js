@@ -173,7 +173,7 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-8 ${isKaidoStore ? 'kaido-account-detail' : ''}`}>
+    <div className={`product-detail-page max-w-7xl mx-auto px-4 py-8 ${isKaidoStore ? 'kaido-account-detail' : ''}`}>
       <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mb-4 text-sm">
         <FiChevronLeft /> {t('back')}
       </button>
@@ -194,7 +194,7 @@ export default function ProductDetail() {
             )}
           </div>
           {galleryImages.length > 1 && (
-            <div className={`flex gap-2 mt-3 ${isKaidoStore ? 'kaido-account-thumbnails' : ''}`}>
+            <div className={`product-gallery-thumbnails flex gap-2 mt-3 ${isKaidoStore ? 'kaido-account-thumbnails' : ''}`}>
               {galleryImages.map((img, i) => (
                 <button
                   key={i}
@@ -207,7 +207,7 @@ export default function ProductDetail() {
             </div>
           )}
           {product.description && (
-            <div className="mt-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <div className="product-description-card mt-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <h3 className="mb-2 font-bold">{t('description')}</h3>
               <p className="whitespace-pre-line text-sm leading-relaxed text-gray-600 dark:text-gray-400">{product.description}</p>
             </div>
@@ -215,7 +215,7 @@ export default function ProductDetail() {
         </div>
 
         {/* Purchase panel */}
-        <div className="store-product-detail-panel">
+        <div className="store-product-detail-panel product-purchase-panel">
           {product.category_name && <span className="text-xs text-primary font-semibold uppercase">{product.category_name}</span>}
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-1">{product.name}</h1>
           {product.metadata?.product_type === 'digital' && product.metadata?.duration && (
@@ -228,7 +228,7 @@ export default function ProductDetail() {
           )}
 
           {!manualService && (
-            <div className="flex items-center gap-3 mt-4">
+            <div className="product-price-row flex items-center gap-3 mt-4">
               <span className="text-3xl font-bold dark:text-gray-100">{effectivePrice.toFixed(2)}</span>
               <span className="text-gray-500 dark:text-gray-400">{shop.currency}</span>
               {product.sale_price != null && product.sale_price < product.price && (
@@ -344,34 +344,34 @@ export default function ProductDetail() {
             <div className="mt-5">
               <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
               <div className="space-y-3">
-                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>
+                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`product-payment-option flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>
                   <span className="payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span>
                   <span className="min-w-0 flex-1"><strong className="block text-blue-950">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Scan a real KHQR after payment is created</span></span>
                   <strong className="shrink-0 text-sm text-blue-900">{Number(effectivePrice).toFixed(2)} {shop.currency}</strong>
                 </button>
-                {!isKaidoStore && <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                {!isKaidoStore && <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`product-payment-option flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
                   <span className="payment-method-mark"><img src={WALLET_ICON_URL} alt="Rovistar wallet" className="payment-method-logo" /></span>
                   <span className="min-w-0 flex-1"><strong className="block text-slate-900">Wallet Balance</strong><span className="mt-1 block text-xs text-slate-600">Pay instantly from your balance</span></span>
                 </button>}
-                <button type="button" onClick={() => buyNow(servicePaymentMethod)} className="w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700">Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now</button>
+                <button type="button" onClick={() => buyNow(servicePaymentMethod)} className="product-pay-button w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700">Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now</button>
               </div>
             </div>
           )}
 
           {/* Direct digital purchase */}
           {!manualService && (isKaidoStore ? (
-            <div className="mt-8 space-y-3">
-              <div className="flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 border-blue-500 bg-blue-50 p-3 text-left shadow-sm">
+            <div className="product-payment-options mt-8 space-y-3">
+              <div className="product-payment-option flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 border-blue-500 bg-blue-50 p-3 text-left shadow-sm">
                 <span className="payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span>
                 <span className="min-w-0 flex-1"><strong className="block text-blue-950">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Pay securely and receive a QR code to scan</span></span>
                 <strong className="shrink-0 text-sm text-blue-900">{Number(effectivePrice).toFixed(2)} {shop.currency}</strong>
               </div>
-              <button onClick={() => buyNow('khqr')} disabled={!isAvailable} className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold text-white hover:bg-blue-700 disabled:opacity-50">
+              <button onClick={() => buyNow('khqr')} disabled={!isAvailable} className="product-pay-button flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold text-white hover:bg-blue-700 disabled:opacity-50">
                 <FiZap /> Pay with ABA KHQR
               </button>
             </div>
-          ) : <div className="flex items-center gap-4 mt-8">
-            <button onClick={buyNow} disabled={!isAvailable} className="flex-1 px-5 py-3 rounded-xl bg-primary text-white font-bold hover:brightness-95 disabled:opacity-50 flex items-center justify-center gap-2">
+          ) : <div className="product-payment-options flex items-center gap-4 mt-8">
+            <button onClick={buyNow} disabled={!isAvailable} className="product-pay-button flex-1 px-5 py-3 rounded-xl bg-primary text-white font-bold hover:brightness-95 disabled:opacity-50 flex items-center justify-center gap-2">
               <FiZap /> Buy Now
             </button>
           </div>)}
