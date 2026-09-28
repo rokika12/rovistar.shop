@@ -1638,3 +1638,18 @@ body {
 .payment-method-mark .payment-method-logo { width: 100%; height: 100%; object-fit: contain; }
 .wallet-payment-option { grid-template-columns: 3.5rem minmax(0, 1fr) 1.25rem; }
 @media (max-width: 640px) { .payment-method-mark { width: 3rem; height: 3rem; flex-basis: 3rem; } .wallet-payment-option { grid-template-columns: 3rem minmax(0, 1fr) 1.1rem; } }
+
+/* Shared catalog cards: every storefront keeps images, prices and actions aligned. */
+.store-product-card { min-width: 0; height: 100%; }
+.store-product-card > a:first-child { display: block; }
+.store-product-card .store-product-image { aspect-ratio: 16 / 9; }
+.store-product-card .store-product-image img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.store-product-card > div:last-child { min-height: 0; }
+.store-product-card .text-xl { font-size: clamp(1.15rem, 2vw, 1.5rem); line-height: 1.1; }
+.store-product-card .mt-4 { margin-top: auto; min-height: 2.65rem; }
+@media (max-width: 640px) {
+  .store-product-card { border-radius: 0.9rem; }
+  .store-product-card .store-product-image { aspect-ratio: 1.5 / 1; }
+  .store-product-card .text-xl { font-size: 1.1rem; }
+  .store-product-card .mt-4 { min-height: 2.45rem; font-size: 0.78rem; }
+}
