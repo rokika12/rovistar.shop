@@ -1460,3 +1460,47 @@ body {
 .kaido-popular-price-long .kaido-popular-price small {
   flex: 0 0 auto;
 }
+
+/* Keep Kaido purchase controls compact and add a restrained gloss to product artwork. */
+.kaido-classic-products .store-product-card a:last-child {
+  width: min(9.5rem, 100%) !important;
+  min-height: 2.3rem;
+  align-self: flex-start;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.72rem;
+}
+.kaido-popular-buy,
+.kaido-popular-sold {
+  width: min(9.5rem, 100%);
+  min-height: 2.3rem;
+  align-self: flex-start;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.72rem;
+}
+.kaido-classic-products .store-product-image::after,
+.kaido-popular-image::after {
+  position: absolute;
+  top: -40%;
+  left: -55%;
+  z-index: 3;
+  width: 26%;
+  height: 180%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.08) 34%, rgba(255, 255, 255, 0.42) 50%, rgba(255, 255, 255, 0.08) 66%, transparent);
+  content: '';
+  filter: blur(1px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: kaido-product-shine 5.2s ease-in-out infinite;
+}
+.kaido-popular-image { position: relative; }
+.kaido-popular-card:nth-child(2n) .kaido-popular-image::after { animation-delay: 0.65s; }
+@keyframes kaido-product-shine {
+  0%, 64% { transform: translateX(-130%) rotate(12deg); opacity: 0; }
+  70% { opacity: 1; }
+  87% { transform: translateX(560%) rotate(12deg); opacity: 1; }
+  100% { transform: translateX(560%) rotate(12deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kaido-classic-products .store-product-image::after,
+  .kaido-popular-image::after { animation: none; opacity: 0; }
+}
