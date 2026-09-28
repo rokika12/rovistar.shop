@@ -10,7 +10,7 @@ import { fullUrl } from '../api';
  * Full width and full height responsive layout. Images fill the frame so the
  * admin-selected banner does not leave blurred side panels.
  */
-export default function Slideshow({ slides }) {
+export default function Slideshow({ slides, naturalHeight = false }) {
   const { t } = useLanguage();
   const images = useMemo(() => slides || [], [slides]);
   const count = images.length;
@@ -65,14 +65,14 @@ export default function Slideshow({ slides }) {
 
   return (
     <div
-      className="relative w-full aspect-[3/1] min-h-[132px] max-h-[520px] md:min-h-[180px] overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 touch-pan-y"
+      className={`relative w-full overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 touch-pan-y ${naturalHeight ? '' : 'aspect-[3/1] min-h-[132px] max-h-[520px] md:min-h-[180px]'}`}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {images.map((img, i) => (
         <div
           key={i}
-          className={`absolute inset-0 transition-opacity duration-700 ${
+          className={`${naturalHeight && i === index ? 'relative' : 'absolute inset-0'} transition-opacity duration-700 ${
             i === index ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
@@ -85,7 +85,7 @@ export default function Slideshow({ slides }) {
             <img
               src={fullUrl(img)}
               alt=""
-              className="w-full h-full object-cover relative z-10"
+              className={`relative z-10 w-full ${naturalHeight && i === index ? 'h-auto object-contain' : 'h-full object-cover'}`}
               onError={() => setFailedSlides((current) => new Set([...current, i]))}
             />
           )}
