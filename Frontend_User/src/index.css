@@ -1543,3 +1543,23 @@ body {
   .kaido-quick-controls { right: 0.75rem; bottom: calc(0.75rem + env(safe-area-inset-bottom)); }
   .kaido-back-top { width: 2.45rem; height: 2.45rem; }
 }
+
+/* The standard Kaido catalog uses the same compact action size as the home cards. */
+.kaido-compact-action-card a.mt-4,
+.kaido-compact-action-card span.mt-4 {
+  width: min(7rem, 100%);
+  min-height: 2.2rem;
+  align-self: flex-start;
+  padding: 0.42rem 0.65rem;
+  font-size: 0.68rem;
+  line-height: 1.1;
+}
+@media (max-width: 640px) {
+  .kaido-compact-action-card a.mt-4,
+  .kaido-compact-action-card span.mt-4 {
+    width: min(6.7rem, 100%);
+    min-height: 2.05rem;
+    padding: 0.38rem 0.5rem;
+    font-size: 0.62rem;
+  }
+}
