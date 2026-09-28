@@ -345,12 +345,12 @@ export default function ProductDetail() {
               <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
               <div className="space-y-3">
                 <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>
-                  <span className="h-14 w-14 shrink-0 overflow-hidden rounded-xl shadow-sm"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="h-full w-full object-cover" /></span>
+                  <span className="payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span>
                   <span className="min-w-0 flex-1"><strong className="block text-blue-950">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Scan a real KHQR after payment is created</span></span>
                   <strong className="shrink-0 text-sm text-blue-900">{Number(effectivePrice).toFixed(2)} {shop.currency}</strong>
                 </button>
                 {!isKaidoStore && <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center"><img src={WALLET_ICON_URL} alt="Rovistar wallet" className="h-12 w-12 rounded-[0.7rem] shadow-sm" /></span>
+                  <span className="payment-method-mark"><img src={WALLET_ICON_URL} alt="Rovistar wallet" className="payment-method-logo" /></span>
                   <span className="min-w-0 flex-1"><strong className="block text-slate-900">Wallet Balance</strong><span className="mt-1 block text-xs text-slate-600">Pay instantly from your balance</span></span>
                 </button>}
                 <button type="button" onClick={() => buyNow(servicePaymentMethod)} className="w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700">Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now</button>
@@ -362,7 +362,7 @@ export default function ProductDetail() {
           {!manualService && (isKaidoStore ? (
             <div className="mt-8 space-y-3">
               <div className="flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 border-blue-500 bg-blue-50 p-3 text-left shadow-sm">
-                <span className="h-14 w-14 shrink-0 overflow-hidden rounded-xl shadow-sm"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="h-full w-full object-cover" /></span>
+                <span className="payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span>
                 <span className="min-w-0 flex-1"><strong className="block text-blue-950">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Pay securely and receive a QR code to scan</span></span>
                 <strong className="shrink-0 text-sm text-blue-900">{Number(effectivePrice).toFixed(2)} {shop.currency}</strong>
               </div>
