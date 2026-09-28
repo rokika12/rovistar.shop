@@ -155,8 +155,8 @@ export default function ShopHome() {
             <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
           </div>
           {featuredProducts.length ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
+            <div className="kaido-popular-grid">
+              {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-popular" />)}
             </div>
           ) : <p className="kaido-filter-empty">{t('noFeatured')}</p>}
         </section>

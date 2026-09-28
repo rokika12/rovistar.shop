@@ -27,6 +27,27 @@ export default function ProductCard({ product, variant = 'standard' }) {
   const isManualService = metadata.fulfillment_type === 'manual_service';
   const isAvailable = isManualService ? !metadata.manual_service_out_of_stock : product.quantity > 0;
 
+  if (isKaidoStore && variant === 'kaido-popular') {
+    const productLink = `/${shop.username}/product/${product.id}`;
+    const accent = String(product.category_name || product.name).toLowerCase().includes('mlbb') ? 'blue' : 'pink';
+
+    return (
+      <article className={`kaido-popular-card kaido-popular-card-${accent}`}>
+        <Link to={productLink} className="kaido-popular-image" aria-label={`View ${product.name}`}>
+          {product.images?.[0] && !imageFailed ? <img src={fullUrl(product.images[0])} alt={product.name} onError={() => setImageFailed(true)} /> : <span><FiShoppingBag /></span>}
+        </Link>
+        <div className="kaido-popular-body">
+          <span className="kaido-popular-category">{product.category_name || 'Rovistar item'}</span>
+          <Link to={productLink}><h3>{product.name}</h3></Link>
+          <p>{description || 'Digital access after payment.'}</p>
+          <div className="kaido-popular-meta"><span className={isAvailable ? 'available' : 'sold'}>● {isAvailable ? 'Available' : 'Sold out'}</span><span>Instant access</span></div>
+          <div className="kaido-popular-price"><strong>${Number(price).toFixed(2)}</strong><small>{shop.currency || 'USD'}</small></div>
+          {isAvailable ? <Link to={productLink} className="kaido-popular-buy">Buy Now <FiArrowRight /></Link> : <span className="kaido-popular-sold">Sold out</span>}
+        </div>
+      </article>
+    );
+  }
+
   if (isKaidoStore && variant === 'kaido-list') {
     const productLink = `/${shop.username}/product/${product.id}`;
 
