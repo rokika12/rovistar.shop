@@ -31,7 +31,9 @@ export default function ProductCard({ product, variant = 'standard' }) {
     const productLink = `/${shop.username}/product/${product.id}`;
     const accent = String(product.category_name || product.name).toLowerCase().includes('mlbb') ? 'blue' : 'pink';
     const priceLabel = `$${Number(price).toFixed(2)}`;
-    const priceClass = priceLabel.length > 10 ? 'kaido-popular-price-long' : '';
+    const priceClass = priceLabel.length > 10
+      ? 'kaido-popular-price-long'
+      : priceLabel.length > 6 ? 'kaido-popular-price-wide' : '';
 
     return (
       <article className={`kaido-popular-card kaido-popular-card-${accent} ${priceClass}`}>

@@ -1457,6 +1457,10 @@ body {
   font-size: clamp(1.05rem, 1.65vw, 1.45rem);
   letter-spacing: -0.065em;
 }
+.kaido-popular-price-wide .kaido-popular-price strong {
+  font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+  letter-spacing: -0.052em;
+}
 .kaido-popular-price-long .kaido-popular-price small {
   flex: 0 0 auto;
 }
