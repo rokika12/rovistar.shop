@@ -96,11 +96,11 @@ export default function ShopHome() {
   return (
     <div className={isKaidoStore ? 'kaido-storefront' : `domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>
       <ShopSearchBar />
-      {categories.length > 0 && <CategoryNav categories={categories} products={allProducts} />}
+      {categories.length > 0 && <div className={isKaidoStore ? 'kaido-top-category-nav' : ''}><CategoryNav categories={categories} products={allProducts} /></div>}
 
       {slides.length > 0 && (
         <section className={`${isKaidoStore ? 'kaido-banner-wrap' : 'max-w-7xl mx-auto px-4 pt-6 md:pt-8'}`}>
-          <Slideshow slides={slides} controlsAbove={isKaidoStore} />
+          <Slideshow slides={slides} />
         </section>
       )}
 
@@ -155,8 +155,8 @@ export default function ShopHome() {
             <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
           </div>
           {featuredProducts.length ? (
-            <div className="kaido-product-grid">
-              {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-grid" />)}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
             </div>
           ) : <p className="kaido-filter-empty">{t('noFeatured')}</p>}
         </section>

@@ -10,7 +10,7 @@ import { fullUrl } from '../api';
  * Full width and full height responsive layout. Images fill the frame so the
  * admin-selected banner does not leave blurred side panels.
  */
-export default function Slideshow({ slides, controlsAbove = false }) {
+export default function Slideshow({ slides }) {
   const { t } = useLanguage();
   const images = useMemo(() => slides || [], [slides]);
   const count = images.length;
@@ -64,23 +64,11 @@ export default function Slideshow({ slides, controlsAbove = false }) {
   }
 
   return (
-    <div className={controlsAbove ? 'slideshow-with-top-controls' : ''}>
-      {controlsAbove && count > 1 && (
-        <div className="slideshow-top-controls" aria-label="Banner controls">
-          <button onClick={prev} aria-label="Previous slide"><FiChevronLeft className="w-5 h-5" /></button>
-          <div className="slideshow-top-dots">
-            {images.map((_, i) => (
-              <button key={i} onClick={() => goTo(i)} aria-label={`Go to slide ${i + 1}`} aria-current={i === index ? 'true' : undefined} />
-            ))}
-          </div>
-          <button onClick={next} aria-label="Next slide"><FiChevronRight className="w-5 h-5" /></button>
-        </div>
-      )}
-      <div
-        className="relative w-full aspect-[3/1] min-h-[132px] max-h-[520px] overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 touch-pan-y"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
+    <div
+      className="relative w-full aspect-[3/1] min-h-[132px] max-h-[520px] md:min-h-[180px] overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 touch-pan-y"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {images.map((img, i) => (
         <div
           key={i}
@@ -105,7 +93,7 @@ export default function Slideshow({ slides, controlsAbove = false }) {
       ))}
 
       {/* Arrows */}
-      {count > 1 && !controlsAbove && (
+      {count > 1 && (
         <>
           <button
             onClick={prev}
@@ -125,7 +113,7 @@ export default function Slideshow({ slides, controlsAbove = false }) {
       )}
 
       {/* Dots */}
-      {count > 1 && !controlsAbove && (
+      {count > 1 && (
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-20">
           {images.map((_, i) => (
             <button
@@ -139,7 +127,6 @@ export default function Slideshow({ slides, controlsAbove = false }) {
           ))}
         </div>
       )}
-      </div>
     </div>
   );
 }
