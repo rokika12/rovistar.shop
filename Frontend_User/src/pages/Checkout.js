@@ -61,7 +61,7 @@ export default function Checkout() {
       customer_name: f.customer_name || customer.name || '',
       customer_email: f.customer_email || customer.email || '',
       customer_phone: f.customer_phone || customer.phone || '',
-      customer_telegram: f.customer_telegram || customer.telegram || '',
+      customer_telegram: f.customer_telegram || customer.telegram || customer.telegram_username || '',
     }));
   }, [customer]);
 
@@ -137,6 +137,10 @@ export default function Checkout() {
     const shopLoggedIn = !!shopToken;
     if (!digitalOnly && !shopLoggedIn) {
       toast.error(t('signInRequired'));
+      return;
+    }
+    if (!form.customer_telegram.trim()) {
+      toast.error('Please enter your Telegram username so the shop can contact you.');
       return;
     }
     if (!digitalOnly && (!form.customer_name || !form.customer_phone || !form.customer_address || !form.customer_city || !form.customer_country)) {
@@ -463,8 +467,8 @@ export default function Checkout() {
               <input value={form.customer_phone} onChange={set('customer_phone')} className="mt-1 w-full border rounded-lg px-3 py-2 text-sm" placeholder="+855 12 345 678" />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('telegramOpt')}</label>
-              <input value={form.customer_telegram} onChange={set('customer_telegram')} className="mt-1 w-full border rounded-lg px-3 py-2 text-sm" placeholder="@username" />
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Telegram username *</label>
+              <input required value={form.customer_telegram} onChange={set('customer_telegram')} className="mt-1 w-full border rounded-lg px-3 py-2 text-sm" placeholder="@username" autoCapitalize="none" />
             </div>
           </div>
           <div>

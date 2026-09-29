@@ -29,6 +29,7 @@ export default function Profile() {
   const [wallet, setWallet] = useState({ balance: 0, transactions: [] });
   const [topupAmount, setTopupAmount] = useState('5');
   const [topup, setTopup] = useState(null);
+  const [topupSuccess, setTopupSuccess] = useState(null);
   const [topupBusy, setTopupBusy] = useState(false);
 
   useEffect(() => {
@@ -63,7 +64,10 @@ export default function Profile() {
       const result = await verifyPayment({ order_id: topup.order.id, transaction_id: topup.payment?.transaction_id || '' });
       if (!result.verified) { toast.error('Payment is still pending'); return; }
       const updated = await getMyWallet(token);
-      setWallet(updated); setTopup(null); toast.success('Wallet balance updated');
+      setWallet(updated);
+      setTopupSuccess({ amount: Number(topup.order.total || topupAmount), reference: result.transaction_id || topup.payment?.transaction_id || topup.order.order_number, balance: Number(updated.balance || 0), paidAt: new Date() });
+      setTopup(null);
+      toast.success('Payment confirmed. Wallet balance updated.');
     } catch (err) { toast.error(err?.response?.data?.detail || 'Could not confirm top-up'); }
   };
 
@@ -254,6 +258,8 @@ export default function Profile() {
         </section>
       )}
 
+      {topupSuccess && <div className="wallet-success-overlay" role="dialog" aria-modal="true" aria-label="Top-up successful"><section className="wallet-success-card"><FiCheckCircle className="wallet-success-icon" aria-hidden="true" /><h2>Payment Successful</h2><p>Your wallet top-up has been confirmed.</p><div className="wallet-success-summary"><span>Wallet top-up</span><strong>${topupSuccess.amount.toFixed(2)}</strong><span>New wallet balance</span><strong>${topupSuccess.balance.toFixed(2)}</strong></div><div className="wallet-success-details"><span>Payment Method</span><b>ABA KHQR</b><span>Payment Reference</span><b>{topupSuccess.reference}</b><span>Date</span><b>{topupSuccess.paidAt.toLocaleString()}</b><span>Status</span><b className="wallet-success-status">Completed</b></div><button type="button" onClick={() => setTopupSuccess(null)}>Back to Wallet</button></section></div>}
+
       {editing ? (
         <form onSubmit={saveProfile} className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 mb-6 space-y-3">
           <div className="flex items-center justify-between mb-2">
@@ -291,6 +297,10 @@ export default function Profile() {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('telegramPhone')}</label>
               <input value={profileForm.telegram_phone} onChange={setProfile('telegram_phone')} className={inputCls} />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">Telegram username</label>
+              <input value={profileForm.telegram_username} onChange={setProfile('telegram_username')} className={inputCls} placeholder="@username" autoCapitalize="none" />
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('address')}</label>
