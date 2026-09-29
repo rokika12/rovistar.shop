@@ -78,9 +78,12 @@ export default function ProductDetail() {
 
   const effectivePrice = currentVariation?.price ?? product?.sale_price ?? product?.price ?? 0;
   const effectiveStock = currentVariation?.quantity ?? product?.quantity ?? 0;
-  // Use the package artwork throughout checkout so staff sees exactly what was selected.
+  // Package artwork belongs on the package card; manual-service thumbnails stay on the original product image.
   const packageImage = currentVariation?.image_url || currentVariation?.image || null;
-  const galleryImages = [...new Set([packageImage, ...(product?.images || [])].filter(Boolean))];
+  const galleryImages = [...new Set([
+    product?.metadata?.fulfillment_type === 'manual_service' ? null : packageImage,
+    ...(product?.images || []),
+  ].filter(Boolean))];
   const displayedImage = galleryImages[activeImage] || galleryImages[0] || null;
 
   const selectGalleryImage = (index) => {
@@ -236,6 +239,9 @@ export default function ProductDetail() {
                   <span className="service-payment-copy"><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span>
                   <span className="service-payment-radio" aria-hidden="true" />
                 </button>
+                <button type="button" onClick={() => buyNow(servicePaymentMethod)} disabled={!isAvailable} className="service-package-pay-button">
+                  <FiZap /> Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now
+                </button>
               </div>
             </div>
           </aside>
@@ -359,12 +365,6 @@ export default function ProductDetail() {
                 </div>
               ))}
             </div>
-          )}
-
-          {manualService && (
-            <button type="button" onClick={() => buyNow(servicePaymentMethod)} disabled={!isAvailable} className="service-package-pay-button">
-              <FiZap /> Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now
-            </button>
           )}
 
           {/* Every storefront uses the same wallet and KHQR choices. */}
