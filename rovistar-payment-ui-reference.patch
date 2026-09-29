@@ -1,0 +1,164 @@
+From 14bcc3aea86fc24d508418026d6a829b6c33c150 Mon Sep 17 00:00:00 2001
+From: Cy <cy@users.noreply.github.com>
+Date: Tue, 29 Sep 2026 10:45:43 +0000
+Subject: [PATCH] Match service payment cards to wallet design
+
+---
+ Frontend_User/src/index.css              | 59 ++++++++++++++++++++++++
+ Frontend_User/src/pages/ProductDetail.js | 38 ++++++++++-----
+ 2 files changed, 86 insertions(+), 11 deletions(-)
+
+diff --git a/Frontend_User/src/index.css b/Frontend_User/src/index.css
+index 5dfcc76..0cb847d 100644
+--- a/Frontend_User/src/index.css
++++ b/Frontend_User/src/index.css
+@@ -1614,6 +1614,65 @@ body {
+   object-fit: contain;
+   object-position: center;
+ }
++
++/* Compact payment choices match the wallet-first checkout design. */
++.service-payment-picker {
++  max-width: 30.1rem;
++}
++.service-payment-card {
++  display: grid;
++  width: 100%;
++  min-height: 5.25rem;
++  grid-template-columns: 3.2rem minmax(0, 1fr) 1.6rem;
++  align-items: center;
++  gap: 0.95rem;
++  border: 2px solid #cbd7e6;
++  border-radius: 1rem;
++  background: #fff;
++  padding: 0.85rem 1rem;
++  color: #263249;
++  text-align: left;
++  transition: border-color 160ms ease, box-shadow 160ms ease;
++}
++.service-payment-card:hover { border-color: #8eb8fa; }
++.service-payment-card-selected {
++  border-color: #347cf5;
++  box-shadow: 0 4px 12px rgba(52, 124, 245, 0.2);
++}
++.service-payment-icon {
++  display: grid;
++  width: 3.2rem;
++  height: 3.2rem;
++  place-items: center;
++  overflow: hidden;
++  border-radius: 0.65rem;
++}
++.service-payment-icon img { display: block; width: 100%; height: 100%; object-fit: contain; }
++.service-payment-wallet-icon { background: #eaf2ff; padding: 0.65rem; }
++.service-payment-khqr-icon { background: #fff; }
++.service-payment-copy { min-width: 0; }
++.service-payment-copy strong,
++.service-payment-copy small { display: block; }
++.service-payment-copy strong { color: #263249; font-size: 1rem; font-weight: 800; line-height: 1.2; }
++.service-payment-copy small { margin-top: 0.28rem; color: #65758f; font-size: 0.81rem; font-weight: 700; line-height: 1.2; }
++.service-payment-radio {
++  width: 1.55rem;
++  height: 1.55rem;
++  border: 2px solid #cbd7e6;
++  border-radius: 50%;
++  background: #fff;
++}
++.service-payment-card-selected .service-payment-radio {
++  border: 7px solid #347cf5;
++}
++@media (max-width: 640px) {
++  .service-payment-picker { max-width: none; }
++  .service-payment-card { min-height: 5.15rem; grid-template-columns: 3.05rem minmax(0, 1fr) 1.45rem; gap: 0.8rem; padding: 0.75rem 0.9rem; }
++  .service-payment-icon { width: 3.05rem; height: 3.05rem; }
++  .service-payment-copy strong { font-size: 0.94rem; }
++  .service-payment-copy small { font-size: 0.75rem; }
++  .service-payment-radio { width: 1.45rem; height: 1.45rem; }
++}
+ .checkout-payment-marks {
+   overflow: visible;
+   gap: 0.45rem;
+diff --git a/Frontend_User/src/pages/ProductDetail.js b/Frontend_User/src/pages/ProductDetail.js
+index cb79997..53c07a1 100644
+--- a/Frontend_User/src/pages/ProductDetail.js
++++ b/Frontend_User/src/pages/ProductDetail.js
+@@ -4,8 +4,9 @@ import toast from 'react-hot-toast';
+ import { FiChevronLeft, FiChevronRight, FiMaximize2, FiPlayCircle, FiShoppingBag, FiX, FiZap } from 'react-icons/fi';
+ import { useShop } from '../contexts/ShopContext';
+ import { useCart } from '../contexts/CartContext';
++import { useCustomer } from '../contexts/CustomerContext';
+ import { useLanguage } from '../i18n';
+-import { getProduct, getProducts, fullUrl, lookupRobloxUsername, lookupTelegramUsername } from '../api';
++import { getMyWallet, getProduct, getProducts, fullUrl, lookupRobloxUsername, lookupTelegramUsername } from '../api';
+ import ProductCard from '../components/ProductCard';
+ import Loading from '../components/Loading';
+ 
+@@ -16,6 +17,7 @@ export default function ProductDetail() {
+   const { id } = useParams();
+   const { shop } = useShop();
+   const { addItem, clear, setOpen } = useCart();
++  const { customer, token } = useCustomer();
+   const { t } = useLanguage();
+   const navigate = useNavigate();
+   const [product, setProduct] = useState(null);
+@@ -30,7 +32,8 @@ export default function ProductDetail() {
+   const [checkingRoblox, setCheckingRoblox] = useState(false);
+   const [telegramAccount, setTelegramAccount] = useState(null);
+   const [checkingTelegram, setCheckingTelegram] = useState(false);
+-  const [servicePaymentMethod, setServicePaymentMethod] = useState('khqr');
++  const [servicePaymentMethod, setServicePaymentMethod] = useState('wallet');
++  const [walletBalance, setWalletBalance] = useState(null);
+ 
+   useEffect(() => {
+     if (!shop) return;
+@@ -54,6 +57,18 @@ export default function ProductDetail() {
+       .finally(() => setLoading(false));
+   }, [id, shop]);
+ 
++  useEffect(() => {
++    if (shop?.username?.toLowerCase() === 'kaidostore') setServicePaymentMethod('khqr');
++  }, [shop?.username]);
++
++  useEffect(() => {
++    if (!token || customer?.shop_id !== shop?.id) {
++      setWalletBalance(null);
++      return;
++    }
++    getMyWallet(token).then((wallet) => setWalletBalance(wallet.balance || 0)).catch(() => setWalletBalance(null));
++  }, [customer?.shop_id, shop?.id, token]);
++
+   const currentVariation = useMemo(() => {
+     if (!product || !product.variations || product.variations.length === 0) return null;
+     // Only match attributes that are actually part of the variations, so extra
+@@ -341,18 +356,19 @@ export default function ProductDetail() {
+           )}
+ 
+           {manualService && (
+-            <div className="mt-5">
++            <div className="service-payment-picker mt-5">
+               <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
+               <div className="space-y-3">
+-                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`product-payment-option flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>
+-                  <span className="payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span>
+-                  <span className="min-w-0 flex-1"><strong className="block text-blue-950">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Scan a real KHQR after payment is created</span></span>
+-                  <strong className="shrink-0 text-sm text-blue-900">{Number(effectivePrice).toFixed(2)} {shop.currency}</strong>
+-                </button>
+-                {!isKaidoStore && <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`product-payment-option flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+-                  <span className="payment-method-mark"><img src={WALLET_ICON_URL} alt="Rovistar wallet" className="payment-method-logo" /></span>
+-                  <span className="min-w-0 flex-1"><strong className="block text-slate-900">Wallet Balance</strong><span className="mt-1 block text-xs text-slate-600">Pay instantly from your balance</span></span>
++                {!isKaidoStore && <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
++                  <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
++                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{walletBalance == null ? 'Sign in to view balance' : `Available: $${Number(walletBalance).toFixed(2)}`}</small></span>
++                  <span className="service-payment-radio" aria-hidden="true" />
+                 </button>}
++                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
++                  <span className="service-payment-icon service-payment-khqr-icon"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span>
++                  <span className="service-payment-copy"><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span>
++                  <span className="service-payment-radio" aria-hidden="true" />
++                </button>
+                 <button type="button" onClick={() => buyNow(servicePaymentMethod)} className="product-pay-button w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700">Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now</button>
+               </div>
+             </div>
+-- 
+2.47.3
+
