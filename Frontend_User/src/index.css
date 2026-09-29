@@ -2036,3 +2036,26 @@ body {
   .service-package-panel .service-package-options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
   .service-package-panel .service-package-option { min-height: 6.75rem; }
 }
+
+/* Domi is deliberately blush-forward: cards stay readable, while the canvas is unmistakably pink. */
+.domi-pink-store-shell, .domi-pink-store-shell .storefront-main { background: #fce0ed; }
+.domi-pink-store-shell .domi-storefront { min-height: 100%; background: radial-gradient(circle at 8% 5%, rgba(255, 90, 170, .42), transparent 28%), radial-gradient(circle at 94% 18%, rgba(255, 173, 215, .68), transparent 30%), radial-gradient(circle at 48% 80%, rgba(238, 50, 137, .17), transparent 38%), linear-gradient(135deg, #ffd5e7 0%, #fff0f7 48%, #ffc5df 100%); }
+.domi-pink-store-shell .product-card, .domi-pink-store-shell .store-product-card { background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(255,235,245,.94)); }
+.domi-pink-store-shell .store-section-heading, .domi-pink-store-shell .domi-promo-rails { backdrop-filter: blur(10px); }
+
+/* Kaido uses a black base with electric blue structure and a restrained neon-pink signal. */
+.kaido-store-shell, .kaido-storefront { --kaido-pink: #ff4fa3; --kaido-pink-bright: #ffb4d8; --kaido-blue: #1677ff; --kaido-blue-light: #63c9ff; background: #05060b !important; color: #edf7ff !important; }
+.kaido-store-shell .store-header { border-bottom-color: rgba(255, 79, 163, .28) !important; background: linear-gradient(105deg, #05060b 0%, #0a1c44 50%, #1c0821 100%) !important; }
+.kaido-store-shell .storefront-main { background: #05060b !important; }
+.kaido-storefront { background: radial-gradient(ellipse 70% 45% at 10% 0%, rgba(22, 119, 255, .34), transparent 62%), radial-gradient(ellipse 44% 34% at 94% 18%, rgba(255, 48, 150, .22), transparent 67%), linear-gradient(180deg, #05060b 0%, #08152f 48%, #090611 100%) !important; }
+.kaido-storefront::before { opacity: .7; background-image: linear-gradient(rgba(99, 201, 255, .055) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 79, 163, .04) 1px, transparent 1px); }
+.kaido-storefront::after { border-color: rgba(255, 79, 163, .26); box-shadow: 0 0 0 4rem rgba(22,119,255,.035), 0 0 76px rgba(255,79,163,.2); }
+.kaido-storefront .store-category-nav, .kaido-search-bar { background: rgba(5,6,11,.9) !important; border-color: rgba(74, 151, 255, .23) !important; }
+.kaido-search-bar input { border-color: rgba(99,201,255,.28) !important; background: rgba(9,23,54,.9) !important; color: #edf7ff !important; }
+.kaido-storefront .store-category-pill { border-color: rgba(99,201,255,.23); background: rgba(18,44,92,.48); color: #c5e6ff; }
+.kaido-storefront .store-category-pill:hover, .kaido-storefront .store-category-pill-active { border-color: var(--kaido-pink); background: rgba(255,79,163,.18); color: #fff; }
+.kaido-banner-wrap { border-color: rgba(99,201,255,.43); background: linear-gradient(135deg, rgba(22,119,255,.5), rgba(5,6,11,.55) 44%, rgba(255,79,163,.38)); box-shadow: 0 18px 48px rgba(0,0,0,.56), 0 0 46px rgba(255,79,163,.13); }
+.kaido-discount-rail, .kaido-service-strip { border-color: rgba(99,201,255,.24); background: linear-gradient(112deg, rgba(5,9,19,.94), rgba(12,35,78,.82), rgba(37,9,38,.8)); }
+.kaido-discount-ticket { border-color: rgba(99,201,255,.3); background: rgba(7,14,31,.9); }.kaido-discount-ticket:hover { border-color: var(--kaido-pink); }
+.kaido-ticket-image { background: linear-gradient(135deg, #092f74, #350c3b); }.kaido-ticket-copy b, .kaido-discount-heading h2, .kaido-trust-heading h2, .kaido-catalog-heading h1 { color: #f4fbff !important; }.kaido-ticket-copy small, .kaido-discount-heading > div > p { color: var(--kaido-pink-bright) !important; }
+.kaido-discount-count, .kaido-discount-chips span { border-color: rgba(255,79,163,.32); background: rgba(255,79,163,.11); color: var(--kaido-pink-bright); }
