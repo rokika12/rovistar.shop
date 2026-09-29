@@ -32,6 +32,29 @@ export default function Profile() {
   const [topupSuccess, setTopupSuccess] = useState(null);
   const [topupBusy, setTopupBusy] = useState(false);
 
+  const completeTopup = async (payment) => {
+    const updated = await getMyWallet(token);
+    setWallet(updated);
+    setTopupSuccess({ amount: Number(payment.order.total || topupAmount), reference: payment.payment?.transaction_id || payment.order.order_number, balance: Number(updated.balance || 0), paidAt: new Date() });
+    setTopup(null);
+    toast.success('Payment confirmed. Wallet balance updated.');
+  };
+
+  // ABA can confirm through its webhook, so keep the wallet screen live until the credit lands.
+  useEffect(() => {
+    if (!topup?.order?.id) return undefined;
+    let cancelled = false;
+    const checkPayment = async () => {
+      try {
+        const result = await verifyPayment({ order_id: topup.order.id, transaction_id: topup.payment?.transaction_id || '' });
+        if (!cancelled && result.verified) await completeTopup(topup);
+      } catch (_) { /* Payment remains pending until ABA confirms it. */ }
+    };
+    const firstCheck = setTimeout(checkPayment, 2500);
+    const poll = setInterval(checkPayment, 3000);
+    return () => { cancelled = true; clearTimeout(firstCheck); clearInterval(poll); };
+  }, [topup, token]);
+
   useEffect(() => {
     if (!isLoggedIn || !token) return;
     let mounted = true;
@@ -63,11 +86,7 @@ export default function Profile() {
     try {
       const result = await verifyPayment({ order_id: topup.order.id, transaction_id: topup.payment?.transaction_id || '' });
       if (!result.verified) { toast.error('Payment is still pending'); return; }
-      const updated = await getMyWallet(token);
-      setWallet(updated);
-      setTopupSuccess({ amount: Number(topup.order.total || topupAmount), reference: result.transaction_id || topup.payment?.transaction_id || topup.order.order_number, balance: Number(updated.balance || 0), paidAt: new Date() });
-      setTopup(null);
-      toast.success('Payment confirmed. Wallet balance updated.');
+      await completeTopup({ ...topup, payment: { ...topup.payment, transaction_id: result.transaction_id || topup.payment?.transaction_id } });
     } catch (err) { toast.error(err?.response?.data?.detail || 'Could not confirm top-up'); }
   };
 
