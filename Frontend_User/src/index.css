@@ -1740,3 +1740,79 @@ body {
 .dark .store-header { background: #111827; }
 .dark .store-utility-switcher, .dark .store-account-avatar-trigger { background: #1f2937; color: #e5edf9; }
 @media (max-width: 640px) { .store-header-inner { min-height: 4.25rem; padding: 0 1rem; } .store-utility-switcher, .store-account-avatar-trigger { height: 2.55rem; } .store-account-avatar-trigger { width: 2.55rem; } .store-language-toggle, .store-theme-toggle { height: 2.15rem; padding: 0 0.55rem; } }
+
+/* Handsets keep product browsing dense: two compact cards fit without horizontal scrolling. */
+@media (max-width: 640px) {
+  .kaido-popular-grid,
+  .kaido-account-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+  .kaido-popular-card,
+  .kaido-account-card,
+  .kaido-classic-products .store-product-card {
+    border-radius: 0.85rem;
+  }
+  .kaido-popular-body,
+  .kaido-account-card > div {
+    padding: 0.7rem;
+  }
+  .kaido-popular-category {
+    padding: 0.24rem 0.4rem;
+    font-size: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+  .kaido-popular-body h3,
+  .kaido-account-card .text-xl {
+    min-height: 0;
+    margin-top: 0.5rem;
+    font-size: 0.82rem;
+    line-height: 1.22;
+  }
+  .kaido-popular-body > p {
+    display: none;
+  }
+  .kaido-popular-meta {
+    margin-top: 0.55rem;
+    font-size: 0.54rem;
+  }
+  .kaido-popular-price {
+    margin: 0.3rem 0 0.55rem;
+  }
+  .kaido-popular-price strong,
+  .kaido-popular-price-long .kaido-popular-price strong,
+  .kaido-popular-price-wide .kaido-popular-price strong {
+    font-size: 1.05rem;
+  }
+  .kaido-popular-price small {
+    font-size: 0.5rem;
+  }
+  .kaido-popular-buy,
+  .kaido-popular-sold,
+  .kaido-classic-products .store-product-card a:last-child,
+  .kaido-compact-action-card a.mt-4,
+  .kaido-compact-action-card span.mt-4 {
+    width: 100% !important;
+    min-height: 2.05rem;
+    padding: 0.35rem 0.3rem;
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .kaido-classic-products,
+  .kaido-banner-wrap,
+  .kaido-discount-section,
+  .kaido-service-strip,
+  .kaido-trust-section {
+    width: calc(100% - 1rem);
+  }
+  .kaido-popular-grid,
+  .kaido-account-grid {
+    gap: 0.5rem;
+  }
+  .kaido-popular-body,
+  .kaido-account-card > div {
+    padding: 0.58rem;
+  }
+}
