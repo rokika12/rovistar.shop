@@ -1815,4 +1815,95 @@ body {
   .kaido-account-card > div {
     padding: 0.58rem;
   }
+/* The wallet top-up flow mirrors the package-first checkout hierarchy. */
+.wallet-topup-card {
+  max-width: 74rem;
+  overflow: visible;
+  border: 0;
+  border-radius: 1.4rem;
+  background: transparent;
+  box-shadow: none;
+}
+.wallet-topup-layout {
+  display: grid;
+  grid-template-columns: minmax(19rem, 25rem) minmax(0, 1fr);
+  gap: 1.9rem;
+  align-items: start;
+}
+.wallet-topup-payment-panel,
+.wallet-topup-package-panel {
+  border: 1px solid #dbe4f0;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(36, 67, 113, 0.08);
+}
+.wallet-topup-payment-panel { overflow: hidden; padding: 1.25rem; }
+.wallet-topup-header {
+  position: relative;
+  min-height: 7.35rem;
+  align-items: flex-start;
+  gap: 0.75rem;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  background: linear-gradient(132deg, #194aa3, #347df0 56%, #4c93ff);
+  padding: 1.05rem 1.15rem;
+  box-shadow: 0 8px 16px rgba(25, 79, 170, 0.22);
+}
+.wallet-topup-header::after {
+  position: absolute;
+  right: -1.6rem;
+  bottom: -2.5rem;
+  width: 8.5rem;
+  height: 8.5rem;
+  border: 1.25rem solid rgba(5, 48, 128, 0.18);
+  border-radius: 2rem;
+  content: '';
+  transform: rotate(-22deg);
+}
+.wallet-topup-header > svg { position: relative; z-index: 1; width: 1.55rem; height: 1.55rem; color: #fff; }
+.wallet-topup-header p { position: relative; z-index: 1; color: #fff; font-family: 'Kantumruy Pro', sans-serif; font-size: 0.72rem; font-weight: 900; letter-spacing: 0.015em; }
+.wallet-topup-header strong { position: relative; z-index: 1; font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-size: 2.55rem; line-height: 1; }
+.wallet-checkout-heading { display: flex; align-items: center; gap: 0.55rem; margin-top: 1rem; border-radius: 0.72rem; background: #eaf4ff; padding: 0.75rem 0.85rem; color: #2378e7; font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-size: 1.22rem; font-weight: 900; }
+.wallet-checkout-heading svg { width: 1.2rem; height: 1.2rem; }
+.wallet-total-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.85rem; border: 1px solid #d9e3f0; border-radius: 0.72rem; padding: 0.75rem 0.85rem; }
+.wallet-total-row span, .wallet-payment-label { color: #283a57; font-family: 'Kantumruy Pro', sans-serif; font-size: 0.76rem; font-weight: 900; }
+.wallet-total-row strong { color: #2d7de8; font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-size: 1.65rem; font-weight: 900; }
+.wallet-payment-label { margin: 1rem 0 0.45rem; text-transform: uppercase; }
+.wallet-payment-option { grid-template-columns: 3rem 3.85rem minmax(0, 1fr) 1.25rem; min-height: 4.35rem; margin-top: 0; border-color: #2f80ed; border-radius: 0.75rem; background: #fff; padding: 0.62rem 0.72rem; box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.12); }
+.wallet-payment-option.kaido-wallet-payment-option { grid-template-columns: 3.5rem minmax(0, 1fr) 1.25rem; }
+.wallet-payment-option strong { font-family: 'Kantumruy Pro', sans-serif; font-size: 0.86rem; font-weight: 900; }
+.wallet-payment-option small { font-family: 'Kantumruy Pro', sans-serif; font-size: 0.66rem; font-weight: 800; }
+.wallet-pay-button { margin-top: 0.8rem; border-radius: 0.48rem; background: #4f8fec; padding: 0.78rem 1rem; font-family: 'Kantumruy Pro', sans-serif; font-size: 0.82rem; font-weight: 900; }
+.wallet-topup-note { font-family: 'Kantumruy Pro', sans-serif; font-size: 0.69rem; font-weight: 700; }
+.wallet-topup-qr { margin-top: 1rem; border: 1px solid #d9e3f0; border-radius: 0.75rem; background: #f7fbff; padding: 1rem; }
+.wallet-topup-package-panel { padding: 1.55rem; }
+.wallet-package-heading { display: flex; align-items: flex-start; gap: 0.7rem; margin-bottom: 1.15rem; }
+.wallet-package-heading > i { width: 0.34rem; height: 2.6rem; flex: 0 0 auto; border-radius: 999px; background: linear-gradient(#2d81ed, #56a4ff 60%, #f3c64b 60%); }
+.wallet-package-heading span { color: #397fe4; font-family: 'Kantumruy Pro', sans-serif; font-size: 0.68rem; font-weight: 900; letter-spacing: 0.09em; }
+.wallet-package-heading h2 { margin: 0.12rem 0 0; color: #17233c; font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-size: 1.6rem; font-weight: 900; line-height: 1.05; }
+.wallet-package-heading p { margin: 0.35rem 0 0; color: #6e7f99; font-family: 'Kantumruy Pro', sans-serif; font-size: 0.75rem; font-weight: 800; }
+.wallet-amount-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; margin-top: 0; }
+.wallet-amount-grid button { display: flex; min-height: 8.6rem; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e1e8f2; border-radius: 1rem; background: #fff; padding: 1rem 0.55rem; text-align: center; box-shadow: 0 5px 14px rgba(36, 67, 113, 0.05); }
+.wallet-amount-grid button > svg { width: 1.55rem; height: 1.55rem; margin-bottom: 0.35rem; border-radius: 999px; background: #e7f3ff; padding: 0.25rem; color: #2d80eb; }
+.wallet-amount-grid button strong { font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-size: 1.55rem; line-height: 1; }
+.wallet-amount-grid button span { font-family: 'Kantumruy Pro', sans-serif; font-size: 0.62rem; font-weight: 900; }
+.wallet-amount-grid button:hover, .wallet-amount-grid .wallet-amount-selected { border-color: #2f80ed; background: #f6fbff; box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.12); }
+.wallet-custom-amount { margin-top: 1.05rem; }
+.wallet-custom-amount > span { color: #233650; font-family: 'Kantumruy Pro', sans-serif; font-size: 0.68rem; font-weight: 900; }
+.wallet-custom-amount > div { border-radius: 0.65rem; background: #fff; }
+.wallet-custom-amount b { display: grid; width: 2.4rem; place-items: center; padding: 0; color: #3283ec; }
+.wallet-custom-amount b svg { width: 1.1rem; height: 1.1rem; }
+.wallet-custom-amount input { min-height: 2.8rem; font-family: 'Kantumruy Pro', sans-serif; font-size: 0.88rem; font-weight: 900; }
+@media (max-width: 760px) {
+  .wallet-topup-layout { grid-template-columns: 1fr; gap: 1rem; }
+  .wallet-topup-payment-panel, .wallet-topup-package-panel { padding: 1rem; }
+  .wallet-topup-payment-panel { display: contents; }
+  .wallet-topup-header { order: 0; }
+  .wallet-topup-package-panel { order: 1; }
+  .wallet-checkout-heading, .wallet-total-row, .wallet-payment-label, .wallet-payment-option, .wallet-pay-button, .wallet-topup-note, .wallet-topup-qr { order: 2; }
+  .wallet-payment-option.kaido-wallet-payment-option { grid-template-columns: 3rem minmax(0, 1fr) 1.1rem; }
+  .wallet-amount-grid { gap: 0.6rem; }
+  .wallet-amount-grid button { min-height: 6.2rem; border-radius: 0.8rem; padding: 0.7rem 0.3rem; }
+  .wallet-amount-grid button strong { font-size: 1.28rem; }
+  .wallet-package-heading h2 { font-size: 1.35rem; }
 }

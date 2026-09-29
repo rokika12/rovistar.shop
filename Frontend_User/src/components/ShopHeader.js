@@ -114,6 +114,7 @@ export default function ShopHeader() {
                     </div>
                     <div className="store-account-menu-links">
                       <Link to={`${base}/my-orders`} onClick={closePanels}><FiPackage /> Order history</Link>
+                      {isAccountTemplate && <Link to={`${base}/profile#top-up`} onClick={closePanels}><FiCreditCard /> Top Up</Link>}
                       <Link to={`${base}/profile`} onClick={closePanels}><FiUser /> Account</Link>
                       {isMyShop && <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">Dashboard</a>}
                     </div>
