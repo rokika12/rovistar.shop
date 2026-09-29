@@ -189,8 +189,57 @@ export default function ProductDetail() {
         <FiChevronLeft /> {t('back')}
       </button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Gallery */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-8 ${manualService ? 'service-checkout-layout' : ''}`}>
+        {/* Manual services use a checkout rail so ID, payment, and package choice stay visible together. */}
+        {manualService ? (
+          <aside className="service-checkout-sidebar">
+            <div className="service-game-card">
+              <span className="service-game-thumbnail">{displayedImage ? <img src={fullUrl(displayedImage)} alt="" /> : <FiShoppingBag />}</span>
+              <strong>{product.name}</strong>
+            </div>
+            <div className="service-link-card">
+              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">{telegramService ? 'Telegram username' : freeFireService ? 'Free Fire Player ID' : mobileLegendsService ? 'Player ID' : robloxService ? 'Roblox username' : 'TikTok link'}</label>
+              <input
+                id="service-link"
+                value={serviceLink}
+                onChange={(event) => { setServiceLink(event.target.value); if (robloxService) setRobloxAccount(null); if (telegramService) setTelegramAccount(null); }}
+                type="text"
+                inputMode={freeFireService || mobileLegendsService ? 'numeric' : 'text'}
+                placeholder={telegramService ? '@username' : freeFireService ? 'Player ID' : mobileLegendsService ? 'Player ID' : robloxService ? 'Username' : 'https://www.tiktok.com/@...'}
+              />
+              {mobileLegendsService && <input value={gameServerId} onChange={(event) => setGameServerId(event.target.value)} type="text" inputMode="numeric" placeholder="Server ID" className="mt-3" />}
+              {telegramService && <button type="button" className="service-verify-button" disabled={checkingTelegram || !serviceLink.trim()} onClick={async () => {
+                setCheckingTelegram(true);
+                try { setTelegramAccount(await lookupTelegramUsername(serviceLink.trim())); }
+                catch (error) { setTelegramAccount(null); toast.error(error?.response?.data?.detail || 'Telegram username was not found publicly'); }
+                finally { setCheckingTelegram(false); }
+              }}>{checkingTelegram ? 'Checking...' : 'Verify player'}</button>}
+              {robloxService && <button type="button" className="service-verify-button" disabled={checkingRoblox || !serviceLink.trim()} onClick={async () => {
+                setCheckingRoblox(true);
+                try { setRobloxAccount(await lookupRobloxUsername(serviceLink.trim())); }
+                catch (error) { setRobloxAccount(null); toast.error(error?.response?.data?.detail || 'Roblox username was not found'); }
+                finally { setCheckingRoblox(false); }
+              }}>{checkingRoblox ? 'Checking...' : 'Verify player'}</button>}
+              {telegramAccount && <div className="service-verified-account">{telegramAccount.avatar_url && <img src={telegramAccount.avatar_url} alt="Telegram avatar" />}<span><strong>{telegramAccount.name || 'Player verified'}</strong><br />@{telegramAccount.username}</span></div>}
+              {robloxAccount && <div className="service-verified-account">{robloxAccount.avatar_url && <img src={robloxAccount.avatar_url} alt="Roblox avatar" />}<span><strong>{robloxAccount.display_name}</strong><br />@{robloxAccount.username}</span></div>}
+            </div>
+            <div className="service-payment-picker">
+              <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
+              <div className="space-y-3">
+                <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
+                  <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
+                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{walletBalance == null ? 'Sign in to view balance' : `Available: $${Number(walletBalance).toFixed(2)}`}</small></span>
+                  <span className="service-payment-radio" aria-hidden="true" />
+                </button>
+                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
+                  <span className="service-payment-icon service-payment-khqr-icon"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span>
+                  <span className="service-payment-copy"><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span>
+                  <span className="service-payment-radio" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          </aside>
+        ) : (
         <div>
           <div className={`aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden ${isKaidoStore ? 'kaido-account-gallery' : ''}`}>
             {displayedImage ? (
@@ -217,25 +266,22 @@ export default function ProductDetail() {
               ))}
             </div>
           )}
-          {product.description && (
+          {product.description && !manualService && (
             <div className="product-description-card mt-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <h3 className="mb-2 font-bold">{t('description')}</h3>
               <p className="whitespace-pre-line text-sm leading-relaxed text-gray-600 dark:text-gray-400">{product.description}</p>
             </div>
           )}
         </div>
+        )}
 
         {/* Purchase panel */}
-        <div className="store-product-detail-panel product-purchase-panel">
-          {product.category_name && <span className="text-xs text-primary font-semibold uppercase">{product.category_name}</span>}
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-1">{product.name}</h1>
+        <div className={`store-product-detail-panel product-purchase-panel ${manualService ? 'service-package-panel' : ''}`}>
+          {manualService ? <div className="service-package-heading"><i aria-hidden="true" /><div><span>SELECT PACKAGE</span><h1>Select Package</h1></div></div> : <>{product.category_name && <span className="text-xs text-primary font-semibold uppercase">{product.category_name}</span>}<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-1">{product.name}</h1></>}
           {product.metadata?.product_type === 'digital' && product.metadata?.duration && (
             <span className="inline-block mt-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
               Digital access · {product.metadata.duration}
             </span>
-          )}
-          {manualService && (
-            <p className="mt-3 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-900">{telegramService ? 'Choose a package and enter the recipient Telegram username before payment.' : freeFireService ? 'Enter your Free Fire Player ID before payment.' : mobileLegendsService ? 'Enter your Mobile Legends Game ID and Server ID before payment.' : robloxService ? 'Enter and verify your Roblox username before payment.' : 'Choose a package and paste your public TikTok link before payment. We never request your TikTok password.'}</p>
           )}
 
           {!manualService && (
@@ -248,13 +294,11 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {manualService ? (
-            <p className={`text-sm mt-1 ${isAvailable ? 'text-green-600' : 'text-red-500'}`}>{isAvailable ? '✓ Available · manual service' : '✗ Out of stock · manual service'}</p>
-          ) : effectiveStock > 0 ? (
+          {!manualService && (effectiveStock > 0 ? (
             <p className="text-sm text-green-600 mt-1">✓ {t('inStock')} ({effectiveStock})</p>
           ) : (
             <p className="text-sm text-red-500 mt-1">✗ {t('outOfStock')}</p>
-          )}
+          ))}
 
           {/* Selectable options — size, color, ... (clickable) */}
           {selectableAttrs.length > 0 && (
@@ -318,56 +362,9 @@ export default function ProductDetail() {
           )}
 
           {manualService && (
-            <div className="service-link-card mt-5">
-              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">{telegramService ? 'Telegram username' : freeFireService ? 'Free Fire Player ID' : mobileLegendsService ? 'Mobile Legends Game ID' : robloxService ? 'Roblox username' : 'TikTok link'}</label>
-              <p>{telegramService ? 'Enter the recipient username, for example @username.' : freeFireService ? 'Free Fire is securely handled with Player ID only.' : mobileLegendsService ? 'Enter both numbers exactly as shown in your game profile.' : robloxService ? 'We will verify the public Roblox account name and avatar.' : 'Paste the public video or profile link before payment.'}</p>
-              <input
-                id="service-link"
-                value={serviceLink}
-                onChange={(event) => { setServiceLink(event.target.value); if (robloxService) setRobloxAccount(null); if (telegramService) setTelegramAccount(null); }}
-                type="text"
-                inputMode={freeFireService || mobileLegendsService ? 'numeric' : 'text'}
-                placeholder={telegramService ? '@username' : freeFireService ? 'Player ID' : mobileLegendsService ? 'Game ID' : robloxService ? 'Username' : 'https://www.tiktok.com/@...'}
-              />
-              {telegramService && <>
-                <button type="button" className="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white disabled:opacity-50" disabled={checkingTelegram || !serviceLink.trim()} onClick={async () => {
-                  setCheckingTelegram(true);
-                  try { setTelegramAccount(await lookupTelegramUsername(serviceLink.trim())); }
-                  catch (error) { setTelegramAccount(null); toast.error(error?.response?.data?.detail || 'Telegram username was not found publicly'); }
-                  finally { setCheckingTelegram(false); }
-                }}>{checkingTelegram ? 'Checking...' : 'Check username'}</button>
-                {telegramAccount && <div className="mt-3 flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">{telegramAccount.avatar_url && <img src={telegramAccount.avatar_url} alt="Telegram avatar" className="h-11 w-11 rounded-full" />}<span><strong>{telegramAccount.name || 'Public username verified'}</strong><br />@{telegramAccount.username}{telegramAccount.name ? ' · public Telegram account' : ' · Telegram does not expose private display names'}</span></div>}
-              </>}
-              {mobileLegendsService && <input value={gameServerId} onChange={(event) => setGameServerId(event.target.value)} type="text" inputMode="numeric" placeholder="Server ID" className="mt-3" />}
-              {robloxService && <>
-                <button type="button" className="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white disabled:opacity-50" disabled={checkingRoblox || !serviceLink.trim()} onClick={async () => {
-                  setCheckingRoblox(true);
-                  try { setRobloxAccount(await lookupRobloxUsername(serviceLink.trim())); }
-                  catch (error) { setRobloxAccount(null); toast.error(error?.response?.data?.detail || 'Roblox username was not found'); }
-                  finally { setCheckingRoblox(false); }
-                }}>{checkingRoblox ? 'Checking...' : 'Verify Roblox account'}</button>
-                {robloxAccount && <div className="mt-3 flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">{robloxAccount.avatar_url && <img src={robloxAccount.avatar_url} alt="Roblox avatar" className="h-11 w-11 rounded-full" />}<span><strong>{robloxAccount.display_name}</strong><br />@{robloxAccount.username} · Roblox ID {robloxAccount.id}</span></div>}
-              </>}
-            </div>
-          )}
-
-          {manualService && (
-            <div className="service-payment-picker mt-5">
-              <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
-              <div className="space-y-3">
-                <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
-                  <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
-                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{walletBalance == null ? 'Sign in to view balance' : `Available: $${Number(walletBalance).toFixed(2)}`}</small></span>
-                  <span className="service-payment-radio" aria-hidden="true" />
-                </button>
-                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
-                  <span className="service-payment-icon service-payment-khqr-icon"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span>
-                  <span className="service-payment-copy"><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span>
-                  <span className="service-payment-radio" aria-hidden="true" />
-                </button>
-                <button type="button" onClick={() => buyNow(servicePaymentMethod)} className="product-pay-button w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700">Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now</button>
-              </div>
-            </div>
+            <button type="button" onClick={() => buyNow(servicePaymentMethod)} disabled={!isAvailable} className="service-package-pay-button">
+              <FiZap /> Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now
+            </button>
           )}
 
           {/* Every storefront uses the same wallet and KHQR choices. */}
