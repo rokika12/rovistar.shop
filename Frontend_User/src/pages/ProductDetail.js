@@ -34,6 +34,11 @@ export default function ProductDetail() {
   const [checkingTelegram, setCheckingTelegram] = useState(false);
   const [servicePaymentMethod, setServicePaymentMethod] = useState('wallet');
   const [walletBalance, setWalletBalance] = useState(null);
+  const [customerTelegram, setCustomerTelegram] = useState('');
+
+  useEffect(() => {
+    setCustomerTelegram(customer?.telegram_username || customer?.telegram || '');
+  }, [customer]);
 
   useEffect(() => {
     if (!shop) return;
@@ -149,6 +154,10 @@ export default function ProductDetail() {
   })();
 
   const buyNow = (payment = '') => {
+    if (!/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(customerTelegram.trim())) {
+      toast.error('Please enter your Telegram username starting with @');
+      return;
+    }
     const missing = selectableAttrs.find((a) => !selectedVariations[a.key]);
     if (missing) { toast.error(`Please select ${missing.label}`); return; }
     if (telegramService && !/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(serviceLink.trim())) {
@@ -181,7 +190,7 @@ export default function ProductDetail() {
         : freeFireService
           ? `Free Fire Player ID: ${serviceLink.trim()}`
           : serviceLink.trim();
-    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, manualService ? { ...selectedVariations, _service_link: serviceTarget } : selectedVariations);
+    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, { ...selectedVariations, ...(manualService ? { _service_link: serviceTarget } : {}), _customer_telegram: customerTelegram.trim() });
     setOpen(false);
     navigate(`/${shop.username}/checkout${payment ? `?payment=${payment}` : ''}`);
   };
@@ -201,6 +210,8 @@ export default function ProductDetail() {
               <strong>{product.name}</strong>
             </div>
             <div className="service-link-card">
+              <label htmlFor="customer-telegram" className="block text-sm font-bold text-slate-900">Telegram username *</label>
+              <input id="customer-telegram" value={customerTelegram} onChange={(event) => setCustomerTelegram(event.target.value)} type="text" placeholder="@username" autoCapitalize="none" />
               <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">{telegramService ? 'Telegram username' : freeFireService ? 'Free Fire Player ID' : mobileLegendsService ? 'Player ID' : robloxService ? 'Roblox username' : 'TikTok link'}</label>
               <input
                 id="service-link"
@@ -290,6 +301,9 @@ export default function ProductDetail() {
             </span>
           )}
 
+          {!manualService && (
+            <div className="product-customer-telegram"><label htmlFor="customer-telegram">Telegram username *</label><input id="customer-telegram" value={customerTelegram} onChange={(event) => setCustomerTelegram(event.target.value)} type="text" placeholder="@username" autoCapitalize="none" /><small>Required so the shop can contact you about this order.</small></div>
+          )}
           {!manualService && (
             <div className="product-price-row flex items-center gap-3 mt-4">
               <span className="text-3xl font-bold dark:text-gray-100">{effectivePrice.toFixed(2)}</span>

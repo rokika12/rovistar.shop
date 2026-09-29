@@ -912,6 +912,13 @@ body {
 /* The ABA mark is an intentionally wide, uncropped payment badge. */
 .wallet-payment-option .wallet-aba-mark { width: 6rem !important; height: 3.75rem !important; border-radius: .7rem !important; padding: .2rem !important; }.wallet-payment-option .wallet-aba-mark img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
 
+/* Every product collects the buyer's Telegram handle before payment. */
+.product-customer-telegram { margin-top: 1.2rem; border: 1px solid #d9e3f0; border-radius: .8rem; background: #f8fbff; padding: .8rem; }.product-customer-telegram label, .product-customer-telegram small { display: block; }.product-customer-telegram label { color: #1d365a; font-size: .82rem; font-weight: 900; }.product-customer-telegram input { width: 100%; margin-top: .45rem; border: 1px solid #b8cbe4; border-radius: .55rem; background: #fff; padding: .65rem .75rem; color: #14213d; font-weight: 800; }.product-customer-telegram small { margin-top: .42rem; color: #61728d; font-size: .68rem; }
+
+/* Force catalog cards and purchase panels to the requested solid store color. */
+.domi-pink-store-shell .product-card *, .domi-pink-store-shell .store-product-detail-panel *, .domi-pink-store-shell .wallet-topup-card * { border-color: #ef78ae; }.domi-pink-store-shell .product-card, .domi-pink-store-shell .store-product-detail-panel, .domi-pink-store-shell .wallet-topup-card { background: #ffb8d8 !important; }.domi-pink-store-shell .product-customer-telegram { background: #ffc4df; }.domi-pink-store-shell .product-customer-telegram input { background: #ffd4e8; color: #561333; }
+.kaido-store-shell .product-card *, .kaido-store-shell .store-product-detail-panel *, .kaido-store-shell .wallet-topup-card * { border-color: #352f40; }.kaido-store-shell .product-card, .kaido-store-shell .store-product-detail-panel, .kaido-store-shell .wallet-topup-card { background: #09090d !important; color: #f8eff5 !important; }.kaido-store-shell .product-customer-telegram { background: #09090d; }.kaido-store-shell .product-customer-telegram label, .kaido-store-shell .product-customer-telegram small { color: #f8eff5; }.kaido-store-shell .product-customer-telegram input { background: #15121b; color: #fff; }
+
 /* Compact review and payment surfaces preserve a clear mobile checkout hierarchy. */
 .payment-confirm-overlay { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; overflow-y: auto; padding: 1rem; background: rgba(15, 23, 42, 0.58); backdrop-filter: blur(4px); }
 .payment-confirm-modal { width: min(100%, 27rem); border-radius: 1.2rem; background: #fff; padding: 1.35rem; box-shadow: 0 24px 64px rgba(15, 23, 42, 0.32); }

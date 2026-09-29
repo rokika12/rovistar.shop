@@ -55,15 +55,16 @@ export default function Checkout() {
 
   // Prefill the form from the logged-in customer's account profile.
   useEffect(() => {
+    const productTelegram = items.find((item) => item.variations?._customer_telegram)?.variations?._customer_telegram || '';
     if (!customer) return;
     setForm((f) => ({
       ...f,
       customer_name: f.customer_name || customer.name || '',
       customer_email: f.customer_email || customer.email || '',
       customer_phone: f.customer_phone || customer.phone || '',
-      customer_telegram: f.customer_telegram || customer.telegram || customer.telegram_username || '',
+      customer_telegram: f.customer_telegram || productTelegram || customer.telegram || customer.telegram_username || '',
     }));
-  }, [customer]);
+  }, [customer, items]);
 
   useEffect(() => {
     if (customer?.shop_id === shop?.id && token && shop && items.length > 0 && items.every((item) => item.metadata?.product_type === 'digital')) {
