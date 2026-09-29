@@ -1930,3 +1930,29 @@ body {
   .wallet-amount-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .wallet-amount-grid button { min-height: 6.25rem; }
 }
+
+/* Game top-ups follow a transaction-first layout: package grid beside player and payment details. */
+@media (min-width: 900px) {
+  .game-topup-purchase-panel {
+    display: grid;
+    grid-template-columns: minmax(19rem, 0.82fr) minmax(30rem, 1.18fr);
+    column-gap: 1.35rem;
+    align-items: start;
+  }
+  .game-topup-purchase-panel > .text-xs,
+  .game-topup-purchase-panel > h1,
+  .game-topup-purchase-panel > p {
+    grid-column: 1 / -1;
+  }
+  .game-topup-purchase-panel > p.mt-1 { display: none; }
+  .game-topup-purchase-panel .service-package-selector { grid-column: 2; grid-row: 4 / span 3; margin-top: 1.15rem; }
+  .game-topup-purchase-panel .service-package-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .game-topup-purchase-panel .service-link-card { grid-column: 1; grid-row: 4; }
+  .game-topup-purchase-panel .service-payment-picker { grid-column: 1; grid-row: 5; margin-top: 1rem; }
+  .game-topup-purchase-panel .service-package-option { min-height: 6.8rem; border-radius: 1rem; text-align: center; align-items: center; }
+  .game-topup-purchase-panel .service-package-image { position: static; width: 3rem; height: 3rem; order: -1; }
+  .game-topup-purchase-panel .service-package-option:has(.service-package-image) > span:not(.service-package-mark),
+  .game-topup-purchase-panel .service-package-option:has(.service-package-image) > small { max-width: 100%; }
+}
+.service-payment-khqr-icon { padding: 0.12rem; }
+.service-payment-khqr-icon img { object-fit: contain; }
