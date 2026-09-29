@@ -4,8 +4,9 @@ import toast from 'react-hot-toast';
 import { FiChevronLeft, FiChevronRight, FiMaximize2, FiPlayCircle, FiShoppingBag, FiX, FiZap } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
+import { useCustomer } from '../contexts/CustomerContext';
 import { useLanguage } from '../i18n';
-import { getProduct, getProducts, fullUrl, lookupRobloxUsername, lookupTelegramUsername } from '../api';
+import { getMyWallet, getProduct, getProducts, fullUrl, lookupRobloxUsername, lookupTelegramUsername } from '../api';
 import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
 
@@ -16,6 +17,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const { shop } = useShop();
   const { addItem, clear, setOpen } = useCart();
+  const { customer, token } = useCustomer();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -30,7 +32,8 @@ export default function ProductDetail() {
   const [checkingRoblox, setCheckingRoblox] = useState(false);
   const [telegramAccount, setTelegramAccount] = useState(null);
   const [checkingTelegram, setCheckingTelegram] = useState(false);
-  const [servicePaymentMethod, setServicePaymentMethod] = useState('khqr');
+  const [servicePaymentMethod, setServicePaymentMethod] = useState('wallet');
+  const [walletBalance, setWalletBalance] = useState(null);
 
   useEffect(() => {
     if (!shop) return;
@@ -53,6 +56,18 @@ export default function ProductDetail() {
       .catch((e) => toast.error(e?.response?.data?.detail || 'Product not found'))
       .finally(() => setLoading(false));
   }, [id, shop]);
+
+  useEffect(() => {
+    if (shop?.username?.toLowerCase() === 'kaidostore') setServicePaymentMethod('khqr');
+  }, [shop?.username]);
+
+  useEffect(() => {
+    if (!token || customer?.shop_id !== shop?.id) {
+      setWalletBalance(null);
+      return;
+    }
+    getMyWallet(token).then((wallet) => setWalletBalance(wallet.balance || 0)).catch(() => setWalletBalance(null));
+  }, [customer?.shop_id, shop?.id, token]);
 
   const currentVariation = useMemo(() => {
     if (!product || !product.variations || product.variations.length === 0) return null;
@@ -341,18 +356,19 @@ export default function ProductDetail() {
           )}
 
           {manualService && (
-            <div className="mt-5">
+            <div className="service-payment-picker mt-5">
               <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
               <div className="space-y-3">
-                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`product-payment-option flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>
-                  <span className="payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span>
-                  <span className="min-w-0 flex-1"><strong className="block text-blue-950">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Scan a real KHQR after payment is created</span></span>
-                  <strong className="shrink-0 text-sm text-blue-900">{Number(effectivePrice).toFixed(2)} {shop.currency}</strong>
-                </button>
-                {!isKaidoStore && <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`product-payment-option flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition ${servicePaymentMethod === 'wallet' ? 'border-pink-500 bg-pink-50 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
-                  <span className="payment-method-mark"><img src={WALLET_ICON_URL} alt="Rovistar wallet" className="payment-method-logo" /></span>
-                  <span className="min-w-0 flex-1"><strong className="block text-slate-900">Wallet Balance</strong><span className="mt-1 block text-xs text-slate-600">Pay instantly from your balance</span></span>
+                {!isKaidoStore && <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
+                  <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
+                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{walletBalance == null ? 'Sign in to view balance' : `Available: $${Number(walletBalance).toFixed(2)}`}</small></span>
+                  <span className="service-payment-radio" aria-hidden="true" />
                 </button>}
+                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
+                  <span className="service-payment-icon service-payment-khqr-icon"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span>
+                  <span className="service-payment-copy"><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span>
+                  <span className="service-payment-radio" aria-hidden="true" />
+                </button>
                 <button type="button" onClick={() => buyNow(servicePaymentMethod)} className="product-pay-button w-full rounded-xl bg-blue-600 py-3.5 font-bold text-white hover:bg-blue-700">Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now</button>
               </div>
             </div>
