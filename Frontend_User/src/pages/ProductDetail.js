@@ -58,10 +58,6 @@ export default function ProductDetail() {
   }, [id, shop]);
 
   useEffect(() => {
-    if (shop?.username?.toLowerCase() === 'kaidostore') setServicePaymentMethod('khqr');
-  }, [shop?.username]);
-
-  useEffect(() => {
     if (!token || customer?.shop_id !== shop?.id) {
       setWalletBalance(null);
       return;
@@ -359,11 +355,11 @@ export default function ProductDetail() {
             <div className="service-payment-picker mt-5">
               <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
               <div className="space-y-3">
-                {!isKaidoStore && <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
+                <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
                   <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
                   <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{walletBalance == null ? 'Sign in to view balance' : `Available: $${Number(walletBalance).toFixed(2)}`}</small></span>
                   <span className="service-payment-radio" aria-hidden="true" />
-                </button>}
+                </button>
                 <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
                   <span className="service-payment-icon service-payment-khqr-icon"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span>
                   <span className="service-payment-copy"><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span>
@@ -374,23 +370,27 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* Direct digital purchase */}
-          {!manualService && (isKaidoStore ? (
-            <div className="product-payment-options mt-8 space-y-3">
-              <div className="product-payment-option flex min-h-[76px] w-full items-center gap-3 rounded-xl border-2 border-blue-500 bg-blue-50 p-3 text-left shadow-sm">
-                <span className="payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span>
-                <span className="min-w-0 flex-1"><strong className="block text-blue-950">ABA KHQR</strong><span className="mt-1 block text-xs text-blue-700">Pay securely and receive a QR code to scan</span></span>
-                <strong className="shrink-0 text-sm text-blue-900">{Number(effectivePrice).toFixed(2)} {shop.currency}</strong>
+          {/* Every storefront uses the same wallet and KHQR choices. */}
+          {!manualService && (
+            <div className="service-payment-picker mt-8">
+              <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
+              <div className="space-y-3">
+                <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
+                  <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
+                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{walletBalance == null ? 'Sign in to view balance' : `Available: $${Number(walletBalance).toFixed(2)}`}</small></span>
+                  <span className="service-payment-radio" aria-hidden="true" />
+                </button>
+                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
+                  <span className="service-payment-icon service-payment-khqr-icon"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span>
+                  <span className="service-payment-copy"><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span>
+                  <span className="service-payment-radio" aria-hidden="true" />
+                </button>
+                <button type="button" onClick={() => buyNow(servicePaymentMethod)} disabled={!isAvailable} className="product-pay-button flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold text-white hover:bg-blue-700 disabled:opacity-50">
+                  <FiZap /> Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now
+                </button>
               </div>
-              <button onClick={() => buyNow('khqr')} disabled={!isAvailable} className="product-pay-button flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold text-white hover:bg-blue-700 disabled:opacity-50">
-                <FiZap /> Pay with ABA KHQR
-              </button>
             </div>
-          ) : <div className="product-payment-options flex items-center gap-4 mt-8">
-            <button onClick={buyNow} disabled={!isAvailable} className="product-pay-button flex-1 px-5 py-3 rounded-xl bg-primary text-white font-bold hover:brightness-95 disabled:opacity-50 flex items-center justify-center gap-2">
-              <FiZap /> Buy Now
-            </button>
-          </div>)}
+          )}
           {displayAttrs.length > 0 && (
             <div className="mt-8 border-t pt-6">
               <h3 className="font-bold mb-3">{t('productDetails')}</h3>
