@@ -180,11 +180,6 @@ export default function ShopHome() {
         </section>
       )}
 
-      {!isKaidoStore && !loading && allProducts.length > 0 && appearance.show_product_marquee !== false && (
-        <section className="domi-promo-rails" aria-label="Featured offers">
-          <div className={`domi-rail marquee-product-text-${appearance.product_text_color || 'default'}`}><div className={`domi-rail-track ${productRailClass}`} style={{ '--rail-duration': appearance.product_speed === 'fast' ? '7s' : appearance.product_speed === 'normal' ? '12s' : '20s' }}>{Array.from({ length: 6 }, () => allProducts).flat().map((product, index) => <Link key={`product-${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`}><span>{product.name}</span><b>VIEW</b></Link>)}</div></div>
-        </section>
-      )}
 
       {false && <section className="max-w-7xl mx-auto px-4 py-7">
         <div className="store-trust-grid">
