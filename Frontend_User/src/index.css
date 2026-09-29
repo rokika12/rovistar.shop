@@ -945,6 +945,26 @@ body {
 @media (max-width: 640px) { .order-progress-card { padding-right: 0.25rem; padding-left: 0.25rem; } .order-progress-step span { width: 1.58rem; height: 1.58rem; } .order-progress-track { top: 1.68rem; right: 10%; left: 10%; } .order-progress-step small { max-width: 3.7rem; font-size: 0.54rem; } }
 
 .domi-storefront { background: linear-gradient(180deg, #f8f4ea 0, #fffdf8 34rem, #f5f7f6 100%); color: #153a35; }
+.domi-pink-store-shell { background: #fff5f9; color: #53112f; }
+.domi-pink-store-shell .brand-ticker { background: linear-gradient(90deg, #a80f55, #e83e8c, #a80f55) !important; color: #fff; }
+.domi-pink-store-shell .store-header { border-bottom-color: #f9a8d4; background: #fffafd; }
+.domi-pink-store-shell .store-language-toggle { background: #e83e8c; color: #fff; }
+.domi-pink-store-shell .store-theme-toggle, .domi-pink-store-shell .store-utility-switcher { border-color: #f9a8d4; background: #fff0f6; color: #b91c62; }
+.domi-pink-store-shell .store-brand-copy small { color: #c2185b; }
+.domi-pink-store-shell .storefront-main { background: #fff5f9; }
+.domi-pink-store-shell .store-category-nav { border-color: #fbcfe8; background: #fffafd; }
+.domi-pink-store-shell .store-category-pill { border-color: #f9a8d4; background: #fff0f6; color: #9d174d; }
+.domi-pink-store-shell .store-category-pill:hover, .domi-pink-store-shell .store-category-pill-active { border-color: #e83e8c; background: #e83e8c; color: #fff; }
+.domi-pink-store-shell .store-category-count { background: #fce7f3; color: #be185d; }
+.domi-pink-store-shell .domi-storefront { background: linear-gradient(180deg, #fff0f6 0, #fffafd 34rem, #fff5f9 100%); color: #53112f; }
+.domi-pink-store-shell .domi-promo-rails { border: 1px solid #fbcfe8; background: #fffafd; box-shadow: 0 14px 32px rgba(190, 24, 93, .12); }
+.domi-pink-store-shell .domi-rail { border-color: #fbcfe8; }
+.domi-pink-store-shell .domi-rail-track a { background: #fff0f6; color: #9d174d; }
+.domi-pink-store-shell .domi-rail-track b, .domi-pink-store-shell .domi-rail-track strong { background: #e83e8c; }
+.domi-pink-store-shell .product-card, .domi-pink-store-shell .store-product-card { border-color: #fbcfe8; background: #fffafd; box-shadow: 0 12px 30px rgba(190, 24, 93, .09); }
+.domi-pink-store-shell .product-card:hover, .domi-pink-store-shell .store-product-card:hover { border-color: #f472b6; box-shadow: 0 19px 35px rgba(190, 24, 93, .16); }
+.domi-pink-store-shell .product-card .text-blue-700, .domi-pink-store-shell .product-card .text-blue-600 { color: #be185d !important; }
+.domi-pink-store-shell .flash-sale-label, .domi-pink-store-shell .flash-sale-discount { background: #e83e8c; }
 .domi-storefront .max-w-7xl { max-width: 88rem; }
 .domi-storefront .store-section-heading { align-items: end; border-bottom: 1px solid #d9d0bc; padding-bottom: 1rem; }
 .domi-storefront .store-section-heading h2 { color: #d62468; font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; }

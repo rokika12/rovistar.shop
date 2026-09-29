@@ -35,17 +35,18 @@ export default function ShopLayout() {
   const theme = shop.theme || {};
   const isAccountTemplate = shop.template_type === 'account';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
+  const isDomi = shop.username?.toLowerCase() === 'domi';
   const announcement = theme.appearance?.marquee_text || (isAccountTemplate ? 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · គាំទ្រសេវាកម្មឌីជីថល' : 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · ក្រុមការងារគាំទ្ររហ័ស');
   const themeStyle = {
-    '--primary': theme.primary || '#123B3A',
-    '--secondary': theme.secondary || '#F4C95D',
-    '--brand-blue': theme.primary || '#123B3A',
-    '--brand-pink': theme.secondary || '#F4C95D',
+    '--primary': isDomi ? '#e83e8c' : (theme.primary || '#123B3A'),
+    '--secondary': isDomi ? '#b91c62' : (theme.secondary || '#F4C95D'),
+    '--brand-blue': isDomi ? '#b91c62' : (theme.primary || '#123B3A'),
+    '--brand-pink': isDomi ? '#e83e8c' : (theme.secondary || '#F4C95D'),
     fontFamily: theme.font_family ? `'${theme.font_family}', 'Kantumruy Pro', sans-serif` : undefined,
   };
 
   return (
-    <div className={`min-h-screen flex flex-col dark:bg-gray-900 ${isKaidoStore ? 'kaido-store-shell' : ''}`} data-template={shop.template_type || 'login'} style={themeStyle}>
+    <div className={`min-h-screen flex flex-col dark:bg-gray-900 ${isKaidoStore ? 'kaido-store-shell' : ''} ${isDomi ? 'domi-pink-store-shell' : ''}`} data-template={shop.template_type || 'login'} style={themeStyle}>
       <div className="store-sticky-shell">
         <div className="brand-ticker bg-[var(--brand-blue)] text-white" aria-label="Store security notice">
           <div className="brand-ticker-track">
@@ -69,7 +70,7 @@ export default function ShopLayout() {
           href={tgContact}
           target="_blank"
           rel="noreferrer"
-          className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] md:bottom-6 right-3 z-[60] inline-flex items-center justify-center gap-2 bg-[#229ED9] hover:bg-[#1d8cc1] text-white font-bold text-xs md:text-sm p-3 sm:px-4 sm:py-3 rounded-full shadow-xl transition"
+          className={`fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] md:bottom-6 right-3 z-[60] inline-flex items-center justify-center gap-2 ${isDomi ? 'bg-pink-600 hover:bg-pink-700' : 'bg-[#229ED9] hover:bg-[#1d8cc1]'} text-white font-bold text-xs md:text-sm p-3 sm:px-4 sm:py-3 rounded-full shadow-xl transition`}
         >
           <FiSend className="w-4 h-4 shrink-0" /> <span className="hidden sm:inline">{t('contactThisOwner')}</span>
         </a>
