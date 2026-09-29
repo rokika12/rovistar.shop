@@ -80,6 +80,13 @@ export default function ShopHeader() {
   return (
     <header className={`store-header ${isKaidoStore ? 'kaido-store-header' : ''}`}>
       <div className="store-header-inner">
+        <Link to={base} onClick={closePanels} className={`store-brand ${isKaidoStore ? 'store-brand-kaido' : ''}`} aria-label={`${shop.shop_name || shop.username} home`}>
+          <ShopLogo shop={shop} className="h-10 w-10 rounded-2xl" textClassName="hidden" />
+          <span className="store-brand-copy">
+            <strong>{isKaidoStore ? 'kaidostore' : (shop.shop_name || shop.username)}</strong>
+            <small>{isKaidoStore ? 'Verified game accounts' : 'Rovistar marketplace'}</small>
+          </span>
+        </Link>
         <div className="store-header-actions">
           <div className="store-utility-switcher" aria-label="Language and theme controls">
             <button type="button" onClick={toggleLanguage} className="store-language-toggle" aria-label="Switch language"><FiGlobe /><span>{lang === 'kh' ? 'ខ្មែរ' : 'EN'}</span></button>
