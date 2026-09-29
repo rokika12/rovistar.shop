@@ -31,6 +31,7 @@ export default function Profile() {
   const [topup, setTopup] = useState(null);
   const [topupSuccess, setTopupSuccess] = useState(null);
   const [topupBusy, setTopupBusy] = useState(false);
+  const [topupTelegram, setTopupTelegram] = useState('');
 
   const completeTopup = async (payment) => {
     const updated = await getMyWallet(token);
@@ -68,8 +69,11 @@ export default function Profile() {
   const startTopup = async () => {
     const amount = Number(topupAmount);
     if (!amount || amount < 0.10) { toast.error('Enter a valid top-up amount'); return; }
+    if (!/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(topupTelegram.trim())) { toast.error('Enter a valid Telegram username starting with @'); return; }
     setTopupBusy(true);
     try {
+      const updatedCustomer = await updateMyProfile(token, { ...profileForm, telegram_username: topupTelegram.trim() });
+      setSession({ access_token: token, customer: updatedCustomer });
       const result = await topUpWallet(token, {
         amount,
         success_url: `${window.location.origin}${window.location.pathname}`,
@@ -105,6 +109,7 @@ export default function Profile() {
         city: customer.city || '',
         country: customer.country || '',
       });
+      setTopupTelegram(customer.telegram_username || customer.telegram || '');
     }
   }, [customer]);
 
@@ -272,6 +277,7 @@ export default function Profile() {
                 ))}
               </div>
               <label className="wallet-custom-amount"><span>OR CUSTOM AMOUNT (USD) · ចំនួនទឹកប្រាក់ផ្សេង</span><div><b><FiDollarSign /></b><input type="number" min="0.10" max="1000" step="0.10" value={topupAmount} onChange={(event) => setTopupAmount(event.target.value)} placeholder="e.g. 5.00" aria-label="Custom top-up amount" /></div></label>
+              <label className="wallet-topup-telegram"><span>TELEGRAM USERNAME * · សម្រាប់ទាក់ទងអ្នក</span><input required value={topupTelegram} onChange={(event) => setTopupTelegram(event.target.value)} placeholder="@username" autoCapitalize="none" /></label>
             </div>
           </div>
         </section>
