@@ -2144,7 +2144,7 @@ body {
 /* Kaido's supplied high-resolution artwork stays complete on every viewport. */
 .kaido-store-shell {
   --kaido-blue-base: #062c72;
-  background: #062c72 url('./assets/kaidostore-background-hq.png') center top / 100% auto no-repeat !important;
+  background: #062c72 url('./assets/kaidostore-background-hq.jpg') center top / 100% auto no-repeat !important;
   color: #effbff !important;
 }
 .kaido-store-shell .storefront-main, .kaido-store-shell .kaido-storefront {
