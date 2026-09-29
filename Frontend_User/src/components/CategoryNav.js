@@ -39,17 +39,6 @@ export default function CategoryNav({ categories, products = [] }) {
             {t('all')}
             <span className="store-category-count">{products.length || categories.reduce((total, category) => total + (category.product_count || 0), 0)}</span>
           </button>
-          {categories.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => select(c.id)}
-              className={chip(String(active) === String(c.id))}
-              aria-current={String(active) === String(c.id) ? 'page' : undefined}
-            >
-              {c.name}
-              <span className="store-category-count">{countFor(c)}</span>
-            </button>
-          ))}
         </div>
       </div>
     </div>
