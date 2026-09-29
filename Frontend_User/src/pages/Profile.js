@@ -9,12 +9,10 @@ import { fullUrl, getMyOrders, getMyWallet, topUpWallet, updateMyProfile, change
 import CustomerAuth from '../components/CustomerAuth';
 
 const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
-const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-logo.png`;
 const TOPUP_OPTIONS = [1, 2, 5, 10, 20, 50];
 
 export default function Profile() {
   const { shop } = useShop();
-  const isKaidoStore = shop?.username?.toLowerCase() === 'kaidostore';
   const { customer, token, isLoggedIn, logout, setSession } = useCustomer();
   const { t } = useLanguage();
   const [ordersCount, setOrdersCount] = useState(0);
@@ -192,7 +190,7 @@ export default function Profile() {
   );
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
+    <div className="max-w-6xl mx-auto px-4 py-10">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <FiUser className="text-primary" /> {t('myProfile')}
@@ -234,8 +232,8 @@ export default function Profile() {
               <div className="wallet-checkout-heading"><FiCheckCircle /><span>Payment &amp; Checkout</span></div>
               <div className="wallet-total-row"><span>Amount to Pay · ចំនួនត្រូវបង់</span><strong>${Number(topupAmount || 0).toFixed(2)}</strong></div>
               <p className="wallet-payment-label">Payment Method · វិធីបង់ប្រាក់</p>
-              <button type="button" className={`wallet-payment-option wallet-payment-selected ${isKaidoStore ? 'kaido-wallet-payment-option' : ''}`} aria-pressed="true">
-                <>{isKaidoStore ? <span className="kaido-payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span> : <><img className="wallet-aba-logo" src={ABA_LOGO_URL} alt="ABA Bank" /><img src={KHQR_LOGO_URL} alt="KHQR" /></>}</><span><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span><i>✓</i>
+              <button type="button" className="wallet-payment-option wallet-payment-selected" aria-pressed="true">
+                <span className="wallet-aba-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span><span><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span><i>✓</i>
               </button>
               <button type="button" onClick={startTopup} disabled={topupBusy} className="wallet-pay-button">{topupBusy ? 'Preparing payment...' : `Place Top Up · $${Number(topupAmount || 0).toFixed(2)}`}</button>
               <p className="wallet-topup-note">ដាក់ប្រាក់ចាប់ពី $0.10 ដល់ $1,000.00។ ប្រាក់នឹងចូលកាបូបក្រោយពេលបង់រួច។</p>
