@@ -632,8 +632,7 @@ const en = {
 const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
-  // Storefront is intentionally English-only; dashboard language is managed separately.
-  const [lang, setLang] = useState('en');
+  const [lang, setLang] = useState(() => localStorage.getItem('ms_lang') || 'en');
 
   useEffect(() => {
     localStorage.setItem('ms_lang', lang);
@@ -655,4 +654,3 @@ export function LanguageProvider({ children }) {
 }
 
 export const useLanguage = () => useContext(LanguageContext);
-

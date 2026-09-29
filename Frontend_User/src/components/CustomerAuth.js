@@ -35,7 +35,7 @@ function loadGoogleIdentityServices() {
   return googleIdentityServicesPromise;
 }
 
-export default function CustomerAuth({ onSuccess }) {
+export default function CustomerAuth({ onSuccess, onOwnerSuccess }) {
   const { shop } = useShop();
   const { googleSignin, signin, signup } = useCustomer();
   const { login: ownerLogin } = useOwner();
@@ -136,8 +136,13 @@ export default function CustomerAuth({ onSuccess }) {
           toast.error('This account is not a shop owner account.');
           return;
         }
-        toast.success(`Welcome, ${ownerRes.user.username}!`);
-        if (onSuccess) onSuccess();
+        if (ownerRes.user.shop_id !== shop.id) {
+          toast.error('This username belongs to a different shop. Please open that shop first.');
+          return;
+        }
+        toast.success(`Welcome, ${ownerRes.user.username}! Opening your dashboard...`);
+        if (onOwnerSuccess) onOwnerSuccess(ownerRes);
+        else if (onSuccess) onSuccess();
       } catch (ownerErr) {
         toast.error(customerErr?.response?.data?.detail || 'Login failed');
       }

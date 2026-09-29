@@ -5,7 +5,14 @@ export const API_BASE = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'
 // Shop owner dashboard (Frontend_Dashboard_User) — opened from the storefront
 // header when the owner is logged in and viewing their own shop.
 export const DASHBOARD_URL =
-  process.env.REACT_APP_DASHBOARD_URL || 'http://localhost:3002/';
+  process.env.REACT_APP_DASHBOARD_URL || 'https://rovistar-shop.onrender.com/';
+
+// The fragment never reaches the server or referrer. The dashboard consumes it
+// immediately to create its own same-origin session, then removes it from history.
+export const ownerDashboardUrl = (token, user) => {
+  const payload = encodeURIComponent(btoa(JSON.stringify({ token, user })));
+  return `${DASHBOARD_URL.replace(/\/$/, '')}/#owner_session=${payload}`;
+};
 
 const api = axios.create({ baseURL: API_BASE });
 

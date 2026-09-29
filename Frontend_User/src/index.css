@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Lilita+One&family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Vichealey&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -18,6 +18,10 @@ body {
   background: #f9fafb;
   color: #111827;
 }
+
+:root { --font-khmer-display: 'Vichealey', 'Kantumruy Pro', sans-serif; --font-commerce: 'Lilita One', 'Baloo 2', 'Kantumruy Pro', sans-serif; }
+html[lang='km'] h1, html[lang='km'] h2, html[lang='km'] h3, html[lang='km'] .store-section-heading { font-family: var(--font-khmer-display); font-weight: 400; line-height: 1.35; }
+.price, .currency, .store-product-price, .product-pay-button, .qr-amt-row { font-family: var(--font-commerce); }
 
 @media (max-width: 480px) {
   .home-header-cta {
@@ -363,14 +367,15 @@ body {
   padding: 20px 0 28px;
 }
 .qr-img {
-  width: 200px;
-  height: 200px;
+  width: 100%;
+  height: 100%;
   display: block;
   position: relative;
   z-index: 1;
   background: #fff;
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: 0;
+  object-fit: contain;
+  padding: 0;
 }
 .qr-logo-center {
   position: absolute;
@@ -1716,3 +1721,22 @@ body {
   .kaido-account-card > div { padding: 1rem; }
   .kaido-wallet-payment-option { grid-template-columns: 3rem minmax(0, 1fr) 1.1rem; }
 }
+
+/* Minimal shared storefront header: language, theme and account only. */
+.store-header { border: 0; background: #fff; box-shadow: none; }
+.store-header-inner { justify-content: flex-end; min-height: 4.8rem; }
+.store-header-actions { gap: 0.65rem; }
+.store-utility-switcher { display: inline-flex; height: 2.85rem; align-items: center; border-radius: 0.9rem; background: #eef4fb; padding: 0.2rem; color: #243852; }
+.store-language-toggle, .store-theme-toggle { display: inline-flex; height: 2.4rem; align-items: center; justify-content: center; gap: 0.42rem; border: 0; border-radius: 0.7rem; background: transparent; padding: 0 0.7rem; color: inherit; font-family: var(--font-commerce); font-size: 0.84rem; }
+.store-language-toggle { background: #347df0; color: #fff; }
+.store-language-toggle svg, .store-theme-toggle svg { width: 1.05rem; height: 1.05rem; }
+.store-utility-divider { width: 1px; height: 1.35rem; margin: 0 0.18rem; background: #d2ddea; }
+.store-account-avatar-trigger { width: 2.85rem; height: 2.85rem; overflow: hidden; border: 0; border-radius: 50%; padding: 0; background: #eef4fb; box-shadow: 0 0 0 2px #eef4fb; }
+.store-account-avatar-trigger .store-avatar { width: 100%; height: 100%; border-radius: 50%; background: transparent; }
+.store-account-avatar-trigger .store-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.store-account-menu { min-width: 18rem; border-radius: 1.15rem; }
+.store-account-menu-identity { align-items: center; }
+.store-account-menu-identity small { display: flex; align-items: center; gap: 0.3rem; color: #347df0; }
+.dark .store-header { background: #111827; }
+.dark .store-utility-switcher, .dark .store-account-avatar-trigger { background: #1f2937; color: #e5edf9; }
+@media (max-width: 640px) { .store-header-inner { min-height: 4.25rem; padding: 0 1rem; } .store-utility-switcher, .store-account-avatar-trigger { height: 2.55rem; } .store-account-avatar-trigger { width: 2.55rem; } .store-language-toggle, .store-theme-toggle { height: 2.15rem; padding: 0 0.55rem; } }

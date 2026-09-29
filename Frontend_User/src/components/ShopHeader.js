@@ -1,33 +1,34 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  FiChevronDown, FiCreditCard, FiGrid, FiHome, FiLogOut, FiMenu,
-  FiPackage, FiPlusCircle, FiSearch, FiShoppingBag, FiUser, FiX,
+  FiCreditCard, FiGlobe, FiLogOut, FiMoon, FiPackage, FiSun, FiUser, FiX,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
 import { useOwner } from '../contexts/OwnerContext';
 import CustomerAuth from './CustomerAuth';
 import ShopLogo from './ShopLogo';
-import { DASHBOARD_URL, getMyWallet, ownerCheck } from '../api';
+import { DASHBOARD_URL, getMyWallet, ownerCheck, ownerDashboardUrl } from '../api';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../i18n';
 
 export default function ShopHeader() {
   const { shop } = useShop();
   const { customer, isLoggedIn, logout } = useCustomer();
   const { owner, token, isLoggedIn: isOwnerLoggedIn, logout: ownerLogout } = useOwner();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [fullLoginOpen, setFullLoginOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState(customer?.wallet_balance || 0);
   const [isMyShop, setIsMyShop] = useState(false);
   const accountMenuRef = useRef(null);
   const navigate = useNavigate();
+  const { isDark, toggle: toggleTheme } = useTheme();
+  const { lang, toggle: toggleLanguage } = useLanguage();
   const base = `/${shop.username}`;
   const isAccountTemplate = shop.template_type === 'account';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const displayName = customer?.first_name || customer?.name?.split(' ')[0] || 'Account';
-  const initial = (customer?.name || customer?.username || 'R')[0].toUpperCase();
 
   useEffect(() => {
     if (!isAccountTemplate || !isLoggedIn || customer?.shop_id !== shop.id) return;
@@ -63,7 +64,6 @@ export default function ShopHeader() {
   }, [accountOpen]);
 
   const closePanels = () => {
-    setMenuOpen(false);
     setAccountOpen(false);
   };
 
@@ -72,68 +72,50 @@ export default function ShopHeader() {
     navigate(`${base}/products`);
   };
 
-  const navClass = ({ isActive }) => `store-nav-link ${isActive ? 'store-nav-link-active' : ''}`;
+  const openOwnerDashboard = (result) => {
+    if (result?.user?.shop_id !== shop.id) return;
+    window.location.assign(ownerDashboardUrl(result.access_token, result.user));
+  };
 
   return (
     <header className={`store-header ${isKaidoStore ? 'kaido-store-header' : ''}`}>
       <div className="store-header-inner">
-        <Link to={base} onClick={closePanels} className={`store-brand ${isKaidoStore ? 'store-brand-kaido' : ''}`} aria-label={`${shop.shop_name || shop.username} home`}>
-          <ShopLogo shop={shop} className="h-10 w-10 rounded-2xl" textClassName="hidden" />
-          <span className="store-brand-copy">
-            <strong>{isKaidoStore ? 'kaidostore' : (shop.shop_name || shop.username)}</strong>
-            <small>{isKaidoStore ? 'Verified game accounts' : 'Rovistar marketplace'}</small>
-          </span>
-        </Link>
-
-        {!isKaidoStore && (
-          <nav className="store-desktop-nav" aria-label="Shop navigation">
-            <NavLink to={base} end className={navClass}>Home</NavLink>
-            <NavLink to={`${base}/products`} className={navClass}>Products</NavLink>
-            <NavLink to={`${base}/my-orders`} className={navClass}>My orders</NavLink>
-          </nav>
-        )}
-
         <div className="store-header-actions">
-          <Link to={`${base}/products`} className="store-icon-action" aria-label="Search products" title="Search products"><FiSearch /></Link>
-          {isAccountTemplate && isLoggedIn && customer?.shop_id === shop.id && (
-            <Link to={`${base}/profile`} className="store-wallet" title="Open wallet"><FiCreditCard /> <span>Wallet</span><b>${Number(walletBalance).toFixed(2)}</b></Link>
-          )}
+          <div className="store-utility-switcher" aria-label="Language and theme controls">
+            <button type="button" onClick={toggleLanguage} className="store-language-toggle" aria-label="Switch language"><FiGlobe /><span>{lang === 'kh' ? 'ខ្មែរ' : 'EN'}</span></button>
+            <span className="store-utility-divider" />
+            <button type="button" onClick={toggleTheme} className="store-theme-toggle" aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>{isDark ? <FiSun /> : <FiMoon />}</button>
+          </div>
           <div className="store-account-menu-wrap" ref={accountMenuRef}>
             <button
               type="button"
               onClick={() => {
                 if (!isLoggedIn) {
                   setFullLoginOpen(true);
-                  setMenuOpen(false);
                   return;
                 }
                 setAccountOpen(!accountOpen);
-                setMenuOpen(false);
               }}
-              className={`store-account-trigger ${accountOpen ? 'store-account-trigger-open' : ''}`}
+              className={`store-account-trigger store-account-avatar-trigger ${accountOpen ? 'store-account-trigger-open' : ''}`}
               aria-expanded={accountOpen}
               aria-label={isLoggedIn ? `${displayName} account` : 'Open account'}
             >
-              <span className="store-avatar">{isLoggedIn ? initial : <FiUser />}</span>
-              <span className="store-account-name">{displayName}</span>
-              <FiChevronDown className={`store-account-chevron ${accountOpen ? 'store-account-chevron-open' : ''}`} />
+              <span className="store-avatar">{isLoggedIn ? <ShopLogo shop={shop} className="h-full w-full" textClassName="hidden" /> : <FiUser />}</span>
             </button>
 
             {accountOpen && (
               <div className="store-account-menu" role="dialog" aria-label="Account menu">
                 {isLoggedIn ? (
                   <>
-                    <div className="store-account-menu-profile">
-                      <span className="store-profile-avatar">{initial}</span>
-                      <div><strong>{customer?.name || customer?.username}</strong><small>{customer?.email || customer?.phone || 'Rovistar customer'}</small></div>
+                    <div className="store-account-menu-profile store-account-menu-identity">
+                      <ShopLogo shop={shop} className="h-11 w-11 rounded-full" textClassName="hidden" />
+                      <div><strong>{customer?.email || customer?.name || customer?.username}</strong><small><FiCreditCard /> ${Number(walletBalance).toFixed(2)}</small></div>
                       <button type="button" onClick={() => setAccountOpen(false)} aria-label="Close account menu"><FiX /></button>
                     </div>
                     <div className="store-account-menu-links">
-                      <Link to={`${base}/products`} onClick={closePanels}><FiShoppingBag /> Browse products</Link>
                       <Link to={`${base}/my-orders`} onClick={closePanels}><FiPackage /> Order history</Link>
                       <Link to={`${base}/profile`} onClick={closePanels}><FiUser /> Account</Link>
-                      {isAccountTemplate && customer?.shop_id === shop.id && <Link to={`${base}/profile`} onClick={closePanels}><FiPlusCircle /> Add balance</Link>}
-                      {isMyShop && <a href={DASHBOARD_URL} target="_blank" rel="noreferrer"><FiGrid /> Dashboard</a>}
+                      {isMyShop && <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">Dashboard</a>}
                     </div>
                     <div className="store-account-menu-footer">
                       <button type="button" onClick={() => { logout(); setAccountOpen(false); }}><FiLogOut /> Log out</button>
@@ -144,26 +126,14 @@ export default function ShopHeader() {
                   <div className="store-account-login">
                     <div className="store-account-login-heading"><div><span>WELCOME</span><h2>Sign in</h2></div><button type="button" onClick={() => setAccountOpen(false)} aria-label="Close account menu"><FiX /></button></div>
                     <p>Sign in to keep your orders and payment records in one place.</p>
-                    <CustomerAuth onSuccess={() => setAccountOpen(false)} />
+                    <CustomerAuth onSuccess={() => setAccountOpen(false)} onOwnerSuccess={openOwnerDashboard} />
                   </div>
                 )}
               </div>
             )}
           </div>
-          <button type="button" onClick={() => { setMenuOpen(!menuOpen); setAccountOpen(false); }} className="store-menu-trigger" aria-expanded={menuOpen} aria-label="Open menu">
-            {menuOpen ? <FiX /> : <FiMenu />}
-          </button>
         </div>
       </div>
-
-      {menuOpen && (
-        <div className="store-mobile-menu">
-          <NavLink to={base} end onClick={closePanels} className={navClass}><FiHome /> Home</NavLink>
-          <NavLink to={`${base}/products`} onClick={closePanels} className={navClass}><FiShoppingBag /> Products</NavLink>
-          <NavLink to={`${base}/my-orders`} onClick={closePanels} className={navClass}><FiPackage /> My orders</NavLink>
-          <NavLink to={`${base}/about`} onClick={closePanels} className={navClass}><FiGrid /> About</NavLink>
-        </div>
-      )}
       {fullLoginOpen && createPortal(
         <div className="store-full-login" role="dialog" aria-modal="true" aria-label="Sign in">
           <div className="store-full-login-panel">
@@ -177,7 +147,7 @@ export default function ShopHeader() {
               <button type="button" onClick={() => setFullLoginOpen(false)} className="store-full-login-close" aria-label="Close sign in"><FiX /></button>
               <h2>Sign in to your account</h2>
               <p>Use your Rovistar account details to continue.</p>
-              <CustomerAuth onSuccess={finishFullLogin} />
+              <CustomerAuth onSuccess={finishFullLogin} onOwnerSuccess={openOwnerDashboard} />
             </section>
           </div>
         </div>,

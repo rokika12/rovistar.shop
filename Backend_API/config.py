@@ -38,6 +38,10 @@ class Config:
     CORS_ORIGINS = _cors_env + [
         "https://www.rovistar.shop",
         "https://rovistar.shop",
+        # Render service domains remain usable while custom DNS changes propagate.
+        "https://rovistar-storefront.onrender.com",
+        "https://rovistar-shop.onrender.com",
+        "https://rovistar-admin.onrender.com",
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:3002",
