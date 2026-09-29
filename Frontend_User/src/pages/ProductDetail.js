@@ -32,7 +32,7 @@ export default function ProductDetail() {
   const [checkingRoblox, setCheckingRoblox] = useState(false);
   const [telegramAccount, setTelegramAccount] = useState(null);
   const [checkingTelegram, setCheckingTelegram] = useState(false);
-  const [servicePaymentMethod, setServicePaymentMethod] = useState('wallet');
+  const [servicePaymentMethod, setServicePaymentMethod] = useState('khqr');
   const [walletBalance, setWalletBalance] = useState(null);
   const [customerTelegram, setCustomerTelegram] = useState('');
 
@@ -242,7 +242,7 @@ export default function ProductDetail() {
               <div className="space-y-3">
                 <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
                   <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
-                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{walletBalance == null ? 'Sign in to view balance' : `Available: $${Number(walletBalance).toFixed(2)}`}</small></span>
+                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{`Available: $${Number(walletBalance || 0).toFixed(2)}`}</small></span>
                   <span className="service-payment-radio" aria-hidden="true" />
                 </button>
                 <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
@@ -388,7 +388,7 @@ export default function ProductDetail() {
               <div className="space-y-3">
                 <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
                   <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
-                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{walletBalance == null ? 'Sign in to view balance' : `Available: $${Number(walletBalance).toFixed(2)}`}</small></span>
+                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{`Available: $${Number(walletBalance || 0).toFixed(2)}`}</small></span>
                   <span className="service-payment-radio" aria-hidden="true" />
                 </button>
                 <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
