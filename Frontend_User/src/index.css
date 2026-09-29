@@ -1815,6 +1815,8 @@ body {
   .kaido-account-card > div {
     padding: 0.58rem;
   }
+}
+
 /* The wallet top-up flow mirrors the package-first checkout hierarchy. */
 .wallet-topup-card {
   max-width: 74rem;
