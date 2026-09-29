@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiCalendar, FiCheckCircle, FiDollarSign, FiEdit2, FiEye, FiEyeOff, FiKey, FiList, FiLogOut, FiSave, FiUser, FiWallet, FiX } from 'react-icons/fi';
+import { FiCalendar, FiCheckCircle, FiCreditCard, FiDollarSign, FiEdit2, FiEye, FiEyeOff, FiKey, FiList, FiLogOut, FiSave, FiUser, FiX } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
 import { useLanguage } from '../i18n';
@@ -228,7 +228,7 @@ export default function Profile() {
           <div className="wallet-topup-layout">
             <aside className="wallet-topup-payment-panel">
               <header className="wallet-topup-header">
-                <FiWallet aria-hidden="true" />
+                <FiCreditCard aria-hidden="true" />
                 <div><p>Current Balance · ប្រាក់ក្នុងកាបូប</p><strong>${Number(wallet.balance || 0).toFixed(2)}</strong></div>
               </header>
               <div className="wallet-checkout-heading"><FiCheckCircle /><span>Payment &amp; Checkout</span></div>
