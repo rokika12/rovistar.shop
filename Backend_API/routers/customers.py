@@ -136,6 +136,7 @@ def customer_google_signin(data: schemas.CustomerGoogleSignin, db: Session = Dep
         raise HTTPException(status_code=401, detail="Invalid Google credential")
 
     email = str(claims.get("email") or "").strip().lower()
+    avatar_url = str(claims.get("picture") or "").strip()
     if not claims.get("sub") or claims.get("email_verified") is not True or not email or "@" not in email:
         raise HTTPException(status_code=401, detail="Google account email is not verified")
 
@@ -153,11 +154,17 @@ def customer_google_signin(data: schemas.CustomerGoogleSignin, db: Session = Dep
             name=full_name,
             email=email,
             password_hash="",
+            avatar_url=avatar_url,
         )
         db.add(customer)
         db.flush()
         log_activity(db, "customer_google_signin",
                      f"Customer {customer.name} signed in with Google at shop {shop.id}", shop.id)
+        db.commit()
+        db.refresh(customer)
+    elif avatar_url and customer.avatar_url != avatar_url:
+        # Google provides this claim in its verified ID token, so keep the current profile photo.
+        customer.avatar_url = avatar_url
         db.commit()
         db.refresh(customer)
 

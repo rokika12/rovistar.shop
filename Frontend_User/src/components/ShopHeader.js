@@ -29,6 +29,8 @@ export default function ShopHeader() {
   const isAccountTemplate = shop.template_type === 'account';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const displayName = customer?.first_name || customer?.name?.split(' ')[0] || 'Account';
+  const customerInitial = (displayName || 'A')[0].toUpperCase();
+  const customerAvatar = customer?.avatar_url;
 
   useEffect(() => {
     if (!isAccountTemplate || !isLoggedIn || customer?.shop_id !== shop.id) return;
@@ -107,7 +109,7 @@ export default function ShopHeader() {
               aria-expanded={accountOpen}
               aria-label={isLoggedIn ? `${displayName} account` : 'Open account'}
             >
-              <span className="store-avatar">{isLoggedIn ? <ShopLogo shop={shop} className="h-full w-full" textClassName="hidden" /> : <FiUser />}</span>
+              <span className="store-avatar">{isLoggedIn ? (customerAvatar ? <img src={customerAvatar} alt="Your account" /> : customerInitial) : <FiUser />}</span>
             </button>
 
             {accountOpen && (
@@ -115,7 +117,7 @@ export default function ShopHeader() {
                 {isLoggedIn ? (
                   <>
                     <div className="store-account-menu-profile store-account-menu-identity">
-                      <ShopLogo shop={shop} className="h-11 w-11 rounded-full" textClassName="hidden" />
+                      <span className="store-profile-avatar customer-profile-avatar">{customerAvatar ? <img src={customerAvatar} alt="Your account" /> : customerInitial}</span>
                       <div><strong>{customer?.email || customer?.name || customer?.username}</strong><small><FiCreditCard /> ${Number(walletBalance).toFixed(2)}</small></div>
                       <button type="button" onClick={() => setAccountOpen(false)} aria-label="Close account menu"><FiX /></button>
                     </div>

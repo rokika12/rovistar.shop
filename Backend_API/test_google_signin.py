@@ -38,6 +38,7 @@ def test_google_signin_verifies_shop_client_and_reuses_shop_customer(monkeypatch
             "email": "Customer@Example.com",
             "email_verified": True,
             "name": "Google Customer",
+            "picture": "https://lh3.googleusercontent.com/customer-photo",
         }
 
     monkeypatch.setattr("routers.customers.id_token.verify_oauth2_token", verify)
@@ -49,6 +50,7 @@ def test_google_signin_verifies_shop_client_and_reuses_shop_customer(monkeypatch
     assert first_body["token_type"] == "bearer"
     assert first_body["customer"]["shop_id"] == shop_id
     assert first_body["customer"]["email"] == "customer@example.com"
+    assert first_body["customer"]["avatar_url"] == "https://lh3.googleusercontent.com/customer-photo"
     assert calls == [(payload["credential"], "test-client.apps.googleusercontent.com")]
 
     second = client.post("/api/customers/auth/google", json=payload)

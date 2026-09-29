@@ -367,6 +367,7 @@ class Customer(Base):
     telegram_username = Column(String, default="")
     telegram_phone = Column(String, default="")
     telegram_id = Column(Integer, nullable=True)   # numeric id (bot linking)
+    avatar_url = Column(String, default="")
     address = Column(String, default="")
     city = Column(String, default="")
     country = Column(String, default="")
@@ -391,6 +392,7 @@ class Customer(Base):
             "telegram_username": self.telegram_username,
             "telegram_phone": self.telegram_phone,
             "telegram_id": self.telegram_id,
+            "avatar_url": self.avatar_url,
             "address": self.address,
             "city": self.city,
             "country": self.country,

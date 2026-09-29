@@ -46,6 +46,7 @@ def _migrate_columns():
             "telegram_username": "VARCHAR DEFAULT ''",
             "telegram_phone": "VARCHAR DEFAULT ''",
             "wallet_balance": "FLOAT DEFAULT 0",
+            "avatar_url": "VARCHAR DEFAULT ''",
         }
         with engine.begin() as conn:
             for col, ddl in additions.items():
