@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Wallet">
+  <path d="M8.5 15.5A5.5 5.5 0 0 1 14 10h21.5a4.5 4.5 0 0 1 4.5 4.5V18H14a5.5 5.5 0 1 0 0 11h26v5.5a4.5 4.5 0 0 1-4.5 4.5H13.5a5 5 0 0 1-5-5Z" fill="none" stroke="#347cf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <path d="M14 18h26v11H14a5.5 5.5 0 1 1 0-11Z" fill="none" stroke="#347cf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <circle cx="33" cy="23.5" r="1.8" fill="#347cf5"/>
+</svg>

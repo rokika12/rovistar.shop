@@ -11,7 +11,7 @@ import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
 
 const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
-const WALLET_ICON_URL = `${process.env.PUBLIC_URL}/rovistar-wallet.svg`;
+const WALLET_ICON_URL = `${process.env.PUBLIC_URL}/wallet-outline.svg`;
 
 export default function ProductDetail() {
   const { id } = useParams();
