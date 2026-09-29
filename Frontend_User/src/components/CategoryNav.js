@@ -35,7 +35,7 @@ export default function CategoryNav({ categories, products = [] }) {
     <div className="store-category-nav sticky z-30 w-full">
       <div className="max-w-7xl mx-auto store-category-nav-inner">
         <div className="store-category-track no-scrollbar" aria-label="Product categories">
-          <button onClick={() => select(null)} className={chip(!active)} aria-current={!active ? 'page' : undefined}>
+          <button type="button" className={chip(true)} aria-current="page">
             {t('all')}
             <span className="store-category-count">{products.length || categories.reduce((total, category) => total + (category.product_count || 0), 0)}</span>
           </button>
