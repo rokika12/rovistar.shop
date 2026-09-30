@@ -26,6 +26,7 @@ export default function ProductForm() {
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [storeType, setStoreType] = useState('clothing');
   const isEdit = !!id;
+  const showAdvancedIntegrations = false;
 
   useEffect(() => {
     listCategories(user.shop_id).then(setCategories);
@@ -310,7 +311,7 @@ export default function ProductForm() {
         </div>
         )}
 
-        {storeType === 'digital' && <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
+        {storeType === 'digital' && showAdvancedIntegrations && <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
           <h2 className="font-bold">KHSMM Service Configuration</h2>
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input
