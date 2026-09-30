@@ -5,6 +5,7 @@ consumer checkout pages or undocumented provider routes.
 """
 import ipaddress
 import socket
+from urllib.parse import quote
 from urllib.parse import urlparse
 
 import httpx
@@ -95,6 +96,13 @@ def _service_platform(slug):
     if "mobile-legends" in slug or "mlbb" in slug:
         return "mobile_legends"
     return "provider_game"
+
+
+def _game_cover(name, slug):
+    """Supplier catalog omits artwork, so provide a branded fallback card."""
+    palette = "#f97316,#7c2d12" if "freefire" in str(slug).lower() else "#2563eb,#172554"
+    svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900"><defs><linearGradient id="g"><stop stop-color="{palette.split(",")[0]}"/><stop offset="1" stop-color="{palette.split(",")[1]}"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/><text x="50%" y="47%" text-anchor="middle" fill="white" font-family="Arial" font-size="72" font-weight="bold">{name[:24]}</text><text x="50%" y="57%" text-anchor="middle" fill="white" font-family="Arial" font-size="32">GAME TOP UP</text></svg>'
+    return "data:image/svg+xml," + quote(svg)
 
 
 def _provider_dict(provider):
@@ -213,7 +221,7 @@ def import_selected_products(data: schemas.ProviderImportRequest, db: Session = 
             package_name = item.name.split(" - ", 1)[-1]
             variations.append({"attrs": {"Top Up": package_name}, "price": price, "quantity": 999999, "provider_package_id": raw.get("package_id")})
         product = models.Product(shop_id=shop.id, name=game_name, description=f"{game_name} top up", price=variations[0]["price"], quantity=999999,
-                                 images=models.JSONText.dumps([first_item.image] if first_item.image else []), variations=models.JSONText.dumps(variations),
+                                 images=models.JSONText.dumps([first_item.image or _game_cover(game_name, game_slug)]), variations=models.JSONText.dumps(variations),
                                  metadata_json=models.JSONText.dumps({"product_type": "digital", "fulfillment_type": "manual_service", "service_platform": _service_platform(game_slug), "provider_id": provider.id, "provider_game_slug": game_slug, "provider_id_label": first_raw.get("id_label", "Player ID"), "provider_server_label": first_raw.get("server_label"), "provider_margin_percent": data.margin_percent, "provider_fulfillment_enabled": provider_service.is_khmer_topup(provider), "provider_notice": "Automatic verified fulfillment via Khmer TopUp"}))
         db.add(product)
         created.append({"name": game_name, "packages": len(variations)})

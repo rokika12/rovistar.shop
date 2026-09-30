@@ -40,7 +40,7 @@ api.interceptors.response.use(
 
 export const fullUrl = (path) => {
   if (!path) return '';
-  if (path.startsWith('http')) return path;
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
   return `${API_BASE}${path}`;
 };
 
