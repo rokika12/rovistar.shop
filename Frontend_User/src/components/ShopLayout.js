@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { FiSend, FiShoppingBag } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useLanguage } from '../i18n';
@@ -12,6 +12,7 @@ import KaidoGreeter from './KaidoGreeter';
 export default function ShopLayout() {
   const { shop, loading, error } = useShop();
   const { t } = useLanguage();
+  const location = useLocation();
 
   if (loading) {
     return <ShopSkeleton />;
@@ -36,6 +37,7 @@ export default function ShopLayout() {
   const isAccountTemplate = shop.template_type === 'account';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const isDomi = shop.username?.toLowerCase() === 'domi';
+  const isCheckout = location.pathname.endsWith('/checkout');
   const announcement = theme.appearance?.marquee_text || (isAccountTemplate ? 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · គាំទ្រសេវាកម្មឌីជីថល' : 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · ក្រុមការងារគាំទ្ររហ័ស');
   const themeStyle = {
     '--primary': isDomi ? '#e83e8c' : (theme.primary || '#123B3A'),
@@ -59,7 +61,7 @@ export default function ShopLayout() {
       <main className="storefront-main flex-1">
         <Outlet />
       </main>
-      <ShopFooter />
+      {!isCheckout && <ShopFooter />}
       {!isAccountTemplate && <CartSidebar />}
 
       {isKaidoStore && <KaidoGreeter />}
