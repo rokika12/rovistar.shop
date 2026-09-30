@@ -114,7 +114,7 @@ export default function ShopSettings() {
 
   return (
     <div className="max-w-4xl space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="sticky top-0 z-20 -mx-8 flex items-center justify-between border-b bg-white/95 px-8 py-4 shadow-sm backdrop-blur">
         <h1 className="text-2xl font-bold">Shop Settings</h1>
         <button onClick={save} disabled={saving} className={btnPrimary}>{saving ? 'Saving...' : 'Save Settings'}</button>
       </div>
