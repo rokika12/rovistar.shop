@@ -391,6 +391,7 @@ export default function ProductForm() {
           <VariationBuilder
             variations={form.variations}
             onChange={(v) => setForm({ ...form, variations: v })}
+            manualService={manualService}
             onUploadImage={async (file) => {
               const result = await uploadImages([file]);
               const url = result.urls?.[0];

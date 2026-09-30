@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { FiImage, FiPlus, FiTrash2, FiUpload, FiZap } from 'react-icons/fi';
 import { inputCls, btnGhost } from './ui';
 
-export default function VariationBuilder({ variations, onChange, onUploadImage }) {
+export default function VariationBuilder({ variations, onChange, onUploadImage, manualService = false }) {
   const [attrName, setAttrName] = useState('');
   const [attrOptions, setAttrOptions] = useState('');
   const [uploadingIndex, setUploadingIndex] = useState(null);
 
   const addVariation = () => {
-    onChange([...variations, { attrs: {}, price: 0, quantity: 0, sku: '' }]);
+    onChange([...variations, { attrs: manualService ? { Package: '' } : {}, price: 0, quantity: 0, sku: '', discount_percent: 0 }]);
   };
 
   const update = (idx, field, val) => {
@@ -59,9 +59,9 @@ export default function VariationBuilder({ variations, onChange, onUploadImage }
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-sm text-gray-700">Product Variations</h3>
+        <h3 className="font-semibold text-sm text-gray-700">{manualService ? 'Package / Top Up' : 'Product Variations'}</h3>
         <button type="button" onClick={addVariation} className="flex items-center gap-1 text-indigo-600 text-sm font-semibold hover:underline">
-          <FiPlus /> Add Variation
+          <FiPlus /> {manualService ? 'បញ្ចូល Package' : 'Add Variation'}
         </button>
       </div>
 
@@ -125,6 +125,7 @@ export default function VariationBuilder({ variations, onChange, onUploadImage }
               <input value={v.sku} onChange={(e) => update(idx, 'sku', e.target.value)} className={inputCls} placeholder="optional" />
             </div>
           </div>
+          {manualService && <div><label className="text-xs text-gray-500 block mb-0.5">Discount % / បញ្ចុះតម្លៃ</label><input type="number" min="0" max="100" value={v.discount_percent || ''} onChange={(e) => update(idx, 'discount_percent', e.target.value)} className={inputCls} placeholder="0" /></div>}
           <div className="flex items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-white p-2">
             {v.image_url ? <img src={v.image_url} alt="Package preview" className="h-10 w-10 rounded object-cover" /> : <FiImage className="h-5 w-5 text-slate-400" />}
             <label className="cursor-pointer text-xs font-semibold text-sky-700">
