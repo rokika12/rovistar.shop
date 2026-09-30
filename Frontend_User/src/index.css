@@ -833,8 +833,9 @@ body {
 .kaido-gallery-prev { left: 1rem; }
 .kaido-gallery-next { right: 1rem; }
 .kaido-gallery-counter { position: absolute; bottom: 1rem; left: 50%; margin: 0; transform: translateX(-50%); color: #fff; font-size: 0.8rem; font-weight: 800; }
-.kaido-payment-overlay { padding: 1rem; }
-.kaido-payment-modal { max-width: 35rem; padding: 1.75rem; }
+.kaido-payment-overlay { z-index: 100; padding: 1rem; }
+.kaido-store-shell .kaido-payment-overlay { background: rgba(3, 13, 32, 0.88); }
+.kaido-store-shell .kaido-payment-modal { max-width: 35rem; background: #fff !important; color: #17213e; padding: 1.75rem; }
 .kaido-payment-modal .qr-card-new { width: min(100%, 25rem); border: 2px solid #f3a7c4; box-shadow: 0 16px 38px rgba(205, 40, 111, 0.14); }
 .kaido-payment-modal .qr-box { padding: 1.5rem 0 2rem; }
 .kaido-payment-modal .qr-img { width: 300px; height: 300px; }

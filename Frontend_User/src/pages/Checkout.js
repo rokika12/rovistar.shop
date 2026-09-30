@@ -37,7 +37,6 @@ export default function Checkout() {
   const [qrFailed, setQrFailed] = useState(false); // QR image failed to load → show fallback
   const [paymentMethod, setPaymentMethod] = useState(() => new URLSearchParams(window.location.search).get('payment') === 'wallet' ? 'wallet' : 'khqr');
   const [walletBalance, setWalletBalance] = useState(0);
-  const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   useEffect(() => {
     if (shop?.username?.toLowerCase() === 'kaidostore') setPaymentMethod('khqr');
@@ -132,7 +131,7 @@ export default function Checkout() {
     || (ownerLoggedIn && owner?.shop_id === shop.id);
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
-  const handleSubmit = async (e, paymentConfirmed = false) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const shopToken = customer?.shop_id === shop.id ? token : null;
     const shopLoggedIn = !!shopToken;
@@ -148,11 +147,6 @@ export default function Checkout() {
       toast.error(t('fillRequired'));
       return;
     }
-    if (!paymentConfirmed) {
-      setConfirmationOpen(true);
-      return;
-    }
-    setConfirmationOpen(false);
     setSubmitting(true);
     try {
       const newOrder = await createOrderAsCustomer({
@@ -238,33 +232,11 @@ export default function Checkout() {
   const shipping = 0;
   const grandTotal = Math.round((totals.subtotal + shipping) * 100) / 100;
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
-  const paymentConfirmationModal = confirmationOpen ? (
-    <div className="payment-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="payment-confirm-title">
-      <section className="payment-confirm-modal">
-        <div className="payment-confirm-heading">
-          <div><p>ORDER REVIEW</p><h2 id="payment-confirm-title">Confirm payment</h2></div>
-          <button type="button" onClick={() => setConfirmationOpen(false)} aria-label="Cancel payment"><FiX /></button>
-        </div>
-        <p className="payment-confirm-copy">Review the payment details before generating your secure QR code.</p>
-        <div className="payment-confirm-rows">
-          <div><span>Items</span><strong>{items.length} product{items.length === 1 ? '' : 's'}</strong></div>
-          <div><span>Wallet credit</span><strong className="payment-confirm-positive">${grandTotal.toFixed(2)}</strong></div>
-          <div><span>Payment method</span><strong>{paymentMethod === 'wallet' ? 'Wallet balance' : 'ABA KHQR'}</strong></div>
-        </div>
-        <div className="payment-confirm-total"><span>AMOUNT TO PAY</span><strong>${grandTotal.toFixed(2)} <small>{shop.currency}</small></strong></div>
-        <p className="payment-confirm-note">After confirming, keep this page open while your payment is verified.</p>
-        <div className="payment-confirm-actions">
-          <button type="button" onClick={() => setConfirmationOpen(false)}>Go back</button>
-          <button type="button" onClick={() => handleSubmit({ preventDefault: () => {} }, true)} disabled={submitting}>{submitting ? 'Preparing...' : 'Confirm & pay'}</button>
-        </div>
-      </section>
-    </div>
-  ) : null;
 
   if (payment) {
     const payAmount = Number(payment.amount || order?.total || 0).toFixed(2);
     return (
-      <div className={`fixed inset-0 z-50 overflow-y-auto bg-slate-900/55 py-8 px-4 backdrop-blur-[2px] ${isKaidoStore ? 'kaido-payment-overlay' : ''}`} onClick={() => navigate(`/${shop.username}/checkout`)}>
+      <div className={`fixed inset-0 z-[100] overflow-y-auto bg-slate-900/55 py-8 px-4 backdrop-blur-[2px] ${isKaidoStore ? 'kaido-payment-overlay' : ''}`} onClick={() => navigate(`/${shop.username}/checkout`)}>
         <div className={`relative max-w-md mx-auto rounded-[1.75rem] bg-white dark:bg-gray-800 px-5 py-6 shadow-2xl ${isKaidoStore ? 'kaido-payment-modal' : ''}`} onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
@@ -366,7 +338,6 @@ export default function Checkout() {
   if (digitalOnly && currentShopLoggedIn) {
     return (
       <div className="max-w-xl mx-auto px-4 py-16">
-        {paymentConfirmationModal}
         <div className="rounded-3xl bg-white dark:bg-gray-800 p-7 shadow-xl text-center">
           <h1 className="text-2xl font-black text-gray-900 dark:text-white">Digital checkout</h1>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
@@ -415,7 +386,6 @@ export default function Checkout() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {paymentConfirmationModal}
       <h1 className="text-2xl font-bold mb-6">{t('checkout')}</h1>
       {/* Logged-in customer banner */}
       <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 mb-6">
