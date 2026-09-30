@@ -2195,3 +2195,20 @@ body {
     background-size: 100% auto, 100% auto !important;
   }
 }
+
+/* One tall artwork now covers the entire Kaido journey from top to bottom. */
+.kaido-store-shell {
+  background-color: #062c72 !important;
+  background-image: url('./assets/kaidostore-full-background.jpg') !important;
+  background-position: center top !important;
+  background-size: 100% auto !important;
+  background-repeat: no-repeat !important;
+  background-attachment: scroll !important;
+}
+@media (max-width: 640px) {
+  .kaido-store-shell {
+    /* Keep the tall artwork full-height on phones; only decorative side edges may crop. */
+    background-size: cover !important;
+    background-position: center top !important;
+  }
+}
