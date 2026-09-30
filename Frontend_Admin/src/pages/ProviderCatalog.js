@@ -15,6 +15,7 @@ export default function ProviderCatalog() {
   const [chosen, setChosen] = useState([]);
   const [shopId, setShopId] = useState('');
   const [margin, setMargin] = useState('0');
+  const [query, setQuery] = useState('');
   const [replacementKey, setReplacementKey] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -82,8 +83,8 @@ export default function ProviderCatalog() {
         <p className="text-xs text-amber-700 bg-amber-50 p-3 rounded-lg mt-4">Khmer TopUp uses its documented API for catalog, player-ID verification, and paid-order top-up. Other providers remain catalog-only until their official order API is configured.</p>
         {selectedProvider && <div className="mt-4">
           <div className="flex flex-wrap gap-3 items-end mb-3"><label className="text-sm">Shop<select className={`${inputCls} mt-1`} value={shopId} onChange={(e) => setShopId(e.target.value)}><option value="">Choose shop</option>{shops.map((shop) => <option key={shop.id} value={shop.id}>{shop.shop_name || shop.username}</option>)}</select></label><label className="text-sm">Profit margin (%)<input className={`${inputCls} mt-1 w-32`} type="number" min="0" value={margin} onChange={(e) => setMargin(e.target.value)} /></label><button onClick={importSelected} disabled={busy || !chosen.length} className={btnPrimary}><FiDownloadCloud className="inline mr-1" /> Import {chosen.length}</button></div>
-          <p className="text-sm text-slate-500 mb-2">Imported catalog: {items.length} games/products</p>
-          <div className="border rounded-lg max-h-96 overflow-auto">{items.map((item) => <label key={item.id} className="flex items-center gap-3 p-3 border-b last:border-0 hover:bg-slate-50"><input type="checkbox" checked={chosen.includes(item.id)} onChange={() => toggle(item.id)} /><span className="flex-1"><strong>{item.name}</strong><small className="block text-slate-500">Supplier ID: {item.external_id}</small></span><span>${Number(item.cost_price || 0).toFixed(2)}</span></label>)}{!items.length && <p className="p-5 text-sm text-slate-500">Choose a provider, then fetch its official catalog.</p>}</div>
+          <div className="flex items-center gap-3 mb-2"><p className="text-sm text-slate-500">Imported catalog: {items.length} games/products</p><input className={`${inputCls} ml-auto w-64`} placeholder="Search Free Fire, Mobile Legends..." value={query} onChange={(e) => setQuery(e.target.value)} /></div>
+          <div className="border rounded-lg max-h-96 overflow-auto">{items.filter((item) => item.name.toLowerCase().includes(query.toLowerCase())).map((item) => <label key={item.id} className="flex items-center gap-3 p-3 border-b last:border-0 hover:bg-slate-50"><input type="checkbox" checked={chosen.includes(item.id)} onChange={() => toggle(item.id)} /><span className="flex-1"><strong>{item.name}</strong><small className="block text-slate-500">Supplier ID: {item.external_id}</small></span><span>${Number(item.cost_price || 0).toFixed(2)}</span></label>)}{!items.length && <p className="p-5 text-sm text-slate-500">Choose a provider, then fetch its official catalog.</p>}</div>
         </div>}
       </div>
     </div>
