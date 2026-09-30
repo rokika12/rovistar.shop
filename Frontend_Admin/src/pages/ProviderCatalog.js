@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FiDownloadCloud, FiPlus, FiRefreshCw } from 'react-icons/fi';
-import { createProvider, importProviderProducts, listProviderItems, listProviders, listShops, refreshProviderCatalog } from '../api';
+import { createProvider, importProviderProducts, listProviderItems, listProviders, listShops, refreshProviderCatalog, updateProviderKey } from '../api';
 import { btnGhost, btnPrimary, inputCls } from '../components/ui';
 
 const empty = { name: '', catalog_url: '', api_key: '', auth_header: 'Authorization' };
@@ -15,6 +15,7 @@ export default function ProviderCatalog() {
   const [chosen, setChosen] = useState([]);
   const [shopId, setShopId] = useState('');
   const [margin, setMargin] = useState('0');
+  const [replacementKey, setReplacementKey] = useState('');
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
@@ -44,6 +45,13 @@ export default function ProviderCatalog() {
     catch (error) { toast.error(error?.response?.data?.detail || 'Could not connect to the provider'); }
     finally { setBusy(false); }
   };
+  const rotateKey = async () => {
+    if (!selectedProvider || !replacementKey.trim()) return toast.error('Paste the new API key first');
+    setBusy(true);
+    try { await updateProviderKey(selectedProvider, { api_key: replacementKey.trim(), auth_header: 'X-API-Key' }); setReplacementKey(''); await load(); toast.success('API key updated securely'); }
+    catch (error) { toast.error(error?.response?.data?.detail || 'API key could not be updated'); }
+    finally { setBusy(false); }
+  };
   const toggle = (id) => setChosen((previous) => previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]);
   const importSelected = async () => {
     if (!shopId || !chosen.length) return toast.error('Choose a shop and at least one game');
@@ -70,7 +78,8 @@ export default function ProviderCatalog() {
           <label className="flex-1 min-w-52 text-sm font-medium">Provider<select className={`${inputCls} mt-1`} value={selectedProvider} onChange={(e) => pickProvider(e.target.value)}><option value="">Choose provider</option>{providers.map((provider) => <option key={provider.id} value={provider.id}>{provider.name}{provider.api_key_configured ? ' (key saved)' : ''}</option>)}</select></label>
           <button className={btnGhost} onClick={refresh} disabled={busy || !selectedProvider}><FiRefreshCw className="inline mr-1" /> Fetch catalog</button>
         </div>
-        <p className="text-xs text-amber-700 bg-amber-50 p-3 rounded-lg mt-4">Automatic ID validation and top-up are disabled until the provider gives you official API documentation for those endpoints. This tool does not use consumer checkout pages or private APIs.</p>
+        {selectedProvider && <div className="flex flex-wrap gap-2 mt-3"><input className={`${inputCls} flex-1 min-w-60`} type="password" placeholder="Paste replacement API key here" value={replacementKey} onChange={(e) => setReplacementKey(e.target.value)} /><button className={btnGhost} onClick={rotateKey} disabled={busy || !replacementKey.trim()}>Update API key</button></div>}
+        <p className="text-xs text-amber-700 bg-amber-50 p-3 rounded-lg mt-4">Khmer TopUp uses its documented API for catalog, player-ID verification, and paid-order top-up. Other providers remain catalog-only until their official order API is configured.</p>
         {selectedProvider && <div className="mt-4">
           <div className="flex flex-wrap gap-3 items-end mb-3"><label className="text-sm">Shop<select className={`${inputCls} mt-1`} value={shopId} onChange={(e) => setShopId(e.target.value)}><option value="">Choose shop</option>{shops.map((shop) => <option key={shop.id} value={shop.id}>{shop.shop_name || shop.username}</option>)}</select></label><label className="text-sm">Profit margin (%)<input className={`${inputCls} mt-1 w-32`} type="number" min="0" value={margin} onChange={(e) => setMargin(e.target.value)} /></label><button onClick={importSelected} disabled={busy || !chosen.length} className={btnPrimary}><FiDownloadCloud className="inline mr-1" /> Import {chosen.length}</button></div>
           <p className="text-sm text-slate-500 mb-2">Imported catalog: {items.length} games/products</p>

@@ -122,6 +122,19 @@ def create_provider(data: schemas.ProviderCreate, db: Session = Depends(get_db),
     return _provider_dict(provider)
 
 
+@router.put("/providers/{provider_id}")
+def update_provider_key(provider_id: int, data: schemas.ProviderUpdate, db: Session = Depends(get_db), admin: models.User = Depends(get_current_admin)):
+    """Rotate a provider key without creating duplicate provider records."""
+    provider = db.get(models.ProviderConnection, provider_id)
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider not found")
+    provider.set_api_key(data.api_key.strip())
+    provider.auth_header = data.auth_header.strip() or "X-API-Key"
+    log_activity(db, "rotate_provider_key", f"Admin updated API key for '{provider.name}'", user=admin)
+    db.commit()
+    return _provider_dict(provider)
+
+
 @router.post("/providers/{provider_id}/refresh")
 def refresh_catalog(provider_id: int, db: Session = Depends(get_db), admin: models.User = Depends(get_current_admin)):
     provider = db.get(models.ProviderConnection, provider_id)

@@ -136,6 +136,7 @@ export const getPlatformSettings = () => api.get('/api/settings/platform').then(
 // Admin-only documented supplier catalog import.
 export const listProviders = () => api.get('/api/provider-catalog/providers').then((r) => r.data);
 export const createProvider = (data) => api.post('/api/provider-catalog/providers', data).then((r) => r.data);
+export const updateProviderKey = (id, data) => api.put(`/api/provider-catalog/providers/${id}`, data).then((r) => r.data);
 export const refreshProviderCatalog = (id) => api.post(`/api/provider-catalog/providers/${id}/refresh`).then((r) => r.data);
 export const listProviderItems = (id) => api.get(`/api/provider-catalog/providers/${id}/items`).then((r) => r.data);
 export const importProviderProducts = (data) => api.post('/api/provider-catalog/import', data).then((r) => r.data);

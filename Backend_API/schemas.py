@@ -211,6 +211,11 @@ class ProviderCreate(BaseModel):
     auth_header: str = Field(default="Authorization", max_length=128)
 
 
+class ProviderUpdate(BaseModel):
+    api_key: str = Field(min_length=1, max_length=4096)
+    auth_header: str = Field(default="X-API-Key", max_length=128)
+
+
 class ProviderImportRequest(BaseModel):
     provider_id: int
     shop_id: int
