@@ -6,7 +6,7 @@ import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useCustomer } from '../contexts/CustomerContext';
 import { useLanguage } from '../i18n';
-import { getMyWallet, getProduct, getProducts, fullUrl, lookupRobloxUsername, lookupTelegramUsername } from '../api';
+import { getMyWallet, getProduct, getProducts, fullUrl, lookupTelegramUsername } from '../api';
 import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
 
@@ -28,8 +28,7 @@ export default function ProductDetail() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [serviceLink, setServiceLink] = useState('');
   const [gameServerId, setGameServerId] = useState('');
-  const [robloxAccount, setRobloxAccount] = useState(null);
-  const [checkingRoblox, setCheckingRoblox] = useState(false);
+  const [robloxPassword, setRobloxPassword] = useState('');
   const [telegramAccount, setTelegramAccount] = useState(null);
   const [checkingTelegram, setCheckingTelegram] = useState(false);
   const [servicePaymentMethod, setServicePaymentMethod] = useState('khqr');
@@ -169,15 +168,15 @@ export default function ProductDetail() {
         // Free Fire does not provide an official public player-name lookup API.
       } else if (mobileLegendsService && /^\d{5,20}$/.test(serviceLink.trim()) && /^\d{3,10}$/.test(gameServerId.trim())) {
         // Mobile Legends credentials are sent as a paired Game ID and Server ID.
-      } else if (robloxService && robloxAccount) {
-        // Only a verified official Roblox username can continue to checkout.
+      } else if (robloxService && serviceLink.trim() && robloxPassword) {
+        // Roblox fulfillment requires the account email and password supplied by the customer.
       } else {
-        toast.error(freeFireService ? 'Please enter a valid Free Fire Player ID' : mobileLegendsService ? 'Enter valid Mobile Legends Game ID and Server ID' : robloxService ? 'Verify your Roblox username first' : 'Please enter your public TikTok link');
+        toast.error(freeFireService ? 'Please enter a valid Free Fire Player ID' : mobileLegendsService ? 'Enter valid Mobile Legends Game ID and Server ID' : robloxService ? 'Enter your Gmail and Roblox password' : 'Please enter your public TikTok link');
         return;
       }
     }
-    if (robloxService && !robloxAccount) {
-      toast.error('Verify your Roblox username first');
+    if (robloxService && (!serviceLink.trim() || !robloxPassword)) {
+      toast.error('Enter your Gmail and Roblox password');
       return;
     }
     if (!isAvailable) { toast.error('This item is out of stock'); return; }
@@ -186,11 +185,11 @@ export default function ProductDetail() {
     const serviceTarget = mobileLegendsService
       ? `Mobile Legends Game ID: ${serviceLink.trim()} | Server ID: ${gameServerId.trim()}`
       : robloxService
-        ? `Roblox: ${robloxAccount.username} (${robloxAccount.display_name}, ID ${robloxAccount.id})`
+        ? `Roblox Gmail: ${serviceLink.trim()}`
         : freeFireService
           ? `Free Fire Player ID: ${serviceLink.trim()}`
           : serviceLink.trim();
-    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, { ...selectedVariations, ...(manualService ? { _service_link: serviceTarget } : {}), _customer_telegram: customerTelegram.trim() });
+    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, { ...selectedVariations, ...(manualService ? { _service_link: serviceTarget } : {}), ...(robloxService ? { _roblox_password: robloxPassword } : {}), _customer_telegram: customerTelegram.trim() });
     setOpen(false);
     const checkoutParams = new URLSearchParams({ confirm: '1' });
     if (payment) checkoutParams.set('payment', payment);
@@ -214,15 +213,16 @@ export default function ProductDetail() {
             <div className="service-link-card">
               <label htmlFor="customer-telegram" className="block text-sm font-bold text-slate-900">Telegram username *</label>
               <input id="customer-telegram" value={customerTelegram} onChange={(event) => setCustomerTelegram(event.target.value)} type="text" placeholder="@username" autoCapitalize="none" />
-              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">{telegramService ? 'Telegram username' : freeFireService ? 'Free Fire Player ID' : mobileLegendsService ? 'Player ID' : robloxService ? 'Roblox username' : 'TikTok link'}</label>
+              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">{telegramService ? 'Telegram username' : freeFireService ? 'Free Fire Player ID' : mobileLegendsService ? 'Player ID' : robloxService ? 'Gmail' : 'TikTok link'}</label>
               <input
                 id="service-link"
                 value={serviceLink}
-                onChange={(event) => { setServiceLink(event.target.value); if (robloxService) setRobloxAccount(null); if (telegramService) setTelegramAccount(null); }}
-                type="text"
+                onChange={(event) => { setServiceLink(event.target.value); if (telegramService) setTelegramAccount(null); }}
+                type={robloxService ? 'email' : 'text'}
                 inputMode={freeFireService || mobileLegendsService ? 'numeric' : 'text'}
-                placeholder={telegramService ? '@username' : freeFireService ? 'Player ID' : mobileLegendsService ? 'Player ID' : robloxService ? 'Username' : 'https://www.tiktok.com/@...'}
+                placeholder={telegramService ? '@username' : freeFireService ? 'Player ID' : mobileLegendsService ? 'Player ID' : robloxService ? 'your@gmail.com' : 'https://www.tiktok.com/@...'}
               />
+              {robloxService && <><label htmlFor="roblox-password" className="block text-sm font-bold text-slate-900 mt-3">Roblox password</label><input id="roblox-password" value={robloxPassword} onChange={(event) => setRobloxPassword(event.target.value)} type="password" autoComplete="current-password" placeholder="Roblox password" /></>}
               {mobileLegendsService && <input value={gameServerId} onChange={(event) => setGameServerId(event.target.value)} type="text" inputMode="numeric" placeholder="Server ID" className="mt-3" />}
               {telegramService && <button type="button" className="service-verify-button" disabled={checkingTelegram || !serviceLink.trim()} onClick={async () => {
                 setCheckingTelegram(true);
@@ -230,14 +230,7 @@ export default function ProductDetail() {
                 catch (error) { setTelegramAccount(null); toast.error(error?.response?.data?.detail || 'Telegram username was not found publicly'); }
                 finally { setCheckingTelegram(false); }
               }}>{checkingTelegram ? 'Checking...' : 'Verify player'}</button>}
-              {robloxService && <button type="button" className="service-verify-button" disabled={checkingRoblox || !serviceLink.trim()} onClick={async () => {
-                setCheckingRoblox(true);
-                try { setRobloxAccount(await lookupRobloxUsername(serviceLink.trim())); }
-                catch (error) { setRobloxAccount(null); toast.error(error?.response?.data?.detail || 'Roblox username was not found'); }
-                finally { setCheckingRoblox(false); }
-              }}>{checkingRoblox ? 'Checking...' : 'Verify player'}</button>}
               {telegramAccount && <div className="service-verified-account">{telegramAccount.avatar_url && <img src={telegramAccount.avatar_url} alt="Telegram avatar" />}<span><strong>{telegramAccount.name || 'Player verified'}</strong><br />@{telegramAccount.username}</span></div>}
-              {robloxAccount && <div className="service-verified-account">{robloxAccount.avatar_url && <img src={robloxAccount.avatar_url} alt="Roblox avatar" />}<span><strong>{robloxAccount.display_name}</strong><br />@{robloxAccount.username}</span></div>}
             </div>
             <div className="service-payment-picker">
               <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>

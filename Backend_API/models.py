@@ -1,7 +1,10 @@
 """SQLAlchemy ORM models for the Mini Shop Platform."""
+import base64
+import hashlib
 import json
 from datetime import datetime, timezone
 
+from cryptography.fernet import Fernet, InvalidToken
 from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer,
                         LargeBinary, String, Text)
 from sqlalchemy.orm import relationship
@@ -37,6 +40,13 @@ class JSONText:
             return json.loads(value)
         except (ValueError, TypeError):
             return default if default is not None else []
+
+
+def _provider_cipher():
+    """Derive a deployment-specific key; provider secrets never reach the browser."""
+    from config import config
+    key = base64.urlsafe_b64encode(hashlib.sha256(config.SECRET_KEY.encode("utf-8")).digest())
+    return Fernet(key)
 
 
 class MediaFile(Base):
@@ -328,6 +338,8 @@ class OrderItem(Base):
     def to_dict(self):
         variations = JSONText.loads(self.variations, {})
         delivery = variations.pop("_digital_delivery", None) if self.order and self.order.payment_status == "paid" else None
+        # Credentials are delivered only to the shop's internal fulfillment channel.
+        variations.pop("_roblox_password", None)
         service_request_required = bool(variations.pop("_service_request_required", False))
         service_video_url = variations.pop("_service_video_url", "")
         variations.pop("_service_link", None)
@@ -348,6 +360,46 @@ class OrderItem(Base):
         if service_video_url:
             result["service_video_url"] = service_video_url
         return result
+
+
+class ProviderConnection(Base):
+    """A supplier connection owned by the platform administrator."""
+    __tablename__ = "provider_connections"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    catalog_url = Column(String, nullable=False)
+    auth_header = Column(String, default="Authorization")
+    api_key_encrypted = Column(Text, default="")
+    last_imported_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    def set_api_key(self, api_key: str):
+        self.api_key_encrypted = _provider_cipher().encrypt(api_key.encode("utf-8")).decode("utf-8")
+
+    @property
+    def api_key(self) -> str:
+        if not self.api_key_encrypted:
+            return ""
+        try:
+            return _provider_cipher().decrypt(self.api_key_encrypted.encode("utf-8")).decode("utf-8")
+        except (InvalidToken, ValueError):
+            return ""
+
+
+class ProviderCatalogItem(Base):
+    """A normalized snapshot of a documented supplier catalog item."""
+    __tablename__ = "provider_catalog_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    provider_id = Column(Integer, ForeignKey("provider_connections.id"), nullable=False, index=True)
+    external_id = Column(String, nullable=False, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text, default="")
+    cost_price = Column(Float, default=0)
+    image = Column(String, default="")
+    raw_json = Column(Text, default="{}")
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 
 class Customer(Base):

@@ -13,7 +13,7 @@ import models
 from config import config
 from database import Base, SessionLocal, engine
 from routers import (auth, backup, categories, customers, game_lookup, orders, payments,
-                     plans, products, reports, settings, shops, telegram, uploads)
+                     plans, products, provider_catalog, reports, settings, shops, telegram, uploads)
 from seed import seed_database
 
 
@@ -267,3 +267,4 @@ app.include_router(telegram.router)
 app.include_router(game_lookup.router)
 app.include_router(settings.router)
 app.include_router(plans.router)
+app.include_router(provider_catalog.router)

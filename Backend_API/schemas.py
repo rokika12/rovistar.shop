@@ -204,6 +204,20 @@ class ProductUpdate(BaseModel):
     status: Optional[str] = None
 
 
+class ProviderCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    catalog_url: str = Field(min_length=10, max_length=2048)
+    api_key: str = Field(default="", max_length=4096)
+    auth_header: str = Field(default="Authorization", max_length=128)
+
+
+class ProviderImportRequest(BaseModel):
+    provider_id: int
+    shop_id: int
+    item_ids: List[int] = Field(min_length=1, max_length=500)
+    margin_percent: float = Field(default=0, ge=0, le=1000)
+
+
 class OrderItemIn(BaseModel):
     product_id: int
     name: str = ""

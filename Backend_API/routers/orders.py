@@ -128,6 +128,10 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
             )
             if len(service_link) > 2048 or not valid_target:
                 raise HTTPException(status_code=400, detail="Please enter a valid Telegram username" if telegram_service else "Please enter valid game account details" if game_target else "Please enter a valid public service link before payment")
+            if service_platform == "roblox":
+                roblox_password = str(item_variations.get("_roblox_password") or "")
+                if not roblox_password or len(roblox_password) > 256:
+                    raise HTTPException(status_code=400, detail="Roblox password is required")
             item_variations["_service_link"] = service_link
             service_video_url = str(product_meta.get("service_video_url") or "").strip()
             if service_video_url:

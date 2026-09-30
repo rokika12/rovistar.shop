@@ -133,4 +133,11 @@ export const backupHistory = () => api.get('/api/backup/history').then((r) => r.
 export const getBackupDownload = (filename) => api.get('/api/backup/download', { params: { filename } }).then((r) => r.data);
 export const getPlatformSettings = () => api.get('/api/settings/platform').then((r) => r.data);
 
+// Admin-only documented supplier catalog import.
+export const listProviders = () => api.get('/api/provider-catalog/providers').then((r) => r.data);
+export const createProvider = (data) => api.post('/api/provider-catalog/providers', data).then((r) => r.data);
+export const refreshProviderCatalog = (id) => api.post(`/api/provider-catalog/providers/${id}/refresh`).then((r) => r.data);
+export const listProviderItems = (id) => api.get(`/api/provider-catalog/providers/${id}/items`).then((r) => r.data);
+export const importProviderProducts = (data) => api.post('/api/provider-catalog/import', data).then((r) => r.data);
+
 export default api;
