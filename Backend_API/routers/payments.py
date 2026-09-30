@@ -12,6 +12,26 @@ from services.aba_service import PaymentGatewayUnavailable, PaymentNotConfigured
 router = APIRouter(prefix="/api/payments", tags=["payments"])
 
 
+def _credit_wallet_topup_once(db, order):
+    """Make a confirmed top-up durable even if a deploy interrupts payment handling."""
+    existing = db.query(models.WalletTransaction).filter(
+        models.WalletTransaction.customer_id == order.customer_id,
+        models.WalletTransaction.reference == order.order_number,
+        models.WalletTransaction.transaction_type == "topup",
+    ).first()
+    if existing:
+        return False
+    customer = db.query(models.Customer).filter(models.Customer.id == order.customer_id).first()
+    if not customer:
+        return False
+    customer.wallet_balance = round(float(customer.wallet_balance or 0) + float(order.total or 0), 2)
+    db.add(models.WalletTransaction(customer_id=customer.id, shop_id=order.shop_id,
+                                    amount=order.total, transaction_type="topup",
+                                    reference=order.order_number, note="ABA wallet top-up"))
+    db.commit()
+    return True
+
+
 def _mark_paid(db, order, transaction_id, amount=None):
     """
     Mark an order paid atomically and deduct stock exactly ONCE.
@@ -27,6 +47,8 @@ def _mark_paid(db, order, transaction_id, amount=None):
     from sqlalchemy import update as sa_update
 
     if order.payment_status == "paid":
+        if order.payment_method == "wallet_topup":
+            _credit_wallet_topup_once(db, order)
         return False
 
     tx = transaction_id or order.transaction_id
@@ -45,13 +67,7 @@ def _mark_paid(db, order, transaction_id, amount=None):
 
     db.refresh(order)
     if order.payment_method == "wallet_topup":
-        customer = db.query(models.Customer).filter(models.Customer.id == order.customer_id).first()
-        if customer:
-            customer.wallet_balance = round(float(customer.wallet_balance or 0) + float(order.total or 0), 2)
-            db.add(models.WalletTransaction(customer_id=customer.id, shop_id=order.shop_id,
-                                            amount=order.total, transaction_type="topup",
-                                            reference=order.order_number, note="ABA wallet top-up"))
-            db.commit()
+        _credit_wallet_topup_once(db, order)
         return True
     # Consume one digital credential from each paid line item. The order keeps
     # a private snapshot for delivery, while the product pool loses that entry.
