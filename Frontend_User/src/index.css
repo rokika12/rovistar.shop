@@ -2180,3 +2180,18 @@ body {
 @media (max-width: 640px) {
   .kaido-store-shell { background-size: 100% auto !important; background-position: center top !important; background-attachment: scroll !important; }
 }
+
+/* The two supplied Kaido artworks form one continuous backdrop without overlap. */
+.kaido-store-shell {
+  background-color: #062c72 !important;
+  background-image: url('./assets/kaidostore-background-hq.jpg'), url('./assets/kaidostore-background-lower.jpg') !important;
+  background-position: center top, center 43.89vw !important;
+  background-size: 100% auto, 100% auto !important;
+  background-repeat: no-repeat, no-repeat !important;
+}
+@media (max-width: 640px) {
+  .kaido-store-shell {
+    background-position: center top, center 43.89vw !important;
+    background-size: 100% auto, 100% auto !important;
+  }
+}
