@@ -225,6 +225,7 @@ export default function ProductForm() {
               <input type="file" multiple accept="image/*" className="hidden" onChange={handleImages} />
             </label>
           </div>
+          <p className="text-xs text-gray-500">អាចដាក់រូបភាពបានចាប់ពី 1 រូបឡើងទៅ។ រូបទី១នឹងជារូបសំខាន់ដែលភ្ញៀវឃើញមុនគេ។</p>
           {form.images.length === 0 ? (
             <p className="text-sm text-gray-400 bg-gray-50 rounded-lg p-4 text-center">មិនទាន់មានរូបភាព។ បញ្ចូលរូបភាពផលិតផលខាងលើ។</p>
           ) : (
@@ -294,17 +295,17 @@ export default function ProductForm() {
         <div className="bg-white rounded-xl shadow-sm p-6 space-y-4 border border-pink-100">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-bold text-pink-700">Digital credentials / codes</h2>
-              <p className="text-xs text-gray-500 mt-1">Each row is one digital item. Paid orders receive one available row.</p>
+              <h2 className="font-bold text-pink-700">Gmail / Password / កូដ ដែលបញ្ជូនស្វ័យប្រវត្តិ</h2>
+              <p className="text-xs text-gray-500 mt-1">មួយជួរគឺមួយ account។ ពេលភ្ញៀវបង់ប្រាក់ជោគជ័យ ប្រព័ន្ធនឹងបង្ហាញ Gmail, Password ឬ Code មួយជួរដោយស្វ័យប្រវត្តិ។</p>
             </div>
-            <button type="button" onClick={addCredential} className="text-sm font-bold text-pink-600 hover:underline">+ Add credential</button>
+            <button type="button" onClick={addCredential} className="text-sm font-bold text-pink-600 hover:underline">+ បន្ថែម Gmail / Password</button>
           </div>
-          {credentials.length === 0 && <p className="text-sm text-gray-400 bg-pink-50 rounded-lg p-3">Add email, password, or code rows for this product.</p>}
+          {credentials.length === 0 && <p className="text-sm text-gray-400 bg-pink-50 rounded-lg p-3">សូមបន្ថែម Gmail និង Password ឬ Code មុនបើកលក់។ ចំនួនជួរដែលបញ្ចូល គឺជាចំនួន stock ដែលអាចលក់បាន។</p>}
           {credentials.map((entry, index) => (
             <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-2 items-end rounded-lg bg-pink-50 p-3">
-              <input value={entry.email || ''} onChange={(e) => setCredential(index, 'email', e.target.value)} className={inputCls} placeholder="Email / username" />
-              <input value={entry.password || ''} onChange={(e) => setCredential(index, 'password', e.target.value)} className={inputCls} placeholder="Password" />
-              <input value={entry.license_key || ''} onChange={(e) => setCredential(index, 'license_key', e.target.value)} className={inputCls} placeholder="Code / license key" />
+              <input value={entry.email || ''} onChange={(e) => setCredential(index, 'email', e.target.value)} className={inputCls} placeholder="Gmail / Username" />
+              <input value={entry.password || ''} onChange={(e) => setCredential(index, 'password', e.target.value)} className={inputCls} placeholder="Password / ពាក្យសម្ងាត់" />
+              <input value={entry.license_key || ''} onChange={(e) => setCredential(index, 'license_key', e.target.value)} className={inputCls} placeholder="Code / License key (បើមាន)" />
               <button type="button" onClick={() => removeCredential(index)} className="p-2 text-red-500 hover:bg-white rounded-lg" title="Remove credential"><FiTrash2 /></button>
             </div>
           ))}
