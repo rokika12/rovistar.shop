@@ -275,28 +275,7 @@ export default function Checkout() {
             <FiX className="h-6 w-6" />
           </button>
           <div className="max-w-sm mx-auto flex flex-col items-center">
-            <div className="w-full mb-4 flex items-center gap-3">
-              <div className="checkout-payment-marks">{isKaidoStore ? <img className="kaido-checkout-aba-khqr-logo" src={ABA_LOGO_URL} alt="ABA KHQR" /> : <><img className="checkout-aba-logo" src={ABA_LOGO_URL} alt="ABA Bank" /><img src={KHQR_LOGO_URL} alt="KHQR" /></>}</div>
-              <div><p className="text-[10px] font-black tracking-[0.12em] text-slate-400">SECURE PAYMENT</p><h2 className="text-xl font-black text-slate-900 dark:text-white">ABA KHQR</h2></div>
-            </div>
-          {/* Header: ABA PayWay + timer */}
-          <div className="hdr">
-            <div className="hdr-inner">
-              <div className="hdr-row">
-                <h3>ABA PayWay</h3>
-                <div className="timer-box">
-                  <FiLoader className="timer-spin" />
-                  <span className="timer-txt">
-                    {remaining > 0
-                      ? `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`
-                      : '00:00'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* QR card */}
+                    {/* QR card */}
           <div className="qr-area">
             <div className="qr-card-new">
               <div className="qr-info pt-5">
