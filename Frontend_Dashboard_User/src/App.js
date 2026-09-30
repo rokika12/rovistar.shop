@@ -35,23 +35,11 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Protected><Layout /></Protected>}>
           <Route index element={<Dashboard />} />
-          <Route path="pos" element={<POS />} />
           <Route path="products" element={<Products />} />
           <Route path="products/new" element={<ProductForm />} />
           <Route path="products/:id/edit" element={<ProductForm />} />
-          <Route path="categories" element={<Categories />} />
-          <Route path="stock" element={<Stock />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="orders/:id" element={<OrderDetail />} />
-          <Route path="customers" element={<Customers />} />
           <Route path="settings" element={<ShopSettings />} />
-          <Route path="payment" element={<PaymentSettings />} />
-          <Route path="telegram" element={<TelegramSettings />} />
-          <Route path="backup" element={<Backup />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="receipts" element={<Receipts />} />
-          <Route path="khsmm" element={<KHSMMServices />} />
-          <Route path="upgrade" element={<UpgradePlan />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -1,28 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import {
-  FiArchive, FiBarChart2, FiCreditCard, FiTrendingUp, FiFileText, FiHome, FiLogOut, FiMail, FiPackage,
-  FiSettings, FiShoppingBag, FiSmartphone, FiTag, FiUsers, FiBox, FiGlobe,
-} from 'react-icons/fi';
+import { FiHome, FiLogOut, FiPackage, FiSettings, FiShoppingBag } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { getShopDetail } from '../api';
 
 const navItems = [
   { to: '/', label: 'ផ្ទាំងគ្រប់គ្រង', icon: <FiHome />, end: true },
-  { to: '/pos', label: 'លក់ POS', icon: <FiCreditCard /> },
   { to: '/products', label: 'ផលិតផល', icon: <FiPackage /> },
-  { to: '/categories', label: 'ប្រភេទផលិតផល', icon: <FiTag /> },
-  { to: '/stock', label: 'ស្តុក', icon: <FiBox /> },
-  { to: '/orders', label: 'ការបញ្ជាទិញ', icon: <FiShoppingBag /> },
-  { to: '/customers', label: 'អតិថិជន', icon: <FiUsers /> },
-  { to: '/reports', label: 'របាយការណ៍', icon: <FiBarChart2 /> },
-  { to: '/receipts', label: 'បង្កាន់ដៃ', icon: <FiFileText /> },
-  { to: '/khsmm', label: 'សេវាកម្មប៊ូតដោយដៃ', icon: <FiGlobe /> },
   { to: '/settings', label: 'ការកំណត់ហាង', icon: <FiSettings /> },
-  { to: '/payment', label: 'ការទូទាត់ ABA Pay', icon: <FiSmartphone /> },
-  { to: '/telegram', label: 'Telegram Bot', icon: <FiMail /> },
-  { to: '/backup', label: 'បម្រុងទុក និងនាំចូល', icon: <FiArchive /> },
-  { to: '/upgrade', label: 'ប្ដូរគម្រោង', icon: <FiTrendingUp /> },
 ];
 
 export default function Layout() {
