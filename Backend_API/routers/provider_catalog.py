@@ -15,6 +15,7 @@ import models
 import schemas
 from database import get_db
 from security import get_current_admin, log_activity
+from services import provider_service
 
 router = APIRouter(prefix="/api/provider-catalog", tags=["provider-catalog"])
 
@@ -36,6 +37,19 @@ def _safe_https_url(url: str) -> str:
 
 
 def _catalog_rows(payload):
+    # Khmer TopUp's documented /games response nests purchasable packages in games.
+    if isinstance(payload, dict) and isinstance(payload.get("games"), list):
+        packages = []
+        for game in payload["games"]:
+            for package in game.get("packages") or []:
+                packages.append({
+                    "id": f"{game.get('slug')}:{package.get('package_id')}",
+                    "name": f"{game.get('name')} - {package.get('name')}",
+                    "price": package.get("price", 0), "game_slug": game.get("slug", ""),
+                    "package_id": package.get("package_id"), "id_label": game.get("id_label", "Player ID"),
+                    "server_label": game.get("server_label"), "tag": package.get("tag", ""),
+                })
+        return packages
     if isinstance(payload, list):
         return payload
     if not isinstance(payload, dict):
@@ -72,6 +86,15 @@ def _normalize(row):
     except (TypeError, ValueError):
         price = 0.0
     return {"external_id": external_id, "name": name, "description": str(_first(row, "description", "details")), "price": max(0.0, price), "image": str(_first(row, "image", "image_url", "thumbnail")), "raw": row}
+
+
+def _service_platform(slug):
+    slug = str(slug or "").lower()
+    if "freefire" in slug or "free-fire" in slug:
+        return "free_fire"
+    if "mobile-legends" in slug or "mlbb" in slug:
+        return "mobile_legends"
+    return "provider_game"
 
 
 def _provider_dict(provider):
@@ -151,11 +174,13 @@ def import_selected_products(data: schemas.ProviderImportRequest, db: Session = 
     created = []
     for item in selected:
         price = round(float(item.cost_price or 0) * (1 + data.margin_percent / 100), 2)
+        raw = models.JSONText.loads(item.raw_json, {})
+        khmer_topup = provider_service.is_khmer_topup(provider)
         product = models.Product(shop_id=shop.id, name=item.name, description=item.description, price=price, quantity=999999,
                                  images=models.JSONText.dumps([item.image] if item.image else []),
-                                 metadata_json=models.JSONText.dumps({"fulfillment_type": "manual_service", "service_platform": "provider_game", "provider_id": provider.id, "provider_item_id": item.id, "provider_cost": item.cost_price, "provider_margin_percent": data.margin_percent, "provider_fulfillment_enabled": False, "provider_notice": "Catalog imported. Automatic fulfillment requires the supplier's documented order API."}))
+                                 metadata_json=models.JSONText.dumps({"product_type": "digital", "fulfillment_type": "manual_service", "service_platform": _service_platform(raw.get("game_slug")), "provider_id": provider.id, "provider_item_id": item.id, "provider_game_slug": raw.get("game_slug", ""), "provider_package_id": raw.get("package_id"), "provider_id_label": raw.get("id_label", "Player ID"), "provider_server_label": raw.get("server_label"), "provider_cost": item.cost_price, "provider_margin_percent": data.margin_percent, "provider_fulfillment_enabled": khmer_topup, "provider_notice": "Automatic verified fulfillment via Khmer TopUp" if khmer_topup else "Catalog imported. Automatic fulfillment requires the supplier's documented order API."}))
         db.add(product)
         created.append({"name": item.name, "selling_price": price})
     log_activity(db, "import_provider_products", f"Admin imported {len(created)} provider products to {shop.username}", shop.id, admin)
     db.commit()
-    return {"created": created, "count": len(created), "fulfillment_enabled": False}
+    return {"created": created, "count": len(created), "fulfillment_enabled": provider_service.is_khmer_topup(provider)}

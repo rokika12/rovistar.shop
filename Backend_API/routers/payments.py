@@ -97,6 +97,14 @@ def _process_first_payment(db, order, shop):
         order.order_status = "processing"
         db.commit()
         db.refresh(order)
+    # Provider calls happen only after Rovistar payment is confirmed. The provider
+    # reference is deterministic so a retry cannot create a duplicate top-up.
+    try:
+        from services.provider_service import fulfill_paid_order
+        fulfill_paid_order(db, order)
+    except Exception:
+        # The paid order remains visible as processing for manual recovery.
+        pass
     try:
         items = [i.to_dict() for i in order.items]
         order.receipt_url = pdf_service.generate_receipt(order, shop, items)

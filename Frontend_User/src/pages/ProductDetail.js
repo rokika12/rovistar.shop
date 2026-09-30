@@ -189,7 +189,13 @@ export default function ProductDetail() {
         : freeFireService
           ? `Free Fire Player ID: ${serviceLink.trim()}`
           : serviceLink.trim();
-    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, { ...selectedVariations, ...(manualService ? { _service_link: serviceTarget } : {}), ...(robloxService ? { _roblox_password: robloxPassword } : {}), _customer_telegram: customerTelegram.trim() });
+    addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, {
+      ...selectedVariations,
+      ...(manualService ? { _service_link: serviceTarget } : {}),
+      ...(product.metadata?.provider_fulfillment_enabled ? { _provider_player_id: serviceLink.trim(), _provider_server_id: gameServerId.trim() } : {}),
+      ...(robloxService ? { _roblox_password: robloxPassword } : {}),
+      _customer_telegram: customerTelegram.trim(),
+    });
     setOpen(false);
     const checkoutParams = new URLSearchParams({ confirm: '1' });
     if (payment) checkoutParams.set('payment', payment);
