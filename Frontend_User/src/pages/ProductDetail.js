@@ -192,7 +192,9 @@ export default function ProductDetail() {
           : serviceLink.trim();
     addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, { ...selectedVariations, ...(manualService ? { _service_link: serviceTarget } : {}), _customer_telegram: customerTelegram.trim() });
     setOpen(false);
-    navigate(`/${shop.username}/checkout${payment ? `?payment=${payment}` : ''}`);
+    const checkoutParams = new URLSearchParams({ confirm: '1' });
+    if (payment) checkoutParams.set('payment', payment);
+    navigate(`/${shop.username}/checkout?${checkoutParams.toString()}`);
   };
 
   return (
