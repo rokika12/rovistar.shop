@@ -51,7 +51,8 @@ def fulfill_paid_order(db, order):
         if not player_id:
             continue
         try:
-            result = place_order(provider, metadata["provider_package_id"], player_id, f"rovistar-{order.order_number}-{item.id}", str(values.get("_provider_server_id") or ""))
+            package_id = values.get("_provider_package_id") or metadata.get("provider_package_id")
+            result = place_order(provider, package_id, player_id, f"rovistar-{order.order_number}-{item.id}", str(values.get("_provider_server_id") or ""))
             values["_provider_order_code"] = str(result.get("order_code") or "")
             values["_provider_status"] = str(result.get("status") or "processing")
             item.variations = models.JSONText.dumps(values)

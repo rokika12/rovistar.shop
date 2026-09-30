@@ -6,7 +6,7 @@ import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useCustomer } from '../contexts/CustomerContext';
 import { useLanguage } from '../i18n';
-import { getMyWallet, getProduct, getProducts, fullUrl, lookupTelegramUsername } from '../api';
+import { getMyWallet, getProduct, getProducts, fullUrl, lookupTelegramUsername, verifyProviderGameAccount } from '../api';
 import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
 
@@ -31,6 +31,8 @@ export default function ProductDetail() {
   const [robloxPassword, setRobloxPassword] = useState('');
   const [telegramAccount, setTelegramAccount] = useState(null);
   const [checkingTelegram, setCheckingTelegram] = useState(false);
+  const [providerAccount, setProviderAccount] = useState(null);
+  const [checkingProvider, setCheckingProvider] = useState(false);
   const [servicePaymentMethod, setServicePaymentMethod] = useState('khqr');
   const [walletBalance, setWalletBalance] = useState(null);
   const [customerTelegram, setCustomerTelegram] = useState('');
@@ -179,6 +181,10 @@ export default function ProductDetail() {
       toast.error('Enter your Gmail and Roblox password');
       return;
     }
+    if (product.metadata?.provider_fulfillment_enabled && !providerAccount) {
+      toast.error('Verify the game account first');
+      return;
+    }
     if (!isAvailable) { toast.error('This item is out of stock'); return; }
     // Buy now starts a single-product checkout instead of mixing older cart items.
     clear();
@@ -223,13 +229,15 @@ export default function ProductDetail() {
               <input
                 id="service-link"
                 value={serviceLink}
-                onChange={(event) => { setServiceLink(event.target.value); if (telegramService) setTelegramAccount(null); }}
+                onChange={(event) => { setServiceLink(event.target.value); setProviderAccount(null); if (telegramService) setTelegramAccount(null); }}
                 type={robloxService ? 'email' : 'text'}
                 inputMode={freeFireService || mobileLegendsService ? 'numeric' : 'text'}
                 placeholder={telegramService ? '@username' : freeFireService ? 'Player ID' : mobileLegendsService ? 'Player ID' : robloxService ? 'your@gmail.com' : 'https://www.tiktok.com/@...'}
               />
               {robloxService && <><label htmlFor="roblox-password" className="block text-sm font-bold text-slate-900 mt-3">Roblox password</label><input id="roblox-password" value={robloxPassword} onChange={(event) => setRobloxPassword(event.target.value)} type="password" autoComplete="current-password" placeholder="Roblox password" /></>}
               {mobileLegendsService && <input value={gameServerId} onChange={(event) => setGameServerId(event.target.value)} type="text" inputMode="numeric" placeholder="Server ID" className="mt-3" />}
+              {product.metadata?.provider_fulfillment_enabled && <button type="button" className="service-verify-button" disabled={checkingProvider || !serviceLink.trim()} onClick={async () => { setCheckingProvider(true); try { const result = await verifyProviderGameAccount(product.id, serviceLink.trim(), gameServerId.trim()); if (result.result !== 'valid') throw new Error('Account not found'); setProviderAccount(result); } catch (error) { setProviderAccount(null); toast.error(error?.response?.data?.detail || error.message || 'Account verification failed'); } finally { setCheckingProvider(false); } }}>{checkingProvider ? 'Checking...' : 'Verify game account'}</button>}
+              {providerAccount && <div className="service-verified-account"><span><strong>{providerAccount.nickname || 'Verified account'}</strong><br />{serviceLink}</span></div>}
               {telegramService && <button type="button" className="service-verify-button" disabled={checkingTelegram || !serviceLink.trim()} onClick={async () => {
                 setCheckingTelegram(true);
                 try { setTelegramAccount(await lookupTelegramUsername(serviceLink.trim())); }

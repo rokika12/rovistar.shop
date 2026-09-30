@@ -112,6 +112,8 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
                 raise HTTPException(status_code=400, detail="Please choose a valid service package")
             if match.get("price") is not None:
                 unit_price = float(match["price"])
+            if product_meta.get("provider_fulfillment_enabled") and match.get("provider_package_id"):
+                item_variations["_provider_package_id"] = match["provider_package_id"]
         # Stock is NOT deducted here — it is deducted automatically when the
         # payment is confirmed successful (see payments._mark_paid).
         items_total += float(unit_price) * item.quantity

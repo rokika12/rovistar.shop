@@ -71,6 +71,8 @@ export const lookupRobloxUsername = (username) =>
   api.get('/api/game-lookup/roblox', { params: { username } }).then((r) => r.data);
 export const lookupTelegramUsername = (username) =>
   api.get('/api/telegram/public-profile', { params: { username } }).then((r) => r.data);
+export const verifyProviderGameAccount = (productId, playerId, serverId = '') =>
+  api.get(`/api/provider-catalog/products/${productId}/verify`, { params: { player_id: playerId, server_id: serverId } }).then((r) => r.data);
 export const customerHistory = (payload) => api.post('/api/orders/public/history', payload).then((r) => r.data);
 export const customerSignup = (payload) => api.post('/api/customers/auth/signup', payload).then((r) => r.data);
 export const customerSignin = (payload) => api.post('/api/customers/auth/signin', payload).then((r) => r.data);

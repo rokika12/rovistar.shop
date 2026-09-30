@@ -173,6 +173,20 @@ def list_provider_items(provider_id: int, db: Session = Depends(get_db), admin: 
              "cost_price": item.cost_price, "image": item.image} for item in db.query(models.ProviderCatalogItem).filter(models.ProviderCatalogItem.provider_id == provider_id).order_by(models.ProviderCatalogItem.name).all()]
 
 
+@router.get("/products/{product_id}/verify")
+def verify_product_account(product_id: int, player_id: str, server_id: str = "", db: Session = Depends(get_db)):
+    product = db.get(models.Product, product_id)
+    metadata = models.JSONText.loads(product.metadata_json, {}) if product else {}
+    provider = db.get(models.ProviderConnection, metadata.get("provider_id")) if product else None
+    if not product or not provider or not metadata.get("provider_fulfillment_enabled"):
+        raise HTTPException(status_code=404, detail="Game verification is not available")
+    try:
+        result = provider_service.verify_player(provider, metadata.get("provider_game_slug", ""), player_id.strip(), server_id.strip())
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=400, detail=f"Verification failed: {str(exc)[:120]}")
+    return result
+
+
 @router.post("/import")
 def import_selected_products(data: schemas.ProviderImportRequest, db: Session = Depends(get_db), admin: models.User = Depends(get_current_admin)):
     shop = db.get(models.Shop, data.shop_id)
@@ -184,16 +198,25 @@ def import_selected_products(data: schemas.ProviderImportRequest, db: Session = 
         raise HTTPException(status_code=400, detail="Select at least one imported game")
     if data.margin_percent < 0 or data.margin_percent > 1000:
         raise HTTPException(status_code=400, detail="Margin must be between 0 and 1000 percent")
-    created = []
+    # One storefront product per game; its variations are the selectable top-up packages.
+    groups = {}
     for item in selected:
-        price = round(float(item.cost_price or 0) * (1 + data.margin_percent / 100), 2)
         raw = models.JSONText.loads(item.raw_json, {})
-        khmer_topup = provider_service.is_khmer_topup(provider)
-        product = models.Product(shop_id=shop.id, name=item.name, description=item.description, price=price, quantity=999999,
-                                 images=models.JSONText.dumps([item.image] if item.image else []),
-                                 metadata_json=models.JSONText.dumps({"product_type": "digital", "fulfillment_type": "manual_service", "service_platform": _service_platform(raw.get("game_slug")), "provider_id": provider.id, "provider_item_id": item.id, "provider_game_slug": raw.get("game_slug", ""), "provider_package_id": raw.get("package_id"), "provider_id_label": raw.get("id_label", "Player ID"), "provider_server_label": raw.get("server_label"), "provider_cost": item.cost_price, "provider_margin_percent": data.margin_percent, "provider_fulfillment_enabled": khmer_topup, "provider_notice": "Automatic verified fulfillment via Khmer TopUp" if khmer_topup else "Catalog imported. Automatic fulfillment requires the supplier's documented order API."}))
+        groups.setdefault(raw.get("game_slug") or item.name, []).append((item, raw))
+    created = []
+    for game_slug, entries in groups.items():
+        first_item, first_raw = entries[0]
+        game_name = first_item.name.split(" - ", 1)[0]
+        variations = []
+        for item, raw in entries:
+            price = round(float(item.cost_price or 0) * (1 + data.margin_percent / 100), 2)
+            package_name = item.name.split(" - ", 1)[-1]
+            variations.append({"attrs": {"Top Up": package_name}, "price": price, "quantity": 999999, "provider_package_id": raw.get("package_id")})
+        product = models.Product(shop_id=shop.id, name=game_name, description=f"{game_name} top up", price=variations[0]["price"], quantity=999999,
+                                 images=models.JSONText.dumps([first_item.image] if first_item.image else []), variations=models.JSONText.dumps(variations),
+                                 metadata_json=models.JSONText.dumps({"product_type": "digital", "fulfillment_type": "manual_service", "service_platform": _service_platform(game_slug), "provider_id": provider.id, "provider_game_slug": game_slug, "provider_id_label": first_raw.get("id_label", "Player ID"), "provider_server_label": first_raw.get("server_label"), "provider_margin_percent": data.margin_percent, "provider_fulfillment_enabled": provider_service.is_khmer_topup(provider), "provider_notice": "Automatic verified fulfillment via Khmer TopUp"}))
         db.add(product)
-        created.append({"name": item.name, "selling_price": price})
+        created.append({"name": game_name, "packages": len(variations)})
     log_activity(db, "import_provider_products", f"Admin imported {len(created)} provider products to {shop.username}", shop.id, admin)
     db.commit()
     return {"created": created, "count": len(created), "fulfillment_enabled": provider_service.is_khmer_topup(provider)}
