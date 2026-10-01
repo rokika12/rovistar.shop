@@ -48,8 +48,6 @@ export default function ShopHome() {
   const slides = useMemo(() => [shop?.banner, ...(shop?.slideshow || [])].filter(Boolean), [shop]);
 
   if (!shop) return null;
-  // Manual top-ups use a fixed card grid, never a moving storefront rail.
-  const manualServiceProducts = allProducts.filter((product) => product.metadata?.fulfillment_type === 'manual_service');
   const catalogProducts = allProducts.filter((product) => product.metadata?.fulfillment_type !== 'manual_service');
   const featuredProducts = (featured.length ? featured : catalogProducts)
     .filter((product) => product.metadata?.fulfillment_type !== 'manual_service')
@@ -258,18 +256,6 @@ export default function ShopHome() {
           </div>
         )}
       </section>}
-
-      {!isKaidoStore && !loading && manualServiceProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-7">
-          <div className="store-section-heading">
-            <div><span className="store-section-kicker">Verify before payment</span><h2>Manual Top Up Services</h2></div>
-            <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {manualServiceProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
-          </div>
-        </section>
-      )}
 
       {!isKaidoStore && !loading && categories.map((category) => {
         const items = catalogProducts.filter((product) => product.category_id === category.id);

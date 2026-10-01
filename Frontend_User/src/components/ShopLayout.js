@@ -37,6 +37,7 @@ export default function ShopLayout() {
   const isAccountTemplate = shop.template_type === 'account';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const isDomi = shop.username?.toLowerCase() === 'domi';
+  const isRovistarStore = shop.username?.toLowerCase() === 'rovistar';
   const isCheckout = location.pathname.endsWith('/checkout');
   const announcement = theme.appearance?.marquee_text || (isAccountTemplate ? 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · គាំទ្រសេវាកម្មឌីជីថល' : 'ការទូទាត់មានសុវត្ថិភាព · បានផ្ទៀងផ្ទាត់ការបង់ប្រាក់ · ក្រុមការងារគាំទ្ររហ័ស');
   const themeStyle = {
@@ -48,7 +49,7 @@ export default function ShopLayout() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col dark:bg-gray-900 ${isKaidoStore ? 'kaido-store-shell' : ''} ${isDomi ? 'domi-pink-store-shell' : ''}`} data-template={shop.template_type || 'login'} style={themeStyle}>
+    <div className={`min-h-screen flex flex-col dark:bg-gray-900 ${isKaidoStore ? 'kaido-store-shell' : ''} ${isDomi ? 'domi-pink-store-shell' : ''} ${isRovistarStore ? 'rovistar-game-background-shell' : ''}`} data-template={shop.template_type || 'login'} style={themeStyle}>
       <div className="store-sticky-shell">
         <div className="brand-ticker bg-[var(--brand-blue)] text-white" aria-label="Store security notice">
           <div className="brand-ticker-track">

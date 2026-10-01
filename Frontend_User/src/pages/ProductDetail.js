@@ -17,7 +17,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const { shop } = useShop();
   const { addItem, clear, setOpen } = useCart();
-  const { customer, token } = useCustomer();
+  const { customer, token, updateCustomer } = useCustomer();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -68,8 +68,14 @@ export default function ProductDetail() {
       setWalletBalance(null);
       return;
     }
-    getMyWallet(token).then((wallet) => setWalletBalance(wallet.balance || 0)).catch(() => setWalletBalance(null));
-  }, [customer?.shop_id, shop?.id, token]);
+    const storedBalance = Number(customer?.wallet_balance);
+    if (Number.isFinite(storedBalance)) setWalletBalance(storedBalance);
+    getMyWallet(token).then((wallet) => {
+      const balance = Number(wallet.balance || 0);
+      setWalletBalance(balance);
+      updateCustomer({ wallet_balance: balance });
+    }).catch(() => setWalletBalance(Number.isFinite(storedBalance) ? storedBalance : null));
+  }, [customer?.shop_id, customer?.wallet_balance, shop?.id, token, updateCustomer]);
 
   const currentVariation = useMemo(() => {
     if (!product || !product.variations || product.variations.length === 0) return null;
