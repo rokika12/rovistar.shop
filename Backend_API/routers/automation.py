@@ -15,7 +15,7 @@ import models
 import schemas
 from config import config
 from database import get_db
-from security import get_current_admin, log_activity
+from security import get_current_admin, get_current_user, log_activity, require_shop_access
 from services import telegram_service
 
 router = APIRouter(prefix="/api/automation", tags=["automation"])
@@ -189,6 +189,40 @@ def list_support(db: Session = Depends(get_db), admin: models.User = Depends(get
 def admin_reply(conversation_id: int, data: schemas.SupportMessageCreate, db: Session = Depends(get_db), admin: models.User = Depends(get_current_admin)):
     conversation = db.get(models.SupportConversation, conversation_id)
     if not conversation or conversation.status != "open":
+        raise HTTPException(status_code=404, detail="Open conversation not found")
+    db.add(models.SupportMessage(conversation_id=conversation.id, sender="admin", body=data.body.strip()))
+    conversation.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True}
+
+
+@router.get("/support/shop/{shop_id}")
+def list_shop_support(shop_id: int, db: Session = Depends(get_db), user: models.User = Depends(get_current_user)):
+    """Shop owners see only customer conversations for their own storefront."""
+    require_shop_access(shop_id, user)
+    conversations = db.query(models.SupportConversation).filter(
+        models.SupportConversation.shop_id == shop_id
+    ).order_by(models.SupportConversation.updated_at.desc()).all()
+    output = []
+    for conversation in conversations:
+        item = conversation.to_dict()
+        item["messages"] = [message.to_dict() for message in db.query(models.SupportMessage).filter(
+            models.SupportMessage.conversation_id == conversation.id
+        ).order_by(models.SupportMessage.id).all()]
+        output.append(item)
+    return output
+
+
+@router.post("/support/shop/{shop_id}/{conversation_id}/reply")
+def shop_reply(shop_id: int, conversation_id: int, data: schemas.SupportMessageCreate,
+               db: Session = Depends(get_db), user: models.User = Depends(get_current_user)):
+    require_shop_access(shop_id, user)
+    conversation = db.query(models.SupportConversation).filter(
+        models.SupportConversation.id == conversation_id,
+        models.SupportConversation.shop_id == shop_id,
+        models.SupportConversation.status == "open",
+    ).first()
+    if not conversation:
         raise HTTPException(status_code=404, detail="Open conversation not found")
     db.add(models.SupportMessage(conversation_id=conversation.id, sender="admin", body=data.body.strip()))
     conversation.updated_at = datetime.utcnow()

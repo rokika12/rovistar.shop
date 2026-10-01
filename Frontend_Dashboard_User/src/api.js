@@ -141,4 +141,9 @@ export const importShopBackup = (shopId, file) => {
 export const backupHistory = (shopId) => api.get('/api/backup/history', { params: { shop_id: shopId } }).then((r) => r.data);
 export const getBackupDownload = (filename) => api.get('/api/backup/download', { params: { filename } }).then((r) => r.data);
 
+// Shop-owner customer support inbox (scoped by the API to this shop only).
+export const listShopSupportConversations = (shopId) => api.get(`/api/automation/support/shop/${shopId}`).then((r) => r.data);
+export const replyShopSupportConversation = (shopId, conversationId, data) =>
+  api.post(`/api/automation/support/shop/${shopId}/${conversationId}/reply`, data).then((r) => r.data);
+
 export default api;

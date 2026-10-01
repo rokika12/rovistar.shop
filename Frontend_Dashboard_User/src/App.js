@@ -20,6 +20,7 @@ import Reports from './pages/Reports';
 import Receipts from './pages/Receipts';
 import UpgradePlan from './pages/UpgradePlan';
 import KHSMMServices from './pages/KHSMMServices';
+import CustomerChat from './pages/CustomerChat';
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="products/new" element={<ProductForm />} />
           <Route path="products/:id/edit" element={<ProductForm />} />
           <Route path="settings" element={<ShopSettings />} />
+          <Route path="customer-chat" element={<CustomerChat />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
