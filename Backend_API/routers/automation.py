@@ -92,16 +92,31 @@ def _extract_design_reference(html: str, source_url: str) -> dict:
 @router.post("/design/inspect")
 def inspect_design(data: schemas.DesignInspectRequest, admin: models.User = Depends(get_current_admin)):
     url = _safe_public_url(data.url)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+    }
     try:
-        with httpx.Client(timeout=12, follow_redirects=True, headers={"User-Agent": "RovistarDesignReference/1.0"}) as client:
+        with httpx.Client(timeout=18, follow_redirects=True, headers=headers) as client:
             response = client.get(url)
         if response.status_code >= 400:
-            raise HTTPException(status_code=400, detail="The reference website could not be read")
+            raise RuntimeError("reference site returned an error")
         return _extract_design_reference(response.text[:1_000_000], str(response.url))
-    except HTTPException:
-        raise
     except Exception:
-        raise HTTPException(status_code=400, detail="The reference website could not be reached")
+        # Some storefronts block data-center requests. Fall back to a read-only
+        # public reader so visible labels and navigation can still be referenced.
+        try:
+            reader_url = f"https://r.jina.ai/http://{urlparse(url).netloc}{urlparse(url).path or '/'}"
+            with httpx.Client(timeout=25, follow_redirects=True, headers=headers) as client:
+                response = client.get(reader_url)
+            if response.status_code >= 400 or not response.text.strip():
+                raise RuntimeError("reader unavailable")
+            result = _extract_design_reference(response.text[:1_000_000], url)
+            result["notice"] = "Reference extracted through a public reader because the source blocks direct requests. Brand assets and code are not imported."
+            return result
+        except Exception:
+            raise HTTPException(status_code=400, detail="The reference website could not be reached")
 
 
 @router.post("/design/apply")
