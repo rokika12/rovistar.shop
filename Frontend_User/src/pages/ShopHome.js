@@ -106,7 +106,7 @@ export default function ShopHome() {
 
       {slides.length > 0 && (
         <section className={`${isKaidoStore ? 'kaido-banner-wrap' : 'max-w-7xl mx-auto px-4 pt-6 md:pt-8'}`}>
-          <Slideshow slides={slides} naturalHeight={isKaidoStore} />
+          <Slideshow slides={slides} />
         </section>
       )}
 
