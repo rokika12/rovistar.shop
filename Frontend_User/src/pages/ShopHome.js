@@ -48,7 +48,13 @@ export default function ShopHome() {
   const slides = useMemo(() => [shop?.banner, ...(shop?.slideshow || [])].filter(Boolean), [shop]);
 
   if (!shop) return null;
-  const featuredProducts = featured.length ? featured : allProducts.slice(0, 4);
+  // Imported provider games belong in the normal Products section below, not the
+  // four-card Popular rail at the top of this marketplace.
+  const regularProducts = allProducts.filter((product) => !product.metadata?.provider_fulfillment_enabled);
+  const providerProducts = allProducts.filter((product) => product.metadata?.provider_fulfillment_enabled);
+  const featuredProducts = (featured.length ? featured : regularProducts)
+    .filter((product) => !product.metadata?.provider_fulfillment_enabled)
+    .slice(0, 4);
   const getValidDiscount = (product) => {
     const originalPrice = Number(product.price);
     const salePrice = Number(product.sale_price);
@@ -159,6 +165,21 @@ export default function ShopHome() {
               {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-popular" />)}
             </div>
           ) : <p className="kaido-filter-empty">{t('noFeatured')}</p>}
+        </section>
+      )}
+
+      {isKaidoStore && !loading && providerProducts.length > 0 && (
+        <section className="kaido-provider-products" aria-labelledby="kaido-provider-products-title">
+          <div className="kaido-classic-heading">
+            <div>
+              <span>GAME TOP UP</span>
+              <h2 id="kaido-provider-products-title">Products</h2>
+            </div>
+            <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
+          </div>
+          <div className="kaido-provider-grid">
+            {providerProducts.map((product) => <ProductCard key={product.id} product={product} variant="standard" />)}
+          </div>
         </section>
       )}
 
