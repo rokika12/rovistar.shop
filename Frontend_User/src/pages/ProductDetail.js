@@ -17,7 +17,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const { shop } = useShop();
   const { addItem, clear, setOpen } = useCart();
-  const { customer, token, updateCustomer } = useCustomer();
+  const { customer, token } = useCustomer();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -73,9 +73,14 @@ export default function ProductDetail() {
     getMyWallet(token).then((wallet) => {
       const balance = Number(wallet.balance || 0);
       setWalletBalance(balance);
-      updateCustomer({ wallet_balance: balance });
     }).catch(() => setWalletBalance(Number.isFinite(storedBalance) ? storedBalance : null));
-  }, [customer?.shop_id, customer?.wallet_balance, shop?.id, token, updateCustomer]);
+  }, [customer?.shop_id, customer?.wallet_balance, shop?.id, token]);
+
+  // The payment picker mirrors the account balance shown in the header.
+  const accountWalletBalance = Number(customer?.wallet_balance);
+  const displayedWalletBalance = Number.isFinite(accountWalletBalance)
+    ? accountWalletBalance
+    : Number(walletBalance || 0);
 
   const currentVariation = useMemo(() => {
     if (!product || !product.variations || product.variations.length === 0) return null;
@@ -261,7 +266,7 @@ export default function ProductDetail() {
               <div className="space-y-3">
                 <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
                   <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
-                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{`Available: $${Number(walletBalance || 0).toFixed(2)}`}</small></span>
+                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{`Available: $${displayedWalletBalance.toFixed(2)}`}</small></span>
                   <span className="service-payment-radio" aria-hidden="true" />
                 </button>
                 <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
@@ -407,7 +412,7 @@ export default function ProductDetail() {
               <div className="space-y-3">
                 <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
                   <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
-                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{`Available: $${Number(walletBalance || 0).toFixed(2)}`}</small></span>
+                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{`Available: $${displayedWalletBalance.toFixed(2)}`}</small></span>
                   <span className="service-payment-radio" aria-hidden="true" />
                 </button>
                 <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
