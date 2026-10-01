@@ -12,6 +12,7 @@ export default function AutomationTools() {
   const [domains, setDomains] = useState([]);
   const [busy, setBusy] = useState(false);
   const [porkbun, setPorkbun] = useState({ connected: false, pending: false });
+  const [autoReply, setAutoReply] = useState('');
 
   const refresh = async () => {
     const [shopData, domainData, porkbunData] = await Promise.all([listShops(), listDomainMappings(), porkbunStatus()]);
@@ -35,6 +36,13 @@ export default function AutomationTools() {
     catch (error) { toast.error(error.response?.data?.detail || 'មិនអាច apply បាន'); }
     finally { setBusy(false); }
   };
+  const saveAutoReply = async () => {
+    if (!selectedShop) return;
+    setBusy(true);
+    try { await applyDesignReference({ shop_id: Number(selectedShop), theme: { chat_auto_reply: autoReply } }); toast.success('បានរក្សាទុក Auto Reply រួច'); }
+    catch (error) { toast.error(error.response?.data?.detail || 'មិនអាចរក្សាទុកបាន'); }
+    finally { setBusy(false); }
+  };
   const addDomain = async (event) => {
     event.preventDefault(); setBusy(true);
     try { await createDomainMapping({ shop_id: Number(selectedShop), domain }); setDomain(''); await refresh(); toast.success('បានបន្ថែម domain រួច'); }
@@ -55,6 +63,7 @@ export default function AutomationTools() {
       <form onSubmit={addDomain} className="mt-5 grid sm:grid-cols-[1fr_220px_auto] gap-3"><input value={domain} onChange={(e) => setDomain(e.target.value)} required placeholder="customer-shop.com" className="border rounded-xl px-4 py-3"/><select value={selectedShop} onChange={(e) => setSelectedShop(e.target.value)} className="border rounded-xl px-3">{shops.map((shop) => <option key={shop.id} value={shop.id}>{shop.shop_name || shop.username}</option>)}</select><button disabled={busy} className="bg-sky-600 text-white px-5 rounded-xl font-semibold">Add domain</button></form>
       <div className="mt-5 divide-y">{domains.map((item) => <div key={item.id} className="py-3 flex justify-between gap-4 text-sm"><span><b>{item.domain}</b><span className="text-slate-500"> → shop #{item.shop_id}</span></span><span className="text-amber-700 font-medium">{item.status}</span></div>)}{!domains.length && <p className="text-sm text-slate-500">No domains added yet.</p>}</div>
     </section>
-    <section className="bg-slate-900 text-white rounded-2xl p-6 flex items-center justify-between gap-5"><div className="flex gap-3"><span className="p-3 bg-white/10 rounded-xl"><FiMessageCircle /></span><div><h3 className="font-bold">3. Live Support</h3><p className="text-sm text-slate-300">The customer chat bubble is enabled across storefronts. New chats alert the shop Telegram bot and appear in the Admin inbox.</p></div></div><a href="/support" className="shrink-0 bg-white text-slate-900 px-4 py-3 rounded-xl font-bold inline-flex gap-2">Open inbox <FiSend /></a></section>
+    <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm"><div className="flex gap-3 items-start"><span className="p-3 bg-emerald-100 text-emerald-700 rounded-xl"><FiMessageCircle /></span><div><h3 className="font-bold text-slate-900">3. First-message Auto Reply</h3><p className="text-sm text-slate-500">Send one automatic welcome reply only when a customer starts a new chat. Later replies remain manual.</p></div></div><div className="mt-4 grid md:grid-cols-[1fr_220px_auto] gap-3"><textarea value={autoReply} onChange={(e) => setAutoReply(e.target.value)} placeholder="ឧ. សួស្តី! អរគុណដែលបានទាក់ទងមកយើង។ Admin នឹងតបវិញឆាប់ៗ។" className="min-h-24 border rounded-xl px-4 py-3"/><select value={selectedShop} onChange={(e) => setSelectedShop(e.target.value)} className="border rounded-xl px-3">{shops.map((shop) => <option key={shop.id} value={shop.id}>{shop.shop_name || shop.username}</option>)}</select><button type="button" onClick={saveAutoReply} disabled={busy} className="bg-emerald-600 text-white px-5 rounded-xl font-semibold">Save Auto Reply</button></div></section>
+    <section className="bg-slate-900 text-white rounded-2xl p-6 flex items-center justify-between gap-5"><div className="flex gap-3"><span className="p-3 bg-white/10 rounded-xl"><FiMessageCircle /></span><div><h3 className="font-bold">4. Live Support</h3><p className="text-sm text-slate-300">The customer chat bubble is enabled across storefronts. New chats alert the shop Telegram bot and appear in the Admin inbox.</p></div></div><a href="/support" className="shrink-0 bg-white text-slate-900 px-4 py-3 rounded-xl font-bold inline-flex gap-2">Open inbox <FiSend /></a></section>
   </div>;
 }

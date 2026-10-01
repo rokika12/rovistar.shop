@@ -125,7 +125,8 @@ def apply_design(data: schemas.DesignApplyRequest, db: Session = Depends(get_db)
     if not shop:
         raise HTTPException(status_code=404, detail="Shop not found")
     current = shop.theme_dict()
-    current.update({key: value for key, value in data.theme.items() if key in ("primary", "secondary", "font_family") and isinstance(value, str)})
+    allowed = ("primary", "secondary", "font_family", "chat_auto_reply")
+    current.update({key: value for key, value in data.theme.items() if key in allowed and isinstance(value, str)})
     shop.theme = models.JSONText.dumps(current)
     log_activity(db, "apply_design_reference", f"Admin updated design tokens for {shop.username}", shop.id, admin)
     db.commit()
@@ -278,6 +279,10 @@ def open_support(data: schemas.SupportConversationCreate, db: Session = Depends(
     db.add(conversation)
     db.flush()
     db.add(models.SupportMessage(conversation_id=conversation.id, sender="visitor", body=data.message.strip()))
+    auto_reply = str(shop.theme_dict().get("chat_auto_reply") or "").strip()
+    if auto_reply:
+        # Send exactly one greeting for the conversation; further visitor messages stay manual.
+        db.add(models.SupportMessage(conversation_id=conversation.id, sender="admin", body=auto_reply))
     conversation.updated_at = datetime.utcnow()
     db.commit()
     dashboard_url = f"{config.BASE_URL.rstrip('/')}/admin/support"
