@@ -5,7 +5,7 @@ import { FiArrowLeft, FiEdit, FiEye, FiPlus, FiTrash2 } from 'react-icons/fi';
 import {
   createCategory, createProduct, deleteCategory, deleteCustomer, deleteOrder,
   deleteProduct, exportShopBackup, fullUrl, getOrder, getShopDetail,
-  listShopCategories, listShopCustomers, listShopOrders, listShopProducts, uploadImage, uploadProductImages, uploadServiceVideo,
+  listProviders, listShopCategories, listShopCustomers, listShopOrders, listShopProducts, uploadImage, uploadProductImages, uploadServiceVideo,
   registerTelegramWebhook, setShopExpiry, setShopLimits, updateCategory, updateOrderStatus, updateProduct, updateShop, updateShopStatus,
 } from '../api';
 import { Empty, Loading, Modal, btnDanger, btnGhost, btnPrimary, inputCls } from '../components/ui';
@@ -21,6 +21,7 @@ export default function ShopDetail() {
   const [shop, setShop] = useState(null);
   const [tab, setTab] = useState('Overview');
   const [loading, setLoading] = useState(true);
+  const [providers, setProviders] = useState([]);
 
   const loadShop = () => getShopDetail(shopId).then(setShop).catch((e) => toast.error(e?.response?.data?.detail || 'Failed to load shop'));
   useEffect(() => { loadShop().finally(() => setLoading(false)); }, [shopId]);
@@ -358,20 +359,20 @@ function ProductsTab({ shopId, manualOnly = false }) {
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const emptyCredential = { email: '', password: '', license_key: '' };
-  const blankForm = (manual = false) => ({ name: '', description: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '', fulfillment_type: manual ? 'manual_service' : 'instant_code', service_platform: 'tiktok', service_type: 'manual', service_video_url: '', manual_service_out_of_stock: false, variations: [] });
+  const blankForm = (manual = false) => ({ name: '', description: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '', fulfillment_type: manual ? 'manual_service' : 'instant_code', service_platform: 'tiktok', service_type: 'manual', service_video_url: '', manual_service_out_of_stock: false, provider_id: '', provider_game_slug: '', variations: [] });
   const [form, setForm] = useState(blankForm(manualOnly));
 
   const load = () => Promise.all([listShopProducts(shopId), listShopCategories(shopId)])
     .then(([p, c]) => { setProducts(p); setCats(c); })
     .catch((e) => { setProducts([]); setCats([]); toast.error(e?.response?.data?.detail || 'Could not connect to the Backend API'); })
     .finally(() => setLoading(false));
-  useEffect(() => { load(); }, [shopId]);
+  useEffect(() => { load(); listProviders().then(setProviders).catch(() => setProviders([])); }, [shopId]);
 
   const openCreate = () => { setEditing(null); setForm(blankForm(manualOnly)); setModal(true); };
   const openEdit = (p) => {
     setEditing(p);
     const savedCredentials = p.metadata?.digital_delivery?.credentials || [];
-    setForm({ name: p.name, description: p.description || '', price: p.price ?? '', sale_price: p.sale_price ?? '', quantity: p.quantity ?? '', category_id: p.category_id ?? '', status: p.status || 'active', featured: !!p.featured, product_type: p.metadata?.product_type || 'digital', duration: p.metadata?.duration || '', delivery_email: p.metadata?.digital_delivery?.email || '', delivery_password: p.metadata?.digital_delivery?.password || '', license_key: p.metadata?.digital_delivery?.license_key || '', credentials: savedCredentials.length ? savedCredentials : [emptyCredential], images: p.images || [], promo_enabled: !!p.metadata?.promotion?.enabled, promo_text: p.metadata?.promotion?.text || '', promo_start: p.metadata?.promotion?.start_at || '', promo_end: p.metadata?.promotion?.end_at || '', fulfillment_type: p.metadata?.fulfillment_type || 'instant_code', service_platform: p.metadata?.service_platform || 'tiktok', service_type: p.metadata?.service_type || 'manual', service_video_url: p.metadata?.service_video_url || '', manual_service_out_of_stock: !!p.metadata?.manual_service_out_of_stock, variations: (p.variations || []).map((variation) => ({ name: Object.values(variation.attrs || {}).join(' · '), price: variation.price ?? '', image_url: variation.image_url || '', discount_percent: variation.discount_percent ?? '' })) });
+    setForm({ name: p.name, description: p.description || '', price: p.price ?? '', sale_price: p.sale_price ?? '', quantity: p.quantity ?? '', category_id: p.category_id ?? '', status: p.status || 'active', featured: !!p.featured, product_type: p.metadata?.product_type || 'digital', duration: p.metadata?.duration || '', delivery_email: p.metadata?.digital_delivery?.email || '', delivery_password: p.metadata?.digital_delivery?.password || '', license_key: p.metadata?.digital_delivery?.license_key || '', credentials: savedCredentials.length ? savedCredentials : [emptyCredential], images: p.images || [], promo_enabled: !!p.metadata?.promotion?.enabled, promo_text: p.metadata?.promotion?.text || '', promo_start: p.metadata?.promotion?.start_at || '', promo_end: p.metadata?.promotion?.end_at || '', fulfillment_type: p.metadata?.fulfillment_type || 'instant_code', service_platform: p.metadata?.service_platform || 'tiktok', service_type: p.metadata?.service_type || 'manual', service_video_url: p.metadata?.service_video_url || '', manual_service_out_of_stock: !!p.metadata?.manual_service_out_of_stock, provider_id: p.metadata?.provider_id || '', provider_game_slug: p.metadata?.provider_game_slug || '', variations: (p.variations || []).map((variation) => ({ name: Object.values(variation.attrs || {}).join(' · '), price: variation.price ?? '', image_url: variation.image_url || '', discount_percent: variation.discount_percent ?? '' })) });
     setModal(true);
   };
 
@@ -385,7 +386,7 @@ function ProductsTab({ shopId, manualOnly = false }) {
       images: form.images,
       status: form.status, featured: form.featured,
       variations: form.variations.map((item) => ({ attrs: { Package: item.name }, price: Number(item.price) || 0, quantity: 0, image_url: item.image_url || null, discount_percent: Math.max(0, Number(item.discount_percent) || 0) })),
-      metadata: { product_type: form.product_type, duration: form.duration, fulfillment_type: form.fulfillment_type, service_platform: form.service_platform, service_type: form.service_type, service_video_url: form.service_video_url.trim(), manual_service_out_of_stock: form.manual_service_out_of_stock, digital_delivery: { email: form.delivery_email, password: form.delivery_password, license_key: form.license_key, credentials: form.fulfillment_type === 'manual_service' ? [] : form.credentials.filter((entry) => entry.email || entry.password) }, promotion: { enabled: form.promo_enabled, text: form.promo_text, start_at: form.promo_start, end_at: form.promo_end } },
+      metadata: { product_type: form.product_type, duration: form.duration, fulfillment_type: form.fulfillment_type, service_platform: form.service_platform, service_type: form.service_type, service_video_url: form.service_video_url.trim(), manual_service_out_of_stock: form.manual_service_out_of_stock, provider_id: form.provider_id ? Number(form.provider_id) : null, provider_game_slug: form.provider_game_slug.trim(), digital_delivery: { email: form.delivery_email, password: form.delivery_password, license_key: form.license_key, credentials: form.fulfillment_type === 'manual_service' ? [] : form.credentials.filter((entry) => entry.email || entry.password) }, promotion: { enabled: form.promo_enabled, text: form.promo_text, start_at: form.promo_start, end_at: form.promo_end } },
     };
     try {
       if (editing) { await updateProduct(editing.id, payload); toast.success('Product updated'); }
@@ -453,12 +454,12 @@ function ProductsTab({ shopId, manualOnly = false }) {
         </div>
       )}
 
-      <ProductModal modal={modal} editing={editing} form={form} setForm={setForm} submit={submit} setModal={setModal} cats={cats} manualOnly={manualOnly} />
+      <ProductModal modal={modal} editing={editing} form={form} setForm={setForm} submit={submit} setModal={setModal} cats={cats} manualOnly={manualOnly} providers={providers} />
     </div>
   );
 }
 
-function ProductModal({ modal, editing, form, setForm, submit, setModal, cats, manualOnly }) {
+function ProductModal({ modal, editing, form, setForm, submit, setModal, cats, manualOnly, providers }) {
   const uploadImages = async (files) => {
     if (!files.length) return;
     try {
@@ -507,6 +508,7 @@ function ProductModal({ modal, editing, form, setForm, submit, setModal, cats, m
             <div><label className="mb-1 block text-xs font-semibold text-slate-600">Platform</label><select value={form.service_platform} onChange={(e) => setForm({ ...form, service_platform: e.target.value })} className={inputCls}><option value="tiktok">TikTok</option><option value="facebook">Facebook</option><option value="instagram">Instagram</option><option value="youtube">YouTube</option><option value="telegram_bot">Telegram Bot (public link)</option><option value="telegram_premium">Telegram Premium (username)</option><option value="telegram_star">Telegram Star (username)</option><option value="free_fire">Free Fire</option><option value="mobile_legends">Mobile Legends</option><option value="roblox">Roblox</option></select></div>
             <div><label className="mb-1 block text-xs font-semibold text-slate-600">ប្រភេទសេវាកម្ម</label><input value={form.service_type} onChange={(e) => setForm({ ...form, service_type: e.target.value })} className={inputCls} placeholder="ឧ. ការផ្សព្វផ្សាយដោយដៃ" /></div>
           </div>
+          <div className="grid grid-cols-1 gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 sm:grid-cols-2"><div><label className="mb-1 block text-xs font-semibold text-emerald-800">Verify Provider (ឆែក ID តែប៉ុណ្ណោះ)</label><select value={form.provider_id} onChange={(e) => setForm({ ...form, provider_id: e.target.value })} className={inputCls}><option value="">មិនភ្ជាប់ Verify API</option>{providers.filter((provider) => provider.api_key_configured).map((provider) => <option key={provider.id} value={provider.id}>{provider.name}</option>)}</select></div><div><label className="mb-1 block text-xs font-semibold text-emerald-800">Game slug</label><input value={form.provider_game_slug} onChange={(e) => setForm({ ...form, provider_game_slug: e.target.value })} className={inputCls} placeholder={form.service_platform === 'free_fire' ? 'freefire-sgmy' : form.service_platform === 'mobile_legends' ? 'mobile-legends' : 'Provider game slug'} /></div><p className="sm:col-span-2 text-xs text-emerald-800">ភ្ជាប់នេះសម្រាប់ Verify account មុនបង់ប្រាក់តែប៉ុណ្ណោះ។ Order នៅតែបញ្ជូនដោយដៃ។</p></div>
           <div><label className="mb-1 block text-xs font-semibold text-slate-600">វីដេអូណែនាំក្រោយបង់ប្រាក់</label><input type="file" accept="video/mp4,video/webm" onChange={(e) => uploadGuideVideo(e.target.files?.[0])} className="block w-full text-xs" />{form.service_video_url && <p className="mt-2 break-all text-xs text-emerald-700">បានភ្ជាប់វីដេអូរួច</p>}</div>
           <label className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-800"><input type="checkbox" checked={form.manual_service_out_of_stock} onChange={(e) => setForm({ ...form, manual_service_out_of_stock: e.target.checked })} /> បិទស្តុក / មិនទទួល Order បណ្តោះអាសន្ន</label>
           <div>

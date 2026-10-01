@@ -124,6 +124,7 @@ export default function ProductDetail() {
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const mobileLegendsService = manualService && servicePlatform === 'mobile_legends';
   const robloxService = manualService && servicePlatform === 'roblox';
+  const usesProviderVerification = Boolean(product.metadata?.provider_id && product.metadata?.provider_game_slug);
   const serviceBadge = telegramService ? '✦ VIP' : freeFireService ? '🔥 FREE FIRE' : mobileLegendsService ? '⚔ MLBB' : robloxService ? '◇ ROBLOX' : servicePlatform === 'tiktok' ? '🔥 បញ្ចុះតម្លៃ' : '✦ PACKAGE';
   const isTikTokService = manualService && servicePlatform === 'tiktok';
   const isAvailable = manualService ? !product.metadata?.manual_service_out_of_stock : effectiveStock > 0;
@@ -181,7 +182,7 @@ export default function ProductDetail() {
       toast.error('Enter your Gmail and Roblox password');
       return;
     }
-    if (product.metadata?.provider_fulfillment_enabled && !providerAccount) {
+    if (usesProviderVerification && !providerAccount) {
       toast.error('Verify the game account first');
       return;
     }
@@ -198,7 +199,7 @@ export default function ProductDetail() {
     addItem({ ...product, price: effectivePrice, sale_price: effectivePrice }, 1, {
       ...selectedVariations,
       ...(manualService ? { _service_link: serviceTarget } : {}),
-      ...(product.metadata?.provider_fulfillment_enabled ? { _provider_player_id: serviceLink.trim(), _provider_server_id: gameServerId.trim() } : {}),
+      ...(usesProviderVerification ? { _provider_player_id: serviceLink.trim(), _provider_server_id: gameServerId.trim() } : {}),
       ...(robloxService ? { _roblox_password: robloxPassword } : {}),
       _customer_telegram: customerTelegram.trim(),
     });
@@ -236,7 +237,7 @@ export default function ProductDetail() {
               />
               {robloxService && <><label htmlFor="roblox-password" className="block text-sm font-bold text-slate-900 mt-3">Roblox password</label><input id="roblox-password" value={robloxPassword} onChange={(event) => setRobloxPassword(event.target.value)} type="password" autoComplete="current-password" placeholder="Roblox password" /></>}
               {mobileLegendsService && <input value={gameServerId} onChange={(event) => setGameServerId(event.target.value)} type="text" inputMode="numeric" placeholder="Server ID" className="mt-3" />}
-              {product.metadata?.provider_fulfillment_enabled && <button type="button" className="service-verify-button" disabled={checkingProvider || !serviceLink.trim()} onClick={async () => { setCheckingProvider(true); try { const result = await verifyProviderGameAccount(product.id, serviceLink.trim(), gameServerId.trim()); if (result.result !== 'valid') throw new Error('Account not found'); setProviderAccount(result); } catch (error) { setProviderAccount(null); toast.error(error?.response?.data?.detail || error.message || 'Account verification failed'); } finally { setCheckingProvider(false); } }}>{checkingProvider ? 'Checking...' : 'Verify game account'}</button>}
+              {usesProviderVerification && <button type="button" className="service-verify-button" disabled={checkingProvider || !serviceLink.trim()} onClick={async () => { setCheckingProvider(true); try { const result = await verifyProviderGameAccount(product.id, serviceLink.trim(), gameServerId.trim()); if (result.result !== 'valid') throw new Error('Account not found'); setProviderAccount(result); } catch (error) { setProviderAccount(null); toast.error(error?.response?.data?.detail || error.message || 'Account verification failed'); } finally { setCheckingProvider(false); } }}>{checkingProvider ? 'Checking...' : 'Verify game account'}</button>}
               {providerAccount && <div className="service-verified-account"><span><strong>{providerAccount.nickname || 'Verified account'}</strong><br />{serviceLink}</span></div>}
               {telegramService && <button type="button" className="service-verify-button" disabled={checkingTelegram || !serviceLink.trim()} onClick={async () => {
                 setCheckingTelegram(true);

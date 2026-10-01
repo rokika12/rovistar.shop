@@ -186,7 +186,9 @@ def verify_product_account(product_id: int, player_id: str, server_id: str = "",
     product = db.get(models.Product, product_id)
     metadata = models.JSONText.loads(product.metadata_json, {}) if product else {}
     provider = db.get(models.ProviderConnection, metadata.get("provider_id")) if product else None
-    if not product or not provider or not metadata.get("provider_fulfillment_enabled"):
+    # Verification-only manual services use the same documented provider lookup,
+    # but must never trigger a provider order after payment.
+    if not product or not provider or not metadata.get("provider_game_slug"):
         raise HTTPException(status_code=404, detail="Game verification is not available")
     try:
         result = provider_service.verify_player(provider, metadata.get("provider_game_slug", ""), player_id.strip(), server_id.strip())

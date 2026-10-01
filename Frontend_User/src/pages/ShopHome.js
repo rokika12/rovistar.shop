@@ -48,12 +48,11 @@ export default function ShopHome() {
   const slides = useMemo(() => [shop?.banner, ...(shop?.slideshow || [])].filter(Boolean), [shop]);
 
   if (!shop) return null;
-  // Imported provider games belong in the normal Products section below, not the
-  // four-card Popular rail at the top of this marketplace.
-  const regularProducts = allProducts.filter((product) => !product.metadata?.provider_fulfillment_enabled);
-  const providerProducts = allProducts.filter((product) => product.metadata?.provider_fulfillment_enabled);
-  const featuredProducts = (featured.length ? featured : regularProducts)
-    .filter((product) => !product.metadata?.provider_fulfillment_enabled)
+  // Manual top-ups use a fixed card grid, never a moving storefront rail.
+  const manualServiceProducts = allProducts.filter((product) => product.metadata?.fulfillment_type === 'manual_service');
+  const catalogProducts = allProducts.filter((product) => product.metadata?.fulfillment_type !== 'manual_service');
+  const featuredProducts = (featured.length ? featured : catalogProducts)
+    .filter((product) => product.metadata?.fulfillment_type !== 'manual_service')
     .slice(0, 4);
   const getValidDiscount = (product) => {
     const originalPrice = Number(product.price);
@@ -63,7 +62,7 @@ export default function ShopHome() {
     const discount = Math.round((1 - salePrice / originalPrice) * 100);
     return discount >= 1 && discount <= 99 ? discount : null;
   };
-  const flashSaleProducts = allProducts.filter((product) => getValidDiscount(product) !== null).slice(0, 8);
+  const flashSaleProducts = catalogProducts.filter((product) => getValidDiscount(product) !== null).slice(0, 8);
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
@@ -188,7 +187,7 @@ export default function ShopHome() {
           <div className={`overflow-hidden rounded-2xl border ${isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-blue-100 bg-white text-slate-900'}`}>
             <div className="overflow-hidden py-3">
               <div className={`promo-marquee promo-marquee-${appearance.product_direction === 'right' ? 'right' : 'left'} flex w-max items-center gap-3`} style={{ '--promo-duration': appearance.product_speed === 'fast' ? '7s' : appearance.product_speed === 'normal' ? '12s' : '20s' }}>
-                {[...allProducts, ...allProducts].map((product, index) => (
+                {[...catalogProducts, ...catalogProducts].map((product, index) => (
                   <Link key={`${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`} className={`flex shrink-0 items-center gap-3 rounded-xl px-3 py-2 whitespace-nowrap ${isDark ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-50 hover:bg-blue-50'}`}>
                     {appearance.show_marquee_images !== false && <div className={`h-10 w-10 overflow-hidden rounded-lg ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}>{product.images?.[0] && <img src={fullUrl(product.images[0])} alt="" className="h-full w-full object-cover" />}</div>}
                     <span className="font-bold text-blue-700 dark:text-white">{product.name}</span>
@@ -309,8 +308,20 @@ export default function ShopHome() {
         )}
       </section>}
 
+      {!isKaidoStore && !loading && manualServiceProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 py-7">
+          <div className="store-section-heading">
+            <div><span className="store-section-kicker">Verify before payment</span><h2>Manual Top Up Services</h2></div>
+            <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {manualServiceProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
+          </div>
+        </section>
+      )}
+
       {!isKaidoStore && !loading && categories.map((category) => {
-        const items = allProducts.filter((product) => product.category_id === category.id);
+        const items = catalogProducts.filter((product) => product.category_id === category.id);
         if (!items.length) return null;
         return (
           <section key={category.id} className="max-w-7xl mx-auto px-4 py-6">
@@ -325,7 +336,7 @@ export default function ShopHome() {
 
       {!isKaidoStore && !loading && (() => {
         const categoryIds = new Set(categories.map((category) => category.id));
-        const others = allProducts.filter((product) => !categoryIds.has(product.category_id));
+        const others = catalogProducts.filter((product) => !categoryIds.has(product.category_id));
         if (!others.length) return null;
         return (
           <section className="max-w-7xl mx-auto px-4 py-6">
