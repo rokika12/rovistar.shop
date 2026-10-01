@@ -31,8 +31,10 @@ export default function CategoryNav({ categories, products = [] }) {
       : products.filter((product) => String(product.category_id) === String(category.id)).length
   );
 
+  const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
+
   return (
-    <div className="store-category-nav sticky z-30 w-full">
+    <div className="store-category-nav sticky z-30 w-full" style={isKaidoStore ? { position: 'static', background: 'transparent', border: 0 } : undefined}>
       <div className="max-w-7xl mx-auto store-category-nav-inner">
         <div className="store-category-track no-scrollbar" aria-label="Product categories">
           <button type="button" className={chip(true)} aria-current="page">
