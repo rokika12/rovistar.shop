@@ -179,9 +179,29 @@ def customer_me(customer: models.Customer = Depends(get_current_customer)):
 @router.get("/auth/wallet")
 def customer_wallet(customer: models.Customer = Depends(get_current_customer),
                     db: Session = Depends(get_db)):
+    # Re-check the customer's pending ABA top-ups here. This safely repairs a
+    # payment where the browser was closed before its polling request completed.
+    from routers.payments import _credit_wallet_topup_once, _mark_paid, _process_first_payment
+    from services import aba_service
+    shop = db.get(models.Shop, customer.shop_id)
+    pending_topups = db.query(models.Order).filter(
+        models.Order.customer_id == customer.id,
+        models.Order.shop_id == customer.shop_id,
+        models.Order.payment_method == "wallet_topup",
+        models.Order.payment_status == "pending",
+        models.Order.transaction_id.isnot(None),
+    ).order_by(models.Order.id.desc()).limit(10).all()
+    for order in pending_topups:
+        if not order.transaction_id:
+            continue
+        result = aba_service.verify_payment(order, shop)
+        if result.get("verified"):
+            newly_paid = _mark_paid(db, order, result.get("transaction_id"), result.get("amount"))
+            if newly_paid:
+                _process_first_payment(db, order, shop)
+
     # Heal historical ABA top-ups that reached "paid" during a deploy before
-    # their wallet transaction was recorded. The payment helper is idempotent.
-    from routers.payments import _credit_wallet_topup_once
+    # their wallet transaction was recorded. The helper is idempotent.
     paid_topups = db.query(models.Order).filter(
         models.Order.customer_id == customer.id,
         models.Order.shop_id == customer.shop_id,
