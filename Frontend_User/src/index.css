@@ -2258,3 +2258,9 @@ body {
 .kaido-products-page .kaido-account-card > div:last-child { background: transparent !important; color: #eef9ff !important; }
 .kaido-products-page .kaido-account-card h3, .kaido-products-page .kaido-account-card p, .kaido-products-page .kaido-account-card .text-slate-500, .kaido-products-page .kaido-account-card .text-slate-400 { color: #d8f1ff !important; }
 .kaido-products-page .kaido-account-card .store-product-image { background: #08285f !important; }
+
+/* View All category strip is transparent: only the rounded All control remains. */
+.kaido-products-page .store-category-nav { position: static !important; border: 0 !important; background: transparent !important; backdrop-filter: none !important; }
+.kaido-products-page .store-category-nav-inner { width: auto !important; margin: 0 !important; padding: 0.55rem 0 !important; }
+.kaido-products-page .store-category-track { width: max-content !important; overflow: visible !important; }
+.kaido-products-page .store-category-pill { min-height: 2.6rem; border-radius: 999px !important; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.18); }
