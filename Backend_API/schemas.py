@@ -223,6 +223,31 @@ class ProviderImportRequest(BaseModel):
     margin_percent: float = Field(default=0, ge=0, le=1000)
 
 
+class DesignInspectRequest(BaseModel):
+    url: str = Field(min_length=10, max_length=2048)
+
+
+class DesignApplyRequest(BaseModel):
+    shop_id: int
+    theme: Dict[str, Any]
+
+
+class DomainMappingCreate(BaseModel):
+    shop_id: int
+    domain: str = Field(min_length=3, max_length=253)
+
+
+class SupportConversationCreate(BaseModel):
+    shop_id: int
+    visitor_name: str = Field(default="", max_length=120)
+    visitor_contact: str = Field(default="", max_length=160)
+    message: str = Field(min_length=1, max_length=3000)
+
+
+class SupportMessageCreate(BaseModel):
+    body: str = Field(min_length=1, max_length=3000)
+
+
 class OrderItemIn(BaseModel):
     product_id: int
     name: str = ""

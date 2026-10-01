@@ -141,4 +141,15 @@ export const refreshProviderCatalog = (id) => api.post(`/api/provider-catalog/pr
 export const listProviderItems = (id) => api.get(`/api/provider-catalog/providers/${id}/items`).then((r) => r.data);
 export const importProviderProducts = (data) => api.post('/api/provider-catalog/import', data).then((r) => r.data);
 
+// Platform automation tools
+export const inspectDesignReference = (data) => api.post('/api/automation/design/inspect', data).then((r) => r.data);
+export const applyDesignReference = (data) => api.post('/api/automation/design/apply', data).then((r) => r.data);
+export const listDomainMappings = () => api.get('/api/automation/domains').then((r) => r.data);
+export const createDomainMapping = (data) => api.post('/api/automation/domains', data).then((r) => r.data);
+export const porkbunStatus = () => api.get('/api/automation/porkbun/status').then((r) => r.data);
+export const startPorkbunConnect = () => api.post('/api/automation/porkbun/connect/start').then((r) => r.data);
+export const completePorkbunConnect = () => api.post('/api/automation/porkbun/connect/complete').then((r) => r.data);
+export const listSupportConversations = () => api.get('/api/automation/support').then((r) => r.data);
+export const replySupportConversation = (id, data) => api.post(`/api/automation/support/${id}/reply`, data).then((r) => r.data);
+
 export default api;

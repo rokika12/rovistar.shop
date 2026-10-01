@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { FiActivity, FiDatabase, FiHome, FiLogOut, FiPercent, FiSettings, FiShoppingBag, FiTruck, FiUsers } from 'react-icons/fi';
+import { FiActivity, FiDatabase, FiHome, FiLogOut, FiMessageCircle, FiPercent, FiSettings, FiShoppingBag, FiTool, FiTruck, FiUsers } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
@@ -11,6 +11,8 @@ const navItems = [
   { to: '/backup', label: 'បម្រុងទុក', icon: <FiDatabase /> },
   { to: '/activity', label: 'កំណត់ហេតុសកម្មភាព', icon: <FiActivity /> },
   { to: '/provider-catalog', label: 'API ហ្គេម / Catalog', icon: <FiTruck /> },
+  { to: '/tools', label: 'Website Tools', icon: <FiTool /> },
+  { to: '/support', label: 'Customer Chat', icon: <FiMessageCircle /> },
   { to: '/settings', label: 'ការកំណត់', icon: <FiSettings /> },
 ];
 

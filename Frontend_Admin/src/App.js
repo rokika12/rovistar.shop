@@ -13,6 +13,8 @@ import Backup from './pages/Backup';
 import ActivityLogs from './pages/ActivityLogs';
 import Settings from './pages/Settings';
 import ProviderCatalog from './pages/ProviderCatalog';
+import AutomationTools from './pages/AutomationTools';
+import SupportInbox from './pages/SupportInbox';
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -37,6 +39,8 @@ export default function App() {
           <Route path="activity" element={<ActivityLogs />} />
           <Route path="settings" element={<Settings />} />
           <Route path="provider-catalog" element={<ProviderCatalog />} />
+          <Route path="tools" element={<AutomationTools />} />
+          <Route path="support" element={<SupportInbox />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

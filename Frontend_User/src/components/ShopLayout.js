@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { FiSend, FiShoppingBag } from 'react-icons/fi';
+import { FiShoppingBag } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useLanguage } from '../i18n';
 import ShopHeader from './ShopHeader';
@@ -8,6 +8,7 @@ import ShopFooter from './ShopFooter';
 import CartSidebar from './CartSidebar';
 import ShopSkeleton from './ShopSkeleton';
 import KaidoGreeter from './KaidoGreeter';
+import SupportChat from './SupportChat';
 
 export default function ShopLayout() {
   const { shop, loading, error } = useShop();
@@ -29,10 +30,6 @@ export default function ShopLayout() {
     );
   }
 
-  // Contact this shop owner: the shop's own Telegram link, else the platform channel.
-  const tgContact = shop.social_media?.telegram
-    || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : '')
-    || '';
   const theme = shop.theme || {};
   const isAccountTemplate = shop.template_type === 'account';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
@@ -66,18 +63,8 @@ export default function ShopLayout() {
       {!isAccountTemplate && <CartSidebar />}
 
       {isKaidoStore && <KaidoGreeter />}
+      <SupportChat />
 
-      {/* Keep one compact support action without duplicating mobile navigation. */}
-      {!isKaidoStore && tgContact && (
-        <a
-          href={tgContact}
-          target="_blank"
-          rel="noreferrer"
-          className={`fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] md:bottom-6 right-3 z-[60] inline-flex items-center justify-center gap-2 ${isDomi ? 'bg-pink-600 hover:bg-pink-700' : 'bg-[#229ED9] hover:bg-[#1d8cc1]'} text-white font-bold text-xs md:text-sm p-3 sm:px-4 sm:py-3 rounded-full shadow-xl transition`}
-        >
-          <FiSend className="w-4 h-4 shrink-0" /> <span className="hidden sm:inline">{t('contactThisOwner')}</span>
-        </a>
-      )}
     </div>
   );
 }

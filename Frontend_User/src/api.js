@@ -93,5 +93,8 @@ export const getMyWallet = (token) =>
   api.get('/api/customers/auth/wallet', { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then((r) => r.data);
 export const topUpWallet = (token, data) =>
   api.post('/api/customers/auth/wallet/topup', data, { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then((r) => r.data);
+export const openSupportConversation = (data) => api.post('/api/automation/public/support', data).then((r) => r.data);
+export const getSupportConversation = (token) => api.get(`/api/automation/public/support/${token}`).then((r) => r.data);
+export const sendSupportMessage = (token, data) => api.post(`/api/automation/public/support/${token}/message`, data).then((r) => r.data);
 
 export default api;

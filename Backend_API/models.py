@@ -488,6 +488,97 @@ class Setting(Base):
         return {"id": self.id, "shop_id": self.shop_id, "key": self.key, "value": self.value}
 
 
+class DomainMapping(Base):
+    """A customer-owned domain attached to one storefront."""
+    __tablename__ = "domain_mappings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    shop_id = Column(Integer, ForeignKey("shops.id"), nullable=False, index=True)
+    domain = Column(String, unique=True, nullable=False, index=True)
+    status = Column(String, default="pending")  # pending | dns_ready | active | failed
+    dns_target = Column(String, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id, "shop_id": self.shop_id, "domain": self.domain,
+            "status": self.status, "dns_target": self.dns_target,
+            "created_at": _iso(self.created_at),
+        }
+
+
+class PorkbunConnection(Base):
+    """Platform Porkbun credentials; secrets stay encrypted at rest."""
+    __tablename__ = "porkbun_connections"
+
+    id = Column(Integer, primary_key=True)
+    api_key_encrypted = Column(Text, default="")
+    secret_key_encrypted = Column(Text, default="")
+    request_token = Column(String, default="")
+    verifier_encrypted = Column(Text, default="")
+    connected_at = Column(DateTime, nullable=True)
+
+    def _set(self, field, value):
+        setattr(self, field, _provider_cipher().encrypt(value.encode("utf-8")).decode("utf-8"))
+
+    def _get(self, field):
+        try:
+            return _provider_cipher().decrypt((getattr(self, field) or "").encode("utf-8")).decode("utf-8")
+        except (InvalidToken, ValueError):
+            return ""
+
+    def set_credentials(self, api_key, secret_key):
+        self._set("api_key_encrypted", api_key)
+        self._set("secret_key_encrypted", secret_key)
+
+    def set_verifier(self, verifier):
+        self._set("verifier_encrypted", verifier)
+
+    @property
+    def api_key(self): return self._get("api_key_encrypted")
+
+    @property
+    def secret_key(self): return self._get("secret_key_encrypted")
+
+    @property
+    def verifier(self): return self._get("verifier_encrypted")
+
+
+class SupportConversation(Base):
+    """Public support conversation keyed by an opaque token, never by guessable IDs."""
+    __tablename__ = "support_conversations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    shop_id = Column(Integer, ForeignKey("shops.id"), nullable=False, index=True)
+    visitor_token = Column(String, unique=True, nullable=False, index=True)
+    visitor_name = Column(String, default="")
+    visitor_contact = Column(String, default="")
+    status = Column(String, default="open")  # open | closed
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id, "shop_id": self.shop_id, "visitor_token": self.visitor_token,
+            "visitor_name": self.visitor_name, "visitor_contact": self.visitor_contact,
+            "status": self.status, "created_at": _iso(self.created_at),
+            "updated_at": _iso(self.updated_at),
+        }
+
+
+class SupportMessage(Base):
+    __tablename__ = "support_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    conversation_id = Column(Integer, ForeignKey("support_conversations.id"), nullable=False, index=True)
+    sender = Column(String, nullable=False)  # visitor | admin
+    body = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {"id": self.id, "sender": self.sender, "body": self.body, "created_at": _iso(self.created_at)}
+
+
 class BackupHistory(Base):
     __tablename__ = "backup_history"
 
