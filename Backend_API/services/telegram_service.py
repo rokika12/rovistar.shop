@@ -307,15 +307,16 @@ def resolve_public_profile_username(username: str) -> dict:
 
     if "tgme_page" not in page and "telegram.me" not in page and "t.me" not in str(response.url):
         return {"ok": False, "detail": "This Telegram username is not publicly visible."}
-    # Telegram's public page metadata is not a verified identity record. Do not
-    # show its title or image as a customer's name/avatar because it can be
-    # stale or refer to a channel, which caused incorrect names to be displayed.
+    # A public t.me page exposes a display title, but it remains unverified
+    # metadata until the customer authenticates with Telegram.
+    title = re.search(r'<div class="tgme_page_title[^>]*>\s*(?:<span[^>]*>)?\s*(.*?)\s*(?:</span>)?\s*</div>', page, re.S)
+    display_name = re.sub(r"<[^>]+>", "", title.group(1)).strip() if title else ""
     return {
         "ok": True,
         "username": normalized,
-        "name": "",
+        "name": display_name,
         "avatar_url": "",
-        "detail": "Public username found. Telegram does not expose a verified display name or avatar by public username.",
+        "detail": "Public username found. Display name is public profile metadata and is not identity-verified.",
     }
 
 
