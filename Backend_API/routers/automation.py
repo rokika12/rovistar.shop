@@ -51,11 +51,35 @@ def _extract_design_reference(html: str, source_url: str) -> dict:
             colors.append(color)
         if len(colors) >= 12:
             break
+    def text_content(fragment: str) -> str:
+        return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", fragment)).strip()
+
+    button_labels = []
+    for match in re.finditer(r"<button\b[^>]*>(.*?)</button>", html, re.I | re.S):
+        label = text_content(match.group(1))
+        if label and label not in button_labels:
+            button_labels.append(label[:80])
+        if len(button_labels) >= 12:
+            break
+    menu_labels = []
+    for match in re.finditer(r"<(?:nav|a)\b[^>]*>(.*?)</(?:nav|a)>", html, re.I | re.S):
+        label = text_content(match.group(1))
+        if label and len(label) <= 80 and label not in menu_labels:
+            menu_labels.append(label)
+        if len(menu_labels) >= 12:
+            break
+    radius_match = re.search(r"border-radius\s*:\s*([0-9.]+(?:px|rem|em|%))", html, re.I)
     return {
         "source_url": source_url,
         "title": re.sub(r"\s+", " ", title.group(1)).strip()[:160] if title else "Untitled website",
         "fonts": fonts[:8],
         "colors": colors,
+        "buttons": button_labels,
+        "menus": menu_labels,
+        "component_notes": {
+            "button_shape": radius_match.group(1) if radius_match else "Use the current store button shape",
+            "payment_note": "KHQR/ABA functionality is configured securely per shop; this tool copies design direction only.",
+        },
         "suggested_theme": {
             "primary": colors[0] if colors else "#123B3A",
             "secondary": colors[1] if len(colors) > 1 else "#F4C95D",
