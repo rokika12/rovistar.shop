@@ -2264,3 +2264,9 @@ body {
 .kaido-products-page .store-category-nav-inner { width: auto !important; margin: 0 !important; padding: 0.55rem 0 !important; }
 .kaido-products-page .store-category-track { width: max-content !important; overflow: visible !important; }
 .kaido-products-page .store-category-pill { min-height: 2.6rem; border-radius: 999px !important; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.18); }
+
+/* Home has an extra Kaido category wrapper; keep that wrapper transparent as well. */
+.kaido-top-category-nav { border: 0 !important; background: transparent !important; }
+.kaido-top-category-nav .store-category-nav { position: static !important; border: 0 !important; background: transparent !important; backdrop-filter: none !important; }
+.kaido-top-category-nav .store-category-nav-inner { width: auto !important; margin: 0 !important; padding: 0.55rem 1rem !important; }
+.kaido-top-category-nav .store-category-track { width: max-content !important; overflow: visible !important; }
