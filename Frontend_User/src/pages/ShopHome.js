@@ -51,6 +51,7 @@ export default function ShopHome() {
   // Manual top-ups use a fixed card grid, never a moving storefront rail.
   const manualServiceProducts = allProducts.filter((product) => product.metadata?.fulfillment_type === 'manual_service');
   const catalogProducts = allProducts.filter((product) => product.metadata?.fulfillment_type !== 'manual_service');
+  const providerProducts = allProducts.filter((product) => product.metadata?.provider_fulfillment_enabled);
   const featuredProducts = (featured.length ? featured : catalogProducts)
     .filter((product) => product.metadata?.fulfillment_type !== 'manual_service')
     .slice(0, 4);
