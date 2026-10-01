@@ -51,7 +51,6 @@ export default function ShopHome() {
   // Manual top-ups use a fixed card grid, never a moving storefront rail.
   const manualServiceProducts = allProducts.filter((product) => product.metadata?.fulfillment_type === 'manual_service');
   const catalogProducts = allProducts.filter((product) => product.metadata?.fulfillment_type !== 'manual_service');
-  const providerProducts = allProducts.filter((product) => product.metadata?.provider_fulfillment_enabled);
   const featuredProducts = (featured.length ? featured : catalogProducts)
     .filter((product) => product.metadata?.fulfillment_type !== 'manual_service')
     .slice(0, 4);
@@ -67,7 +66,6 @@ export default function ShopHome() {
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
-  const kaidoRailProducts = allProducts.filter((product) => getValidDiscount(product) !== null).slice(0, 10);
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : 'https://t.me/kaidokmglaor');
   const appearance = shop.theme?.appearance || {};
@@ -110,39 +108,6 @@ export default function ShopHome() {
         </section>
       )}
 
-      {isKaidoStore && !loading && kaidoRailProducts.length > 0 && (
-        <section className="kaido-discount-section" aria-labelledby="kaido-discounted-accounts-title">
-          <div className="kaido-discount-heading">
-            <div>
-              <span className="kaido-discount-kicker"><FiZap /> Limited game deals</span>
-              <h2 id="kaido-discounted-accounts-title">Discounted Accounts</h2>
-              <p>តម្លៃពិសេសសម្រាប់គណនីហ្គេម <span>Verified game deals</span></p>
-            </div>
-            <span className="kaido-discount-count">{kaidoRailProducts.length} offers</span>
-          </div>
-          <div className="kaido-discount-rail" aria-label="Kaido game account gallery">
-            <div className="kaido-discount-track">
-              {[...kaidoRailProducts, ...kaidoRailProducts].map((product, index) => {
-                const discount = getValidDiscount(product);
-                const displayPrice = Number(product.sale_price ?? product.price);
-                return (
-                  <Link key={`${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`} className="kaido-discount-ticket">
-                    <span className="kaido-ticket-image">
-                      {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt={product.name} /> : <FiShoppingBag />}
-                    </span>
-                    <span className="kaido-ticket-copy">
-                      <b>{product.name}</b>
-                      <small>${displayPrice.toFixed(2)}</small>
-                    </span>
-                    {discount && <span className="kaido-ticket-sale">-{discount}%</span>}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
       {isKaidoStore && (
         <section className="kaido-service-strip" aria-label="Kaido Store benefits">
           <div><FiZap /><span><b>INSTANT DELIVERY</b><small>Ready after payment</small></span></div>
@@ -155,31 +120,16 @@ export default function ShopHome() {
         <section className="kaido-classic-products" aria-labelledby="kaido-classic-products-title">
           <div className="kaido-classic-heading">
             <div>
-              <span>PICKED FOR YOU</span>
-              <h2 id="kaido-classic-products-title">Popular Products</h2>
+              <span>BROWSE EVERYTHING</span>
+              <h2 id="kaido-classic-products-title">All Products</h2>
             </div>
             <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
           </div>
-          {featuredProducts.length ? (
+          {allProducts.length ? (
             <div className="kaido-popular-grid">
-              {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-popular" />)}
+              {allProducts.map((product) => <ProductCard key={product.id} product={product} variant="kaido-popular" />)}
             </div>
           ) : <p className="kaido-filter-empty">{t('noFeatured')}</p>}
-        </section>
-      )}
-
-      {isKaidoStore && !loading && providerProducts.length > 0 && (
-        <section className="kaido-provider-products" aria-labelledby="kaido-provider-products-title">
-          <div className="kaido-classic-heading">
-            <div>
-              <span>GAME TOP UP</span>
-              <h2 id="kaido-provider-products-title">Products</h2>
-            </div>
-            <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
-          </div>
-          <div className="kaido-provider-grid">
-            {providerProducts.map((product) => <ProductCard key={product.id} product={product} variant="standard" />)}
-          </div>
         </section>
       )}
 

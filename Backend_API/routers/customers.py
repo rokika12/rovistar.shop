@@ -179,6 +179,18 @@ def customer_me(customer: models.Customer = Depends(get_current_customer)):
 @router.get("/auth/wallet")
 def customer_wallet(customer: models.Customer = Depends(get_current_customer),
                     db: Session = Depends(get_db)):
+    # Heal historical ABA top-ups that reached "paid" during a deploy before
+    # their wallet transaction was recorded. The payment helper is idempotent.
+    from routers.payments import _credit_wallet_topup_once
+    paid_topups = db.query(models.Order).filter(
+        models.Order.customer_id == customer.id,
+        models.Order.shop_id == customer.shop_id,
+        models.Order.payment_method == "wallet_topup",
+        models.Order.payment_status == "paid",
+    ).all()
+    for order in paid_topups:
+        _credit_wallet_topup_once(db, order)
+    db.refresh(customer)
     rows = db.query(models.WalletTransaction).filter(
         models.WalletTransaction.customer_id == customer.id,
         models.WalletTransaction.shop_id == customer.shop_id,

@@ -42,6 +42,8 @@ def fulfill_paid_order(db, order):
             continue
         product = db.get(models.Product, item.product_id)
         metadata = models.JSONText.loads(product.metadata_json, {}) if product else {}
+        if metadata.get("fulfillment_type") == "manual_service":
+            continue
         if not metadata.get("provider_fulfillment_enabled"):
             continue
         provider = db.get(models.ProviderConnection, metadata.get("provider_id"))

@@ -125,9 +125,7 @@ def _verification_provider(db, metadata):
 
 
 def _verification_slugs(db, provider, metadata, primary_slug):
-    """Prefer configured slugs, then use the supplier's imported game catalog."""
-    if metadata.get("provider_game_slug"):
-        return [primary_slug]
+    """Try the saved slug first, then matching supplier catalog aliases."""
     platform = str(metadata.get("service_platform") or "").lower()
     slugs = [primary_slug]
     for item in db.query(models.ProviderCatalogItem).filter(models.ProviderCatalogItem.provider_id == provider.id).all():
@@ -273,7 +271,7 @@ def import_selected_products(data: schemas.ProviderImportRequest, db: Session = 
             variations.append({"attrs": {"Top Up": package_name}, "price": price, "quantity": 999999, "provider_package_id": raw.get("package_id")})
         product = models.Product(shop_id=shop.id, name=game_name, description=f"{game_name} top up", price=variations[0]["price"], quantity=999999,
                                  images=models.JSONText.dumps([first_item.image or _game_cover(game_name, game_slug)]), variations=models.JSONText.dumps(variations),
-                                 metadata_json=models.JSONText.dumps({"product_type": "digital", "fulfillment_type": "manual_service", "service_platform": _service_platform(game_slug), "provider_id": provider.id, "provider_game_slug": game_slug, "provider_id_label": first_raw.get("id_label", "Player ID"), "provider_server_label": first_raw.get("server_label"), "provider_margin_percent": data.margin_percent, "provider_fulfillment_enabled": provider_service.is_khmer_topup(provider), "provider_notice": "Automatic verified fulfillment via Khmer TopUp"}))
+                                 metadata_json=models.JSONText.dumps({"product_type": "digital", "fulfillment_type": "manual_service", "service_platform": _service_platform(game_slug), "provider_id": provider.id, "provider_game_slug": game_slug, "provider_id_label": first_raw.get("id_label", "Player ID"), "provider_server_label": first_raw.get("server_label"), "provider_margin_percent": data.margin_percent, "provider_fulfillment_enabled": False, "provider_notice": "Account is verified before the manual fulfillment team processes the order"}))
         db.add(product)
         created.append({"name": game_name, "packages": len(variations)})
     log_activity(db, "import_provider_products", f"Admin imported {len(created)} provider products to {shop.username}", shop.id, admin)
