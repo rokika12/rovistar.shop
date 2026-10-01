@@ -57,10 +57,18 @@ def fulfill_paid_order(db, order):
             values["_provider_status"] = str(result.get("status") or "processing")
             item.variations = models.JSONText.dumps(values)
             outcomes.append(values["_provider_status"])
+        except httpx.HTTPStatusError as exc:
+            values["_provider_error"] = f"HTTP {exc.response.status_code}"
+            values["_provider_manual_required"] = True
+            values["_provider_status"] = "manual_required"
+            item.variations = models.JSONText.dumps(values)
+            outcomes.append("manual_required")
         except (httpx.HTTPError, ValueError, KeyError) as exc:
             values["_provider_error"] = str(exc)[:180]
+            values["_provider_manual_required"] = True
+            values["_provider_status"] = "manual_required"
             item.variations = models.JSONText.dumps(values)
-            outcomes.append("provider_error")
+            outcomes.append("manual_required")
     if outcomes:
         order.order_status = "processing"
         db.commit()

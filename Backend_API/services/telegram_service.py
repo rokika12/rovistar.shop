@@ -501,6 +501,17 @@ def notify_shop_payment_success_full(shop, order, stock_summary=None) -> bool:
             + f"    📦 <b>ចំនួន:</b> {int(i.quantity)} | 💵 <b>តម្លៃ:</b> {_money(i.price, currency)}\n"
             + f"    💰 <b>សរុប:</b> {_money(line_total, currency)}"
         )
+        values = models.JSONText.loads(i.variations, {})
+        provider_status = values.get("_provider_status")
+        if provider_status == "completed":
+            lines.append("    ✅ <b>Top Up:</b> បានបញ្ជូនរួចដោយ Provider")
+        elif values.get("_provider_manual_required"):
+            lines.append("    ⚠️ <b>Top Up:</b> ត្រូវបញ្ជូនដោយដៃ — សូមទៅ Top Up ផ្ទាល់ រួចចុច Mark delivered")
+            lines.append(f"    🎯 <b>Player ID:</b> <code>{_html(str(values.get('_provider_player_id') or '-'))}</code>")
+            if values.get("_provider_server_id"):
+                lines.append(f"    🗄️ <b>Server ID:</b> <code>{_html(str(values['_provider_server_id']))}</code>")
+        elif provider_status:
+            lines.append("    ⏳ <b>Top Up:</b> Provider កំពុងបញ្ជូន")
         s = stock_by_pid.get(i.product_id)
         if s:
             if s.get("variation"):
