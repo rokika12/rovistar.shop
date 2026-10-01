@@ -81,9 +81,10 @@ export default function Products() {
   };
 
   const shown = products.slice(0, visibleCount);
+  const isKaidoStore = shop?.username?.toLowerCase() === 'kaidostore';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className={`max-w-7xl mx-auto px-4 py-8 ${isKaidoStore ? 'kaido-products-page' : ''}`}>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold dark:text-gray-100">{t('products')}</h1>
         <div className="product-list-filters">

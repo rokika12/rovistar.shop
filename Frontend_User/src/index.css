@@ -2252,3 +2252,9 @@ body {
 .kaido-storefront .kaido-account-card > div:last-child { background: transparent !important; color: #eef9ff !important; }
 .kaido-storefront .kaido-account-card h3, .kaido-storefront .kaido-account-card p, .kaido-storefront .kaido-account-card .text-slate-500, .kaido-storefront .kaido-account-card .text-slate-400 { color: #d8f1ff !important; }
 .kaido-storefront .kaido-account-card .store-product-image { background: #08285f !important; }
+
+/* The dedicated View All page has its own wrapper, so apply the same game-blue card finish there. */
+.kaido-products-page .kaido-account-card { background: linear-gradient(155deg, rgba(7, 31, 79, 0.98), rgba(8, 68, 144, 0.96)) !important; border-color: rgba(83, 191, 255, 0.75) !important; }
+.kaido-products-page .kaido-account-card > div:last-child { background: transparent !important; color: #eef9ff !important; }
+.kaido-products-page .kaido-account-card h3, .kaido-products-page .kaido-account-card p, .kaido-products-page .kaido-account-card .text-slate-500, .kaido-products-page .kaido-account-card .text-slate-400 { color: #d8f1ff !important; }
+.kaido-products-page .kaido-account-card .store-product-image { background: #08285f !important; }
