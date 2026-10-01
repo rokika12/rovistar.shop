@@ -261,24 +261,6 @@ export default function ProductDetail() {
               }}>{checkingTelegram ? 'Checking...' : 'Verify player'}</button>}
               {telegramAccount && <div className="service-verified-account">{telegramAccount.avatar_url && <img src={telegramAccount.avatar_url} alt="Telegram avatar" />}<span><strong>{telegramAccount.name || 'Player verified'}</strong><br />@{telegramAccount.username}</span></div>}
             </div>
-            <div className="service-payment-picker">
-              <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
-              <div className="space-y-3">
-                <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
-                  <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
-                  <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{`Available: $${displayedWalletBalance.toFixed(2)}`}</small></span>
-                  <span className="service-payment-radio" aria-hidden="true" />
-                </button>
-                <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
-                  <span className="service-payment-icon service-payment-khqr-icon"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span>
-                  <span className="service-payment-copy"><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span>
-                  <span className="service-payment-radio" aria-hidden="true" />
-                </button>
-                <button type="button" onClick={() => buyNow(servicePaymentMethod)} disabled={!isAvailable} className="service-package-pay-button">
-                  <FiZap /> Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now
-                </button>
-              </div>
-            </div>
           </aside>
         ) : (
         <div>
@@ -403,6 +385,38 @@ export default function ProductDetail() {
                 </div>
               ))}
             </div>
+          )}
+
+          {manualService && (
+            <>
+              <section className="service-order-summary" aria-label="Selected top-up summary">
+                <div className="service-summary-heading"><span>ORDER SUMMARY</span><strong>{currentVariation ? '1 package selected' : 'Select a package'}</strong></div>
+                {currentVariation ? <div className="service-summary-item">
+                  <span className="service-summary-image">{(currentVariation.image_url || currentVariation.image || displayedImage) ? <img src={fullUrl(currentVariation.image_url || currentVariation.image || displayedImage)} alt="" /> : <FiShoppingBag />}</span>
+                  <span><b>{product.name}</b><small>{Object.values(currentVariation.attrs || {}).filter(Boolean).join(' · ')}</small></span>
+                  <strong>${Number(effectivePrice).toFixed(2)}</strong>
+                </div> : <p className="service-summary-empty">Choose a package to see your total.</p>}
+                <div className="service-summary-total"><span>Total amount</span><strong>${Number(effectivePrice).toFixed(2)} {shop.currency}</strong></div>
+              </section>
+              <section className="service-payment-picker service-payment-after-summary">
+                <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
+                <div className="space-y-3">
+                  <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
+                    <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
+                    <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{`Available: $${displayedWalletBalance.toFixed(2)}`}</small></span>
+                    <span className="service-payment-radio" aria-hidden="true" />
+                  </button>
+                  <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
+                    <span className="service-payment-icon service-payment-khqr-icon"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span>
+                    <span className="service-payment-copy"><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span>
+                    <span className="service-payment-radio" aria-hidden="true" />
+                  </button>
+                  <button type="button" onClick={() => buyNow(servicePaymentMethod)} disabled={!isAvailable || !currentVariation} className="service-package-pay-button">
+                    <FiZap /> Pay Now · ${Number(effectivePrice).toFixed(2)} {shop.currency}
+                  </button>
+                </div>
+              </section>
+            </>
           )}
 
           {/* Every storefront uses the same wallet and KHQR choices. */}
