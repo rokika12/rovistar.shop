@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FiExternalLink, FiGlobe, FiMessageCircle, FiPaintbrush, FiSend } from 'react-icons/fi';
+import { FiExternalLink, FiGlobe, FiMessageCircle, FiPenTool, FiSend } from 'react-icons/fi';
 import { applyDesignReference, completePorkbunConnect, createDomainMapping, inspectDesignReference, listDomainMappings, listShops, porkbunStatus, startPorkbunConnect } from '../api';
 
 export default function AutomationTools() {
@@ -45,7 +45,7 @@ export default function AutomationTools() {
   return <div className="max-w-6xl space-y-7">
     <div><h2 className="text-2xl font-bold text-slate-900">Tools for Website & Support</h2><p className="text-slate-500 mt-1">Design reference, domain mapping, and live customer chat.</p></div>
     <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-      <div className="flex gap-3 items-start"><span className="p-3 bg-amber-100 text-amber-700 rounded-xl"><FiPaintbrush /></span><div><h3 className="font-bold text-slate-900">1. Design Reference Importer</h3><p className="text-sm text-slate-500">Read public colors and fonts, then apply original design tokens to a selected shop.</p></div></div>
+      <div className="flex gap-3 items-start"><span className="p-3 bg-amber-100 text-amber-700 rounded-xl"><FiPenTool /></span><div><h3 className="font-bold text-slate-900">1. Design Reference Importer</h3><p className="text-sm text-slate-500">Read public colors and fonts, then apply original design tokens to a selected shop.</p></div></div>
       <form onSubmit={inspect} className="mt-5 flex flex-col sm:flex-row gap-3"><input value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} required type="url" placeholder="https://example.com" className="flex-1 border rounded-xl px-4 py-3"/><button disabled={busy} className="bg-slate-900 text-white px-5 py-3 rounded-xl font-semibold">Analyze style</button></form>
       {reference && <div className="mt-5 rounded-xl bg-slate-50 p-5 grid md:grid-cols-[1fr_auto] gap-5 items-end"><div><a className="font-semibold text-slate-900 inline-flex gap-2" href={reference.source_url} target="_blank" rel="noreferrer">{reference.title} <FiExternalLink /></a><p className="text-xs text-slate-500 mt-1">{reference.notice}</p><div className="flex flex-wrap gap-2 mt-3">{reference.colors.map((color) => <span key={color} className="px-3 py-1 rounded-full text-xs border bg-white" style={{ borderColor: color }}><b style={{ color }}>{color}</b></span>)}</div><p className="text-sm text-slate-600 mt-3">Font: {reference.fonts.join(', ') || 'No public font detected'}</p></div><div className="flex gap-2"><select value={selectedShop} onChange={(e) => setSelectedShop(e.target.value)} className="border rounded-xl p-3">{shops.map((shop) => <option key={shop.id} value={shop.id}>{shop.shop_name || shop.username}</option>)}</select><button onClick={apply} disabled={busy} type="button" className="bg-amber-500 text-slate-950 px-4 rounded-xl font-bold">Apply</button></div></div>}
     </section>
