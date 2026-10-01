@@ -13,7 +13,7 @@ const TOPUP_OPTIONS = [1, 2, 5, 10, 20, 50];
 
 export default function Profile() {
   const { shop } = useShop();
-  const { customer, token, isLoggedIn, logout, setSession } = useCustomer();
+  const { customer, token, isLoggedIn, logout, setSession, updateCustomer } = useCustomer();
   const { t } = useLanguage();
   const [ordersCount, setOrdersCount] = useState(0);
   const [editing, setEditing] = useState(false);
@@ -36,6 +36,7 @@ export default function Profile() {
   const completeTopup = async (payment) => {
     const updated = await getMyWallet(token);
     setWallet(updated);
+    updateCustomer({ wallet_balance: Number(updated.balance || 0) });
     setTopupSuccess({ amount: Number(payment.order.total || topupAmount), reference: payment.payment?.transaction_id || payment.order.order_number, balance: Number(updated.balance || 0), paidAt: new Date() });
     setTopup(null);
     toast.success('Payment confirmed. Wallet balance updated.');
@@ -62,9 +63,13 @@ export default function Profile() {
     getMyOrders(token)
       .then((res) => { if (mounted) setOrdersCount(res.count || 0); })
       .catch(() => {});
-    getMyWallet(token).then(setWallet).catch(() => {});
+    getMyWallet(token).then((nextWallet) => {
+      if (!mounted) return;
+      setWallet(nextWallet);
+      updateCustomer({ wallet_balance: Number(nextWallet.balance || 0) });
+    }).catch(() => {});
     return () => { mounted = false; };
-  }, [isLoggedIn, token]);
+  }, [isLoggedIn, token, updateCustomer]);
 
   const startTopup = async () => {
     const amount = Number(topupAmount);

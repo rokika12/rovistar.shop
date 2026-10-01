@@ -15,7 +15,7 @@ import { useLanguage } from '../i18n';
 
 export default function ShopHeader() {
   const { shop } = useShop();
-  const { customer, isLoggedIn, logout } = useCustomer();
+  const { customer, isLoggedIn, logout, updateCustomer } = useCustomer();
   const { owner, token, isLoggedIn: isOwnerLoggedIn, logout: ownerLogout } = useOwner();
   const [accountOpen, setAccountOpen] = useState(false);
   const [fullLoginOpen, setFullLoginOpen] = useState(false);
@@ -35,9 +35,13 @@ export default function ShopHeader() {
   useEffect(() => {
     if (!isAccountTemplate || !isLoggedIn || customer?.shop_id !== shop.id) return;
     getMyWallet(localStorage.getItem('ms_customer_token'))
-      .then((wallet) => setWalletBalance(wallet.balance || 0))
+      .then((wallet) => {
+        const balance = Number(wallet.balance || 0);
+        setWalletBalance(balance);
+        updateCustomer({ wallet_balance: balance });
+      })
       .catch(() => setWalletBalance(customer?.wallet_balance || 0));
-  }, [shop.id, isAccountTemplate, isLoggedIn, customer?.shop_id, customer?.wallet_balance]);
+  }, [shop.id, isAccountTemplate, isLoggedIn, customer?.shop_id, customer?.wallet_balance, updateCustomer]);
 
   useEffect(() => {
     if (isOwnerLoggedIn && token && shop?.id) {

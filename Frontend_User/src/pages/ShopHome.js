@@ -286,8 +286,8 @@ export default function ShopHome() {
       {!isKaidoStore && <section className="max-w-7xl mx-auto px-4 pt-10 md:pt-14 pb-7">
         <div className="store-section-heading">
           <div>
-            <span className="store-section-kicker">Picked for you</span>
-            <h2>Popular Products</h2>
+            <span className="store-section-kicker">Browse everything</span>
+            <h2>All Products</h2>
           </div>
           <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
         </div>
@@ -300,11 +300,11 @@ export default function ShopHome() {
               </div>
             ))}
           </div>
-        ) : featuredProducts.length === 0 ? (
-          <p className="text-gray-400 text-center py-10">{t('noFeatured')}</p>
+        ) : allProducts.length === 0 ? (
+          <p className="text-gray-400 text-center py-10">{t('noProducts')}</p>
         ) : (
           <div className={isKaidoStore ? 'kaido-account-grid' : 'grid grid-cols-2 md:grid-cols-4 gap-4'}>
-            {featuredProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
+            {allProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
           </div>
         )}
       </section>}

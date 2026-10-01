@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import { customerGoogleSignin, customerSignin, customerSignup } from '../api';
 
 const CustomerContext = createContext(null);
@@ -20,6 +20,15 @@ export function CustomerProvider({ children }) {
     setCustomer(res.customer);
     return res.customer;
   };
+
+  const updateCustomer = useCallback((changes) => {
+    setCustomer((current) => {
+      if (!current) return current;
+      const next = { ...current, ...changes };
+      localStorage.setItem('ms_customer', JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   const signin = async (shopId, identifier, password) => {
     const res = await customerSignin({ shop_id: shopId, identifier, password });
@@ -44,7 +53,7 @@ export function CustomerProvider({ children }) {
   };
 
   return (
-    <CustomerContext.Provider value={{ customer, token, isLoggedIn: !!token, signin, signup, googleSignin, setSession, logout }}>
+    <CustomerContext.Provider value={{ customer, token, isLoggedIn: !!token, signin, signup, googleSignin, setSession, updateCustomer, logout }}>
       {children}
     </CustomerContext.Provider>
   );

@@ -124,6 +124,20 @@ def _verification_provider(db, metadata):
     return provider, slug
 
 
+def _verification_slugs(db, provider, metadata, primary_slug):
+    """Prefer configured slugs, then use the supplier's imported game catalog."""
+    if metadata.get("provider_game_slug"):
+        return [primary_slug]
+    platform = str(metadata.get("service_platform") or "").lower()
+    slugs = [primary_slug]
+    for item in db.query(models.ProviderCatalogItem).filter(models.ProviderCatalogItem.provider_id == provider.id).all():
+        raw = models.JSONText.loads(item.raw_json, {})
+        candidate = str(raw.get("game_slug") or "").strip()
+        if candidate and _service_platform(candidate) == platform and candidate not in slugs:
+            slugs.append(candidate)
+    return slugs
+
+
 def _game_cover(name, slug):
     """Supplier catalog omits artwork, so provide a branded fallback card."""
     palette = "#f97316,#7c2d12" if "freefire" in str(slug).lower() else "#2563eb,#172554"
@@ -217,10 +231,19 @@ def verify_product_account(product_id: int, player_id: str, server_id: str = "",
     if not product or not provider or not game_slug:
         raise HTTPException(status_code=404, detail="Game verification is not available")
     try:
-        result = provider_service.verify_player(provider, game_slug, player_id.strip(), server_id.strip())
+        last_result = None
+        for candidate in _verification_slugs(db, provider, metadata, game_slug):
+            result = provider_service.verify_player(provider, candidate, player_id.strip(), server_id.strip())
+            last_result = result
+            if str(result.get("result") or "").lower() == "valid":
+                returned_id = result.get("player_id") or result.get("user_id") or result.get("account_id")
+                if returned_id and str(returned_id) != player_id.strip():
+                    raise HTTPException(status_code=409, detail="Provider returned a different player ID")
+                result["verified_game_slug"] = candidate
+                return result
+        return last_result or {"result": "invalid"}
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=400, detail=f"Verification failed: {str(exc)[:120]}")
-    return result
 
 
 @router.post("/import")
