@@ -21,7 +21,6 @@ export default function ShopDetail() {
   const [shop, setShop] = useState(null);
   const [tab, setTab] = useState('Overview');
   const [loading, setLoading] = useState(true);
-  const [providers, setProviders] = useState([]);
 
   const loadShop = () => getShopDetail(shopId).then(setShop).catch((e) => toast.error(e?.response?.data?.detail || 'Failed to load shop'));
   useEffect(() => { loadShop().finally(() => setLoading(false)); }, [shopId]);
@@ -361,6 +360,7 @@ function ProductsTab({ shopId, manualOnly = false }) {
   const emptyCredential = { email: '', password: '', license_key: '' };
   const blankForm = (manual = false) => ({ name: '', description: '', price: '', sale_price: '', quantity: '', category_id: '', status: 'active', featured: false, product_type: 'digital', duration: '', delivery_email: '', delivery_password: '', license_key: '', credentials: [emptyCredential], images: [], promo_enabled: false, promo_text: '', promo_start: '', promo_end: '', fulfillment_type: manual ? 'manual_service' : 'instant_code', service_platform: 'tiktok', service_type: 'manual', service_video_url: '', manual_service_out_of_stock: false, provider_id: '', provider_game_slug: '', variations: [] });
   const [form, setForm] = useState(blankForm(manualOnly));
+  const [providers, setProviders] = useState([]);
 
   const load = () => Promise.all([listShopProducts(shopId), listShopCategories(shopId)])
     .then(([p, c]) => { setProducts(p); setCats(c); })
