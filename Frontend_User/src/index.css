@@ -2241,3 +2241,6 @@ body {
 .kaido-storefront .kaido-account-card { align-self: start !important; height: auto !important; }
 .kaido-storefront .kaido-account-card > div:last-child { min-height: 0 !important; flex: 0 0 auto !important; }
 .kaido-storefront .kaido-account-card > div:last-child > a:last-child { margin-top: 1rem !important; }
+/* Kaido's category bar is a normal section, never a floating overlay while browsing cards. */
+.kaido-storefront .store-category-nav { position: static !important; }
+.kaido-storefront .store-category-nav-inner { padding-block: 0.55rem !important; }
