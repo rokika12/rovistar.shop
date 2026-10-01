@@ -1,6 +1,6 @@
 """Unit checks for supplier catalog normalization and encrypted credentials."""
 import models
-from routers.provider_catalog import _catalog_rows, _normalize, _service_platform
+from routers.provider_catalog import _catalog_rows, _default_game_slug, _normalize, _service_platform
 
 
 def test_normalizes_nested_catalog_game():
@@ -23,3 +23,9 @@ def test_flattens_khmer_topup_games_into_sellable_packages():
     assert rows[0]["id"] == "freefire-sgmy:374"
     assert rows[0]["package_id"] == 374
     assert _service_platform(rows[0]["game_slug"]) == "free_fire"
+
+
+def test_legacy_manual_game_platforms_have_default_verification_slugs():
+    assert _default_game_slug("free_fire") == "freefire-sgmy"
+    assert _default_game_slug("mobile_legends") == "mobile-legends"
+    assert _default_game_slug("telegram") == ""

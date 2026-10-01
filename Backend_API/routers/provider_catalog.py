@@ -98,6 +98,32 @@ def _service_platform(slug):
     return "provider_game"
 
 
+def _default_game_slug(platform):
+    """Known Khmer TopUp lookup slugs for legacy manual game products."""
+    return {
+        "free_fire": "freefire-sgmy",
+        "mobile_legends": "mobile-legends",
+    }.get(str(platform or "").lower(), "")
+
+
+def _verification_provider(db, metadata):
+    """Use an explicit product connection first, then the shared game checker."""
+    provider = db.get(models.ProviderConnection, metadata.get("provider_id"))
+    slug = str(metadata.get("provider_game_slug") or "").strip()
+    if provider and slug:
+        return provider, slug
+
+    slug = _default_game_slug(metadata.get("service_platform"))
+    if not slug:
+        return None, ""
+    provider = next(
+        (item for item in db.query(models.ProviderConnection).all()
+         if item.api_key_encrypted and provider_service.is_khmer_topup(item)),
+        None,
+    )
+    return provider, slug
+
+
 def _game_cover(name, slug):
     """Supplier catalog omits artwork, so provide a branded fallback card."""
     palette = "#f97316,#7c2d12" if "freefire" in str(slug).lower() else "#2563eb,#172554"
@@ -185,13 +211,13 @@ def list_provider_items(provider_id: int, db: Session = Depends(get_db), admin: 
 def verify_product_account(product_id: int, player_id: str, server_id: str = "", db: Session = Depends(get_db)):
     product = db.get(models.Product, product_id)
     metadata = models.JSONText.loads(product.metadata_json, {}) if product else {}
-    provider = db.get(models.ProviderConnection, metadata.get("provider_id")) if product else None
+    provider, game_slug = _verification_provider(db, metadata) if product else (None, "")
     # Verification-only manual services use the same documented provider lookup,
     # but must never trigger a provider order after payment.
-    if not product or not provider or not metadata.get("provider_game_slug"):
+    if not product or not provider or not game_slug:
         raise HTTPException(status_code=404, detail="Game verification is not available")
     try:
-        result = provider_service.verify_player(provider, metadata.get("provider_game_slug", ""), player_id.strip(), server_id.strip())
+        result = provider_service.verify_player(provider, game_slug, player_id.strip(), server_id.strip())
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=400, detail=f"Verification failed: {str(exc)[:120]}")
     return result

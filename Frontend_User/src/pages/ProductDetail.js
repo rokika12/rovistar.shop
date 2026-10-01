@@ -124,7 +124,10 @@ export default function ProductDetail() {
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const mobileLegendsService = manualService && servicePlatform === 'mobile_legends';
   const robloxService = manualService && servicePlatform === 'roblox';
-  const usesProviderVerification = Boolean(product.metadata?.provider_id && product.metadata?.provider_game_slug);
+  // Existing Free Fire and MLBB manual products verify through the shared checker,
+  // while other games opt in with their configured provider and slug.
+  const usesProviderVerification = freeFireService || mobileLegendsService
+    || Boolean(product.metadata?.provider_id && product.metadata?.provider_game_slug);
   const serviceBadge = telegramService ? '✦ VIP' : freeFireService ? '🔥 FREE FIRE' : mobileLegendsService ? '⚔ MLBB' : robloxService ? '◇ ROBLOX' : servicePlatform === 'tiktok' ? '🔥 បញ្ចុះតម្លៃ' : '✦ PACKAGE';
   const isTikTokService = manualService && servicePlatform === 'tiktok';
   const isAvailable = manualService ? !product.metadata?.manual_service_out_of_stock : effectiveStock > 0;
