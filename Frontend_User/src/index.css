@@ -2246,3 +2246,9 @@ body {
 .kaido-storefront .store-category-nav-inner { width: auto !important; margin: 0 !important; padding: 0.55rem 1rem !important; }
 .kaido-storefront .store-category-track { width: max-content !important; overflow: visible !important; }
 .kaido-storefront .store-category-pill { min-height: 2.6rem; border-radius: 999px !important; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.18); }
+
+/* The View All account grid keeps the game-blue canvas in every card, never a blank white body. */
+.kaido-storefront .kaido-account-card { background: linear-gradient(155deg, rgba(7, 31, 79, 0.98), rgba(8, 68, 144, 0.96)) !important; border-color: rgba(83, 191, 255, 0.75) !important; }
+.kaido-storefront .kaido-account-card > div:last-child { background: transparent !important; color: #eef9ff !important; }
+.kaido-storefront .kaido-account-card h3, .kaido-storefront .kaido-account-card p, .kaido-storefront .kaido-account-card .text-slate-500, .kaido-storefront .kaido-account-card .text-slate-400 { color: #d8f1ff !important; }
+.kaido-storefront .kaido-account-card .store-product-image { background: #08285f !important; }
