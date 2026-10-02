@@ -1,0 +1,499 @@
+From f42f4f670406819841c8a00ef69183745d530a47 Mon Sep 17 00:00:00 2001
+From: Rovistar Team <rovistar-team@users.noreply.github.com>
+Date: Fri, 2 Oct 2026 17:30:45 +0000
+Subject: [PATCH] Add Rovistar important information feed
+
+---
+ Backend_API/main.py                        |   3 +-
+ Backend_API/models.py                      |  74 +++++++++++-
+ Backend_API/routers/announcements.py       | 128 +++++++++++++++++++++
+ Frontend_Admin/src/App.js                  |   2 +
+ Frontend_Admin/src/api.js                  |   4 +
+ Frontend_Admin/src/components/Layout.js    |   3 +-
+ Frontend_Admin/src/pages/Announcements.js  |  18 +++
+ Frontend_User/src/App.js                   |   3 +
+ Frontend_User/src/api.js                   |   5 +
+ Frontend_User/src/components/ShopHeader.js |   5 +-
+ Frontend_User/src/index.css                |  21 ++++
+ Frontend_User/src/pages/InformationFeed.js |  26 +++++
+ 12 files changed, 288 insertions(+), 4 deletions(-)
+ create mode 100644 Backend_API/routers/announcements.py
+ create mode 100644 Frontend_Admin/src/pages/Announcements.js
+ create mode 100644 Frontend_User/src/pages/InformationFeed.js
+
+diff --git a/Backend_API/main.py b/Backend_API/main.py
+index 79011d8..f25618a 100644
+--- a/Backend_API/main.py
++++ b/Backend_API/main.py
+@@ -12,7 +12,7 @@ from slowapi.util import get_remote_address
+ import models
+ from config import config
+ from database import Base, SessionLocal, engine
+-from routers import (auth, automation, backup, categories, customers, game_lookup, orders, payments,
++from routers import (announcements, auth, automation, backup, categories, customers, game_lookup, orders, payments,
+                      plans, products, provider_catalog, reports, settings, shops, telegram, uploads)
+ from seed import seed_database
+ 
+@@ -269,3 +269,4 @@ app.include_router(settings.router)
+ app.include_router(plans.router)
+ app.include_router(provider_catalog.router)
+ app.include_router(automation.router)
++app.include_router(announcements.router)
+diff --git a/Backend_API/models.py b/Backend_API/models.py
+index ede181e..bfc4b89 100644
+--- a/Backend_API/models.py
++++ b/Backend_API/models.py
+@@ -6,7 +6,7 @@ from datetime import datetime, timezone
+ 
+ from cryptography.fernet import Fernet, InvalidToken
+ from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer,
+-                        LargeBinary, String, Text)
++                        LargeBinary, String, Text, UniqueConstraint)
+ from sqlalchemy.orm import relationship
+ 
+ from database import Base
+@@ -120,6 +120,7 @@ class Shop(Base):
+     categories = relationship("Category", back_populates="shop", cascade="all, delete-orphan")
+     orders = relationship("Order", back_populates="shop", cascade="all, delete-orphan")
+     customers = relationship("Customer", back_populates="shop", cascade="all, delete-orphan")
++    announcements = relationship("Announcement", back_populates="shop", cascade="all, delete-orphan")
+ 
+     def slideshow_list(self):
+         return JSONText.loads(self.slideshow, [])
+@@ -428,6 +429,9 @@ class Customer(Base):
+     created_at = Column(DateTime, default=datetime.utcnow)
+ 
+     shop = relationship("Shop", back_populates="customers")
++    announcement_likes = relationship("AnnouncementLike", back_populates="customer", cascade="all, delete-orphan")
++    announcement_saves = relationship("AnnouncementSave", back_populates="customer", cascade="all, delete-orphan")
++    announcement_comments = relationship("AnnouncementComment", back_populates="customer", cascade="all, delete-orphan")
+ 
+     def to_dict(self):
+         return {
+@@ -454,6 +458,74 @@ class Customer(Base):
+         }
+ 
+ 
++class Announcement(Base):
++    """A publishable Rovistar information post, deliberately scoped to one shop."""
++    __tablename__ = "announcements"
++
++    id = Column(Integer, primary_key=True, index=True)
++    shop_id = Column(Integer, ForeignKey("shops.id"), nullable=False, index=True)
++    title = Column(String, nullable=False)
++    content = Column(Text, nullable=False)
++    image_url = Column(String, default="")
++    video_url = Column(String, default="")
++    published = Column(Boolean, default=True)
++    created_at = Column(DateTime, default=datetime.utcnow)
++    updated_at = Column(DateTime, default=datetime.utcnow)
++
++    shop = relationship("Shop", back_populates="announcements")
++    likes = relationship("AnnouncementLike", back_populates="announcement", cascade="all, delete-orphan")
++    saves = relationship("AnnouncementSave", back_populates="announcement", cascade="all, delete-orphan")
++    comments = relationship("AnnouncementComment", back_populates="announcement", cascade="all, delete-orphan")
++
++    def to_dict(self, customer_id=None):
++        return {
++            "id": self.id, "title": self.title, "content": self.content,
++            "image_url": self.image_url, "video_url": self.video_url,
++            "published": bool(self.published), "created_at": _iso(self.created_at),
++            "updated_at": _iso(self.updated_at), "likes": len(self.likes),
++            "comments": [row.to_dict() for row in sorted(self.comments, key=lambda row: row.created_at)],
++            "liked": any(row.customer_id == customer_id for row in self.likes) if customer_id else False,
++            "saved": any(row.customer_id == customer_id for row in self.saves) if customer_id else False,
++        }
++
++
++class AnnouncementLike(Base):
++    __tablename__ = "announcement_likes"
++    __table_args__ = (UniqueConstraint("announcement_id", "customer_id"),)
++    id = Column(Integer, primary_key=True)
++    announcement_id = Column(Integer, ForeignKey("announcements.id"), nullable=False, index=True)
++    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)
++    created_at = Column(DateTime, default=datetime.utcnow)
++    announcement = relationship("Announcement", back_populates="likes")
++    customer = relationship("Customer", back_populates="announcement_likes")
++
++
++class AnnouncementSave(Base):
++    __tablename__ = "announcement_saves"
++    __table_args__ = (UniqueConstraint("announcement_id", "customer_id"),)
++    id = Column(Integer, primary_key=True)
++    announcement_id = Column(Integer, ForeignKey("announcements.id"), nullable=False, index=True)
++    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)
++    created_at = Column(DateTime, default=datetime.utcnow)
++    announcement = relationship("Announcement", back_populates="saves")
++    customer = relationship("Customer", back_populates="announcement_saves")
++
++
++class AnnouncementComment(Base):
++    __tablename__ = "announcement_comments"
++    id = Column(Integer, primary_key=True)
++    announcement_id = Column(Integer, ForeignKey("announcements.id"), nullable=False, index=True)
++    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)
++    content = Column(Text, nullable=False)
++    created_at = Column(DateTime, default=datetime.utcnow)
++    announcement = relationship("Announcement", back_populates="comments")
++    customer = relationship("Customer", back_populates="announcement_comments")
++
++    def to_dict(self):
++        return {"id": self.id, "content": self.content, "created_at": _iso(self.created_at),
++                "author": self.customer.first_name or self.customer.name or "Rovistar member"}
++
++
+ class WalletTransaction(Base):
+     __tablename__ = "wallet_transactions"
+ 
+diff --git a/Backend_API/routers/announcements.py b/Backend_API/routers/announcements.py
+new file mode 100644
+index 0000000..0c892ad
+--- /dev/null
++++ b/Backend_API/routers/announcements.py
+@@ -0,0 +1,128 @@
++"""Rovistar-only important-information feed and customer engagement endpoints."""
++from datetime import datetime
++
++from fastapi import APIRouter, Depends, HTTPException
++from sqlalchemy.orm import Session
++
++import models
++from database import get_db
++from security import get_current_admin, get_current_customer
++
++router = APIRouter(prefix="/api/announcements", tags=["announcements"])
++ROVISTAR_USERNAME = "rovistar"
++
++
++def _rovistar(db):
++    shop = db.query(models.Shop).filter(models.Shop.username == ROVISTAR_USERNAME).first()
++    if not shop:
++        raise HTTPException(status_code=404, detail="Rovistar shop not found")
++    return shop
++
++
++def _require_customer_shop(customer, shop):
++    if customer.shop_id != shop.id:
++        raise HTTPException(status_code=403, detail="This account belongs to another shop")
++
++
++@router.get("/public")
++def public_announcements(db: Session = Depends(get_db)):
++    shop = _rovistar(db)
++    return [item.to_dict() for item in db.query(models.Announcement).filter(
++        models.Announcement.shop_id == shop.id, models.Announcement.published.is_(True)
++    ).order_by(models.Announcement.created_at.desc()).all()]
++
++
++@router.get("/admin")
++def admin_announcements(db: Session = Depends(get_db), admin=Depends(get_current_admin)):
++    shop = _rovistar(db)
++    return [item.to_dict() for item in db.query(models.Announcement).filter(
++        models.Announcement.shop_id == shop.id
++    ).order_by(models.Announcement.created_at.desc()).all()]
++
++
++@router.post("/admin")
++def create_announcement(data: dict, db: Session = Depends(get_db), admin=Depends(get_current_admin)):
++    shop = _rovistar(db)
++    title = str(data.get("title") or "").strip()
++    content = str(data.get("content") or "").strip()
++    if not title or not content:
++        raise HTTPException(status_code=400, detail="Title and content are required")
++    item = models.Announcement(shop_id=shop.id, title=title, content=content,
++                               image_url=str(data.get("image_url") or "").strip(),
++                               video_url=str(data.get("video_url") or "").strip(),
++                               published=bool(data.get("published", True)))
++    db.add(item)
++    db.commit()
++    db.refresh(item)
++    return item.to_dict()
++
++
++@router.put("/admin/{announcement_id}")
++def update_announcement(announcement_id: int, data: dict, db: Session = Depends(get_db), admin=Depends(get_current_admin)):
++    shop = _rovistar(db)
++    item = db.query(models.Announcement).filter(models.Announcement.id == announcement_id, models.Announcement.shop_id == shop.id).first()
++    if not item:
++        raise HTTPException(status_code=404, detail="Information post not found")
++    for field in ("title", "content", "image_url", "video_url", "published"):
++        if field in data:
++            setattr(item, field, bool(data[field]) if field == "published" else str(data[field]).strip())
++    item.updated_at = datetime.utcnow()
++    db.commit()
++    db.refresh(item)
++    return item.to_dict()
++
++
++@router.delete("/admin/{announcement_id}")
++def delete_announcement(announcement_id: int, db: Session = Depends(get_db), admin=Depends(get_current_admin)):
++    shop = _rovistar(db)
++    item = db.query(models.Announcement).filter(models.Announcement.id == announcement_id, models.Announcement.shop_id == shop.id).first()
++    if not item:
++        raise HTTPException(status_code=404, detail="Information post not found")
++    db.delete(item)
++    db.commit()
++    return {"ok": True}
++
++
++@router.post("/{announcement_id}/like")
++def toggle_like(announcement_id: int, db: Session = Depends(get_db), customer=Depends(get_current_customer)):
++    shop = _rovistar(db); _require_customer_shop(customer, shop)
++    item = db.get(models.Announcement, announcement_id)
++    if not item or item.shop_id != shop.id or not item.published:
++        raise HTTPException(status_code=404, detail="Information post not found")
++    row = db.query(models.AnnouncementLike).filter_by(announcement_id=item.id, customer_id=customer.id).first()
++    if row: db.delete(row); liked = False
++    else: db.add(models.AnnouncementLike(announcement_id=item.id, customer_id=customer.id)); liked = True
++    db.commit()
++    return {"liked": liked, "likes": db.query(models.AnnouncementLike).filter_by(announcement_id=item.id).count()}
++
++
++@router.post("/{announcement_id}/save")
++def toggle_save(announcement_id: int, db: Session = Depends(get_db), customer=Depends(get_current_customer)):
++    shop = _rovistar(db); _require_customer_shop(customer, shop)
++    item = db.get(models.Announcement, announcement_id)
++    if not item or item.shop_id != shop.id or not item.published:
++        raise HTTPException(status_code=404, detail="Information post not found")
++    row = db.query(models.AnnouncementSave).filter_by(announcement_id=item.id, customer_id=customer.id).first()
++    if row: db.delete(row); saved = False
++    else: db.add(models.AnnouncementSave(announcement_id=item.id, customer_id=customer.id)); saved = True
++    db.commit()
++    return {"saved": saved}
++
++
++@router.post("/{announcement_id}/comments")
++def add_comment(announcement_id: int, data: dict, db: Session = Depends(get_db), customer=Depends(get_current_customer)):
++    shop = _rovistar(db); _require_customer_shop(customer, shop)
++    text = str(data.get("content") or "").strip()
++    if not text: raise HTTPException(status_code=400, detail="Comment cannot be empty")
++    item = db.get(models.Announcement, announcement_id)
++    if not item or item.shop_id != shop.id or not item.published: raise HTTPException(status_code=404, detail="Information post not found")
++    row = models.AnnouncementComment(announcement_id=item.id, customer_id=customer.id, content=text)
++    db.add(row); db.commit(); db.refresh(row)
++    return row.to_dict()
++
++
++@router.get("/saved/me")
++def saved_announcements(db: Session = Depends(get_db), customer=Depends(get_current_customer)):
++    shop = _rovistar(db); _require_customer_shop(customer, shop)
++    rows = db.query(models.AnnouncementSave).filter_by(customer_id=customer.id).order_by(models.AnnouncementSave.created_at.desc()).all()
++    return [row.announcement.to_dict(customer_id=customer.id) for row in rows if row.announcement and row.announcement.published]
+diff --git a/Frontend_Admin/src/App.js b/Frontend_Admin/src/App.js
+index ad33770..0649fc0 100644
+--- a/Frontend_Admin/src/App.js
++++ b/Frontend_Admin/src/App.js
+@@ -15,6 +15,7 @@ import Settings from './pages/Settings';
+ import ProviderCatalog from './pages/ProviderCatalog';
+ import AutomationTools from './pages/AutomationTools';
+ import SupportInbox from './pages/SupportInbox';
++import Announcements from './pages/Announcements';
+ 
+ function Protected({ children }) {
+   const { user } = useAuth();
+@@ -41,6 +42,7 @@ export default function App() {
+           <Route path="provider-catalog" element={<ProviderCatalog />} />
+           <Route path="tools" element={<AutomationTools />} />
+           <Route path="support" element={<SupportInbox />} />
++          <Route path="announcements" element={<Announcements />} />
+         </Route>
+         <Route path="*" element={<Navigate to="/" replace />} />
+       </Routes>
+diff --git a/Frontend_Admin/src/api.js b/Frontend_Admin/src/api.js
+index 81f61c0..78597a5 100644
+--- a/Frontend_Admin/src/api.js
++++ b/Frontend_Admin/src/api.js
+@@ -151,5 +151,9 @@ export const startPorkbunConnect = () => api.post('/api/automation/porkbun/conne
+ export const completePorkbunConnect = () => api.post('/api/automation/porkbun/connect/complete').then((r) => r.data);
+ export const listSupportConversations = () => api.get('/api/automation/support').then((r) => r.data);
+ export const replySupportConversation = (id, data) => api.post(`/api/automation/support/${id}/reply`, data).then((r) => r.data);
++export const listAnnouncements = () => api.get('/api/announcements/admin').then((r) => r.data);
++export const createAnnouncement = (data) => api.post('/api/announcements/admin', data).then((r) => r.data);
++export const updateAnnouncement = (id, data) => api.put(`/api/announcements/admin/${id}`, data).then((r) => r.data);
++export const deleteAnnouncement = (id) => api.delete(`/api/announcements/admin/${id}`).then((r) => r.data);
+ 
+ export default api;
+diff --git a/Frontend_Admin/src/components/Layout.js b/Frontend_Admin/src/components/Layout.js
+index b924dbb..21714f3 100644
+--- a/Frontend_Admin/src/components/Layout.js
++++ b/Frontend_Admin/src/components/Layout.js
+@@ -1,6 +1,6 @@
+ import React from 'react';
+ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+-import { FiActivity, FiDatabase, FiHome, FiLogOut, FiMessageCircle, FiPercent, FiSettings, FiShoppingBag, FiTool, FiTruck, FiUsers } from 'react-icons/fi';
++import { FiActivity, FiDatabase, FiFileText, FiHome, FiLogOut, FiMessageCircle, FiPercent, FiSettings, FiShoppingBag, FiTool, FiTruck, FiUsers } from 'react-icons/fi';
+ import { useAuth } from '../contexts/AuthContext';
+ 
+ const navItems = [
+@@ -13,6 +13,7 @@ const navItems = [
+   { to: '/provider-catalog', label: 'API ហ្គេម / Catalog', icon: <FiTruck /> },
+   { to: '/tools', label: 'Website Tools', icon: <FiTool /> },
+   { to: '/support', label: 'Customer Chat', icon: <FiMessageCircle /> },
++  { to: '/announcements', label: 'ព័ត៌មានសំខាន់ៗ', icon: <FiFileText /> },
+   { to: '/settings', label: 'ការកំណត់', icon: <FiSettings /> },
+ ];
+ 
+diff --git a/Frontend_Admin/src/pages/Announcements.js b/Frontend_Admin/src/pages/Announcements.js
+new file mode 100644
+index 0000000..3c071ce
+--- /dev/null
++++ b/Frontend_Admin/src/pages/Announcements.js
+@@ -0,0 +1,18 @@
++import React, { useEffect, useState } from 'react';
++import toast from 'react-hot-toast';
++import { FiEdit2, FiPlus, FiTrash2 } from 'react-icons/fi';
++import { createAnnouncement, deleteAnnouncement, fullUrl, listAnnouncements, updateAnnouncement, uploadImage, uploadServiceVideo } from '../api';
++import { Empty, Loading, Modal, btnDanger, btnPrimary, inputCls } from '../components/ui';
++
++const blank = { title: '', content: '', image_url: '', video_url: '', published: true };
++export default function Announcements() {
++  const [items, setItems] = useState([]); const [loading, setLoading] = useState(true); const [modal, setModal] = useState(false); const [editing, setEditing] = useState(null); const [form, setForm] = useState(blank);
++  const load = () => listAnnouncements().then(setItems).catch(() => toast.error('មិនអាចទាញព័ត៌មានបាន')).finally(() => setLoading(false));
++  useEffect(() => { load(); }, []);
++  const open = (item = null) => { setEditing(item); setForm(item ? { title: item.title, content: item.content, image_url: item.image_url || '', video_url: item.video_url || '', published: item.published } : blank); setModal(true); };
++  const upload = async (kind, file) => { if (!file) return; try { const result = kind === 'image' ? await uploadImage(file) : await uploadServiceVideo(file); setForm({ ...form, [kind === 'image' ? 'image_url' : 'video_url']: result.url }); toast.success('បាន upload រួច'); } catch (_) { toast.error('Upload មិនបានសម្រេច'); } };
++  const save = async (e) => { e.preventDefault(); try { if (editing) await updateAnnouncement(editing.id, form); else await createAnnouncement(form); toast.success('បានរក្សាទុកព័ត៌មានរួច'); setModal(false); load(); } catch (err) { toast.error(err?.response?.data?.detail || 'មិនអាចរក្សាទុកបាន'); } };
++  const remove = async (item) => { if (!window.confirm(`លុប “${item.title}” មែនទេ?`)) return; try { await deleteAnnouncement(item.id); toast.success('បានលុប'); load(); } catch (_) { toast.error('មិនអាចលុបបាន'); } };
++  if (loading) return <Loading />;
++  return <div><div className="flex items-start justify-between gap-4 mb-6"><div><p className="text-xs font-bold tracking-widest text-pink-600">ROVISTAR ONLY</p><h1 className="text-2xl font-bold">ព័ត៌មានសំខាន់ៗ</h1><p className="text-sm text-gray-500 mt-1">បញ្ចូល និងបោះផ្សាយតែទៅ website `rovistar` មួយប៉ុណ្ណោះ។</p></div><button className={btnPrimary} onClick={() => open()}><FiPlus className="inline mr-1" />បន្ថែមព័ត៌មាន</button></div><div className="bg-white rounded-xl shadow-sm overflow-hidden">{items.length ? <div className="divide-y">{items.map((item) => <div className="p-4 flex items-center gap-4" key={item.id}>{item.image_url && <img src={fullUrl(item.image_url)} alt="" className="w-16 h-12 rounded object-cover" />}<div className="flex-1 min-w-0"><div className="font-semibold truncate">{item.title}</div><div className="text-xs text-gray-500 truncate">{item.content}</div><span className={`inline-block mt-1 text-xs font-semibold ${item.published ? 'text-green-600' : 'text-gray-400'}`}>{item.published ? 'ផ្សាយរួច' : 'Draft'}</span></div><button className="p-2 text-slate-600" onClick={() => open(item)}><FiEdit2 /></button><button className="p-2 text-red-500" onClick={() => remove(item)}><FiTrash2 /></button></div>)}</div> : <Empty message="មិនទាន់មានព័ត៌មានទេ" />}</div><Modal open={modal} title={editing ? 'កែព័ត៌មាន' : 'បន្ថែមព័ត៌មាន'} onClose={() => setModal(false)} wide><form onSubmit={save} className="space-y-4"><input className={inputCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="ចំណងជើង" required /><textarea className={inputCls} rows="6" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="សរសេរព័ត៌មាន..." required /><div className="grid gap-3 sm:grid-cols-2"><label className="text-sm">រូបភាព<input type="file" accept="image/*" className="block mt-1 text-xs" onChange={(e) => upload('image', e.target.files?.[0])} />{form.image_url && <img src={fullUrl(form.image_url)} alt="Preview" className="mt-2 h-24 rounded object-cover" />}</label><label className="text-sm">វីដេអូ<input type="file" accept="video/*" className="block mt-1 text-xs" onChange={(e) => upload('video', e.target.files?.[0])} />{form.video_url && <video src={fullUrl(form.video_url)} className="mt-2 h-24 rounded" controls />}</label></div><label className="flex gap-2 text-sm"><input type="checkbox" checked={form.published} onChange={(e) => setForm({ ...form, published: e.target.checked })} />បោះផ្សាយភ្លាម</label><button className={btnPrimary}>រក្សាទុក</button></form></Modal></div>;
++}
+diff --git a/Frontend_User/src/App.js b/Frontend_User/src/App.js
+index 69d2f76..8f0d3e5 100644
+--- a/Frontend_User/src/App.js
++++ b/Frontend_User/src/App.js
+@@ -16,6 +16,7 @@ import OrderSuccess from './pages/OrderSuccess';
+ import About from './pages/About';
+ import MyOrders from './pages/MyOrders';
+ import Profile from './pages/Profile';
++import InformationFeed from './pages/InformationFeed';
+ import { useLanguage } from './i18n';
+ 
+ const PRIMARY_SHOP = process.env.REACT_APP_PRIMARY_SHOP || 'ROVISTAR';
+@@ -44,6 +45,8 @@ export default function App() {
+             <Route path="order-success" element={<OrderSuccess />} />
+             <Route path="my-orders" element={<MyOrders />} />
+             <Route path="profile" element={<Profile />} />
++            <Route path="information" element={<InformationFeed />} />
++            <Route path="saved-information" element={<InformationFeed savedOnly />} />
+             <Route path="about" element={<About />} />
+           </Route>
+           <Route path="*" element={<NotFound />} />
+diff --git a/Frontend_User/src/api.js b/Frontend_User/src/api.js
+index 13d91a5..3b6bef5 100644
+--- a/Frontend_User/src/api.js
++++ b/Frontend_User/src/api.js
+@@ -96,5 +96,10 @@ export const topUpWallet = (token, data) =>
+ export const openSupportConversation = (data) => api.post('/api/automation/public/support', data).then((r) => r.data);
+ export const getSupportConversation = (token) => api.get(`/api/automation/public/support/${token}`).then((r) => r.data);
+ export const sendSupportMessage = (token, data) => api.post(`/api/automation/public/support/${token}/message`, data).then((r) => r.data);
++export const getAnnouncements = () => api.get('/api/announcements/public').then((r) => r.data);
++export const toggleAnnouncementLike = (id, token) => api.post(`/api/announcements/${id}/like`, {}, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
++export const toggleAnnouncementSave = (id, token) => api.post(`/api/announcements/${id}/save`, {}, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
++export const addAnnouncementComment = (id, content, token) => api.post(`/api/announcements/${id}/comments`, { content }, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
++export const getSavedAnnouncements = (token) => api.get('/api/announcements/saved/me', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
+ 
+ export default api;
+diff --git a/Frontend_User/src/components/ShopHeader.js b/Frontend_User/src/components/ShopHeader.js
+index 489a654..957b886 100644
+--- a/Frontend_User/src/components/ShopHeader.js
++++ b/Frontend_User/src/components/ShopHeader.js
+@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
+ import { createPortal } from 'react-dom';
+ import { Link, useNavigate } from 'react-router-dom';
+ import {
+-  FiCreditCard, FiGlobe, FiLogOut, FiMoon, FiPackage, FiSun, FiUser, FiX,
++  FiBookmark, FiCreditCard, FiFileText, FiGlobe, FiLogOut, FiMoon, FiPackage, FiSun, FiUser, FiX,
+ } from 'react-icons/fi';
+ import { useShop } from '../contexts/ShopContext';
+ import { useCustomer } from '../contexts/CustomerContext';
+@@ -28,6 +28,7 @@ export default function ShopHeader() {
+   const base = `/${shop.username}`;
+   const isAccountTemplate = shop.template_type === 'account';
+   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
++  const isRovistarStore = shop.username?.toLowerCase() === 'rovistar';
+   const displayName = customer?.first_name || customer?.name?.split(' ')[0] || 'Account';
+   const customerInitial = (displayName || 'A')[0].toUpperCase();
+   const customerAvatar = customer?.avatar_url;
+@@ -96,6 +97,7 @@ export default function ShopHeader() {
+         <div className="store-header-actions">
+           <div className="store-utility-switcher" aria-label="Language and theme controls">
+             <button type="button" onClick={toggleLanguage} className="store-language-toggle" aria-label="Switch language"><FiGlobe /><span>{lang === 'kh' ? 'ខ្មែរ' : 'EN'}</span></button>
++            {isRovistarStore && <Link to={`${base}/information`} className="store-information-toggle"><FiFileText /><span>ព័ត៌មានសំខាន់ៗ</span></Link>}
+             <span className="store-utility-divider" />
+             <button type="button" onClick={toggleTheme} className="store-theme-toggle" aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>{isDark ? <FiSun /> : <FiMoon />}</button>
+           </div>
+@@ -129,6 +131,7 @@ export default function ShopHeader() {
+                       <Link to={`${base}/my-orders`} onClick={closePanels}><FiPackage /> Order history</Link>
+                       {isAccountTemplate && <Link to={`${base}/profile#top-up`} onClick={closePanels}><FiCreditCard /> Top Up</Link>}
+                       <Link to={`${base}/profile`} onClick={closePanels}><FiUser /> Account</Link>
++                      {isRovistarStore && <Link to={`${base}/saved-information`} onClick={closePanels}><FiBookmark /> ព័ត៌មានដែលបានរក្សាទុក</Link>}
+                       {isMyShop && <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">Dashboard</a>}
+                     </div>
+                     <div className="store-account-menu-footer">
+diff --git a/Frontend_User/src/index.css b/Frontend_User/src/index.css
+index 42d41f0..1954fce 100644
+--- a/Frontend_User/src/index.css
++++ b/Frontend_User/src/index.css
+@@ -96,6 +96,27 @@ html[lang='km'] h1, html[lang='km'] h2, html[lang='km'] h3, html[lang='km'] .sto
+   position: relative;
+   z-index: 1;
+ }
++.store-information-toggle {
++  display: inline-flex; align-items: center; gap: .42rem; min-height: 38px; padding: .45rem .75rem;
++  border: 1px solid rgba(255,255,255,.58); border-radius: 999px; color: #0f2d4d; font-size: .78rem; font-weight: 800;
++  background: rgba(255,255,255,.32); box-shadow: 0 8px 22px rgba(15,45,77,.1), inset 0 1px rgba(255,255,255,.6);
++  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: transform .2s ease, background .2s ease;
++}
++.store-information-toggle:hover { background: rgba(255,255,255,.62); transform: translateY(-1px); }
++.important-feed { width: min(760px, calc(100% - 2rem)); margin: 0 auto; padding: 3.5rem 0 5rem; }
++.important-feed-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.75rem; }
++.important-feed-heading span { color: var(--brand-pink); font-size: .72rem; font-weight: 900; letter-spacing: .12em; }
++.important-feed-heading h1 { margin: .25rem 0; color: #10233d; font-size: clamp(1.75rem, 4vw, 2.65rem); }
++.important-feed-heading p { margin: 0; color: #64748b; }
++.important-back { border: 1px solid #d7e2ef; border-radius: 999px; padding: .62rem .9rem; color: #174776; font-size: .8rem; font-weight: 800; white-space: nowrap; }
++.important-stack { display: grid; gap: 1.25rem; }
++.important-card { overflow: hidden; border: 1px solid rgba(190,208,226,.8); border-radius: 1.5rem; background: rgba(255,255,255,.82); box-shadow: 0 14px 34px rgba(15,48,83,.09); animation: important-rise .45s ease both; }
++.important-media { display: block; width: 100%; max-height: 440px; object-fit: cover; background: #e8f0f7; }
++.important-copy { padding: 1.3rem 1.35rem .85rem; }.important-copy time { color: #7590aa; font-size: .74rem; font-weight: 700; }.important-copy h2 { margin: .35rem 0 .5rem; color: #10233d; font-size: 1.3rem; }.important-copy p { margin: 0; color: #425a72; line-height: 1.75; white-space: pre-wrap; }
++.important-actions { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #e5edf5; border-bottom: 1px solid #e5edf5; }.important-actions button { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; min-height: 46px; color: #60758a; font-size: .75rem; font-weight: 800; }.important-actions button + button { border-left: 1px solid #e5edf5; }.important-actions button:hover, .important-actions .is-active { color: #e6306d; background: #fff3f7; }
++.important-comments { padding: .9rem 1.35rem 1.2rem; }.important-comments > div:not(.important-comment-box) { display: grid; gap: .18rem; padding: .45rem 0; color: #425a72; font-size: .85rem; }.important-comments strong { color: #173452; font-size: .78rem; }.important-comment-box { display: flex; gap: .45rem; margin-top: .65rem; }.important-comment-box input { min-width: 0; flex: 1; border: 1px solid #d8e4ef; border-radius: 999px; padding: .68rem .9rem; outline: none; }.important-comment-box input:focus { border-color: #4b9ae5; box-shadow: 0 0 0 3px rgba(75,154,229,.12); }.important-comment-box button { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; color: white; background: #1d71c8; }.important-empty { padding: 4rem 1rem; border: 1px dashed #c9d9e7; border-radius: 1.25rem; color: #688096; text-align: center; }
++@keyframes important-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
++@media (max-width: 700px) { .store-information-toggle span { display: none; }.store-information-toggle { padding: .55rem; }.important-feed { width: min(100% - 1rem, 760px); padding-top: 1.6rem; }.important-feed-heading { align-items: start; flex-direction: column; }.important-actions { grid-template-columns: repeat(2, 1fr); }.important-actions button:nth-child(3) { border-left: 0; border-top: 1px solid #e5edf5; }.important-actions button:nth-child(4) { border-top: 1px solid #e5edf5; } }
+ .store-category-nav { top: 106px; }
+ [data-template='account'] .store-category-nav { top: 118px; }
+ .service-package-selector {
+diff --git a/Frontend_User/src/pages/InformationFeed.js b/Frontend_User/src/pages/InformationFeed.js
+new file mode 100644
+index 0000000..1a904d3
+--- /dev/null
++++ b/Frontend_User/src/pages/InformationFeed.js
+@@ -0,0 +1,26 @@
++import React, { useEffect, useState } from 'react';
++import { Link } from 'react-router-dom';
++import toast from 'react-hot-toast';
++import { FiBookmark, FiHeart, FiMessageCircle, FiSend, FiShare2 } from 'react-icons/fi';
++import { addAnnouncementComment, fullUrl, getAnnouncements, getSavedAnnouncements, toggleAnnouncementLike, toggleAnnouncementSave } from '../api';
++import { useCustomer } from '../contexts/CustomerContext';
++import { useShop } from '../contexts/ShopContext';
++
++export default function InformationFeed({ savedOnly = false }) {
++  const { shop } = useShop();
++  const { isLoggedIn, token } = useCustomer();
++  const [posts, setPosts] = useState([]);
++  const [loading, setLoading] = useState(true);
++  const [drafts, setDrafts] = useState({});
++  const load = () => (savedOnly && isLoggedIn ? getSavedAnnouncements(token) : getAnnouncements())
++    .then(setPosts).catch(() => setPosts([])).finally(() => setLoading(false));
++  useEffect(() => { load(); }, [savedOnly, isLoggedIn, token]);
++  if (shop.username?.toLowerCase() !== 'rovistar') return null;
++  const requireLogin = () => { if (!isLoggedIn) { toast('សូមចូលគណនីសិន ដើម្បីប្រើមុខងារនេះ'); return false; } return true; };
++  const update = (id, changes) => setPosts((items) => items.map((item) => item.id === id ? { ...item, ...changes } : item));
++  const like = async (post) => { if (!requireLogin()) return; try { const data = await toggleAnnouncementLike(post.id, token); update(post.id, data); } catch (_) { toast.error('មិនអាច Like បានទេ'); } };
++  const save = async (post) => { if (!requireLogin()) return; try { const data = await toggleAnnouncementSave(post.id, token); if (savedOnly && !data.saved) setPosts((items) => items.filter((item) => item.id !== post.id)); else update(post.id, data); } catch (_) { toast.error('មិនអាចរក្សាទុកបានទេ'); } };
++  const comment = async (post) => { if (!requireLogin() || !drafts[post.id]?.trim()) return; try { const row = await addAnnouncementComment(post.id, drafts[post.id], token); update(post.id, { comments: [...(post.comments || []), row] }); setDrafts({ ...drafts, [post.id]: '' }); } catch (_) { toast.error('មិនអាចបញ្ចេញមតិបានទេ'); } };
++  const share = async (post) => { const url = window.location.href; try { if (navigator.share) await navigator.share({ title: post.title, text: post.content, url }); else { await navigator.clipboard.writeText(url); toast.success('បានចម្លងលីងរួច'); } } catch (_) {} };
++  return <section className="important-feed"><div className="important-feed-heading"><div><span>ROVISTAR UPDATE</span><h1>{savedOnly ? 'ព័ត៌មានដែលអ្នកបានរក្សាទុក' : 'ព័ត៌មានសំខាន់ៗ'}</h1><p>{savedOnly ? 'មើលព័ត៌មានដែលអ្នកចង់តាមដានម្ដងទៀត' : 'ដំណឹងថ្មីៗ ការផ្តល់ជូន និងព័ត៌មានពី Rovistar'}</p></div><Link to={`/${shop.username}`} className="important-back">ត្រឡប់ទៅហាង</Link></div>{loading ? <div className="important-empty">កំពុងផ្ទុកព័ត៌មាន...</div> : posts.length ? <div className="important-stack">{posts.map((post) => <article className="important-card" key={post.id}>{post.image_url && <img className="important-media" src={fullUrl(post.image_url)} alt="" />}{post.video_url && <video className="important-media" controls playsInline src={fullUrl(post.video_url)} />}<div className="important-copy"><time>{new Date(post.created_at).toLocaleDateString()}</time><h2>{post.title}</h2><p>{post.content}</p></div><div className="important-actions"><button className={post.liked ? 'is-active' : ''} onClick={() => like(post)}><FiHeart /> {post.likes || 0}</button><button onClick={() => document.getElementById(`comment-${post.id}`)?.focus()}><FiMessageCircle /> {post.comments?.length || 0}</button><button onClick={() => share(post)}><FiShare2 /> ចែករំលែក</button><button className={post.saved ? 'is-active' : ''} onClick={() => save(post)}><FiBookmark /> រក្សាទុក</button></div><div className="important-comments">{post.comments?.map((row) => <div key={row.id}><strong>{row.author}</strong><span>{row.content}</span></div>)}<div className="important-comment-box"><input id={`comment-${post.id}`} value={drafts[post.id] || ''} onChange={(e) => setDrafts({ ...drafts, [post.id]: e.target.value })} placeholder="សរសេរមតិរបស់អ្នក..." onKeyDown={(e) => { if (e.key === 'Enter') comment(post); }} /><button onClick={() => comment(post)} aria-label="Send comment"><FiSend /></button></div></div></article>)}</div> : <div className="important-empty">មិនទាន់មានព័ត៌មាននៅឡើយទេ។</div>}</section>;
++}
+-- 
+2.47.3
+
