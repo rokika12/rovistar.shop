@@ -15,6 +15,7 @@ import Settings from './pages/Settings';
 import ProviderCatalog from './pages/ProviderCatalog';
 import AutomationTools from './pages/AutomationTools';
 import SupportInbox from './pages/SupportInbox';
+import Announcements from './pages/Announcements';
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="provider-catalog" element={<ProviderCatalog />} />
           <Route path="tools" element={<AutomationTools />} />
           <Route path="support" element={<SupportInbox />} />
+          <Route path="announcements" element={<Announcements />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

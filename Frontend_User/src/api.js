@@ -96,5 +96,10 @@ export const topUpWallet = (token, data) =>
 export const openSupportConversation = (data) => api.post('/api/automation/public/support', data).then((r) => r.data);
 export const getSupportConversation = (token) => api.get(`/api/automation/public/support/${token}`).then((r) => r.data);
 export const sendSupportMessage = (token, data) => api.post(`/api/automation/public/support/${token}/message`, data).then((r) => r.data);
+export const getAnnouncements = () => api.get('/api/announcements/public').then((r) => r.data);
+export const toggleAnnouncementLike = (id, token) => api.post(`/api/announcements/${id}/like`, {}, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
+export const toggleAnnouncementSave = (id, token) => api.post(`/api/announcements/${id}/save`, {}, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
+export const addAnnouncementComment = (id, content, token) => api.post(`/api/announcements/${id}/comments`, { content }, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
+export const getSavedAnnouncements = (token) => api.get('/api/announcements/saved/me', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
 
 export default api;

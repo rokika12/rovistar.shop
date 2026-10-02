@@ -16,6 +16,7 @@ import OrderSuccess from './pages/OrderSuccess';
 import About from './pages/About';
 import MyOrders from './pages/MyOrders';
 import Profile from './pages/Profile';
+import InformationFeed from './pages/InformationFeed';
 import { useLanguage } from './i18n';
 
 const PRIMARY_SHOP = process.env.REACT_APP_PRIMARY_SHOP || 'ROVISTAR';
@@ -44,6 +45,8 @@ export default function App() {
             <Route path="order-success" element={<OrderSuccess />} />
             <Route path="my-orders" element={<MyOrders />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="information" element={<InformationFeed />} />
+            <Route path="saved-information" element={<InformationFeed savedOnly />} />
             <Route path="about" element={<About />} />
           </Route>
           <Route path="*" element={<NotFound />} />

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 from cryptography.fernet import Fernet, InvalidToken
 from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer,
-                        LargeBinary, String, Text)
+                        LargeBinary, String, Text, UniqueConstraint)
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -120,6 +120,7 @@ class Shop(Base):
     categories = relationship("Category", back_populates="shop", cascade="all, delete-orphan")
     orders = relationship("Order", back_populates="shop", cascade="all, delete-orphan")
     customers = relationship("Customer", back_populates="shop", cascade="all, delete-orphan")
+    announcements = relationship("Announcement", back_populates="shop", cascade="all, delete-orphan")
 
     def slideshow_list(self):
         return JSONText.loads(self.slideshow, [])
@@ -428,6 +429,9 @@ class Customer(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     shop = relationship("Shop", back_populates="customers")
+    announcement_likes = relationship("AnnouncementLike", back_populates="customer", cascade="all, delete-orphan")
+    announcement_saves = relationship("AnnouncementSave", back_populates="customer", cascade="all, delete-orphan")
+    announcement_comments = relationship("AnnouncementComment", back_populates="customer", cascade="all, delete-orphan")
 
     def to_dict(self):
         return {
@@ -452,6 +456,74 @@ class Customer(Base):
             "wallet_balance": round(float(self.wallet_balance or 0), 2),
             "created_at": _iso(self.created_at),
         }
+
+
+class Announcement(Base):
+    """A publishable Rovistar information post, deliberately scoped to one shop."""
+    __tablename__ = "announcements"
+
+    id = Column(Integer, primary_key=True, index=True)
+    shop_id = Column(Integer, ForeignKey("shops.id"), nullable=False, index=True)
+    title = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
+    image_url = Column(String, default="")
+    video_url = Column(String, default="")
+    published = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    shop = relationship("Shop", back_populates="announcements")
+    likes = relationship("AnnouncementLike", back_populates="announcement", cascade="all, delete-orphan")
+    saves = relationship("AnnouncementSave", back_populates="announcement", cascade="all, delete-orphan")
+    comments = relationship("AnnouncementComment", back_populates="announcement", cascade="all, delete-orphan")
+
+    def to_dict(self, customer_id=None):
+        return {
+            "id": self.id, "title": self.title, "content": self.content,
+            "image_url": self.image_url, "video_url": self.video_url,
+            "published": bool(self.published), "created_at": _iso(self.created_at),
+            "updated_at": _iso(self.updated_at), "likes": len(self.likes),
+            "comments": [row.to_dict() for row in sorted(self.comments, key=lambda row: row.created_at)],
+            "liked": any(row.customer_id == customer_id for row in self.likes) if customer_id else False,
+            "saved": any(row.customer_id == customer_id for row in self.saves) if customer_id else False,
+        }
+
+
+class AnnouncementLike(Base):
+    __tablename__ = "announcement_likes"
+    __table_args__ = (UniqueConstraint("announcement_id", "customer_id"),)
+    id = Column(Integer, primary_key=True)
+    announcement_id = Column(Integer, ForeignKey("announcements.id"), nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    announcement = relationship("Announcement", back_populates="likes")
+    customer = relationship("Customer", back_populates="announcement_likes")
+
+
+class AnnouncementSave(Base):
+    __tablename__ = "announcement_saves"
+    __table_args__ = (UniqueConstraint("announcement_id", "customer_id"),)
+    id = Column(Integer, primary_key=True)
+    announcement_id = Column(Integer, ForeignKey("announcements.id"), nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    announcement = relationship("Announcement", back_populates="saves")
+    customer = relationship("Customer", back_populates="announcement_saves")
+
+
+class AnnouncementComment(Base):
+    __tablename__ = "announcement_comments"
+    id = Column(Integer, primary_key=True)
+    announcement_id = Column(Integer, ForeignKey("announcements.id"), nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    announcement = relationship("Announcement", back_populates="comments")
+    customer = relationship("Customer", back_populates="announcement_comments")
+
+    def to_dict(self):
+        return {"id": self.id, "content": self.content, "created_at": _iso(self.created_at),
+                "author": self.customer.first_name or self.customer.name or "Rovistar member"}
 
 
 class WalletTransaction(Base):

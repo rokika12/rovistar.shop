@@ -151,5 +151,9 @@ export const startPorkbunConnect = () => api.post('/api/automation/porkbun/conne
 export const completePorkbunConnect = () => api.post('/api/automation/porkbun/connect/complete').then((r) => r.data);
 export const listSupportConversations = () => api.get('/api/automation/support').then((r) => r.data);
 export const replySupportConversation = (id, data) => api.post(`/api/automation/support/${id}/reply`, data).then((r) => r.data);
+export const listAnnouncements = () => api.get('/api/announcements/admin').then((r) => r.data);
+export const createAnnouncement = (data) => api.post('/api/announcements/admin', data).then((r) => r.data);
+export const updateAnnouncement = (id, data) => api.put(`/api/announcements/admin/${id}`, data).then((r) => r.data);
+export const deleteAnnouncement = (id) => api.delete(`/api/announcements/admin/${id}`).then((r) => r.data);
 
 export default api;

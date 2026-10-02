@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  FiCreditCard, FiGlobe, FiLogOut, FiMoon, FiPackage, FiSun, FiUser, FiX,
+  FiBookmark, FiCreditCard, FiFileText, FiGlobe, FiLogOut, FiMoon, FiPackage, FiSun, FiUser, FiX,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
@@ -28,6 +28,7 @@ export default function ShopHeader() {
   const base = `/${shop.username}`;
   const isAccountTemplate = shop.template_type === 'account';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
+  const isRovistarStore = shop.username?.toLowerCase() === 'rovistar';
   const displayName = customer?.first_name || customer?.name?.split(' ')[0] || 'Account';
   const customerInitial = (displayName || 'A')[0].toUpperCase();
   const customerAvatar = customer?.avatar_url;
@@ -96,6 +97,7 @@ export default function ShopHeader() {
         <div className="store-header-actions">
           <div className="store-utility-switcher" aria-label="Language and theme controls">
             <button type="button" onClick={toggleLanguage} className="store-language-toggle" aria-label="Switch language"><FiGlobe /><span>{lang === 'kh' ? 'ខ្មែរ' : 'EN'}</span></button>
+            {isRovistarStore && <Link to={`${base}/information`} className="store-information-toggle"><FiFileText /><span>ព័ត៌មានសំខាន់ៗ</span></Link>}
             <span className="store-utility-divider" />
             <button type="button" onClick={toggleTheme} className="store-theme-toggle" aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>{isDark ? <FiSun /> : <FiMoon />}</button>
           </div>
@@ -129,6 +131,7 @@ export default function ShopHeader() {
                       <Link to={`${base}/my-orders`} onClick={closePanels}><FiPackage /> Order history</Link>
                       {isAccountTemplate && <Link to={`${base}/profile#top-up`} onClick={closePanels}><FiCreditCard /> Top Up</Link>}
                       <Link to={`${base}/profile`} onClick={closePanels}><FiUser /> Account</Link>
+                      {isRovistarStore && <Link to={`${base}/saved-information`} onClick={closePanels}><FiBookmark /> ព័ត៌មានដែលបានរក្សាទុក</Link>}
                       {isMyShop && <a href={DASHBOARD_URL} target="_blank" rel="noreferrer">Dashboard</a>}
                     </div>
                     <div className="store-account-menu-footer">
