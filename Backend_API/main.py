@@ -105,6 +105,11 @@ def _migrate_columns():
         with engine.begin() as conn:
             if "customer_id" not in cols:
                 conn.execute(sa_text("ALTER TABLE orders ADD COLUMN customer_id INTEGER"))
+    if insp.has_table("announcement_comments"):
+        cols = [c["name"] for c in insp.get_columns("announcement_comments")]
+        if "attachment_url" not in cols:
+            with engine.begin() as conn:
+                conn.execute(sa_text("ALTER TABLE announcement_comments ADD COLUMN attachment_url VARCHAR DEFAULT ''"))
     if insp.has_table("order_items"):
         cols = [c["name"] for c in insp.get_columns("order_items")]
         with engine.begin() as conn:

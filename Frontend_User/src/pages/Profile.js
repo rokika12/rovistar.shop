@@ -5,7 +5,7 @@ import { FiCalendar, FiCheckCircle, FiCreditCard, FiDollarSign, FiEdit2, FiEye, 
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
 import { useLanguage } from '../i18n';
-import { fullUrl, getMyOrders, getMyWallet, topUpWallet, updateMyProfile, changeMyPassword, verifyPayment } from '../api';
+import { fullUrl, getMyOrders, getMyWallet, topUpWallet, updateMyProfile, changeMyPassword, uploadMyAvatar, verifyPayment } from '../api';
 import CustomerAuth from '../components/CustomerAuth';
 
 const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
@@ -18,6 +18,7 @@ export default function Profile() {
   const [ordersCount, setOrdersCount] = useState(0);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const [profileForm, setProfileForm] = useState({
     full_name: '', username: '', gender: '', email: '', phone: '',
@@ -185,6 +186,22 @@ export default function Profile() {
     }
   };
 
+  const changeAvatar = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadingAvatar(true);
+    try {
+      const updated = await uploadMyAvatar(file, token);
+      setSession({ access_token: token, customer: updated });
+      toast.success('រូបភាព Profile បានប្តូររួច');
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || 'មិនអាចប្តូររូបភាពបានទេ');
+    } finally {
+      setUploadingAvatar(false);
+      event.target.value = '';
+    }
+  };
+
   const base = `/${shop.username}`;
   const initial = ((customer?.name || customer?.username || 'U')[0] || 'U').toUpperCase();
   const created = customer?.created_at ? new Date(customer.created_at) : null;
@@ -235,8 +252,8 @@ export default function Profile() {
 
       {/* Profile header */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 mb-6 flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold">
-          {initial}
+        <div className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold overflow-hidden">
+          {customer?.avatar_url ? <img src={fullUrl(customer.avatar_url)} alt="" className="w-full h-full object-cover" /> : initial}
         </div>
         <div className="flex-1">
           <p className="text-xl font-bold">{customer?.name || customer?.username}</p>
@@ -299,6 +316,11 @@ export default function Profile() {
             </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="sm:col-span-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">រូបភាព Profile</label>
+              <input type="file" accept="image/*" onChange={changeAvatar} disabled={uploadingAvatar} className={inputCls} />
+              {uploadingAvatar && <p className="text-xs text-gray-500 mt-1">កំពុងផ្ទុករូបភាព...</p>}
+            </div>
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('fullName')} *</label>
               <input value={profileForm.full_name} onChange={setProfile('full_name')} className={inputCls} autoComplete="name" />

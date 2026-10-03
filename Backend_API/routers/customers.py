@@ -1,6 +1,6 @@
 """Customer CRUD endpoints + customer account auth (signup / signin)."""
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from google.auth.exceptions import GoogleAuthError
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
@@ -14,6 +14,7 @@ from security import (create_access_token, get_current_customer, get_current_use
                       hash_password, log_activity, require_shop_access, verify_password)
 from services import aba_service
 from services.aba_service import PaymentGatewayUnavailable, PaymentNotConfigured
+from routers.uploads import _save_media, _validate_image
 
 router = APIRouter(prefix="/api/customers", tags=["customers"])
 
@@ -290,6 +291,20 @@ def customer_update_me(data: schemas.CustomerUpdateSelf, db: Session = Depends(g
     log_activity(db, "customer_update_profile", f"Customer {customer.name} updated their profile",
                  customer.shop_id)
     db.commit()
+    return customer.to_dict()
+
+
+@router.post("/auth/avatar")
+async def customer_upload_avatar(file: UploadFile = File(...), db: Session = Depends(get_db),
+                                 customer: models.Customer = Depends(get_current_customer)):
+    """Store a customer's selected profile image in the durable media store."""
+    content = await file.read()
+    source_name = file.filename or "avatar.png"
+    _validate_image(content, source_name)
+    filename = _save_media(content, source_name, db)
+    customer.avatar_url = f"/api/uploads/media/{filename}"
+    db.commit()
+    db.refresh(customer)
     return customer.to_dict()
 
 

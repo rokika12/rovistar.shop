@@ -517,13 +517,16 @@ class AnnouncementComment(Base):
     announcement_id = Column(Integer, ForeignKey("announcements.id"), nullable=False, index=True)
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)
     content = Column(Text, nullable=False)
+    attachment_url = Column(String, default="")
     created_at = Column(DateTime, default=datetime.utcnow)
     announcement = relationship("Announcement", back_populates="comments")
     customer = relationship("Customer", back_populates="announcement_comments")
 
     def to_dict(self):
-        return {"id": self.id, "content": self.content, "created_at": _iso(self.created_at),
-                "author": self.customer.first_name or self.customer.name or "Rovistar member"}
+        return {"id": self.id, "content": self.content, "attachment_url": self.attachment_url,
+                "created_at": _iso(self.created_at),
+                "author": self.customer.first_name or self.customer.name or "Rovistar member",
+                "avatar_url": self.customer.avatar_url or ""}
 
 
 class WalletTransaction(Base):

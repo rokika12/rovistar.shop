@@ -89,6 +89,10 @@ export const updateMyProfile = (token, data) =>
   api.put('/api/customers/auth/me', data, { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then((r) => r.data);
 export const changeMyPassword = (token, data) =>
   api.post('/api/customers/auth/change-password', data, { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then((r) => r.data);
+export const uploadMyAvatar = (file, token) => {
+  const data = new FormData(); data.append('file', file);
+  return api.post('/api/customers/auth/avatar', data, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
+};
 export const getMyWallet = (token) =>
   api.get('/api/customers/auth/wallet', { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then((r) => r.data);
 export const topUpWallet = (token, data) =>
@@ -96,10 +100,14 @@ export const topUpWallet = (token, data) =>
 export const openSupportConversation = (data) => api.post('/api/automation/public/support', data).then((r) => r.data);
 export const getSupportConversation = (token) => api.get(`/api/automation/public/support/${token}`).then((r) => r.data);
 export const sendSupportMessage = (token, data) => api.post(`/api/automation/public/support/${token}/message`, data).then((r) => r.data);
-export const getAnnouncements = () => api.get('/api/announcements/public').then((r) => r.data);
+export const getAnnouncements = (token = '') => api.get('/api/announcements/public', { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then((r) => r.data);
 export const toggleAnnouncementLike = (id, token) => api.post(`/api/announcements/${id}/like`, {}, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
 export const toggleAnnouncementSave = (id, token) => api.post(`/api/announcements/${id}/save`, {}, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
-export const addAnnouncementComment = (id, content, token) => api.post(`/api/announcements/${id}/comments`, { content }, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
+export const addAnnouncementComment = (id, content, token, attachment_url = '') => api.post(`/api/announcements/${id}/comments`, { content, attachment_url }, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
+export const uploadAnnouncementCommentAttachment = (id, file, token) => {
+  const data = new FormData(); data.append('file', file);
+  return api.post(`/api/announcements/${id}/comments/attachment`, data, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
+};
 export const getSavedAnnouncements = (token) => api.get('/api/announcements/saved/me', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.data);
 
 export default api;

@@ -1,12 +1,13 @@
 """Rovistar-only important-information feed and customer engagement endpoints."""
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 import models
 from database import get_db
-from security import get_current_admin, get_current_customer
+from security import decode_token, get_current_admin, get_current_customer
+from routers.uploads import _save_media, _validate_image
 
 router = APIRouter(prefix="/api/announcements", tags=["announcements"])
 ROVISTAR_USERNAME = "rovistar"
@@ -25,9 +26,19 @@ def _require_customer_shop(customer, shop):
 
 
 @router.get("/public")
-def public_announcements(db: Session = Depends(get_db)):
+def public_announcements(authorization: str = Header(default=""), db: Session = Depends(get_db)):
     shop = _rovistar(db)
-    return [item.to_dict() for item in db.query(models.Announcement).filter(
+    customer_id = None
+    if authorization.startswith("Bearer "):
+        try:
+            payload = decode_token(authorization[7:])
+            if payload.get("role") == "customer":
+                customer = db.get(models.Customer, int(payload.get("sub")))
+                if customer and customer.shop_id == shop.id:
+                    customer_id = customer.id
+        except Exception:
+            pass
+    return [item.to_dict(customer_id=customer_id) for item in db.query(models.Announcement).filter(
         models.Announcement.shop_id == shop.id, models.Announcement.published.is_(True)
     ).order_by(models.Announcement.created_at.desc()).all()]
 
@@ -113,12 +124,28 @@ def toggle_save(announcement_id: int, db: Session = Depends(get_db), customer=De
 def add_comment(announcement_id: int, data: dict, db: Session = Depends(get_db), customer=Depends(get_current_customer)):
     shop = _rovistar(db); _require_customer_shop(customer, shop)
     text = str(data.get("content") or "").strip()
-    if not text: raise HTTPException(status_code=400, detail="Comment cannot be empty")
+    attachment_url = str(data.get("attachment_url") or "").strip()
+    if not text and not attachment_url: raise HTTPException(status_code=400, detail="Comment cannot be empty")
     item = db.get(models.Announcement, announcement_id)
     if not item or item.shop_id != shop.id or not item.published: raise HTTPException(status_code=404, detail="Information post not found")
-    row = models.AnnouncementComment(announcement_id=item.id, customer_id=customer.id, content=text)
+    row = models.AnnouncementComment(announcement_id=item.id, customer_id=customer.id, content=text, attachment_url=attachment_url)
     db.add(row); db.commit(); db.refresh(row)
     return row.to_dict()
+
+
+@router.post("/{announcement_id}/comments/attachment")
+async def upload_comment_attachment(announcement_id: int, file: UploadFile = File(...), db: Session = Depends(get_db), customer=Depends(get_current_customer)):
+    """Accept a mobile comment image, then return a durable URL for the comment composer."""
+    shop = _rovistar(db); _require_customer_shop(customer, shop)
+    item = db.get(models.Announcement, announcement_id)
+    if not item or item.shop_id != shop.id or not item.published:
+        raise HTTPException(status_code=404, detail="Information post not found")
+    content = await file.read()
+    source_name = file.filename or "attachment.png"
+    _validate_image(content, source_name)
+    filename = _save_media(content, source_name, db)
+    db.commit()
+    return {"url": f"/api/uploads/media/{filename}"}
 
 
 @router.get("/saved/me")
