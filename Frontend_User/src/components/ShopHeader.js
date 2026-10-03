@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  FiBookmark, FiCreditCard, FiFileText, FiGlobe, FiLogOut, FiMoon, FiPackage, FiSun, FiUser, FiX,
+  FiBookmark, FiChevronDown, FiCreditCard, FiFileText, FiGlobe, FiLogOut, FiMoon, FiPackage, FiSun, FiUser, FiX,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
@@ -18,13 +18,15 @@ export default function ShopHeader() {
   const { customer, isLoggedIn, logout, updateCustomer } = useCustomer();
   const { owner, token, isLoggedIn: isOwnerLoggedIn, logout: ownerLogout } = useOwner();
   const [accountOpen, setAccountOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
   const [fullLoginOpen, setFullLoginOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState(customer?.wallet_balance || 0);
   const [isMyShop, setIsMyShop] = useState(false);
   const accountMenuRef = useRef(null);
+  const languageMenuRef = useRef(null);
   const navigate = useNavigate();
   const { isDark, toggle: toggleTheme } = useTheme();
-  const { lang, toggle: toggleLanguage } = useLanguage();
+  const { lang, setLang, toggle: toggleLanguage, languageNames, t } = useLanguage();
   const base = `/${shop.username}`;
   const isAccountTemplate = shop.template_type === 'account';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
@@ -70,6 +72,22 @@ export default function ShopHeader() {
     };
   }, [accountOpen]);
 
+  useEffect(() => {
+    if (!languageOpen) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setLanguageOpen(false);
+    };
+    const closeOnOutsideClick = (event) => {
+      if (!languageMenuRef.current?.contains(event.target)) setLanguageOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    window.addEventListener('mousedown', closeOnOutsideClick);
+    return () => {
+      window.removeEventListener('keydown', closeOnEscape);
+      window.removeEventListener('mousedown', closeOnOutsideClick);
+    };
+  }, [languageOpen]);
+
   const closePanels = () => {
     setAccountOpen(false);
   };
@@ -91,13 +109,20 @@ export default function ShopHeader() {
           <ShopLogo shop={shop} className="h-10 w-10 rounded-2xl" textClassName="hidden" />
           <span className="store-brand-copy">
             <strong>{isKaidoStore ? 'kaidostore' : (shop.shop_name || shop.username)}</strong>
-            <small>{isKaidoStore ? 'Verified game accounts' : 'Rovistar marketplace'}</small>
+            <small>{isKaidoStore ? 'Verified game accounts' : t('marketplaceSubtitle')}</small>
           </span>
         </Link>
         <div className="store-header-actions">
           <div className="store-utility-switcher" aria-label="Language and theme controls">
-            <button type="button" onClick={toggleLanguage} className="store-language-toggle" aria-label="Switch language"><FiGlobe /><span>{lang === 'kh' ? 'ខ្មែរ' : 'EN'}</span></button>
-            {isRovistarStore && <Link to={`${base}/information`} className="store-information-toggle"><FiFileText /><span>ព័ត៌មានសំខាន់ៗ</span></Link>}
+            {isRovistarStore ? (
+              <div className="store-language-menu-wrap" ref={languageMenuRef}>
+                <button type="button" onClick={() => setLanguageOpen(!languageOpen)} className="store-language-toggle" aria-expanded={languageOpen} aria-haspopup="menu" aria-label="Choose language"><FiGlobe /><span>{languageNames[lang]}</span><FiChevronDown className={languageOpen ? 'store-language-chevron-open' : ''} /></button>
+                {languageOpen && <div className="store-language-menu" role="menu" aria-label="Choose language">
+                  {['kh', 'en', 'zh'].map((code) => <button key={code} type="button" role="menuitemradio" aria-checked={lang === code} className={lang === code ? 'store-language-option is-active' : 'store-language-option'} onClick={() => { setLang(code); setLanguageOpen(false); }}><span>{languageNames[code]}</span>{lang === code && <span className="store-language-check">✓</span>}</button>)}
+                </div>}
+              </div>
+            ) : <button type="button" onClick={toggleLanguage} className="store-language-toggle" aria-label="Switch language"><FiGlobe /><span>{lang === 'kh' ? 'ខ្មែរ' : (lang === 'zh' ? '中文' : 'EN')}</span></button>}
+            {isRovistarStore && <Link to={`${base}/information`} className="store-information-toggle"><FiFileText /><span>{t('importantInformation')}</span></Link>}
             <span className="store-utility-divider" />
             <button type="button" onClick={toggleTheme} className="store-theme-toggle" aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>{isDark ? <FiSun /> : <FiMoon />}</button>
           </div>

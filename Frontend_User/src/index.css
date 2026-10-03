@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Lilita+One&family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Vichealey&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Lilita+One&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Vichealey&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -21,6 +21,7 @@ body {
 
 :root { --font-khmer-display: 'Vichealey', 'Kantumruy Pro', sans-serif; --font-commerce: 'Lilita One', 'Baloo 2', 'Kantumruy Pro', sans-serif; }
 html[lang='km'] h1, html[lang='km'] h2, html[lang='km'] h3, html[lang='km'] .store-section-heading { font-family: var(--font-khmer-display); font-weight: 400; line-height: 1.35; }
+html[lang='zh-CN'], html[lang='zh-CN'] body { font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif; }
 .price, .currency, .store-product-price, .product-pay-button, .qr-amt-row { font-family: var(--font-commerce); }
 
 @media (max-width: 480px) {
@@ -1852,6 +1853,18 @@ body {
 .store-account-menu-identity small { display: flex; align-items: center; gap: 0.3rem; color: #347df0; }
 .dark .store-header { background: #111827; }
 .dark .store-utility-switcher, .dark .store-account-avatar-trigger { background: #1f2937; color: #e5edf9; }
+.store-language-menu-wrap { position: relative; }
+.store-language-toggle { white-space: nowrap; }
+.store-language-toggle > svg:last-child { width: 0.85rem; height: 0.85rem; transition: transform 160ms ease; }
+.store-language-toggle > .store-language-chevron-open { transform: rotate(180deg); }
+.store-language-menu { position: absolute; top: calc(100% + 0.55rem); right: 0; z-index: 90; min-width: 9.5rem; overflow: hidden; border: 1px solid #d8e4f2; border-radius: 0.85rem; background: #fff; padding: 0.28rem; box-shadow: 0 14px 28px rgba(16, 33, 63, 0.16); }
+.store-language-option { display: flex; width: 100%; align-items: center; justify-content: space-between; border-radius: 0.6rem; padding: 0.58rem 0.65rem; color: #31445f; font-family: 'Plus Jakarta Sans', 'Kantumruy Pro', 'Noto Sans SC', sans-serif; font-size: 0.78rem; font-weight: 800; text-align: left; }
+.store-language-option:hover, .store-language-option.is-active { background: #edf4ff; color: #1769d4; }
+.store-language-check { font-size: 0.9rem; font-weight: 900; }
+/* Rovistar has no active announcement text, so remove the unused strip and pull the header up. */
+.rovistar-game-background-shell .brand-ticker { display: none; }
+.rovistar-game-background-shell .store-header-inner { height: 56px; min-height: 56px; }
+@media (max-width: 640px) { .rovistar-game-background-shell .store-header-inner { height: 54px; min-height: 54px; } .store-language-menu { right: -2.6rem; } }
 @media (max-width: 640px) { .store-header-inner { min-height: 4.25rem; padding: 0 1rem; } .store-utility-switcher, .store-account-avatar-trigger { height: 2.55rem; } .store-account-avatar-trigger { width: 2.55rem; } .store-language-toggle, .store-theme-toggle { height: 2.15rem; padding: 0 0.55rem; } }
 
 /* Handsets keep product browsing dense: two compact cards fit without horizontal scrolling. */
