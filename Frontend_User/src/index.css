@@ -569,14 +569,14 @@ body {
 
 .storefront-main { background: #f6f8fc; }
 .rovistar-game-background-shell {
-  background: linear-gradient(rgba(4, 27, 62, 0.32), rgba(4, 27, 62, 0.54)), url('./assets/rovistar-game-background.png') center top / cover fixed;
+  background: linear-gradient(rgba(3, 21, 74, 0.24), rgba(3, 21, 74, 0.44)), url('./assets/rovistar-full-background.png') center top / cover fixed;
 }
-.rovistar-game-background-shell .storefront-main { background: rgba(246, 248, 252, 0.78); }
-.rovistar-game-background-shell .store-header, .rovistar-game-background-shell .shop-footer { background-color: rgba(255, 255, 255, 0.9); }
+.rovistar-game-background-shell .storefront-main { background: rgba(225, 242, 255, 0.20); }
+.rovistar-game-background-shell .store-header, .rovistar-game-background-shell .shop-footer { background-color: rgba(255, 255, 255, 0.88); }
 /* Keep Rovistar's utility header compact so the storefront begins close to the top. */
 .rovistar-game-background-shell .store-header-inner { height: 64px; min-height: 64px; }
 @media (max-width: 767px) {
-  .rovistar-game-background-shell { background-attachment: scroll; background-size: auto 100%; }
+  .rovistar-game-background-shell { background-attachment: scroll; background-position: center top; background-size: cover; }
 }
 .storefront-hero { position: relative; overflow: hidden; border: 1px solid #dce8ff; border-radius: 1.5rem; background: linear-gradient(118deg, #0d3fbb 0%, #1769ff 52%, #72a7ff 100%); box-shadow: 0 20px 45px rgba(23, 105, 255, 0.17); }
 .storefront-hero::after { position: absolute; inset: 0; background: radial-gradient(circle at 80% 14%, rgba(255,255,255,0.32), transparent 25%), radial-gradient(circle at 92% 88%, rgba(255,210,91,0.48), transparent 26%); content: ''; pointer-events: none; }
