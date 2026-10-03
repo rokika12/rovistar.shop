@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FiCreditCard, FiHeadphones, FiMessageCircle, FiShield, FiShoppingBag, FiSmartphone,
+  FiArrowRight, FiCreditCard, FiHeadphones, FiMessageCircle, FiShield, FiShoppingBag, FiSmartphone, FiUser,
   FiTruck, FiZap,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
@@ -176,14 +176,16 @@ export default function ShopHome() {
                   <div className="flash-sale-image">
                     {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt={product.name} /> : <FiShoppingBag />}
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="flash-sale-copy min-w-0 flex-1">
                     {!isKaidoStore && <span className="flash-sale-label">FLASH DEAL</span>}
                     <h3>{product.name}</h3>
+                    <span className="flash-sale-seller"><FiUser /> admin</span>
                     <div className="flash-sale-price-row">
                       <strong>${salePrice.toFixed(2)}</strong>
                       <del>${originalPrice.toFixed(2)}</del>
                     </div>
                   </div>
+                  <span className="flash-sale-arrow"><FiArrowRight /></span>
                   {!isKaidoStore && <span className="flash-sale-discount">-{discount}%</span>}
                 </Link>
               );
