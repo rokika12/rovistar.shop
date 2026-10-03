@@ -46,6 +46,7 @@ export const fullUrl = (path) => {
 
 // Public endpoints
 export const getShop = (username) => api.get(`/api/shops/${username}`).then((r) => r.data);
+export const getShopForDomain = (domain) => api.get('/api/automation/domains/resolve', { params: { domain } }).then((r) => r.data);
 export const getProducts = (shopId, params = {}) =>
   api.get('/api/products/public', { params: { shop_id: shopId, ...params } }).then((r) => r.data);
 export const getProduct = (id) => api.get(`/api/products/${id}/public`).then((r) => r.data);

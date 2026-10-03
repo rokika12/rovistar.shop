@@ -138,6 +138,21 @@ def list_domains(db: Session = Depends(get_db), admin: models.User = Depends(get
     return [item.to_dict() for item in db.query(models.DomainMapping).order_by(models.DomainMapping.id.desc()).all()]
 
 
+@router.get("/domains/resolve")
+def resolve_domain(domain: str, db: Session = Depends(get_db)):
+    """Resolve a visitor's host name to its mapped shop without exposing admin data."""
+    hostname = domain.strip().lower().split(":", 1)[0]
+    mapping = db.query(models.DomainMapping).filter(
+        models.DomainMapping.domain == hostname, models.DomainMapping.status == "active"
+    ).first()
+    if not mapping:
+        raise HTTPException(status_code=404, detail="Domain is not connected")
+    shop = db.get(models.Shop, mapping.shop_id)
+    if not shop or shop.status != "active":
+        raise HTTPException(status_code=404, detail="Domain is not connected")
+    return {"username": shop.username}
+
+
 @router.get("/porkbun/status")
 def porkbun_status(db: Session = Depends(get_db), admin: models.User = Depends(get_current_admin)):
     connection = db.query(models.PorkbunConnection).first()

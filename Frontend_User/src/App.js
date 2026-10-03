@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { CartProvider } from './contexts/CartContext';
 import { ShopProvider } from './contexts/ShopContext';
@@ -19,8 +19,6 @@ import Profile from './pages/Profile';
 import InformationFeed from './pages/InformationFeed';
 import { useLanguage } from './i18n';
 
-const PRIMARY_SHOP = process.env.REACT_APP_PRIMARY_SHOP || 'ROVISTAR';
-
 export default function App() {
   return (
     <ErrorBoundary>
@@ -28,7 +26,18 @@ export default function App() {
         <CartProvider>
           <OwnerProvider>
             <Routes>
-          <Route path="/" element={<Navigate to={`/${PRIMARY_SHOP}`} replace />} />
+          <Route path="/" element={<ShopProvider directDomain><ShopLayout /></ShopProvider>}>
+            <Route index element={<ShopHome />} />
+            <Route path="products" element={<Products />} />
+            <Route path="product/:id" element={<ProductDetail />} />
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="order-success" element={<OrderSuccess />} />
+            <Route path="my-orders" element={<MyOrders />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="information" element={<InformationFeed />} />
+            <Route path="saved-information" element={<InformationFeed savedOnly />} />
+            <Route path="about" element={<About />} />
+          </Route>
           <Route path="/create-shop" element={<CreateShop />} />
           <Route
             path="/:username"
