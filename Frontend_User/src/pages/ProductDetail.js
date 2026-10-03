@@ -6,7 +6,7 @@ import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useCustomer } from '../contexts/CustomerContext';
 import { useLanguage } from '../i18n';
-import { getMyWallet, getProduct, getProducts, fullUrl, lookupTelegramUsername, verifyProviderGameAccount } from '../api';
+import { getMyWallet, getProduct, getProducts, fullUrl, lookupRobloxUsername, lookupTelegramUsername, verifyProviderGameAccount } from '../api';
 import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
 
@@ -28,7 +28,6 @@ export default function ProductDetail() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [serviceLink, setServiceLink] = useState('');
   const [gameServerId, setGameServerId] = useState('');
-  const [robloxPassword, setRobloxPassword] = useState('');
   const [telegramAccount, setTelegramAccount] = useState(null);
   const [checkingTelegram, setCheckingTelegram] = useState(false);
   const [providerAccount, setProviderAccount] = useState(null);
@@ -131,14 +130,23 @@ export default function ProductDetail() {
   const manualService = product.metadata?.fulfillment_type === 'manual_service';
   const servicePlatform = String(product.metadata?.service_platform || '').toLowerCase();
   const telegramService = manualService && ['telegram', 'telegram_premium', 'telegram_star'].includes(servicePlatform);
+  const gameServices = {
+    free_fire: { label: 'Free Fire Player ID' }, mobile_legends: { label: 'Mobile Legends Player ID', server: 'Server ID' },
+    pubg_mobile: { label: 'PUBG Mobile Player ID' }, honor_of_kings: { label: 'Honor of Kings Player ID' },
+    eafc_mobile: { label: 'EA FC Mobile Player ID' }, magic_chess_gogo: { label: 'Magic Chess Player ID' },
+    blood_strike: { label: 'Blood Strike Player ID' }, racing_master: { label: 'Racing Master Player ID' },
+    wild_rift: { label: 'Wild Rift Player ID' }, roblox: { label: 'Roblox username', username: true },
+  };
+  const gameService = gameServices[servicePlatform];
   const freeFireService = manualService && servicePlatform === 'free_fire';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const mobileLegendsService = manualService && servicePlatform === 'mobile_legends';
   const robloxService = manualService && servicePlatform === 'roblox';
   // Existing Free Fire and MLBB manual products verify through the shared checker,
   // while other games opt in with their configured provider and slug.
-  const usesProviderVerification = freeFireService || mobileLegendsService
+  const usesProviderVerification = (freeFireService || mobileLegendsService || Boolean(gameService && product.metadata?.provider_id && product.metadata?.provider_game_slug))
     || Boolean(product.metadata?.provider_id && product.metadata?.provider_game_slug);
+  const requiresPublicLookup = robloxService;
   const serviceBadge = telegramService ? '✦ VIP' : freeFireService ? '🔥 FREE FIRE' : mobileLegendsService ? '⚔ MLBB' : robloxService ? '◇ ROBLOX' : servicePlatform === 'tiktok' ? '🔥 បញ្ចុះតម្លៃ' : '✦ PACKAGE';
   const isTikTokService = manualService && servicePlatform === 'tiktok';
   const isAvailable = manualService ? !product.metadata?.manual_service_out_of_stock : effectiveStock > 0;
@@ -185,18 +193,16 @@ export default function ProductDetail() {
         // Free Fire does not provide an official public player-name lookup API.
       } else if (mobileLegendsService && /^\d{5,20}$/.test(serviceLink.trim()) && /^\d{3,10}$/.test(gameServerId.trim())) {
         // Mobile Legends credentials are sent as a paired Game ID and Server ID.
-      } else if (robloxService && serviceLink.trim() && robloxPassword) {
-        // Roblox fulfillment requires the account email and password supplied by the customer.
+      } else if (robloxService && /^[A-Za-z0-9_]{3,20}$/.test(serviceLink.trim())) {
+        // Roblox verification uses only the public username; never request a password.
+      } else if (gameService && /^\d{5,20}$/.test(serviceLink.trim())) {
+        // Other game services accept a public player ID and may opt into provider verification.
       } else {
-        toast.error(freeFireService ? 'Please enter a valid Free Fire Player ID' : mobileLegendsService ? 'Enter valid Mobile Legends Game ID and Server ID' : robloxService ? 'Enter your Gmail and Roblox password' : 'Please enter your public TikTok link');
+        toast.error(freeFireService ? 'Please enter a valid Free Fire Player ID' : mobileLegendsService ? 'Enter valid Mobile Legends Game ID and Server ID' : robloxService ? 'Enter a valid Roblox username' : gameService ? `Enter a valid ${gameService.label}` : 'Please enter your public TikTok link');
         return;
       }
     }
-    if (robloxService && (!serviceLink.trim() || !robloxPassword)) {
-      toast.error('Enter your Gmail and Roblox password');
-      return;
-    }
-    if (usesProviderVerification && !providerAccount) {
+    if ((usesProviderVerification || requiresPublicLookup) && !providerAccount) {
       toast.error('Verify the game account first');
       return;
     }
@@ -206,7 +212,7 @@ export default function ProductDetail() {
     const serviceTarget = mobileLegendsService
       ? `Mobile Legends Game ID: ${serviceLink.trim()} | Server ID: ${gameServerId.trim()}`
       : robloxService
-        ? `Roblox Gmail: ${serviceLink.trim()}`
+        ? `Roblox username: ${serviceLink.trim()}`
         : freeFireService
           ? `Free Fire Player ID: ${serviceLink.trim()}`
           : serviceLink.trim();
@@ -214,7 +220,6 @@ export default function ProductDetail() {
       ...selectedVariations,
       ...(manualService ? { _service_link: serviceTarget } : {}),
       ...(usesProviderVerification ? { _provider_player_id: serviceLink.trim(), _provider_server_id: gameServerId.trim() } : {}),
-      ...(robloxService ? { _roblox_password: robloxPassword } : {}),
       _customer_telegram: customerTelegram.trim(),
     });
     setOpen(false);
@@ -240,17 +245,17 @@ export default function ProductDetail() {
             <div className="service-link-card">
               <label htmlFor="customer-telegram" className="block text-sm font-bold text-slate-900">Telegram username *</label>
               <input id="customer-telegram" value={customerTelegram} onChange={(event) => setCustomerTelegram(event.target.value)} type="text" placeholder="@username" autoCapitalize="none" />
-              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">{telegramService ? 'Telegram username' : freeFireService ? 'Free Fire Player ID' : mobileLegendsService ? 'Player ID' : robloxService ? 'Gmail' : 'TikTok link'}</label>
+              <label htmlFor="service-link" className="block text-sm font-bold text-slate-900">{telegramService ? 'Telegram username' : gameService?.label || 'TikTok link'}</label>
               <input
                 id="service-link"
                 value={serviceLink}
                 onChange={(event) => { setServiceLink(event.target.value); setProviderAccount(null); if (telegramService) setTelegramAccount(null); }}
-                type={robloxService ? 'email' : 'text'}
-                inputMode={freeFireService || mobileLegendsService ? 'numeric' : 'text'}
-                placeholder={telegramService ? '@username' : freeFireService ? 'Player ID' : mobileLegendsService ? 'Player ID' : robloxService ? 'your@gmail.com' : 'https://www.tiktok.com/@...'}
+                type="text"
+                inputMode={gameService && !robloxService ? 'numeric' : 'text'}
+                placeholder={telegramService ? '@username' : gameService?.label || 'https://www.tiktok.com/@...'}
               />
-              {robloxService && <><label htmlFor="roblox-password" className="block text-sm font-bold text-slate-900 mt-3">Roblox password</label><input id="roblox-password" value={robloxPassword} onChange={(event) => setRobloxPassword(event.target.value)} type="password" autoComplete="current-password" placeholder="Roblox password" /></>}
-              {mobileLegendsService && <input value={gameServerId} onChange={(event) => setGameServerId(event.target.value)} type="text" inputMode="numeric" placeholder="Server ID" className="mt-3" />}
+              {gameService?.server && <input value={gameServerId} onChange={(event) => setGameServerId(event.target.value)} type="text" inputMode="numeric" placeholder={gameService.server} className="mt-3" />}
+              {robloxService && <button type="button" className="service-verify-button" disabled={checkingProvider || !serviceLink.trim()} onClick={async () => { setCheckingProvider(true); try { setProviderAccount(await lookupRobloxUsername(serviceLink.trim())); } catch (error) { setProviderAccount(null); toast.error(error?.response?.data?.detail || 'Roblox username was not found'); } finally { setCheckingProvider(false); } }}>{checkingProvider ? 'Checking...' : 'Verify Roblox username'}</button>}
               {usesProviderVerification && <button type="button" className="service-verify-button" disabled={checkingProvider || !serviceLink.trim()} onClick={async () => { if (mobileLegendsService && !gameServerId.trim()) { toast.error('Enter the Mobile Legends Server ID first'); return; } setCheckingProvider(true); try { const result = await verifyProviderGameAccount(product.id, serviceLink.trim(), gameServerId.trim()); const returnedPlayerId = result.player_id || result.user_id || result.account_id; if (result.result !== 'valid') throw new Error('Account not found'); if (returnedPlayerId && String(returnedPlayerId) !== serviceLink.trim()) throw new Error('The verified ID does not match the ID entered'); setProviderAccount(result); } catch (error) { setProviderAccount(null); toast.error(error?.response?.data?.detail || error.message || 'Account verification failed'); } finally { setCheckingProvider(false); } }}>{checkingProvider ? 'Checking...' : 'Verify game account'}</button>}
               {providerAccount && <div className="service-verified-account"><span><strong>{providerAccount.nickname || 'Verified account'}</strong><br />{serviceLink}</span></div>}
               {telegramService && <button type="button" className="service-verify-button" disabled={checkingTelegram || !serviceLink.trim()} onClick={async () => {

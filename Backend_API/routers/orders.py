@@ -122,7 +122,7 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
             service_link = str(item_variations.get("_service_link") or "").strip()
             service_platform = str(product_meta.get("service_platform") or "").lower()
             telegram_service = service_platform in {"telegram", "telegram_premium", "telegram_star"}
-            game_target = service_platform in {"free_fire", "mobile_legends", "roblox"}
+            game_target = service_platform in {"free_fire", "mobile_legends", "pubg_mobile", "honor_of_kings", "eafc_mobile", "magic_chess_gogo", "blood_strike", "racing_master", "wild_rift", "roblox"}
             valid_target = (
                 bool(__import__("re").fullmatch(r"@[A-Za-z][A-Za-z0-9_]{4,31}", service_link))
                 if telegram_service else bool(service_link)
@@ -130,10 +130,6 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
             )
             if len(service_link) > 2048 or not valid_target:
                 raise HTTPException(status_code=400, detail="Please enter a valid Telegram username" if telegram_service else "Please enter valid game account details" if game_target else "Please enter a valid public service link before payment")
-            if service_platform == "roblox":
-                roblox_password = str(item_variations.get("_roblox_password") or "")
-                if not roblox_password or len(roblox_password) > 256:
-                    raise HTTPException(status_code=400, detail="Roblox password is required")
             item_variations["_service_link"] = service_link
             service_video_url = str(product_meta.get("service_video_url") or "").strip()
             if service_video_url:
