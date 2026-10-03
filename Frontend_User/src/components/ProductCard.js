@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { FiArrowRight, FiArrowUpRight, FiCheck, FiHeadphones, FiHeart, FiShield, FiShoppingBag, FiZap } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { fullUrl } from '../api';
+import { useLanguage } from '../i18n';
 
 export default function ProductCard({ product, variant = 'standard' }) {
   const { shop } = useShop();
+  const { t } = useLanguage();
   const [imageFailed, setImageFailed] = useState(false);
   const originalPrice = Number(product.price);
   const proposedSalePrice = Number(product.sale_price);
@@ -173,33 +175,33 @@ export default function ProductCard({ product, variant = 'standard' }) {
       </Link>
       <div className="p-3 sm:p-4 flex flex-col flex-1">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.1em] truncate">{product.category_name || 'Rovistar item'}</p>
+          <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.1em] truncate">{product.category_name || t('rovistarItem')}</p>
           <FiArrowUpRight className="text-slate-400 shrink-0" />
         </div>
         <Link to={`/${shop.username}/product/${product.id}`}>
           <h3 className="font-black text-sm sm:text-base text-slate-900 dark:text-white mt-2 line-clamp-2 group-hover:text-blue-700 transition leading-snug">{product.name}</h3>
         </Link>
-        <p className="text-xs text-slate-500 dark:text-gray-400 mt-2 line-clamp-2 min-h-[32px]">{description || (isDigital ? 'Digital access after payment.' : 'Quality product from this shop.')}</p>
-        {!isManualService && (
-          <div className="mt-3 flex items-baseline gap-1.5">
+        <p className="text-xs text-slate-500 dark:text-gray-400 mt-2 line-clamp-2 min-h-[32px]">{description || (isDigital ? t('digitalAccess') : t('qualityProduct'))}</p>
+        <div className="mt-3 flex min-h-[36px] items-baseline gap-1.5">
+          {!isManualService && <>
             <span className="text-xl sm:text-2xl font-black text-blue-700">${Number(price).toFixed(2)}</span>
             <span className="text-[10px] font-bold text-slate-400">{shop.currency}</span>
             {hasSale && <span className="text-xs text-slate-400 line-through">${Number(product.price).toFixed(2)}</span>}
-          </div>
-        )}
+          </>}
+        </div>
         <div className="mt-3 flex items-center justify-between gap-2 text-[10px] font-bold">
-          <span className={isAvailable ? 'text-emerald-600' : 'text-rose-600'}>{isAvailable ? '● Available' : '● Sold out'}</span>
-          <span className="text-slate-400">{isManualService ? 'Manual service' : (isDigital ? 'Instant access' : 'Ready to order')}</span>
+          <span className={isAvailable ? 'text-emerald-600' : 'text-rose-600'}>{isAvailable ? `● ${t('available')}` : `● ${t('soldOut')}`}</span>
+          <span className="text-slate-400">{isManualService ? t('manualService') : (isDigital ? t('instantAccess') : t('readyToOrder'))}</span>
         </div>
         {isManualService && (isAvailable ? (
-          <Link to={`/${shop.username}/product/${product.id}`} className="mt-4 w-full rounded-full bg-blue-600 py-2.5 text-center text-xs sm:text-sm font-black text-white shadow-sm transition hover:bg-blue-700">ចូលមើលទំនិញ</Link>
+          <Link to={`/${shop.username}/product/${product.id}`} className="mt-auto w-full rounded-full bg-blue-600 py-2.5 text-center text-xs sm:text-sm font-black text-white shadow-sm transition hover:bg-blue-700">{t('viewProduct')}</Link>
         ) : (
-          <span className="mt-4 w-full rounded-xl bg-slate-200 py-2.5 text-center text-xs sm:text-sm font-black text-slate-400">Out of stock</span>
+          <span className="mt-auto w-full rounded-xl bg-slate-200 py-2.5 text-center text-xs sm:text-sm font-black text-slate-400">{t('soldOut')}</span>
         ))}
         {!isManualService && (isAvailable ? (
-          <Link to={`/${shop.username}/product/${product.id}`} className="mt-4 w-full rounded-full bg-blue-600 py-2.5 text-center text-xs sm:text-sm text-white font-black shadow-sm transition hover:bg-blue-700">ចូលមើលទំនិញ</Link>
+          <Link to={`/${shop.username}/product/${product.id}`} className="mt-auto w-full rounded-full bg-blue-600 py-2.5 text-center text-xs sm:text-sm text-white font-black shadow-sm transition hover:bg-blue-700">{t('viewProduct')}</Link>
         ) : (
-          <span className="mt-4 w-full rounded-xl bg-slate-200 py-2.5 text-center text-xs sm:text-sm font-black text-slate-400">Sold out</span>
+          <span className="mt-auto w-full rounded-xl bg-slate-200 py-2.5 text-center text-xs sm:text-sm font-black text-slate-400">{t('soldOut')}</span>
         ))}
       </div>
     </article>

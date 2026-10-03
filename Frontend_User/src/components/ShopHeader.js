@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  FiBookmark, FiChevronDown, FiCreditCard, FiFileText, FiGlobe, FiLogOut, FiMoon, FiPackage, FiSun, FiUser, FiX,
+  FiBookmark, FiChevronDown, FiCreditCard, FiFileText, FiGlobe, FiLogOut, FiPackage, FiUser, FiX,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
@@ -10,7 +10,6 @@ import { useOwner } from '../contexts/OwnerContext';
 import CustomerAuth from './CustomerAuth';
 import ShopLogo from './ShopLogo';
 import { DASHBOARD_URL, getMyWallet, ownerCheck, ownerDashboardUrl } from '../api';
-import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../i18n';
 
 export default function ShopHeader() {
@@ -25,7 +24,6 @@ export default function ShopHeader() {
   const accountMenuRef = useRef(null);
   const languageMenuRef = useRef(null);
   const navigate = useNavigate();
-  const { isDark, toggle: toggleTheme } = useTheme();
   const { lang, setLang, toggle: toggleLanguage, languageNames, t } = useLanguage();
   const base = `/${shop.username}`;
   const isAccountTemplate = shop.template_type === 'account';
@@ -123,8 +121,6 @@ export default function ShopHeader() {
               </div>
             ) : <button type="button" onClick={toggleLanguage} className="store-language-toggle" aria-label="Switch language"><FiGlobe /><span>{lang === 'kh' ? 'ខ្មែរ' : (lang === 'zh' ? '中文' : 'EN')}</span></button>}
             {isRovistarStore && <Link to={`${base}/information`} className="store-information-toggle"><FiFileText /><span>{t('importantInformation')}</span></Link>}
-            <span className="store-utility-divider" />
-            <button type="button" onClick={toggleTheme} className="store-theme-toggle" aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>{isDark ? <FiSun /> : <FiMoon />}</button>
           </div>
           <div className="store-account-menu-wrap" ref={accountMenuRef}>
             <button
