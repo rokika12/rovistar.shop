@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Rovistar wallet">
-  <path fill="#176ee5" d="M12 18c0-4.4 3.6-8 8-8h25c4.4 0 8 3.6 8 8v6H22a7 7 0 0 0 0 14h31v8c0 4.4-3.6 8-8 8H18c-4.4 0-8-3.6-8-8V18h2Zm8 10h33v6H22a3 3 0 1 1 0-6Z"/>
-  <path fill="#f3f8ff" d="M42 34h13v11H42a5.5 5.5 0 0 1 0-11Z"/>
-  <circle cx="44" cy="39.5" r="2" fill="#176ee5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Wallet">
+  <path d="M12 20c0-4.4 3.6-8 8-8h25c4.4 0 8 3.6 8 8v5H21a7 7 0 0 0 0 14h32v7c0 4.4-3.6 8-8 8H18c-4.4 0-8-3.6-8-8V20h2Zm9 9h32v6H21a3 3 0 1 1 0-6Z" fill="none" stroke="#9ea2b3" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+  <path d="M42 35h12v10H42a5 5 0 0 1 0-10Z" fill="none" stroke="#9ea2b3" stroke-linejoin="round" stroke-width="4"/>
+  <circle cx="44" cy="40" r="1.7" fill="#9ea2b3"/>
 </svg>
