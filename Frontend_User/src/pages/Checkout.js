@@ -20,7 +20,7 @@ const initialForm = {
 const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
 const ABA_BRAND_URL = `${process.env.PUBLIC_URL}/aba-brand.png`;
 const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-brand.webp`;
-const WALLET_ICON_URL = `${process.env.PUBLIC_URL}/wallet-outline.svg`;
+const WALLET_ICON_URL = `${process.env.PUBLIC_URL}/rovistar-wallet.svg`;
 
 export default function Checkout() {
   const { shop } = useShop();
