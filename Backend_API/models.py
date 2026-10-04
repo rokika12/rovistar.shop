@@ -723,3 +723,21 @@ class TelegramCode(Base):
     code_hash = Column(String, default="")
     expires_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class TelegramGiftQueue(Base):
+    """A public Telegram collectible preview awaiting or linked to storefront stock."""
+    __tablename__ = "telegram_gift_queue"
+
+    id = Column(Integer, primary_key=True, index=True)
+    shop_id = Column(Integer, ForeignKey("shops.id"), nullable=False, index=True)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=True, unique=True)
+    canonical_url = Column(String, nullable=False)
+    collection = Column(String, nullable=False)
+    gift_number = Column(Integer, nullable=False)
+    title = Column(String, default="")
+    image_url = Column(String, default="")
+    description = Column(Text, default="")
+    price = Column(Float, default=0)
+    status = Column(String, default="queued")  # queued | published | sold | cancelled
+    created_at = Column(DateTime, default=datetime.utcnow)

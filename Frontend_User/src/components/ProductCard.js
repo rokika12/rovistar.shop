@@ -23,6 +23,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
   const price = hasSale ? proposedSalePrice : originalPrice;
   const discount = hasSale ? proposedDiscount : 0;
   const metadata = product.metadata || {};
+  const isTelegramGift = metadata.product_type === 'telegram_gift';
   const isKaidoStore = shop?.username?.toLowerCase() === 'kaidostore';
   const description = (product.description || '').replace(/\s+/g, ' ').trim();
   const isDigital = metadata.product_type === 'digital';
@@ -173,6 +174,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
         {!isKaidoStore && hasSale && <span className="store-sale-badge absolute top-3 right-3">SALE -{discount}%</span>}
         {!isKaidoStore && product.featured && <span className="store-hot-badge absolute top-3 left-3">HOT</span>}
       </Link>
+      {isTelegramGift && <div className="px-3 pt-3 sm:px-4"><span className="inline-flex rounded-full bg-blue-600 px-3 py-1 text-sm font-black text-white">${Number(price).toFixed(2)} {shop.currency}</span></div>}
       <div className="p-3 sm:p-4 flex flex-col flex-1">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.1em] truncate">{product.category_name || t('rovistarItem')}</p>
@@ -183,7 +185,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
         </Link>
         <p className="text-xs text-slate-500 dark:text-gray-400 mt-2 line-clamp-2 min-h-[32px]">{description || (isDigital ? t('digitalAccess') : t('qualityProduct'))}</p>
         <div className="mt-3 flex min-h-[36px] items-baseline gap-1.5">
-          {!isManualService && <>
+          {!isManualService && !isTelegramGift && <>
             <span className="text-xl sm:text-2xl font-black text-blue-700">${Number(price).toFixed(2)}</span>
             <span className="text-[10px] font-bold text-slate-400">{shop.currency}</span>
             {hasSale && <span className="text-xs text-slate-400 line-through">${Number(product.price).toFixed(2)}</span>}

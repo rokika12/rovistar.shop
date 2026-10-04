@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { FiHome, FiLogOut, FiMessageCircle, FiPackage, FiSettings, FiShoppingBag } from 'react-icons/fi';
+import { FiGift, FiHome, FiLogOut, FiMessageCircle, FiPackage, FiSettings, FiShoppingBag } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { getShopDetail } from '../api';
 
@@ -8,6 +8,7 @@ const navItems = [
   { to: '/', label: 'ផ្ទាំងគ្រប់គ្រង', icon: <FiHome />, end: true },
   { to: '/products', label: 'ផលិតផល', icon: <FiPackage /> },
   { to: '/customer-chat', label: 'Customer Chat', icon: <FiMessageCircle /> },
+  { to: '/telegram-gifts', label: 'Telegram Gift Queue', icon: <FiGift /> },
   { to: '/settings', label: 'ការកំណត់ហាង', icon: <FiSettings /> },
 ];
 

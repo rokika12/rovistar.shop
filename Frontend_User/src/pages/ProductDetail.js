@@ -300,6 +300,7 @@ export default function ProductDetail() {
               <p className="whitespace-pre-line text-sm leading-relaxed text-gray-600 dark:text-gray-400">{product.description}</p>
             </div>
           )}
+          {product.metadata?.telegram_gift?.canonical_url && <a href={product.metadata.telegram_gift.canonical_url} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#229ed9] px-4 py-3 text-sm font-black text-white transition hover:bg-[#1685bd]">ចូលមើល Gift ពិតនៅក្នុង Telegram</a>}
         </div>
         )}
 
