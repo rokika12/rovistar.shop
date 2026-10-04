@@ -569,7 +569,7 @@ body {
 
 .storefront-main { background: #f6f8fc; }
 .rovistar-game-background-shell {
-  background: linear-gradient(rgba(3, 21, 74, 0.24), rgba(3, 21, 74, 0.44)), url('./assets/rovistar-full-background.png') center top / cover fixed;
+  background: linear-gradient(rgba(3, 21, 74, 0.24), rgba(3, 21, 74, 0.44)), url('./assets/rovistar-full-background.webp') center top / cover fixed;
 }
 .rovistar-game-background-shell .storefront-main { background: rgba(225, 242, 255, 0.20); }
 .rovistar-game-background-shell .store-header, .rovistar-game-background-shell .shop-footer { background-color: rgba(255, 255, 255, 0.88); }
@@ -2226,7 +2226,7 @@ body {
 /* Kaido's supplied high-resolution artwork stays complete on every viewport. */
 .kaido-store-shell {
   --kaido-blue-base: #062c72;
-  background: #062c72 url('./assets/kaidostore-background-hq.jpg') center top / 100% auto no-repeat !important;
+  background: #062c72 url('./assets/kaidostore-background-hq.webp') center top / 100% auto no-repeat !important;
   color: #effbff !important;
 }
 .kaido-store-shell .storefront-main, .kaido-store-shell .kaido-storefront {
@@ -2266,7 +2266,7 @@ body {
 /* The two supplied Kaido artworks form one continuous backdrop without overlap. */
 .kaido-store-shell {
   background-color: #062c72 !important;
-  background-image: url('./assets/kaidostore-background-hq.jpg'), url('./assets/kaidostore-background-lower.jpg') !important;
+  background-image: url('./assets/kaidostore-background-hq.webp'), url('./assets/kaidostore-background-lower.jpg') !important;
   background-position: center top, center 43.89vw !important;
   background-size: 100% auto, 100% auto !important;
   background-repeat: no-repeat, no-repeat !important;
@@ -2281,7 +2281,7 @@ body {
 /* One tall artwork now covers the entire Kaido journey from top to bottom. */
 .kaido-store-shell {
   background-color: #062c72 !important;
-  background-image: url('./assets/kaidostore-full-background.jpg') !important;
+  background-image: url('./assets/kaidostore-full-background.webp') !important;
   background-position: center top !important;
   background-size: 100% auto !important;
   background-repeat: no-repeat !important;

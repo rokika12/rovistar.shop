@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { CartProvider } from './contexts/CartContext';
@@ -7,17 +7,19 @@ import { OwnerProvider } from './contexts/OwnerContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ShopLayout from './components/ShopLayout';
 import ErrorBoundary from './components/ErrorBoundary';
-import CreateShop from './pages/CreateShop';
-import ShopHome from './pages/ShopHome';
-import Products from './pages/Products';
-import ProductDetail from './pages/ProductDetail';
-import Checkout from './pages/Checkout';
-import OrderSuccess from './pages/OrderSuccess';
-import About from './pages/About';
-import MyOrders from './pages/MyOrders';
-import Profile from './pages/Profile';
-import InformationFeed from './pages/InformationFeed';
 import { useLanguage } from './i18n';
+
+// Keep the first storefront visit light; secondary screens load only when opened.
+const CreateShop = lazy(() => import('./pages/CreateShop'));
+const ShopHome = lazy(() => import('./pages/ShopHome'));
+const Products = lazy(() => import('./pages/Products'));
+const ProductDetail = lazy(() => import('./pages/ProductDetail'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
+const About = lazy(() => import('./pages/About'));
+const MyOrders = lazy(() => import('./pages/MyOrders'));
+const Profile = lazy(() => import('./pages/Profile'));
+const InformationFeed = lazy(() => import('./pages/InformationFeed'));
 
 export default function App() {
   return (
@@ -25,6 +27,7 @@ export default function App() {
       <ThemeProvider>
         <CartProvider>
           <OwnerProvider>
+            <Suspense fallback={<PageLoader />}>
             <Routes>
           <Route path="/" element={<ShopProvider directDomain><ShopLayout /></ShopProvider>}>
             <Route index element={<ShopHome />} />
@@ -60,11 +63,16 @@ export default function App() {
           </Route>
           <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
           </OwnerProvider>
         </CartProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
+}
+
+function PageLoader() {
+  return <div className="min-h-screen bg-slate-50" aria-label="Loading page" />;
 }
 
 function NotFound() {
