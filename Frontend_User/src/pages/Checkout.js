@@ -18,7 +18,8 @@ const initialForm = {
 };
 
 const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
-const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-logo.png`;
+const ABA_BRAND_URL = `${process.env.PUBLIC_URL}/aba-brand.png`;
+const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-brand.webp`;
 const WALLET_ICON_URL = `${process.env.PUBLIC_URL}/wallet-outline.svg`;
 
 export default function Checkout() {
@@ -388,7 +389,7 @@ export default function Checkout() {
             <div className="mb-5 text-left">
               <p className="font-bold mb-2">Choose payment method</p>
               <div className="space-y-3">
-                <button type="button" onClick={() => setPaymentMethod('khqr')} className={`flex w-full items-center gap-4 rounded-2xl border-2 p-4 text-left transition ${paymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>{isKaidoStore ? <span className="kaido-payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span> : <span className="flex h-12 w-20 shrink-0 items-center justify-center gap-1 rounded-xl bg-[#061d3a] px-1 shadow-sm"><img src={ABA_LOGO_URL} alt="ABA" style={{ display: 'block', width: 43, height: 22, objectFit: 'contain' }} /><img src={KHQR_LOGO_URL} alt="KHQR" style={{ display: 'block', width: 19, height: 19, objectFit: 'contain' }} /></span>}<span className="min-w-0 flex-1"><b className="block text-blue-950">ABA KHQR</b><small className="mt-1 block text-blue-700">Scan to pay with any banking app</small></span><span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${paymentMethod === 'khqr' ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 text-transparent'}`}>✓</span></button>
+                <button type="button" onClick={() => setPaymentMethod('khqr')} className={`flex w-full items-center gap-4 rounded-2xl border-2 p-4 text-left transition ${paymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>{isKaidoStore ? <span className="kaido-payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span> : <span className="checkout-payment-brand-marks"><img src={ABA_BRAND_URL} alt="ABA" /><img src={KHQR_LOGO_URL} alt="KHQR" /></span>}<span className="min-w-0 flex-1"><b className="block text-blue-950">ABA KHQR</b><small className="mt-1 block text-blue-700">Scan to pay with any banking app</small></span><span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${paymentMethod === 'khqr' ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 text-transparent'}`}>✓</span></button>
                 <button type="button" onClick={() => setPaymentMethod('wallet')} className={`flex w-full items-center gap-4 rounded-2xl border-2 p-4 text-left transition ${paymentMethod === 'wallet' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 shadow-sm"><img src={WALLET_ICON_URL} alt="Rovistar Wallet" style={{ display: 'block', width: 30, height: 30 }} /></span><span className="min-w-0 flex-1"><b className="block text-blue-950">Wallet Balance</b><small className="mt-1 block text-blue-700">Pay instantly from your balance · ${Number(walletBalance).toFixed(2)}</small></span><span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${paymentMethod === 'wallet' ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 text-transparent'}`}>✓</span></button>
               </div>
             </div>

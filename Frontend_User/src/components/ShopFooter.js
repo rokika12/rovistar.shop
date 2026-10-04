@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiCreditCard, FiShield } from 'react-icons/fi';
+import { FiShield } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useLanguage } from '../i18n';
 import SocialLinks from './SocialLinks';
@@ -34,10 +34,12 @@ export default function ShopFooter() {
           </div>
           <div className="space-y-8">
             <div>
-              <h4 className="shop-brand-heading text-slate-900 mb-4">{t('weAccept')}</h4>
-              <div className="flex items-center gap-2">
-                <span className="shop-payment-badge shop-payment-aba"><FiCreditCard /> ABA</span>
-                <span className="shop-payment-badge shop-payment-khqr">KHQR</span>
+              <div className="shop-payment-acceptance" aria-label={t('weAccept')}>
+                <h4 className="shop-brand-heading text-slate-900">{t('weAccept')}</h4>
+                <div className="shop-payment-brand-row">
+                  <img src={`${process.env.PUBLIC_URL}/aba-brand.png`} alt="ABA" />
+                  <img src={`${process.env.PUBLIC_URL}/khqr-brand.webp`} alt="KHQR" />
+                </div>
               </div>
             </div>
             <div>
