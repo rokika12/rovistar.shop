@@ -16,6 +16,7 @@ import ProviderCatalog from './pages/ProviderCatalog';
 import AutomationTools from './pages/AutomationTools';
 import SupportInbox from './pages/SupportInbox';
 import Announcements from './pages/Announcements';
+import TelegramGiftQueue from './pages/TelegramGiftQueue';
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="tools" element={<AutomationTools />} />
           <Route path="support" element={<SupportInbox />} />
           <Route path="announcements" element={<Announcements />} />
+          <Route path="telegram-gifts" element={<TelegramGiftQueue />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

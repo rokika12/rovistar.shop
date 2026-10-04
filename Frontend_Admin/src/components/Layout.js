@@ -1,11 +1,12 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { FiActivity, FiDatabase, FiFileText, FiHome, FiLogOut, FiMessageCircle, FiPercent, FiSettings, FiShoppingBag, FiTool, FiTruck, FiUsers } from 'react-icons/fi';
+import { FiActivity, FiDatabase, FiFileText, FiGift, FiHome, FiLogOut, FiMessageCircle, FiPercent, FiSettings, FiShoppingBag, FiTool, FiTruck, FiUsers } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
   { to: '/', label: 'ផ្ទាំងគ្រប់គ្រង', icon: <FiHome />, end: true },
   { to: '/shops', label: 'ហាងទាំងអស់', icon: <FiShoppingBag /> },
+  { to: '/telegram-gifts', label: 'Telegram Gift Queue', icon: <FiGift /> },
   { to: '/users', label: 'អ្នកប្រើប្រាស់', icon: <FiUsers /> },
   { to: '/resellers', label: 'អ្នកលក់បន្ត', icon: <FiPercent /> },
   { to: '/backup', label: 'បម្រុងទុក', icon: <FiDatabase /> },
@@ -31,7 +32,7 @@ export default function Layout() {
           </h1>
           <p className="text-xs text-slate-400">Platform Admin</p>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
           {navItems.map((item) => (
             <NavLink
               key={item.to}

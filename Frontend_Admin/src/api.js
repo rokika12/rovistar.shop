@@ -72,6 +72,11 @@ export const uploadServiceVideo = (file) => {
 export const setShopExpiry = (id, days) => api.post(`/api/shops/${id}/set-expiry`, { days }).then((r) => r.data);
 export const setShopLimits = (id, data) => api.post(`/api/shops/${id}/set-limits`, data).then((r) => r.data);
 
+// Telegram collectible gift queue
+export const listTelegramGiftQueue = (shopId) => api.get('/api/telegram-gifts/queue', { params: { shop_id: shopId } }).then((r) => r.data);
+export const createTelegramGiftQueue = (data) => api.post('/api/telegram-gifts/queue', data).then((r) => r.data);
+export const publishTelegramGift = (id, data) => api.post(`/api/telegram-gifts/queue/${id}/publish`, data).then((r) => r.data);
+
 // Plans / resellers
 export const listResellers = () => api.get('/api/plans/resellers').then((r) => r.data);
 export const createReseller = (data) => api.post('/api/plans/resellers', data).then((r) => r.data);
