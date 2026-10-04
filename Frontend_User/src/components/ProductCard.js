@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiArrowUpRight, FiCheck, FiHeadphones, FiHeart, FiShield, FiShoppingBag, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiArrowUpRight, FiCheck, FiExternalLink, FiGift, FiHeadphones, FiHeart, FiShield, FiShoppingBag, FiZap } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { fullUrl } from '../api';
 import { useLanguage } from '../i18n';
@@ -29,6 +29,39 @@ export default function ProductCard({ product, variant = 'standard' }) {
   const isDigital = metadata.product_type === 'digital';
   const isManualService = metadata.fulfillment_type === 'manual_service';
   const isAvailable = isManualService ? !metadata.manual_service_out_of_stock : product.quantity > 0;
+
+  if (isTelegramGift && variant === 'telegram-gift') {
+    const productLink = `/${shop.username}/product/${product.id}`;
+    const gift = metadata.telegram_gift || {};
+
+    return (
+      <article className="telegram-gift-card">
+        <Link to={productLink} className="telegram-gift-card-main" aria-label={`Choose ${product.name}`}>
+          <div className="telegram-gift-card-art">
+            {product.images?.[0] && !imageFailed ? (
+              <img src={fullUrl(product.images[0])} alt={product.name} onError={() => setImageFailed(true)} />
+            ) : (
+              <span className="telegram-gift-card-placeholder"><FiGift /></span>
+            )}
+            <span className="telegram-gift-card-live"><i /> Telegram collectible</span>
+          </div>
+          <div className="telegram-gift-card-copy">
+            <p>{gift.collection || 'Telegram Gift'}{gift.gift_number ? ` · #${gift.gift_number}` : ''}</p>
+            <h3>{product.name}</h3>
+            <div><strong>${Number(price).toFixed(2)}</strong><small>{shop.currency}</small></div>
+            <span className={isAvailable ? 'telegram-gift-card-buy' : 'telegram-gift-card-sold'}>
+              {isAvailable ? <>Choose gift <FiArrowRight /></> : t('soldOut')}
+            </span>
+          </div>
+        </Link>
+        {gift.canonical_url && (
+          <a className="telegram-gift-native-link" href={gift.canonical_url} target="_blank" rel="noreferrer">
+            View native gift in Telegram <FiExternalLink />
+          </a>
+        )}
+      </article>
+    );
+  }
 
   if (isKaidoStore && variant === 'kaido-popular') {
     const productLink = `/${shop.username}/product/${product.id}`;

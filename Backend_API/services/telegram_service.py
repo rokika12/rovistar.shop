@@ -11,6 +11,26 @@ import models
 from config import config
 
 
+TELEGRAM_USERNAME_RE = re.compile(r"^@[A-Za-z][A-Za-z0-9_]{4,31}$")
+TELEGRAM_GIFT_URL_RE = re.compile(
+    r"^https://t\.me/nft/[A-Za-z][A-Za-z0-9]*-\d+/?$", re.I
+)
+
+
+def normalize_telegram_username(value: str) -> str:
+    """Return a delivery-safe @username, or an empty string when invalid."""
+    username = str(value or "").strip()
+    return username if TELEGRAM_USERNAME_RE.fullmatch(username) else ""
+
+
+def canonical_telegram_gift_url(value: str) -> str:
+    """Accept only canonical Telegram collectible links that can be sent safely."""
+    url = str(value or "").strip()
+    if not TELEGRAM_GIFT_URL_RE.fullmatch(url):
+        return ""
+    return url.rstrip("/")
+
+
 def normalize_chat_ids(*chat_id_groups) -> list[str]:
     """Return non-empty Telegram chat IDs in stable, de-duplicated order."""
     result = []
@@ -220,6 +240,38 @@ def notify_shop_service_request(shop, order, link: str, note: str = "") -> bool:
     if note:
         lines.append(f"📝 <b>កំណត់ចំណាំ:</b> {_html(note)}")
     return send_shop_notification(shop, "\n".join(lines))
+
+
+def notify_customer_telegram_gifts(shop, order) -> bool:
+    """Deliver paid Telegram collectible links with the shop's configured bot."""
+    if getattr(order, "payment_status", "") != "paid":
+        return False
+    username = normalize_telegram_username(getattr(order, "customer_telegram", ""))
+    if not username:
+        return False
+
+    gift_urls = []
+    for item in getattr(order, "items", []):
+        values = models.JSONText.loads(getattr(item, "variations", ""), {})
+        url = canonical_telegram_gift_url(values.get("_telegram_gift_url"))
+        if url and url not in gift_urls:
+            gift_urls.append(url)
+    if not gift_urls:
+        return False
+
+    settings = shop.telegram_dict()
+    bot_token = str(settings.get("bot_token") or "").strip()
+    if not settings.get("enabled") or not bot_token:
+        return False
+
+    links = "\n".join(f"🎁 {url}" for url in gift_urls)
+    text = (
+        "🎉 <b>Your Telegram Gift is ready</b>\n\n"
+        f"🧾 <b>Order:</b> #{_html(getattr(order, 'order_number', ''))}\n"
+        f"{links}\n\n"
+        "Open the link in Telegram to view the collectible's native animation."
+    )
+    return send_telegram_message(bot_token, username, text)
 
 
 def send_verification_code(bot_token: str, chat_id, code: str) -> bool:

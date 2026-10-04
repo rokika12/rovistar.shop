@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FiCheckCircle, FiClock, FiCopy, FiDownload, FiHelpCircle, FiPackage, FiPlayCircle, FiTruck } from 'react-icons/fi';
+import { FiCheckCircle, FiClock, FiCopy, FiDownload, FiExternalLink, FiGift, FiHelpCircle, FiPackage, FiPlayCircle, FiTruck } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
@@ -66,6 +66,7 @@ export default function OrderSuccess() {
 
   const isPaid = order.payment_status === 'paid';
   const manualServiceItems = order.items.filter((item) => item.service_request_required);
+  const telegramGiftItems = order.items.filter((item) => item.telegram_gift_url);
   const submittedServiceItems = order.items.filter((item) => item.variations?._service_link);
   const serviceVideoUrl = order.items.map((item) => item.service_video_url).find(Boolean) || '';
   const serviceVideoEmbed = serviceVideoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
@@ -158,6 +159,19 @@ export default function OrderSuccess() {
               </div>
             ))}
           </div>
+          {isPaid && telegramGiftItems.length > 0 && (
+            <div className="mt-6 overflow-hidden rounded-2xl border-2 border-sky-500 bg-sky-50">
+              <div className="flex items-center gap-2 bg-sky-600 px-4 py-3 font-bold text-white"><FiGift /> Your Telegram Gift</div>
+              <div className="space-y-3 p-4">
+                <p className="text-sm text-sky-950">The shop bot also sends this original link to {order.customer_telegram}. Open it in Telegram to see the native animation.</p>
+                {telegramGiftItems.map((item) => (
+                  <a key={item.id} href={item.telegram_gift_url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 font-bold text-sky-800 shadow-sm">
+                    <span>{item.product_name}</span><FiExternalLink />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
           {isPaid && order.items.some((item) => item.digital_delivery) && (
             <div className="mt-6 rounded-xl border-2 border-blue-600 overflow-hidden">
               <div className="px-4 py-3 bg-blue-50 font-bold text-blue-900">Digital product access</div>

@@ -339,6 +339,7 @@ class OrderItem(Base):
     def to_dict(self):
         variations = JSONText.loads(self.variations, {})
         delivery = variations.pop("_digital_delivery", None) if self.order and self.order.payment_status == "paid" else None
+        telegram_gift_url = variations.pop("_telegram_gift_url", None)
         # Credentials are delivered only to the shop's internal fulfillment channel.
         variations.pop("_roblox_password", None)
         service_request_required = bool(variations.pop("_service_request_required", False))
@@ -356,6 +357,8 @@ class OrderItem(Base):
         }
         if delivery:
             result["digital_delivery"] = delivery
+        if telegram_gift_url and self.order and self.order.payment_status == "paid":
+            result["telegram_gift_url"] = telegram_gift_url
         if service_request_required:
             result["service_request_required"] = True
         if service_video_url:

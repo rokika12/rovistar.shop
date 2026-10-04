@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiChevronLeft, FiChevronRight, FiMaximize2, FiPlayCircle, FiShoppingBag, FiX, FiZap } from 'react-icons/fi';
+import { FiCheck, FiChevronLeft, FiChevronRight, FiExternalLink, FiGift, FiMaximize2, FiPlayCircle, FiShoppingBag, FiX, FiZap } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useCustomer } from '../contexts/CustomerContext';
@@ -128,6 +128,8 @@ export default function ProductDetail() {
     : [];
   const varOptions = (attrName) => [...new Set((product.variations || []).map((v) => v.attrs?.[attrName]).filter(Boolean))];
   const manualService = product.metadata?.fulfillment_type === 'manual_service';
+  const isTelegramGift = product.metadata?.product_type === 'telegram_gift';
+  const telegramGift = product.metadata?.telegram_gift || {};
   const servicePlatform = String(product.metadata?.service_platform || '').toLowerCase();
   const telegramService = manualService && ['telegram', 'telegram_premium', 'telegram_star'].includes(servicePlatform);
   const gameServices = {
@@ -179,7 +181,7 @@ export default function ProductDetail() {
 
   const buyNow = (payment = '') => {
     if (!/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(customerTelegram.trim())) {
-      toast.error('Please enter your Telegram username starting with @');
+      toast.error(isTelegramGift ? 'Telegram Gift delivery requires a valid @username' : 'Please enter your Telegram username starting with @');
       return;
     }
     const missing = selectableAttrs.find((a) => !selectedVariations[a.key]);
@@ -300,13 +302,19 @@ export default function ProductDetail() {
               <p className="whitespace-pre-line text-sm leading-relaxed text-gray-600 dark:text-gray-400">{product.description}</p>
             </div>
           )}
-          {product.metadata?.telegram_gift?.canonical_url && <a href={product.metadata.telegram_gift.canonical_url} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#229ed9] px-4 py-3 text-sm font-black text-white transition hover:bg-[#1685bd]">ចូលមើល Gift ពិតនៅក្នុង Telegram</a>}
+          {isTelegramGift && telegramGift.canonical_url && <a href={telegramGift.canonical_url} target="_blank" rel="noreferrer" className="telegram-gift-detail-native"><FiExternalLink /> Open the real gift in Telegram</a>}
         </div>
         )}
 
         {/* Purchase panel */}
         <div className={`store-product-detail-panel product-purchase-panel ${manualService ? 'service-package-panel' : ''}`}>
           {manualService ? <div className="service-package-heading"><i aria-hidden="true" /><div><span>SELECT PACKAGE</span><h1>Select Package</h1></div></div> : <>{product.category_name && <span className="text-xs text-primary font-semibold uppercase">{product.category_name}</span>}<h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-1">{product.name}</h1></>}
+          {isTelegramGift && (
+            <div className="telegram-gift-detail-label">
+              <span><FiGift /></span>
+              <div><b>{telegramGift.collection || 'Telegram Gift'}{telegramGift.gift_number ? ` #${telegramGift.gift_number}` : ''}</b><small>The original t.me/nft link is sent only after payment. Open it in Telegram for the native animation.</small></div>
+            </div>
+          )}
           {product.metadata?.product_type === 'digital' && product.metadata?.duration && (
             <span className="inline-block mt-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
               Digital access · {product.metadata.duration}
@@ -314,7 +322,7 @@ export default function ProductDetail() {
           )}
 
           {!manualService && (
-            <div className="product-customer-telegram"><label htmlFor="customer-telegram">Telegram username *</label><input id="customer-telegram" value={customerTelegram} onChange={(event) => setCustomerTelegram(event.target.value)} type="text" placeholder="@username" autoCapitalize="none" /><small>Required so the shop can contact you about this order.</small></div>
+            <div className={`product-customer-telegram ${isTelegramGift ? 'telegram-gift-recipient' : ''}`}><label htmlFor="customer-telegram">{isTelegramGift ? 'Send this gift to Telegram @username *' : 'Telegram username *'}</label><input id="customer-telegram" value={customerTelegram} onChange={(event) => { setCustomerTelegram(event.target.value); if (isTelegramGift) setTelegramAccount(null); }} type="text" placeholder="@username" autoCapitalize="none" /><small>{isTelegramGift ? 'Use a valid public @username. The shop bot sends the original link after confirmed payment.' : 'Required so the shop can contact you about this order.'}</small>{isTelegramGift && <button type="button" className="telegram-gift-verify" disabled={checkingTelegram || !customerTelegram.trim()} onClick={async () => { setCheckingTelegram(true); try { setTelegramAccount(await lookupTelegramUsername(customerTelegram.trim())); } catch (error) { setTelegramAccount(null); toast.error(error?.response?.data?.detail || 'Telegram username was not found publicly'); } finally { setCheckingTelegram(false); } }}>{checkingTelegram ? 'Checking...' : 'Check username'}</button>}{isTelegramGift && telegramAccount && <span className="telegram-gift-verified"><FiCheck /> @{telegramAccount.username} is publicly available</span>}</div>
           )}
           {!manualService && (
             <div className="product-price-row flex items-center gap-3 mt-4">
@@ -430,18 +438,18 @@ export default function ProductDetail() {
             <div className="service-payment-picker mt-8">
               <p className="mb-2 text-sm font-bold text-slate-800">Payment method</p>
               <div className="space-y-3">
-                <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
+                {!isTelegramGift && <button type="button" onClick={() => setServicePaymentMethod('wallet')} className={`service-payment-card ${servicePaymentMethod === 'wallet' ? 'service-payment-card-selected' : ''}`}>
                   <span className="service-payment-icon service-payment-wallet-icon"><img src={WALLET_ICON_URL} alt="Rovistar wallet" /></span>
                   <span className="service-payment-copy"><strong>Wallet Balance</strong><small>{`Available: $${displayedWalletBalance.toFixed(2)}`}</small></span>
                   <span className="service-payment-radio" aria-hidden="true" />
-                </button>
+                </button>}
                 <button type="button" onClick={() => setServicePaymentMethod('khqr')} className={`service-payment-card ${servicePaymentMethod === 'khqr' ? 'service-payment-card-selected' : ''}`}>
                   <span className="service-payment-icon service-payment-khqr-icon"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span>
                   <span className="service-payment-copy"><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span>
                   <span className="service-payment-radio" aria-hidden="true" />
                 </button>
                 <button type="button" onClick={() => buyNow(servicePaymentMethod)} disabled={!isAvailable} className="product-pay-button flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold text-white hover:bg-blue-700 disabled:opacity-50">
-                  <FiZap /> Pay {Number(effectivePrice).toFixed(2)} {shop.currency} now
+                  <FiZap /> {isTelegramGift ? 'Buy gift' : 'Pay'} · {Number(effectivePrice).toFixed(2)} {shop.currency}
                 </button>
               </div>
             </div>

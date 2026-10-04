@@ -115,6 +115,9 @@ def _process_first_payment(db, order, shop):
         # Full-detail payment-success notification (items, customer, stock left)
         telegram_service.notify_shop_payment_success_full(
             shop, order, getattr(order, "_stock_summary", None))
+    # Customer delivery is separate from the owner's order alert and is guarded
+    # again by paid status, the canonical gift URL, and a valid @username.
+    telegram_service.notify_customer_telegram_gifts(shop, order)
     try:
         stock_service.send_low_stock_alerts(db, shop)
     except Exception:

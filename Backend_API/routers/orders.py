@@ -12,6 +12,7 @@ from security import (get_optional_customer, get_current_admin, get_current_cust
                       log_activity, require_shop_access)
 from services import pdf_service
 from services import stock_service
+from services import telegram_service
 from utils.helpers import generate_order_number
 from routers.auth import _verify_email_token
 from routers.payments import _mark_paid, _process_first_payment
@@ -65,7 +66,7 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         raise HTTPException(status_code=400, detail="Invalid payment method")
 
     # Link the order to the logged-in Telegram customer
-    customer_telegram = data.customer_telegram or (customer.telegram if customer else "") or (f"tg{customer.telegram_id}" if customer else "")
+    customer_telegram = str(data.customer_telegram or (customer.telegram if customer else "") or "").strip()
     order = models.Order(
         shop_id=data.shop_id,
         customer_id=customer.id if customer else None,
@@ -98,6 +99,21 @@ def create_order(data: schemas.OrderCreate, db: Session = Depends(get_db),
         if (product_meta.get("fulfillment_type") == "manual_service"
                 and product_meta.get("manual_service_out_of_stock")):
             raise HTTPException(status_code=400, detail="This manual service is out of stock")
+        if product_meta.get("product_type") == "telegram_gift":
+            gift_username = telegram_service.normalize_telegram_username(customer_telegram)
+            gift_url = telegram_service.canonical_telegram_gift_url(
+                (product_meta.get("telegram_gift") or {}).get("canonical_url")
+            )
+            if not gift_username:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Telegram Gift orders require a valid @username",
+                )
+            if not gift_url:
+                raise HTTPException(status_code=400, detail="This Telegram Gift is unavailable")
+            order.customer_telegram = gift_username
+            # Snapshot the exact collectible selected before payment changes state.
+            item_variations["_telegram_gift_url"] = gift_url
         # Package choices apply only to manual services. Regular products can
         # retain optional variations without blocking checkout.
         variations = models.JSONText.loads(product.variations, []) if product.variations else []

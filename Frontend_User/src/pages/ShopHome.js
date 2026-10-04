@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FiArrowRight, FiCreditCard, FiHeadphones, FiMessageCircle, FiShield, FiShoppingBag, FiSmartphone, FiUser,
+  FiArrowRight, FiCreditCard, FiGift, FiHeadphones, FiMessageCircle, FiSend, FiShield, FiShoppingBag, FiSmartphone, FiUser,
   FiTruck, FiZap,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
@@ -49,6 +49,7 @@ export default function ShopHome() {
 
   if (!shop) return null;
   const catalogProducts = allProducts.filter((product) => product.metadata?.fulfillment_type !== 'manual_service');
+  const telegramGiftProducts = catalogProducts.filter((product) => product.metadata?.product_type === 'telegram_gift');
   const featuredProducts = (featured.length ? featured : catalogProducts)
     .filter((product) => product.metadata?.fulfillment_type !== 'manual_service')
     .slice(0, 4);
@@ -98,11 +99,33 @@ export default function ShopHome() {
   return (
     <div className={isKaidoStore ? 'kaido-storefront' : `domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>
       <ShopSearchBar />
+      {!loading && telegramGiftProducts.length > 0 && (
+        <nav className="telegram-gift-menu" aria-label="Telegram Gift collection">
+          <a href="#telegram-gifts"><FiGift /><span>Telegram Gifts</span><b>{telegramGiftProducts.length}</b></a>
+          <span>Choose a collectible, pay securely, receive its original Telegram link.</span>
+        </nav>
+      )}
       {categories.length > 0 && <div className={isKaidoStore ? 'kaido-top-category-nav' : ''}><CategoryNav categories={categories} products={allProducts} /></div>}
 
       {slides.length > 0 && (
         <section className={`${isKaidoStore ? 'kaido-banner-wrap' : 'max-w-7xl mx-auto px-4 pt-6 md:pt-8'}`}>
           <Slideshow slides={slides} />
+        </section>
+      )}
+
+      {!loading && telegramGiftProducts.length > 0 && (
+        <section id="telegram-gifts" className="telegram-gift-showcase" aria-labelledby="telegram-gifts-title">
+          <div className="telegram-gift-showcase-heading">
+            <div>
+              <span><FiSend /> TELEGRAM COLLECTIBLES</span>
+              <h2 id="telegram-gifts-title">Pick a gift that feels personal.</h2>
+              <p>Choose your collectible, pay through the store, and get the original t.me gift link in Telegram after payment.</p>
+            </div>
+            <div className="telegram-gift-delivery-note"><FiZap /><span><b>Paid orders only</b><small>Delivered by the shop bot</small></span></div>
+          </div>
+          <div className="telegram-gift-grid">
+            {telegramGiftProducts.map((product) => <ProductCard key={product.id} product={product} variant="telegram-gift" />)}
+          </div>
         </section>
       )}
 

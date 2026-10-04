@@ -39,6 +39,9 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState(() => new URLSearchParams(window.location.search).get('payment') === 'wallet' ? 'wallet' : 'khqr');
   const [walletBalance, setWalletBalance] = useState(0);
   const [confirmationOpen, setConfirmationOpen] = useState(() => new URLSearchParams(window.location.search).get('confirm') === '1');
+  const telegramGiftOrder = items.some((item) => item.metadata?.product_type === 'telegram_gift');
+  const walletEligible = items.length > 0 && items.every((item) => item.metadata?.product_type === 'digital');
+  const digitalOnly = items.length > 0 && items.every((item) => ['digital', 'telegram_gift'].includes(item.metadata?.product_type));
 
   useEffect(() => {
     if (shop?.username?.toLowerCase() === 'kaidostore') setPaymentMethod('khqr');
@@ -68,10 +71,10 @@ export default function Checkout() {
   }, [customer, items]);
 
   useEffect(() => {
-    if (customer?.shop_id === shop?.id && token && shop && items.length > 0 && items.every((item) => item.metadata?.product_type === 'digital')) {
+    if (customer?.shop_id === shop?.id && token && shop && walletEligible) {
       getMyWallet(token).then((wallet) => setWalletBalance(wallet.balance || 0)).catch(() => {});
     }
-  }, [isLoggedIn, token, customer?.shop_id, shop, items]);
+  }, [isLoggedIn, token, customer?.shop_id, shop, walletEligible]);
 
   // ⏳ Auto-check the payment status every 3 seconds once the order + payment exist.
   // When the payment is verified (sandbox auto-succeeds / real ABA confirms), the
@@ -124,9 +127,8 @@ export default function Checkout() {
 
   if (!shop) return null;
 
-  const digitalOnly = items.length > 0 && items.every((item) => item.metadata?.product_type === 'digital');
   const manualServiceOrder = items.some((item) => item.metadata?.fulfillment_type === 'manual_service');
-  const freeDigitalOrder = digitalOnly && totals.subtotal <= 0;
+  const freeDigitalOrder = walletEligible && totals.subtotal <= 0;
   // An owner testing their own shop is already authenticated and should not
   // be prompted for a second customer login.
   const currentShopLoggedIn = (!!token && customer?.shop_id === shop.id)
@@ -139,6 +141,10 @@ export default function Checkout() {
     const shopLoggedIn = !!shopToken;
     if (!digitalOnly && !shopLoggedIn) {
       toast.error(t('signInRequired'));
+      return;
+    }
+    if (telegramGiftOrder && !/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(form.customer_telegram.trim())) {
+      toast.error('Telegram Gift delivery requires a valid @username.');
       return;
     }
     if (!form.customer_telegram.trim()) {
@@ -155,6 +161,7 @@ export default function Checkout() {
     }
     setSubmitting(true);
     try {
+      const orderPaymentMethod = walletEligible && paymentMethod === 'wallet' ? 'wallet' : 'khqr';
       const newOrder = await createOrderAsCustomer({
         shop_id: shop.id,
         ...form,
@@ -167,7 +174,7 @@ export default function Checkout() {
           product_id: i.product_id, name: i.name, price: i.price,
           quantity: i.quantity, variations: i.variations, image: i.image,
         })),
-        payment_method: digitalOnly ? paymentMethod : 'khqr',
+        payment_method: orderPaymentMethod,
       }, shopToken);
       const guestOrderKey = `ms_guest_orders_${shop.id}`;
       const guestOrders = JSON.parse(localStorage.getItem(guestOrderKey) || '[]');
@@ -177,7 +184,7 @@ export default function Checkout() {
         navigate(`/${shop.username}/order-success?order=${newOrder.order_number}`);
         return;
       }
-      if (paymentMethod === 'wallet') {
+      if (orderPaymentMethod === 'wallet') {
         clear();
         navigate(`/${shop.username}/order-success?order=${newOrder.order_number}`);
         return;
@@ -256,7 +263,7 @@ export default function Checkout() {
         <div className="payment-confirm-rows">
           <div><span>Items</span><strong>{items.length} product{items.length === 1 ? '' : 's'}</strong></div>
           <div><span>Quantity</span><strong>{items.reduce((total, item) => total + item.quantity, 0)}</strong></div>
-          <div><span>Payment</span><strong>{paymentMethod === 'wallet' ? 'Wallet balance' : 'ABA KHQR'}</strong></div>
+          <div><span>Payment</span><strong>{walletEligible && paymentMethod === 'wallet' ? 'Wallet balance' : 'ABA KHQR'}</strong></div>
         </div>
         <div className="payment-confirm-total"><span>TOTAL</span><strong>${grandTotal.toFixed(2)} <small>{shop.currency}</small></strong></div>
         <p className="payment-confirm-note">The ABA KHQR window opens after you confirm. Keep this page open until payment completes.</p>
@@ -379,7 +386,9 @@ export default function Checkout() {
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {manualServiceOrder
               ? 'Your public service link is attached to this order. Pay securely to begin processing.'
-              : 'No address is needed. After payment is confirmed, your digital access details appear here.'}
+              : telegramGiftOrder
+                ? 'No address is needed. After payment is confirmed, the shop bot sends the original gift link to your Telegram username.'
+                : 'No address is needed. After payment is confirmed, your digital access details appear here.'}
           </p>
           <div className="my-6 rounded-2xl bg-blue-50 dark:bg-gray-700 p-5 text-left">
             {items.map((item) => <div key={item.product_id} className="flex justify-between border-b border-blue-100 dark:border-gray-600 py-2 text-sm"><span>{item.name} × {item.quantity}</span><strong>{(item.price * item.quantity).toFixed(2)} {shop.currency}</strong></div>)}
@@ -390,12 +399,12 @@ export default function Checkout() {
               <p className="font-bold mb-2">Choose payment method</p>
               <div className="space-y-3">
                 <button type="button" onClick={() => setPaymentMethod('khqr')} className={`flex w-full items-center gap-4 rounded-2xl border-2 p-4 text-left transition ${paymentMethod === 'khqr' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-white hover:border-blue-200'}`}>{isKaidoStore ? <span className="kaido-payment-method-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" className="payment-method-logo" /></span> : <span className="checkout-payment-brand-marks"><img src={ABA_BRAND_URL} alt="ABA" /><img src={KHQR_LOGO_URL} alt="KHQR" /></span>}<span className="min-w-0 flex-1"><b className="block text-blue-950">ABA KHQR</b><small className="mt-1 block text-blue-700">Scan to pay with any banking app</small></span><span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${paymentMethod === 'khqr' ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 text-transparent'}`}>✓</span></button>
-                <button type="button" onClick={() => setPaymentMethod('wallet')} className="flex min-h-24 w-full items-center gap-4 rounded-[1.65rem] border border-[#cdd1ff] bg-white px-5 py-4 text-left transition hover:border-[#aeb5f3]"><img src={WALLET_ICON_URL} alt="កាបូបលុយ" className="h-7 w-7 shrink-0" /><span className="min-w-0 flex-1"><b className="block font-semibold text-[#777a8a]">បញ្ចូលតាមប្រព័ន្ធកាបូបលុយ</b><small className="mt-1 block text-[#b0b2c0]">ប្រាក់ក្នុងគណនី — ចំនួន ${Number(walletBalance).toFixed(2)}</small></span></button>
+                {walletEligible && <button type="button" onClick={() => setPaymentMethod('wallet')} className="flex min-h-24 w-full items-center gap-4 rounded-[1.65rem] border border-[#cdd1ff] bg-white px-5 py-4 text-left transition hover:border-[#aeb5f3]"><img src={WALLET_ICON_URL} alt="កាបូបលុយ" className="h-7 w-7 shrink-0" /><span className="min-w-0 flex-1"><b className="block font-semibold text-[#777a8a]">បញ្ចូលតាមប្រព័ន្ធកាបូបលុយ</b><small className="mt-1 block text-[#b0b2c0]">ប្រាក់ក្នុងគណនី — ចំនួន ${Number(walletBalance).toFixed(2)}</small></span></button>}
               </div>
             </div>
           )}
           <button onClick={handleSubmit} disabled={submitting} className="w-full rounded-2xl bg-blue-600 py-4 font-black text-white hover:bg-blue-700 disabled:opacity-50">
-            {submitting ? 'Preparing...' : (freeDigitalOrder ? 'Get free access' : paymentMethod === 'wallet' ? 'Pay with wallet' : 'Pay Now — Show ABA QR')}
+            {submitting ? 'Preparing...' : (freeDigitalOrder ? 'Get free access' : walletEligible && paymentMethod === 'wallet' ? 'Pay with wallet' : telegramGiftOrder ? 'Buy Gift — Show ABA QR' : 'Pay Now — Show ABA QR')}
           </button>
         </div>
       </div>
