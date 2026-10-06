@@ -2402,7 +2402,11 @@ body {
 /* Keep the Rovistar toolbar light: no colored panel behind the logo or actions. */
 .rovistar-game-background-shell .rovistar-glass-header { border-color: rgba(255, 255, 255, .62); background: rgba(218, 241, 255, .24); box-shadow: 0 10px 26px rgba(3, 38, 90, .18), inset 0 1px rgba(255, 255, 255, .62); backdrop-filter: blur(18px) saturate(1.08); -webkit-backdrop-filter: blur(18px) saturate(1.08); }
 .rovistar-game-background-shell .rovistar-glass-header .store-utility-switcher { border: 0; background: transparent; box-shadow: none; }
-.rovistar-game-background-shell .rovistar-glass-header .store-header-inner { height: 54px; min-height: 54px; }
+.rovistar-game-background-shell .store-sticky-shell { padding-top: .42rem; }
+.rovistar-game-background-shell .rovistar-glass-header .store-header-inner { height: 46px; min-height: 46px; }
+.rovistar-game-background-shell .rovistar-glass-header .store-brand > span:first-child { width: 2.2rem !important; height: 2.2rem !important; }
+.rovistar-game-background-shell .rovistar-glass-header .store-brand-copy strong { font-size: .78rem; }
+.rovistar-game-background-shell .rovistar-glass-header .store-brand-copy small { font-size: .48rem; }
 .rovistar-game-background-shell .rovistar-glass-header .store-language-toggle,
 .rovistar-game-background-shell .rovistar-glass-header .store-information-toggle,
 .rovistar-game-background-shell .rovistar-glass-header .store-account-avatar-trigger { min-height: 2.05rem; height: 2.05rem; border-color: transparent; background: transparent; box-shadow: none; color: #092956; }
