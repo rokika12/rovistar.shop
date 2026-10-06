@@ -101,7 +101,7 @@ export default function ShopHeader() {
   };
 
   return (
-    <header className={`store-header ${isKaidoStore ? 'kaido-store-header' : ''}`}>
+    <header className={`store-header ${isKaidoStore ? 'kaido-store-header' : ''} ${isRovistarStore ? 'rovistar-glass-header' : ''}`}>
       <div className="store-header-inner">
         <Link to={base} onClick={closePanels} className={`store-brand ${isKaidoStore ? 'store-brand-kaido' : ''}`} aria-label={`${shop.shop_name || shop.username} home`}>
           <ShopLogo shop={shop} className="h-10 w-10 rounded-2xl" textClassName="hidden" />
@@ -114,13 +114,13 @@ export default function ShopHeader() {
           <div className="store-utility-switcher" aria-label="Language and theme controls">
             {isRovistarStore ? (
               <div className="store-language-menu-wrap" ref={languageMenuRef}>
-                <button type="button" onClick={() => setLanguageOpen(!languageOpen)} className="store-language-toggle" aria-expanded={languageOpen} aria-haspopup="menu" aria-label="Choose language"><FiGlobe /><span>{languageNames[lang]}</span><FiChevronDown className={languageOpen ? 'store-language-chevron-open' : ''} /></button>
+                <button type="button" onClick={() => setLanguageOpen(!languageOpen)} className="store-language-toggle glass-action" aria-expanded={languageOpen} aria-haspopup="menu" aria-label="Choose language"><FiGlobe /><span>{languageNames[lang]}</span><FiChevronDown className={languageOpen ? 'store-language-chevron-open' : ''} /></button>
                 {languageOpen && <div className="store-language-menu" role="menu" aria-label="Choose language">
                   {['kh', 'en', 'zh'].map((code) => <button key={code} type="button" role="menuitemradio" aria-checked={lang === code} className={lang === code ? 'store-language-option is-active' : 'store-language-option'} onClick={() => { setLang(code); setLanguageOpen(false); }}><span>{languageNames[code]}</span>{lang === code && <span className="store-language-check">✓</span>}</button>)}
                 </div>}
               </div>
             ) : <button type="button" onClick={toggleLanguage} className="store-language-toggle" aria-label="Switch language"><FiGlobe /><span>{lang === 'kh' ? 'ខ្មែរ' : (lang === 'zh' ? '中文' : 'EN')}</span></button>}
-            {isRovistarStore && <Link to={`${base}/information`} className="store-information-toggle"><FiFileText /><span>{t('importantInformation')}</span></Link>}
+            {isRovistarStore && <Link to={`${base}/information`} className="store-information-toggle glass-action"><FiFileText /><span>{t('importantInformation')}</span></Link>}
           </div>
           <div className="store-account-menu-wrap" ref={accountMenuRef}>
             <button
@@ -132,7 +132,7 @@ export default function ShopHeader() {
                 }
                 setAccountOpen(!accountOpen);
               }}
-              className={`store-account-trigger store-account-avatar-trigger ${accountOpen ? 'store-account-trigger-open' : ''}`}
+              className={`store-account-trigger store-account-avatar-trigger glass-action ${accountOpen ? 'store-account-trigger-open' : ''}`}
               aria-expanded={accountOpen}
               aria-label={isLoggedIn ? `${displayName} account` : 'Open account'}
             >

@@ -24,7 +24,7 @@ export default function CategoryNav({ categories, products = [] }) {
   if (!categories || categories.length === 0) return null;
 
   const chip = (isActive) =>
-    `store-category-pill ${isActive ? 'store-category-pill-active' : ''}`;
+    `store-category-pill glass-action ${isActive ? 'store-category-pill-active' : ''}`;
   const countFor = (category) => (
     typeof category.product_count === 'number'
       ? category.product_count
