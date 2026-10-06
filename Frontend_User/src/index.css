@@ -2398,6 +2398,20 @@ body {
 @keyframes glass-border-orbit { to { transform: rotate(1turn); } }
 @media (prefers-reduced-motion: reduce) { .glass-action::after { animation: none !important; } }
 @media (max-width: 700px) { .rovistar-game-background-shell .store-sticky-shell { padding: .45rem .45rem 0; }.rovistar-game-background-shell .rovistar-glass-header { border-radius: 1rem; }.rovistar-game-background-shell .rovistar-glass-header .store-header-inner { padding: 0 .7rem; }.rovistar-game-background-shell .rovistar-glass-header .store-brand-copy strong { max-width: 7.5rem; }.rovistar-game-background-shell .rovistar-glass-header .store-header-actions { gap: .3rem; }.rovistar-game-background-shell .rovistar-glass-header .store-information-toggle { padding: .55rem; }.rovistar-game-background-shell .rovistar-storefront .store-category-nav { top: 4.6rem; } }
+
+/* Keep the Rovistar toolbar light: no colored panel behind the logo or actions. */
+.rovistar-game-background-shell .rovistar-glass-header { border-color: transparent; background: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.rovistar-game-background-shell .rovistar-glass-header .store-header-inner { height: 54px; min-height: 54px; }
+.rovistar-game-background-shell .rovistar-glass-header .store-language-toggle,
+.rovistar-game-background-shell .rovistar-glass-header .store-information-toggle,
+.rovistar-game-background-shell .rovistar-glass-header .store-account-avatar-trigger { min-height: 2.05rem; height: 2.05rem; border-color: transparent; background: transparent; box-shadow: none; color: #092956; }
+.rovistar-game-background-shell .rovistar-glass-header .store-language-toggle { padding: 0 .35rem; }
+.rovistar-game-background-shell .rovistar-glass-header .store-information-toggle { padding: .3rem; }
+.rovistar-game-background-shell .rovistar-glass-header .store-account-avatar-trigger { width: 2.05rem; padding: 0; }
+.rovistar-game-background-shell .rovistar-glass-header .store-avatar { width: 1.75rem; height: 1.75rem; background: transparent; color: #092956; }
+.rovistar-game-background-shell .rovistar-glass-header .store-account-avatar-trigger:has(.store-avatar img) .store-avatar { background: transparent; }
+.rovistar-game-background-shell .rovistar-storefront .store-category-nav { top: 4.9rem; background: transparent; border-bottom-color: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+@media (max-width: 700px) { .rovistar-game-background-shell .rovistar-glass-header .store-header-inner { height: 50px; min-height: 50px; }.rovistar-game-background-shell .rovistar-storefront .store-category-nav { top: 4.15rem; } }
 @media (max-width: 640px) {
   .telegram-gift-menu { width: calc(100% - 1.5rem); margin-top: .75rem; }.telegram-gift-menu > span { display: none; }
   .telegram-gift-showcase { width: calc(100% - 1.5rem); margin-top: 1rem; border-radius: 1.25rem; padding: .9rem; }.telegram-gift-showcase-heading { align-items: flex-start; flex-direction: column; }.telegram-gift-delivery-note { width: 100%; }.telegram-gift-grid { display: flex; margin-right: -.9rem; overflow-x: auto; padding: 0 .9rem .45rem 0; scroll-snap-type: x mandatory; scrollbar-width: none; }.telegram-gift-grid::-webkit-scrollbar { display: none; }.telegram-gift-card { flex: 0 0 min(78vw, 17rem); scroll-snap-align: start; }.telegram-gift-card:hover { transform: none; }
