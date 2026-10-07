@@ -46,7 +46,7 @@ export default function ShopLayout() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col dark:bg-gray-900 ${isKaidoStore ? 'kaido-store-shell' : ''} ${isDomi ? 'domi-pink-store-shell' : ''} ${isRovistarStore ? 'rovistar-game-background-shell' : ''}`} data-template={shop.template_type || 'login'} style={themeStyle}>
+    <div className={`min-h-screen flex flex-col dark:bg-gray-900 ${isKaidoStore ? 'kaido-store-shell' : ''} ${isDomi ? 'domi-pink-store-shell' : ''} ${isRovistarStore ? 'rovistar-game-background-shell dz-rovi-shell' : ''}`} data-template={shop.template_type || 'login'} style={themeStyle}>
       <div className="store-sticky-shell">
         {!isRovistarStore && <div className="brand-ticker bg-[var(--brand-blue)] text-white" aria-label="Store security notice">
           <div className="brand-ticker-track">
