@@ -278,28 +278,26 @@ export default function Checkout() {
   if (payment) {
     const payAmount = Number(payment.amount || order?.total || 0).toFixed(2);
     return (
-      <div className={`fixed inset-0 z-[100] overflow-y-auto bg-slate-900/55 py-8 px-4 backdrop-blur-[2px] ${isKaidoStore ? 'kaido-payment-overlay' : ''}`} onClick={() => navigate(`/${shop.username}/checkout`)}>
-        <div className={`relative max-w-md mx-auto rounded-[1.75rem] bg-white dark:bg-gray-800 px-5 py-6 shadow-2xl ${isKaidoStore ? 'kaido-payment-modal' : ''}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`fixed inset-0 z-[100] overflow-y-auto bg-slate-900/55 py-8 px-4 backdrop-blur-[2px] dz-payment-overlay ${isKaidoStore ? 'kaido-payment-overlay' : ''}`} onClick={() => navigate(`/${shop.username}/checkout`)}>
+        <div className={`relative max-w-md mx-auto rounded-[1.75rem] bg-white dark:bg-gray-800 px-5 py-6 shadow-2xl dz-payment-modal ${isKaidoStore ? 'kaido-payment-modal' : ''}`} onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
             onClick={() => navigate(`/${shop.username}/checkout`)}
-            className="absolute right-5 top-5 z-10 rounded-full p-2 text-cyan-500 hover:bg-cyan-50"
+            className="dz-payment-close"
             aria-label="Close payment"
           >
             <FiX className="h-6 w-6" />
           </button>
-          <div className="max-w-sm mx-auto flex flex-col items-center">
-                    {/* QR card */}
+          <div className="max-w-sm mx-auto flex flex-col items-center dz-payment-content">
+          <header className="dz-payment-heading"><span className="dz-qr-symbol" aria-hidden="true">▦</span><h1>Deposit with KHQR</h1></header>
+          {/* QR card */}
           <div className="qr-area">
             <div className="qr-card-new">
-              <div className="qr-info pt-5">
-                <span className="block text-sm font-bold text-[var(--primary)]">ABA KHQR · REAL PAYMENT</span>
-                <span className="qr-merch">{(shop.shop_name || shop.username).toUpperCase()}</span>
-                <div className="qr-amt-row">
-                  {payAmount} <span className="qr-amt-cur">{shop.currency}</span>
-                </div>
+              <div className="dz-khqr-band"><span><b aria-hidden="true">▦</b> KHQR Deposit</span><time>{String(Math.floor(remaining / 60)).padStart(2, '0')}:{String(remaining % 60).padStart(2, '0')}</time></div>
+              <div className="qr-info">
+                <div><span>MERCHANT</span><strong className="qr-merch">{shop.shop_name || shop.username}</strong></div>
+                <div className="qr-amt-row"><span>AMOUNT</span><strong>${payAmount} <small className="qr-amt-cur">{shop.currency}</small></strong></div>
               </div>
-              <div className="qr-divider" />
               <div className="qr-box">
                 <div className={isKaidoStore ? 'kaido-qr-frame' : ''} style={{ position: 'relative', width: isKaidoStore ? 300 : 195, height: isKaidoStore ? 300 : 195 }}>
                   {payment.qr_code_url && !qrFailed ? (
@@ -315,6 +313,7 @@ export default function Checkout() {
                   )}
                 </div>
               </div>
+              {checking && <div className="dz-payment-waiting"><i aria-hidden="true" /> {t('waitingPayment')}</div>}
             </div>
           </div>
 
@@ -324,11 +323,7 @@ export default function Checkout() {
           </div>
 
           {/* Payment status */}
-          {checking ? (
-            <div className="flex items-center justify-center gap-3 bg-blue-50 border border-blue-100 rounded-xl py-3 text-sm text-[var(--primary)] font-semibold w-full mt-6">
-              <Spinner /> {t('waitingPayment')}
-            </div>
-          ) : (
+          {!checking && (
             <p className="text-center text-xs text-gray-400 dark:text-gray-500 flex items-center justify-center gap-1 mt-6">
               <FiLock className="w-3.5 h-3.5" /> {t('autoCheck')}
             </p>

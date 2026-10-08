@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiCalendar, FiCheckCircle, FiCreditCard, FiDollarSign, FiEdit2, FiEye, FiEyeOff, FiKey, FiList, FiLogOut, FiSave, FiUser, FiX } from 'react-icons/fi';
+import { FiCalendar, FiCheckCircle, FiCreditCard, FiDollarSign, FiEdit2, FiEye, FiEyeOff, FiKey, FiList, FiLogOut, FiPlus, FiSave, FiShield, FiUser, FiX } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
 import { useLanguage } from '../i18n';
 import { fullUrl, getMyOrders, getMyWallet, topUpWallet, updateMyProfile, changeMyPassword, uploadMyAvatar, verifyPayment } from '../api';
 import CustomerAuth from '../components/CustomerAuth';
 
-const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
-const TOPUP_OPTIONS = [1, 2, 5, 10, 20, 50];
+const TOPUP_OPTIONS = [5, 10, 20, 50, 100];
 
 export default function Profile() {
   const { shop } = useShop();
@@ -272,35 +271,47 @@ export default function Profile() {
       </div>
 
       {shop.template_type === 'account' && (
-        <section id="top-up" className="wallet-topup-card mb-6">
-          <div className="wallet-topup-layout">
-            <aside className="wallet-topup-payment-panel">
-              <header className="wallet-topup-header">
-                <FiCreditCard aria-hidden="true" />
-                <div><p>Current Balance · ប្រាក់ក្នុងកាបូប</p><strong>${Number(wallet.balance || 0).toFixed(2)}</strong></div>
-              </header>
-              <div className="wallet-checkout-heading"><FiCheckCircle /><span>Payment &amp; Checkout</span></div>
-              <div className="wallet-total-row"><span>Amount to Pay · ចំនួនត្រូវបង់</span><strong>${Number(topupAmount || 0).toFixed(2)}</strong></div>
-              <p className="wallet-payment-label">Payment Method · វិធីបង់ប្រាក់</p>
-              <button type="button" className="wallet-payment-option wallet-payment-selected" aria-pressed="true">
-                <span className="wallet-aba-mark"><img src={ABA_LOGO_URL} alt="ABA KHQR" /></span><span><strong>ABA KHQR</strong><small>Scan to pay with any banking app</small></span><i>✓</i>
-              </button>
-              <button type="button" onClick={startTopup} disabled={topupBusy} className="wallet-pay-button">{topupBusy ? 'Preparing payment...' : `Place Top Up · $${Number(topupAmount || 0).toFixed(2)}`}</button>
-              <p className="wallet-topup-note">ដាក់ប្រាក់ចាប់ពី $0.10 ដល់ $1,000.00។ ប្រាក់នឹងចូលកាបូបក្រោយពេលបង់រួច។</p>
-              {topup && <div className="wallet-topup-qr"><p>Scan the ABA KHQR below, then confirm your payment.</p>{topup.payment?.qr_code_url && <img src={fullUrl(topup.payment.qr_code_url)} alt="ABA KHQR payment QR" />}<button type="button" onClick={confirmTopup}>Confirm top-up</button></div>}
-            </aside>
-            <div className="wallet-topup-package-panel">
-              <div className="wallet-package-heading"><i aria-hidden="true" /><div><span>TOP UP · ដាក់ប្រាក់</span><h2>Choose Top Up Amount</h2><p>ជ្រើសរើសចំនួនទឹកប្រាក់ដែលអ្នកចង់ដាក់ចូលកាបូប</p></div></div>
-              <div className="wallet-amount-grid">
-                {TOPUP_OPTIONS.map((amount) => (
-                  <button key={amount} type="button" onClick={() => setTopupAmount(String(amount))} className={Number(topupAmount) === amount ? 'wallet-amount-selected' : ''}>
-                    <FiDollarSign aria-hidden="true" /><strong>${amount}</strong><span>{amount === 10 ? 'Popular' : amount === 50 ? 'Best value' : 'Top up'}</span>
-                  </button>
-                ))}
-              </div>
-              <label className="wallet-custom-amount"><span>OR CUSTOM AMOUNT (USD) · ចំនួនទឹកប្រាក់ផ្សេង</span><div><b><FiDollarSign /></b><input type="number" min="0.10" max="1000" step="0.10" value={topupAmount} onChange={(event) => setTopupAmount(event.target.value)} placeholder="e.g. 5.00" aria-label="Custom top-up amount" /></div></label>
-              <label className="wallet-topup-telegram"><span>TELEGRAM USERNAME * · សម្រាប់ទាក់ទងអ្នក</span><input required value={topupTelegram} onChange={(event) => setTopupTelegram(event.target.value)} placeholder="@username" autoCapitalize="none" /></label>
+        <section id="top-up" className="dz-wallet-section mb-6">
+          <div className="balance-card dz-balance-card">
+            <div className="balance-left">
+              <span className="balance-label"><FiCreditCard aria-hidden="true" /> Account Balance</span>
+              <strong className="balance-amount">${Number(wallet.balance || 0).toFixed(2)}</strong>
+              <span className="balance-hint">Used to purchase products</span>
             </div>
+            <a href="#top-up-form" className="dz-deposit-button"><FiPlus aria-hidden="true" /> Deposit</a>
+          </div>
+
+          <div id="top-up-form" className="wallet-topup-card dz-deposit-card">
+            <header className="dz-deposit-heading">
+              <span className="dz-qr-symbol" aria-hidden="true">▦</span>
+              <div><h2>Deposit with KHQR</h2><p>Add funds securely with any Cambodian banking app that supports KHQR</p></div>
+            </header>
+
+            {!topup ? (
+              <div className="dz-deposit-form">
+                <label className="wallet-custom-amount dz-amount-field"><span>DEPOSIT AMOUNT</span><div><b><FiDollarSign /></b><input type="number" min="0.10" max="1000" step="0.10" value={topupAmount} onChange={(event) => setTopupAmount(event.target.value)} placeholder="0.00" aria-label="Custom top-up amount" /><em>USD</em></div></label>
+                <div className="wallet-amount-grid dz-amount-presets">
+                  {TOPUP_OPTIONS.map((amount) => (
+                    <button key={amount} type="button" onClick={() => setTopupAmount(String(amount))} className={Number(topupAmount) === amount ? 'wallet-amount-selected' : ''}>
+                      <strong>${amount}</strong>
+                    </button>
+                  ))}
+                </div>
+                <label className="wallet-topup-telegram"><span>TELEGRAM USERNAME * · សម្រាប់ទាក់ទងអ្នក</span><input required value={topupTelegram} onChange={(event) => setTopupTelegram(event.target.value)} placeholder="@username" autoCapitalize="none" /></label>
+                <button type="button" onClick={startTopup} disabled={topupBusy} className="wallet-pay-button dz-generate-button"><span aria-hidden="true">▦</span>{topupBusy ? 'Preparing payment...' : 'Generate QR Code'}</button>
+                <p className="wallet-topup-note dz-secure-note"><FiShield aria-hidden="true" /> Secure payment verified by Bakong</p>
+              </div>
+            ) : (
+              <div className="wallet-topup-qr dz-topup-qr-card">
+                <div className="dz-khqr-band"><span><b aria-hidden="true">▦</b> KHQR Deposit</span><time>05:00</time></div>
+                <div className="dz-khqr-body">
+                  <div className="dz-khqr-meta"><div><span>MERCHANT</span><strong>{shop.shop_name || shop.username}</strong></div><div><span>AMOUNT</span><strong>${Number(topupAmount || 0).toFixed(2)} <small>{shop.currency || 'USD'}</small></strong></div></div>
+                  {topup.payment?.qr_code_url && <div className="dz-khqr-qr-frame"><img src={fullUrl(topup.payment.qr_code_url)} alt="ABA KHQR payment QR" /></div>}
+                  <div className="dz-payment-waiting"><i aria-hidden="true" /> Waiting for payment...</div>
+                  <button type="button" onClick={confirmTopup} className="dz-confirm-payment">I've paid — Check payment</button>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}

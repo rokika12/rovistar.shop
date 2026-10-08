@@ -116,7 +116,7 @@ export default function ShopHeader() {
   };
 
   return (
-    <header className={`store-header ${isKaidoStore ? 'kaido-store-header' : ''} ${isRovistarStore ? 'rovistar-glass-header' : ''}`}>
+    <header className={`store-header ${!isLoggedIn ? 'store-header-logged-out' : ''} ${isKaidoStore ? 'kaido-store-header' : ''} ${isRovistarStore ? 'rovistar-glass-header' : ''}`}>
       <div className="store-header-inner">
         <Link to={base} onClick={closePanels} className={`store-brand ${isKaidoStore ? 'store-brand-kaido' : ''}`} aria-label={`${shop.shop_name || shop.username} home`}>
           <ShopLogo shop={shop} className="h-10 w-10 rounded-2xl" textClassName="hidden" />
@@ -137,22 +137,23 @@ export default function ShopHeader() {
             ) : <button type="button" onClick={toggleLanguage} className="store-language-toggle" aria-label="Switch language"><FiGlobe /><span>{lang === 'kh' ? 'ខ្មែរ' : (lang === 'zh' ? '中文' : 'EN')}</span></button>}
             {isRovistarStore && <Link to={`${base}/information`} className="store-information-toggle glass-action"><FiFileText /><span>{t('importantInformation')}</span></Link>}
           </div>
-          <div className="store-account-menu-wrap" ref={accountMenuRef}>
-            <button
-              type="button"
-              onClick={() => {
-                if (!isLoggedIn) {
-                  setFullLoginOpen(true);
-                  return;
-                }
-                setAccountOpen(!accountOpen);
-              }}
-              className={`store-account-trigger store-account-avatar-trigger glass-action ${isRovistarStore ? 'rounded-full' : ''} ${accountOpen ? 'store-account-trigger-open' : ''}`}
-              aria-expanded={accountOpen}
-              aria-label={isLoggedIn ? `${displayName} account` : 'Open account'}
-            >
-              <span className="store-avatar">{isLoggedIn ? (customerAvatar ? <img src={customerAvatar} alt="Your account" /> : customerInitial) : <FiUser />}</span>
-            </button>
+          <div className={`store-account-menu-wrap ${!isLoggedIn ? 'store-auth-actions-wrap' : ''}`} ref={accountMenuRef}>
+            {!isLoggedIn ? (
+              <div className="store-auth-actions" aria-label="Account actions">
+                <button type="button" className="store-login-button" onClick={() => setFullLoginOpen(true)}>Login</button>
+                <button type="button" className="store-signup-button" onClick={() => setFullLoginOpen(true)}>Sign Up</button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setAccountOpen(!accountOpen)}
+                className={`store-account-trigger store-account-avatar-trigger glass-action ${isRovistarStore ? 'rounded-full' : ''} ${accountOpen ? 'store-account-trigger-open' : ''}`}
+                aria-expanded={accountOpen}
+                aria-label={`${displayName} account`}
+              >
+                <span className="store-avatar">{customerAvatar ? <img src={customerAvatar} alt="Your account" /> : customerInitial}</span>
+              </button>
+            )}
 
             {accountOpen && (
               <div className="store-account-menu" role="dialog" aria-label="Account menu">
