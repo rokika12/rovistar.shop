@@ -2428,245 +2428,215 @@ body {
   .telegram-gift-menu { width: calc(100% - 1.5rem); margin-top: .75rem; }.telegram-gift-menu > span { display: none; }
   .telegram-gift-showcase { width: calc(100% - 1.5rem); margin-top: 1rem; border-radius: 1.25rem; padding: .9rem; }.telegram-gift-showcase-heading { align-items: flex-start; flex-direction: column; }.telegram-gift-delivery-note { width: 100%; }.telegram-gift-grid { display: flex; margin-right: -.9rem; overflow-x: auto; padding: 0 .9rem .45rem 0; scroll-snap-type: x mandatory; scrollbar-width: none; }.telegram-gift-grid::-webkit-scrollbar { display: none; }.telegram-gift-card { flex: 0 0 min(78vw, 17rem); scroll-snap-align: start; }.telegram-gift-card:hover { transform: none; }
 }
-/* ============================================================
-   DZ PREMIUM STORE STYLE — scoped to the "rovistar" shop ONLY.
-   Every selector is prefixed with .dz-rovi-shell so this never
-   affects kaidostore, domi, or any other shop on the platform.
-   The .dz-rovi-shell class is added in ShopLayout.js only when
-   shop.username === 'rovistar'. Append this block to index.css.
-   ============================================================ */
-
+/* DZ Premium Store reskin. Every rule stays inside the Rovistar-only shell. */
 .dz-rovi-shell {
-  --dz-primary: #00BCD4;
-  --dz-primary-dark: #0097A7;
-  --dz-blue: #2196F3;
-  --dz-blue-dark: #1565C0;
-  --dz-text: #1E293B;
-  --dz-text-2: #64748B;
-  --dz-bg: #F8FAFC;
-  --dz-border: #E2E8F0;
-  --dz-grad: linear-gradient(135deg,#00BCD4 0%,#2196F3 100%);
-  --primary: #00BCD4 !important;
-  --secondary: #2196F3 !important;
-  --brand-blue: #00BCD4 !important;
-  --brand-pink: #2196F3 !important;
-  --market-blue: #00BCD4 !important;
-  --market-blue-dark: #0097A7 !important;
-  --market-ink: #1E293B !important;
-  --market-mist: #F8FAFC !important;
-  --market-line: #E2E8F0 !important;
+  --dz-primary: #00bcd4;
+  --dz-primary-dark: #0097a7;
+  --dz-blue: #2196f3;
+  --dz-text: #1a1a2e;
+  --dz-text-secondary: #555b6e;
+  --dz-muted: #9aa3b2;
+  --dz-bg: #f5f9fc;
+  --dz-border: #dde3ec;
+  --dz-gradient: linear-gradient(135deg, #00bcd4 0%, #2196f3 100%);
+  --primary: #00bcd4 !important;
+  --secondary: #2196f3 !important;
+  --brand-blue: #00bcd4 !important;
+  --brand-pink: #2196f3 !important;
+  --market-blue: #00bcd4 !important;
+  --market-blue-dark: #0097a7 !important;
+  --market-ink: #1a1a2e !important;
+  --market-mist: #f5f9fc !important;
+  --market-line: #dde3ec !important;
   background: var(--dz-bg) !important;
-  font-family: 'Concert One','Kantumruy Pro',Inter,system-ui,sans-serif;
+  color: var(--dz-text);
+  font-family: 'Concert One', 'Battambang', 'Kantumruy Pro', sans-serif;
 }
 
-/* ---------- Header / navbar ---------- */
+.dz-rovi-shell .store-sticky-shell { padding: 0 !important; box-shadow: 0 8px 28px rgba(19, 67, 94, .08); }
 .dz-rovi-shell .store-header,
 .dz-rovi-shell .rovistar-glass-header {
-  background: rgba(255,255,255,.94) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 1px 0 rgba(0,0,0,.07),0 6px 24px rgba(0,0,0,.06) !important;
+  position: relative;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: rgba(255, 255, 255, .94) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
 }
-.dz-rovi-shell .store-header::after,
-.dz-rovi-shell .rovistar-glass-header::after {
-  content: '';
+.dz-rovi-shell .store-header::after {
   position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 3px;
-  background: linear-gradient(90deg,#00bcd4,#2196f3,#00bcd4);
-  background-size: 200% 100%;
-  animation: dzNavShimmer 4s linear infinite;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: var(--dz-gradient);
+  content: '';
 }
-@keyframes dzNavShimmer { 0%{background-position:0 0} 100%{background-position:200% 0} }
-.dz-rovi-shell .store-header-inner { height: 64px; max-width: 1200px; }
+.dz-rovi-shell .store-header-inner { width: min(100%, 1200px); height: 84px !important; min-height: 84px !important; padding: 0 24px; }
+.dz-rovi-shell .store-brand { flex: 0 1 auto; gap: .75rem !important; }
+.dz-rovi-shell .store-brand > span:first-child { width: 3.5rem !important; height: 3.5rem !important; border: 0 !important; border-radius: 1rem !important; box-shadow: 0 5px 16px rgba(0, 151, 167, .2); }
 .dz-rovi-shell .store-brand-copy strong,
 .dz-rovi-shell .shop-brand-name {
-  font-family: 'Concert One',sans-serif !important;
-  background: var(--dz-grad) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
+  background: var(--dz-gradient);
   color: transparent !important;
-  letter-spacing: -.4px;
+  font-family: 'Concert One', 'Battambang', 'Kantumruy Pro', sans-serif !important;
+  font-size: 1.28rem !important;
+  letter-spacing: -.025em !important;
+  text-transform: none !important;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent !important;
 }
 .dz-rovi-shell .store-brand-copy small { display: none; }
+.dz-rovi-shell .store-header-actions { gap: .65rem !important; }
+.dz-rovi-shell .store-utility-switcher { height: auto; gap: .55rem; background: transparent !important; padding: 0; }
 .dz-rovi-shell .store-language-toggle,
 .dz-rovi-shell .store-information-toggle,
-.dz-rovi-shell .glass-action {
-  border: 1.5px solid var(--dz-border) !important;
-  background: #fff !important;
-  color: var(--dz-text-2) !important;
-  border-radius: 10px !important;
+.dz-rovi-shell .store-account-avatar-trigger,
+.dz-rovi-shell .dz-mobile-menu-trigger {
+  min-height: 46px !important;
+  height: 46px !important;
+  border: 1px solid rgba(255, 255, 255, .82) !important;
+  border-radius: 14px !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .9), rgba(225, 247, 250, .74)) !important;
+  color: #176173 !important;
+  box-shadow: 0 8px 24px rgba(10, 116, 142, .12), inset 0 1px rgba(255, 255, 255, .95) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
-.dz-rovi-shell .store-account-trigger,
-.dz-rovi-shell .store-account-avatar-trigger {
-  border: 1.5px solid var(--dz-border) !important;
-  background: #fff !important;
-  border-radius: 12px !important;
-}
-.dz-rovi-shell .store-avatar { background: var(--dz-grad) !important; }
+.dz-rovi-shell .store-language-toggle:hover,
+.dz-rovi-shell .store-information-toggle:hover,
+.dz-rovi-shell .store-account-avatar-trigger:hover,
+.dz-rovi-shell .dz-mobile-menu-trigger:hover { border-color: #74dce8 !important; box-shadow: 0 10px 26px rgba(0, 188, 212, .2) !important; transform: translateY(-2px); }
+.dz-rovi-shell .store-account-avatar-trigger { width: 46px !important; padding: .25rem !important; }
+.dz-rovi-shell .store-avatar { width: 100% !important; height: 100% !important; background: var(--dz-gradient) !important; color: #fff !important; }
+.dz-rovi-shell .dz-mobile-menu-trigger { display: none; width: 52px; align-items: center; justify-content: center; }
+.dz-rovi-shell .dz-mobile-menu-trigger svg { width: 1.6rem; height: 1.6rem; }
+.dz-rovi-shell .store-language-menu,
+.dz-rovi-shell .store-account-menu { border-color: var(--dz-border); border-radius: 1rem; box-shadow: 0 18px 48px rgba(21, 48, 66, .16); }
+.dz-rovi-shell .store-language-option:hover,
+.dz-rovi-shell .store-language-option.is-active { background: #e0f7fa; color: var(--dz-primary-dark); }
 
-/* ---------- Section headings ---------- */
-.dz-rovi-shell .store-section-heading h2,
-.dz-rovi-shell .store-section-heading h2::before {
-  font-family: 'Concert One',sans-serif !important;
-  color: var(--dz-text) !important;
-}
-.dz-rovi-shell .store-section-heading h2 { font-size: 22px; }
+.dz-rovi-shell .dz-mobile-nav { position: fixed; z-index: 150; inset: 0; }
+.dz-rovi-shell .dz-mobile-nav-backdrop { position: absolute; inset: 0; width: 100%; background: rgba(26, 42, 52, .3); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); }
+.dz-rovi-shell .dz-mobile-nav-panel { position: absolute; top: 0; right: 0; display: flex; width: min(86vw, 420px); height: 100dvh; flex-direction: column; overflow-y: auto; background: rgba(255, 255, 255, .98); padding: 1.5rem; box-shadow: -16px 0 45px rgba(15, 47, 62, .18); }
+.dz-rovi-shell .dz-mobile-nav-brand { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.dz-rovi-shell .dz-mobile-nav-brand > a { display: flex; min-width: 0; align-items: center; gap: .75rem; }
+.dz-rovi-shell .dz-mobile-nav-brand strong { overflow: hidden; color: var(--dz-text); font-size: 1.25rem; text-overflow: ellipsis; white-space: nowrap; }
+.dz-rovi-shell .dz-mobile-nav-brand > button { display: grid; width: 3rem; height: 3rem; place-items: center; border-radius: 1rem; background: #eff6f8; color: #536675; }
+.dz-rovi-shell .dz-mobile-auth-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: 1.4rem; border-bottom: 1px solid var(--dz-border); padding-bottom: 1.4rem; }
+.dz-rovi-shell .dz-mobile-auth-actions button { display: flex; min-height: 3.25rem; align-items: center; justify-content: center; gap: .5rem; border-radius: 1rem; background: #eff6f8; color: var(--dz-text); font-weight: 700; }
+.dz-rovi-shell .dz-mobile-auth-actions button:last-child { background: var(--dz-gradient); color: #fff; }
+.dz-rovi-shell .dz-mobile-nav-links { display: grid; gap: .35rem; margin-top: 1.25rem; }
+.dz-rovi-shell .dz-mobile-nav-links > span { margin: 1rem .7rem .25rem; color: #a6b4bd; font-size: .72rem; font-weight: 800; letter-spacing: .16em; }
+.dz-rovi-shell .dz-mobile-nav-links a { display: flex; min-height: 3.6rem; align-items: center; gap: .75rem; border-radius: 1rem; padding: 0 1rem; color: #243648; font-size: 1rem; font-weight: 700; }
+.dz-rovi-shell .dz-mobile-nav-links a:first-of-type { background: #e0f7fa; color: #087e86; }
+.dz-rovi-shell .dz-mobile-locale { display: flex; min-height: 4rem; align-items: center; gap: .8rem; margin-top: auto; border: 1.5px solid var(--dz-border); border-radius: 1.15rem; padding: 0 1.15rem; color: var(--dz-text); font-weight: 700; }
+.dz-rovi-shell .dz-mobile-locale span { flex: 1; text-align: left; }
+
+.dz-rovi-shell h1,
+.dz-rovi-shell h2,
+.dz-rovi-shell h3,
+.dz-rovi-shell .store-section-heading { font-family: 'Concert One', 'Battambang', 'Kantumruy Pro', sans-serif; }
+html[lang='km'] .dz-rovi-shell h1,
+html[lang='km'] .dz-rovi-shell h2,
+html[lang='km'] .dz-rovi-shell h3,
+html[lang='km'] .dz-rovi-shell .store-section-heading { color: var(--dz-primary) !important; font-family: 'Battambang', 'Kantumruy Pro', sans-serif !important; font-weight: 900; }
+.dz-rovi-shell .store-section-heading h2 { color: var(--dz-text); font-size: clamp(1.45rem, 3vw, 2rem); }
 .dz-rovi-shell .store-section-kicker { color: var(--dz-primary-dark) !important; }
-
-/* ---------- Category filter pills ---------- */
-.dz-rovi-shell .store-category-nav { position: relative !important; top: auto !important; background: transparent !important; border: 0 !important; }
-.dz-rovi-shell .store-category-pill {
-  border: 1.5px solid var(--dz-border) !important;
-  background: #fff !important;
-  color: var(--dz-text-2) !important;
-  border-radius: 20px !important;
-}
+.dz-rovi-shell .store-category-nav { position: relative !important; top: auto !important; border: 0 !important; background: transparent !important; }
+.dz-rovi-shell .store-category-pill { min-height: 3rem; border: 1.5px solid var(--dz-border) !important; border-radius: 999px !important; background: #fff !important; color: var(--dz-text-secondary) !important; }
 .dz-rovi-shell .store-category-pill-active,
-.dz-rovi-shell .store-category-pill-active:hover {
-  background: var(--dz-grad) !important;
-  border-color: transparent !important;
-  color: #fff !important;
-  box-shadow: 0 2px 8px rgba(0,188,212,.25) !important;
-}
+.dz-rovi-shell .store-category-pill-active:hover { border-color: transparent !important; background: var(--dz-gradient) !important; color: #fff !important; box-shadow: 0 6px 16px rgba(0, 188, 212, .24) !important; }
 
-/* ---------- Product cards (popular variant) ---------- */
-.dz-rovi-shell .store-product-card {
-  border: 1px solid #eef0f3 !important;
-  border-radius: 16px !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,.07) !important;
-  background: #fff !important;
-  overflow: hidden;
-}
-.dz-rovi-shell .store-product-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--dz-primary) !important;
-  box-shadow: 0 8px 24px rgba(0,188,212,.14) !important;
-}
-.dz-rovi-shell .store-product-image { aspect-ratio: 1.35/1; }
-.dz-rovi-shell .store-hot-badge {
-  background: linear-gradient(135deg,#ff6b35,#ff3d71) !important;
-  color: #fff !important;
-  font-size: 9px; font-weight: 800; letter-spacing: .5px;
-  border-radius: 20px; padding: 2px 8px;
-}
-.dz-rovi-shell .store-sale-badge {
-  background: var(--dz-blue) !important; color: #fff !important;
-  border-radius: 20px; padding: 2px 8px;
-}
-.dz-rovi-shell .store-product-card p.text-blue-600,
-.dz-rovi-shell .store-product-card .text-blue-600 {
-  color: var(--dz-primary) !important;
-}
-.dz-rovi-shell .store-product-card h3 {
-  font-family: 'Concert One',sans-serif;
-  color: var(--dz-text) !important;
-}
-.dz-rovi-shell .store-product-card .text-blue-700,
-.dz-rovi-shell .store-product-card .text-2xl {
-  color: #0284c7 !important;
-}
-/* Buy / View button → teal gradient pill */
-.dz-rovi-shell .store-product-card a.bg-blue-600 {
-  background: var(--dz-grad) !important;
-  border-radius: 999px !important;
-  font-weight: 800;
-  box-shadow: 0 4px 14px rgba(0,188,212,.3);
-}
-.dz-rovi-shell .store-product-card a.bg-blue-600:hover { opacity: .92; }
+.dz-rovi-shell .dz-product-card { display: flex; height: 100%; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid #eef0f3 !important; border-radius: 16px !important; background: #fff !important; box-shadow: 0 2px 10px rgba(0, 0, 0, .07) !important; transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease; }
+.dz-rovi-shell .dz-product-card:hover { border-color: var(--dz-primary) !important; box-shadow: 0 8px 24px rgba(0, 188, 212, .14) !important; transform: translateY(-3px); }
+.dz-rovi-shell .dz-product-art { position: relative; display: block; }
+.dz-rovi-shell .dz-product-card .store-product-image { aspect-ratio: 1.35 / 1; overflow: hidden; background: linear-gradient(135deg, #f0f7ff, #e0f7fa); }
+.dz-rovi-shell .dz-product-card .store-product-image::after { display: none; }
+.dz-rovi-shell .dz-product-card .store-product-image img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+.dz-rovi-shell .dz-product-card:hover .store-product-image img { transform: scale(1.035); }
+.dz-rovi-shell .dz-product-placeholder { display: grid; width: 100%; height: 100%; place-items: center; color: var(--dz-primary); font-size: 2.25rem; }
+.dz-rovi-shell .store-hot-badge,
+.dz-rovi-shell .store-sale-badge { position: absolute; z-index: 2; top: .55rem; border-radius: 999px; padding: .2rem .55rem; color: #fff !important; font-size: .58rem; font-weight: 800; letter-spacing: .05em; }
+.dz-rovi-shell .store-hot-badge { left: .55rem; background: linear-gradient(135deg, #ff6b35, #ff3d71) !important; }
+.dz-rovi-shell .store-sale-badge { right: .55rem; background: var(--dz-gradient) !important; }
+.dz-rovi-shell .dz-product-info { flex: 1; padding: .75rem .8rem .4rem; }
+.dz-rovi-shell .dz-product-info h3 { display: -webkit-box; min-height: 2.35rem; overflow: hidden; margin: 0; color: var(--dz-text) !important; font-size: .95rem; font-weight: 700; line-height: 1.25; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.dz-rovi-shell .dz-product-price { display: flex; min-height: 1.5rem; align-items: baseline; gap: .28rem; margin-top: .45rem; }
+.dz-rovi-shell .dz-product-price span { color: var(--dz-muted); font-family: 'Kantumruy Pro', sans-serif; font-size: .66rem; }
+.dz-rovi-shell .dz-product-price strong { color: #0284c7; font-size: 1rem; font-weight: 800; }
+.dz-rovi-shell .dz-product-price del { color: #aab2bd; font-size: .65rem; }
+.dz-rovi-shell .dz-product-buy { display: flex; min-height: 2.5rem; align-items: center; justify-content: space-between; gap: .5rem; padding: .55rem .8rem .75rem; color: var(--dz-primary) !important; font-size: .78rem; font-weight: 700; }
+.dz-rovi-shell .dz-product-buy svg { transition: transform .2s ease; }
+.dz-rovi-shell .dz-product-card:hover .dz-product-buy svg { transform: translateX(4px); }
+.dz-rovi-shell .dz-product-sold { color: #e24b5a !important; }
 
-/* ---------- Flash sale + promo ---------- */
-.dz-rovi-shell .flash-sale-card,
-.dz-rovi-shell .flash-sale-discount {
-  border-color: var(--dz-primary) !important;
-}
-.dz-rovi-shell .flash-sale-discount { background: linear-gradient(135deg,#ff6b35,#ff3d71) !important; }
-
-/* ---------- Primary buttons / links platform-wide (within rovi only) ---------- */
 .dz-rovi-shell .btn-primary,
-.dz-rovi-shell a.btn-primary {
-  background: var(--dz-grad) !important; color: #fff !important; border: 0 !important;
-}
+.dz-rovi-shell a.btn-primary { border: 0 !important; background: var(--dz-gradient) !important; color: #fff !important; }
+.dz-rovi-shell .slick-dots li button::before,
+.dz-rovi-shell .slick-prev::before,
+.dz-rovi-shell .slick-next::before { color: var(--dz-primary) !important; }
 
-/* ---------- Slideshow banner ---------- */
-.dz-rovi-shell .slick-dots li button:before { color: var(--dz-primary) !important; }
-.dz-rovi-shell .slick-prev:before,
-.dz-rovi-shell .slick-next:before { color: var(--dz-primary) !important; }
-
-/* ---------- Footer → DZ style with contact / community / skyline ---------- */
-.dz-rovi-shell .shop-footer {
-  margin-top: 32px;
-  border: 0 !important;
-  background: #fff !important;
-  color: var(--dz-text-2) !important;
-}
-.dz-rovi-shell .shop-footer .shop-brand-heading {
-  font-family: 'Concert One',sans-serif;
-  color: var(--dz-text) !important;
-  position: relative;
-  padding-left: 14px;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  font-size: 13px;
-}
-.dz-rovi-shell .shop-footer .shop-brand-heading::before {
-  content: '';
-  position: absolute; left: 0; top: 2px;
-  width: 4px; height: 16px; border-radius: 2px;
-  background: var(--dz-grad);
-}
-.dz-rovi-shell .shop-footer .shop-brand-name {
-  -webkit-text-fill-color: transparent !important;
-}
+.dz-rovi-shell .shop-footer { margin-top: 2rem; border: 0 !important; background: #fff !important; color: var(--dz-text-secondary) !important; }
+.dz-rovi-shell .shop-footer .shop-brand-heading { position: relative; color: var(--dz-text) !important; font-family: 'Concert One', 'Battambang', 'Kantumruy Pro', sans-serif; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; }
+.dz-rovi-shell .shop-footer .shop-brand-heading::before { position: absolute; top: 0; left: -.75rem; width: 4px; height: 1.15rem; border-radius: 999px; background: var(--dz-gradient); content: ''; }
 .dz-rovi-shell .shop-footer a:hover { color: var(--dz-primary) !important; }
-.dz-rovi-shell .shop-payment-acceptance,
-.dz-rovi-shell .shop-payment-brand-row { border-color: var(--dz-border) !important; }
+.dz-rovi-shell .shop-payment-acceptance { border-color: var(--dz-primary) !important; }
+.dz-rovi-shell .dz-footer-landscape { position: relative; display: flex; width: 100%; min-height: clamp(210px, 28vw, 390px); align-items: flex-end; justify-content: center; overflow: hidden; background-color: #df8c35; background-position: center bottom; background-repeat: no-repeat; background-size: cover; }
+.dz-rovi-shell .dz-footer-landscape::after { position: absolute; inset: 45% 0 0; background: linear-gradient(180deg, transparent, rgba(28, 12, 8, .72)); content: ''; }
+.dz-rovi-shell .dz-footer-copyright { position: relative; z-index: 1; display: flex; width: min(100%, 1200px); align-items: center; justify-content: space-between; gap: 1rem; padding: 1.5rem 1.25rem; color: #fff8df; font-family: 'Kantumruy Pro', sans-serif; font-size: .78rem; font-weight: 700; text-shadow: 0 2px 8px rgba(0, 0, 0, .8); }
+.dz-rovi-shell .dz-footer-copyright span:last-child { display: inline-flex; align-items: center; gap: .4rem; }
 
-/* Sunset Cambodia-skyline strip at the very bottom of the footer */
-.dz-rovi-shell .shop-footer .border-t {
-  position: relative;
-  border: 0 !important;
-  margin-top: 24px;
-  padding-top: 0 !important;
-  height: 116px;
-  background: linear-gradient(180deg,#f8b75f 0%,#ea7a54 50%,#24354f 51%,#101827 100%);
-  display: flex; align-items: flex-end; justify-content: center;
-  overflow: hidden;
-}
-.dz-rovi-shell .shop-footer .border-t::before {
-  content: '';
-  position: absolute; left: 0; right: 0; bottom: 0; height: 46px;
-  opacity: .85;
-  background: #101827;
-  clip-path: polygon(0 100%,0 55%,4% 55%,4% 0,8% 0,8% 70%,18% 70%,18% 25%,23% 25%,23% 56%,34% 56%,34% 8%,39% 8%,39% 74%,48% 74%,48% 30%,55% 30%,55% 57%,66% 57%,66% 14%,71% 14%,71% 72%,83% 72%,83% 35%,88% 35%,88% 60%,100% 60%,100% 100%);
-}
-.dz-rovi-shell .shop-footer .border-t > * {
-  position: relative; z-index: 1;
-  color: #ffe6b4 !important;
-  text-shadow: 0 1px 6px #000;
-  background: transparent !important;
-  border: 0 !important;
-  padding-bottom: 14px;
+.dz-rovi-shell.dz-rovi-auth-modal { overflow-y: auto; background: radial-gradient(ellipse at 15% 15%, rgba(255, 255, 255, .75), transparent 30%), linear-gradient(165deg, #d6eef9, #b9d9f2 45%, #e4f3fa) !important; padding: 1.5rem; }
+.dz-rovi-shell .dz-welcome-card { width: min(100%, 430px); min-height: 0; border: 1px solid rgba(255, 255, 255, .82); border-radius: 24px; background: rgba(255, 255, 255, .88); padding: 2.5rem 2.25rem 2.25rem; box-shadow: 0 18px 65px rgba(20, 80, 140, .18); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
+.dz-rovi-shell .dz-welcome-logo { display: block; width: 4.5rem !important; height: 4.5rem !important; margin: 0 auto 1.25rem; border-radius: 1.25rem !important; box-shadow: 0 5px 20px rgba(0, 120, 180, .18); }
+.dz-rovi-shell .dz-welcome-card h2 { margin: 0; color: var(--dz-text) !important; font-family: 'Concert One', 'Battambang', 'Kantumruy Pro', sans-serif; font-size: 2rem; text-align: center; }
+.dz-rovi-shell .dz-welcome-card > p { margin: .45rem 0 1.65rem; color: var(--dz-muted); font-size: .9rem; text-align: center; }
+.dz-rovi-shell .store-full-login-close { top: 1rem; right: 1rem; border-color: var(--dz-border); background: rgba(255, 255, 255, .75); }
+.dz-rovi-shell .dz-google-button { display: flex; min-height: 44px; width: 100%; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid var(--dz-border); border-radius: 12px; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .05); }
+.dz-rovi-shell .dz-google-button > div,
+.dz-rovi-shell .dz-google-button iframe { max-width: 100% !important; }
+.dz-rovi-shell .dz-google-error { margin: .5rem 0 0; color: #dc2626; font-size: .72rem; }
+.dz-rovi-shell .dz-auth-divider { display: flex; align-items: center; gap: .75rem; margin: 1rem 0; color: var(--dz-muted); font-size: .78rem; }
+.dz-rovi-shell .dz-auth-divider::before,
+.dz-rovi-shell .dz-auth-divider::after { height: 1px; flex: 1; background: var(--dz-border); content: ''; }
+.dz-rovi-shell .dz-auth-form { display: grid; gap: .9rem; }
+.dz-rovi-shell .dz-auth-field > label { display: flex; align-items: center; gap: .4rem; color: var(--dz-text-secondary); font-size: .72rem; font-weight: 700; letter-spacing: .04em; }
+.dz-rovi-shell .dz-auth-input { min-height: 3rem; border: 1.5px solid var(--dz-border) !important; border-radius: 11px !important; background: rgba(255, 255, 255, .9) !important; padding: .75rem .9rem !important; color: var(--dz-text) !important; }
+.dz-rovi-shell .dz-auth-password .dz-auth-input { padding-right: 2.8rem !important; }
+.dz-rovi-shell .dz-auth-input:focus { border-color: var(--dz-primary) !important; box-shadow: 0 0 0 3.5px rgba(0, 188, 212, .12) !important; }
+.dz-rovi-shell .dz-auth-eye { right: .85rem; color: var(--dz-muted); }
+.dz-rovi-shell .dz-auth-options { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: .78rem; }
+.dz-rovi-shell .dz-remember { display: flex; align-items: center; gap: .4rem; color: var(--dz-text-secondary); }
+.dz-rovi-shell .dz-remember input { width: 1rem; height: 1rem; accent-color: var(--dz-primary); }
+.dz-rovi-shell .dz-forgot,
+.dz-rovi-shell .dz-auth-switch button { color: var(--dz-primary-dark); font-weight: 700; }
+.dz-rovi-shell .dz-signin-button { display: flex; min-height: 3.2rem; align-items: center; justify-content: center; gap: .55rem; margin-top: .15rem; border-radius: 12px; background: #1a1a2e; color: #fff; font-size: .94rem; font-weight: 700; box-shadow: 0 6px 18px rgba(26, 26, 46, .24); }
+.dz-rovi-shell .dz-signin-button:hover:not(:disabled) { background: #0f0f20; transform: translateY(-1px); }
+.dz-rovi-shell .dz-auth-switch { margin: 1.25rem 0 0; color: var(--dz-muted); font-size: .8rem; text-align: center; }
+.dz-rovi-shell .dz-signup-form .dz-auth-switch { margin-top: .25rem; }
+
+@media (max-width: 720px) {
+  .dz-rovi-shell .store-header-inner { height: 82px !important; min-height: 82px !important; padding: 0 1rem; }
+  .dz-rovi-shell .store-brand > span:first-child { width: 3rem !important; height: 3rem !important; }
+  .dz-rovi-shell .store-brand-copy strong { max-width: 8.5rem; font-size: 1rem !important; }
+  .dz-rovi-shell .store-header-actions > .store-utility-switcher,
+  .dz-rovi-shell .store-header-actions > .store-account-menu-wrap { display: none; }
+  .dz-rovi-shell .dz-mobile-menu-trigger { display: inline-flex; }
+  .dz-rovi-shell .dz-footer-copyright { flex-direction: column; justify-content: center; padding-bottom: calc(1.1rem + env(safe-area-inset-bottom)); text-align: center; }
+  .dz-rovi-shell .dz-footer-landscape { min-height: 260px; background-position: center bottom; }
+  .dz-rovi-shell.dz-rovi-auth-modal { align-items: flex-start; padding: 0; }
+  .dz-rovi-shell .dz-welcome-card { width: 100%; min-height: 100dvh; border: 0; border-radius: 0; padding: 4.5rem 1.5rem 2.5rem; box-shadow: none; }
+  .dz-rovi-shell .dz-welcome-logo { width: 4.75rem !important; height: 4.75rem !important; }
 }
 
-/* ---------- Auth card (Welcome Back) ---------- */
-.dz-rovi-shell .store-full-login-card,
-.dz-rovi-shell .store-account-login {
-  border-radius: 18px;
-}
-.dz-rovi-shell .store-full-login-card h2,
-.dz-rovi-shell .store-account-login-heading h2 {
-  font-family: 'Concert One',sans-serif;
-  color: var(--dz-text);
-}
-
-/* ---------- Headings use Concert One across the shop ---------- */
-.dz-rovi-shell h1, .dz-rovi-shell h2, .dz-rovi-shell h3 {
-  font-family: 'Concert One','Kantumruy Pro',sans-serif;
-}
-
-/* ---------- Responsive ---------- */
-@media (max-width: 768px) {
-  .dz-rovi-shell .store-header-inner { padding: 0 14px; }
+@media (max-width: 420px) {
+  .dz-rovi-shell .dz-product-info { padding: .65rem .65rem .3rem; }
+  .dz-rovi-shell .dz-product-info h3 { min-height: 2.15rem; font-size: .82rem; }
+  .dz-rovi-shell .dz-product-price strong { font-size: .9rem; }
+  .dz-rovi-shell .dz-product-buy { padding: .45rem .65rem .65rem; font-size: .7rem; }
+  .dz-rovi-shell .dz-mobile-nav-panel { width: 100%; }
 }

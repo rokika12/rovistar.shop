@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  FiBookmark, FiChevronDown, FiCreditCard, FiFileText, FiGlobe, FiLogOut, FiPackage, FiUser, FiX,
+  FiBookmark, FiChevronDown, FiCreditCard, FiFileText, FiGlobe, FiHome, FiLogOut, FiMenu, FiPackage, FiUser, FiX,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
@@ -19,6 +19,7 @@ export default function ShopHeader() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
   const [fullLoginOpen, setFullLoginOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState(customer?.wallet_balance || 0);
   const [isMyShop, setIsMyShop] = useState(false);
   const accountMenuRef = useRef(null);
@@ -85,6 +86,20 @@ export default function ShopHeader() {
       window.removeEventListener('mousedown', closeOnOutsideClick);
     };
   }, [languageOpen]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setMobileMenuOpen(false);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [mobileMenuOpen]);
 
   const closePanels = () => {
     setAccountOpen(false);
@@ -170,25 +185,60 @@ export default function ShopHeader() {
               </div>
             )}
           </div>
+          {isRovistarStore && <button type="button" className="dz-mobile-menu-trigger glass-action" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu" aria-expanded={mobileMenuOpen}><FiMenu /></button>}
         </div>
       </div>
-      {fullLoginOpen && createPortal(
-        <div className="store-full-login" role="dialog" aria-modal="true" aria-label="Sign in">
-          <div className="store-full-login-panel">
-            <div className="store-full-login-intro">
-              <ShopLogo shop={shop} className="h-14 w-14 rounded-2xl" textClassName="hidden" />
-              <p>WELCOME TO</p>
-              <h1>{shop.shop_name || shop.username}</h1>
-              <span>Sign in once to keep your orders, payment records, and account details together.</span>
+      {isRovistarStore && mobileMenuOpen && (
+        <div className="dz-mobile-nav" role="dialog" aria-modal="true" aria-label="Store menu">
+          <button type="button" className="dz-mobile-nav-backdrop" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu" />
+          <aside className="dz-mobile-nav-panel">
+            <div className="dz-mobile-nav-brand">
+              <Link to={base} onClick={() => setMobileMenuOpen(false)}><ShopLogo shop={shop} className="h-12 w-12 rounded-2xl" textClassName="hidden" /><strong>{shop.shop_name || shop.username}</strong></Link>
+              <button type="button" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu"><FiX /></button>
             </div>
-            <section className="store-full-login-card">
+            {!isLoggedIn && <div className="dz-mobile-auth-actions"><button type="button" onClick={() => { setMobileMenuOpen(false); setFullLoginOpen(true); }}><FiLogOut /> Login</button><button type="button" onClick={() => { setMobileMenuOpen(false); setFullLoginOpen(true); }}><FiUser /> Sign Up</button></div>}
+            <nav className="dz-mobile-nav-links" aria-label="Mobile navigation">
+              <span>MENU</span>
+              <Link to={base} onClick={() => setMobileMenuOpen(false)}><FiHome /> Home</Link>
+              <Link to={`${base}/products`} onClick={() => setMobileMenuOpen(false)}><FiPackage /> Products</Link>
+              <Link to={`${base}/my-orders`} onClick={() => setMobileMenuOpen(false)}><FiCreditCard /> My Orders</Link>
+              <span>INFORMATION</span>
+              <Link to={`${base}/information`} onClick={() => setMobileMenuOpen(false)}><FiFileText /> {t('importantInformation')}</Link>
+              {isLoggedIn && <Link to={`${base}/saved-information`} onClick={() => setMobileMenuOpen(false)}><FiBookmark /> ព័ត៌មានដែលបានរក្សាទុក</Link>}
+            </nav>
+            <button type="button" className="dz-mobile-locale" onClick={toggleLanguage}><FiGlobe /><span>{languageNames[lang]} / {shop.currency || 'USD'}</span><FiChevronDown /></button>
+          </aside>
+        </div>
+      )}
+      {fullLoginOpen && createPortal(
+        isRovistarStore ? (
+          <div className="store-full-login dz-rovi-shell dz-rovi-auth-modal" role="dialog" aria-modal="true" aria-label="Sign in">
+            <section className="store-full-login-card dz-welcome-card">
               <button type="button" onClick={() => setFullLoginOpen(false)} className="store-full-login-close" aria-label="Close sign in"><FiX /></button>
-              <h2>Sign in to your account</h2>
-              <p>Use your Rovistar account details to continue.</p>
+              <ShopLogo shop={shop} className="dz-welcome-logo" textClassName="hidden" />
+              <h2>Welcome Back</h2>
+              <p>Sign in to access your premium accounts</p>
               <CustomerAuth onSuccess={finishFullLogin} onOwnerSuccess={openOwnerDashboard} />
             </section>
           </div>
-        </div>,
+        ) : (
+          <div className="store-full-login" role="dialog" aria-modal="true" aria-label="Sign in">
+            <div className="store-full-login-panel">
+              <div className="store-full-login-intro">
+                <ShopLogo shop={shop} className="h-14 w-14 rounded-2xl" textClassName="hidden" />
+                <p>WELCOME TO</p>
+                <h1>{shop.shop_name || shop.username}</h1>
+                <span>Sign in once to keep your orders, payment records, and account details together.</span>
+              </div>
+              <section className="store-full-login-card">
+                <button type="button" onClick={() => setFullLoginOpen(false)} className="store-full-login-close" aria-label="Close sign in"><FiX /></button>
+                <h2>Sign in to your account</h2>
+                <p>Use your Rovistar account details to continue.</p>
+                <CustomerAuth onSuccess={finishFullLogin} onOwnerSuccess={openOwnerDashboard} />
+              </section>
+            </div>
+          </div>
+        ),
         document.body,
       )}
     </header>

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FiEye, FiEyeOff, FiUserPlus } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiLock, FiLogIn, FiMail, FiUserPlus } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 import { useShop } from '../contexts/ShopContext';
 import { useCustomer } from '../contexts/CustomerContext';
@@ -40,6 +40,7 @@ export default function CustomerAuth({ onSuccess, onOwnerSuccess }) {
   const { googleSignin, signin, signup } = useCustomer();
   const { login: ownerLogin } = useOwner();
   const { t } = useLanguage();
+  const isRovistarStore = shop?.username?.toLowerCase() === 'rovistar';
   const [mode, setMode] = useState('signin');
   const [busy, setBusy] = useState(false);
   const [googleError, setGoogleError] = useState('');
@@ -175,17 +176,17 @@ export default function CustomerAuth({ onSuccess, onOwnerSuccess }) {
     }
   };
 
-  const inputCls = 'mt-1 w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200';
+  const inputCls = `${isRovistarStore ? 'dz-auth-input ' : ''}mt-1 w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200`;
 
   // Password input with a show/hide (eye) toggle button.
   const passwordInput = (value, onChange, show, setShow) => (
-    <div className="relative mt-1">
+    <div className={`${isRovistarStore ? 'dz-auth-password ' : ''}relative mt-1`}>
       <input
         type={show ? 'text' : 'password'}
         value={value}
         onChange={onChange}
-        className="w-full border rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-        placeholder="••••••••"
+        className={`${isRovistarStore ? 'dz-auth-input ' : ''}w-full border rounded-lg px-3 py-2 text-sm pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200`}
+        placeholder={isRovistarStore ? 'Your password' : '••••••••'}
       />
       <button
         type="button"
@@ -193,28 +194,81 @@ export default function CustomerAuth({ onSuccess, onOwnerSuccess }) {
         tabIndex={-1}
         title={show ? t('hidePassword') : t('showPassword')}
         aria-label={show ? t('hidePassword') : t('showPassword')}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        className={`${isRovistarStore ? 'dz-auth-eye ' : ''}absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600`}
       >
         {show ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
       </button>
     </div>
   );
 
+  if (isRovistarStore) return (
+    <div className="dz-customer-auth">
+      {mode === 'signin' ? (
+        <>
+          {googleClientId && (
+            <div className="dz-google-section">
+              <div ref={googleButtonRef} className="dz-google-button" aria-label="Continue with Google" />
+              {googleError && <p className="dz-google-error">{googleError}</p>}
+              <div className="dz-auth-divider"><span>or</span></div>
+            </div>
+          )}
+          <form onSubmit={handleSignin} className="dz-auth-form text-left">
+          <div className="dz-auth-field">
+            <label><FiMail /> EMAIL</label>
+            <input
+              value={loginForm.username}
+              onChange={set(loginForm, setLoginForm)('username')}
+              className={inputCls}
+              placeholder="your@email.com"
+              autoCapitalize="none"
+              autoComplete="username"
+            />
+          </div>
+          <div className="dz-auth-field">
+            <label><FiLock /> PASSWORD</label>
+            {passwordInput(loginForm.password, set(loginForm, setLoginForm)('password'), showLoginPw, setShowLoginPw)}
+          </div>
+          <div className="dz-auth-options">
+            <label className="dz-remember"><input type="checkbox" /> <span>Remember me</span></label>
+            <button type="button" className="dz-forgot">Forgot password?</button>
+          </div>
+          <button type="submit" disabled={busy} className="dz-signin-button w-full disabled:opacity-60">
+            <FiLogIn /> {busy ? t('loading') : 'Sign In'}
+          </button>
+          </form>
+          <p className="dz-auth-switch">Don't have an account? <button type="button" onClick={() => setMode('signup')}>Sign up free</button></p>
+        </>
+      ) : (
+        <form onSubmit={handleSignup} className="dz-auth-form dz-signup-form text-left">
+          <div className="dz-auth-field">
+            <label><FiMail /> EMAIL</label>
+            <input type="email" value={signupForm.email} onChange={set(signupForm, setSignupForm)('email')} className={inputCls} placeholder="you@gmail.com" autoComplete="email" />
+          </div>
+          <div className="dz-auth-field">
+            <label><FiLock /> PASSWORD</label>
+            {passwordInput(signupForm.password, set(signupForm, setSignupForm)('password'), showSignupPw, setShowSignupPw)}
+            <div className="mt-2 grid grid-cols-3 gap-1 text-[10px] font-bold"><span className={`rounded px-2 py-1 text-center ${signupForm.password.length >= 4 ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-400'}`}>Level 1</span><span className={`rounded px-2 py-1 text-center ${signupForm.password.length >= 8 && /[A-Z]/.test(signupForm.password) && /\d/.test(signupForm.password) ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-400'}`}>Level 2</span><span className={`rounded px-2 py-1 text-center ${signupForm.password.length >= 12 && /[A-Z]/.test(signupForm.password) && /\d/.test(signupForm.password) && /[^A-Za-z0-9]/.test(signupForm.password) ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-400'}`}>Level 3</span></div>
+          </div>
+          <div className="dz-auth-field">
+            <label><FiLock /> {t('confirmPassword').toUpperCase()}</label>
+            {passwordInput(signupForm.confirm_password, set(signupForm, setSignupForm)('confirm_password'), showConfirmPw, setShowConfirmPw)}
+          </div>
+          <button type="submit" disabled={busy} className="dz-signin-button w-full disabled:opacity-60 flex items-center justify-center gap-2">
+            <FiUserPlus /> {busy ? t('loading') : t('createAccount')}
+          </button>
+          <p className="dz-auth-switch">Already have an account? <button type="button" onClick={() => setMode('signin')}>Sign in</button></p>
+        </form>
+      )}
+    </div>
+  );
+
   return (
     <div>
       <div className="flex bg-gray-100 rounded-xl p-1 mb-4">
-        <button
-          type="button"
-          onClick={() => setMode('signin')}
-          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${mode === 'signin' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}
-        >
+        <button type="button" onClick={() => setMode('signin')} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${mode === 'signin' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}>
           <span className="inline-flex items-center justify-center gap-1.5"><FcGoogle className="w-4 h-4" /> {t('signIn')}</span>
         </button>
-        <button
-          type="button"
-          onClick={() => setMode('signup')}
-          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${mode === 'signup' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}
-        >
+        <button type="button" onClick={() => setMode('signup')} className={`flex-1 py-2 rounded-lg text-sm font-semibold transition ${mode === 'signup' ? 'bg-white shadow text-primary' : 'text-gray-500'}`}>
           {t('signUp')}
         </button>
       </div>
@@ -223,22 +277,13 @@ export default function CustomerAuth({ onSuccess, onOwnerSuccess }) {
         <form onSubmit={handleSignin} className="space-y-3 text-left">
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">Gmail / {t('username')} *</label>
-            <input
-              value={loginForm.username}
-              onChange={set(loginForm, setLoginForm)('username')}
-              className={inputCls}
-              placeholder="name@gmail.com"
-              autoCapitalize="none"
-              autoComplete="username"
-            />
+            <input value={loginForm.username} onChange={set(loginForm, setLoginForm)('username')} className={inputCls} placeholder="name@gmail.com" autoCapitalize="none" autoComplete="username" />
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('password')} *</label>
             {passwordInput(loginForm.password, set(loginForm, setLoginForm)('password'), showLoginPw, setShowLoginPw)}
           </div>
-          <button type="submit" disabled={busy} className="w-full btn-primary py-3 rounded-xl font-semibold disabled:opacity-60">
-            {busy ? t('loading') : t('signIn')}
-          </button>
+          <button type="submit" disabled={busy} className="w-full btn-primary py-3 rounded-xl font-semibold disabled:opacity-60">{busy ? t('loading') : t('signIn')}</button>
           {googleClientId && (
             <div className="pt-1">
               <div className="flex items-center gap-3 text-xs text-gray-400 before:h-px before:flex-1 before:bg-gray-200 after:h-px after:flex-1 after:bg-gray-200">or</div>
@@ -249,22 +294,14 @@ export default function CustomerAuth({ onSuccess, onOwnerSuccess }) {
         </form>
       ) : (
         <form onSubmit={handleSignup} className="space-y-3 text-left">
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">Gmail *</label>
-            <input type="email" value={signupForm.email} onChange={set(signupForm, setSignupForm)('email')} className={inputCls} placeholder="you@gmail.com" autoComplete="email" />
-          </div>
+          <div><label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">Gmail *</label><input type="email" value={signupForm.email} onChange={set(signupForm, setSignupForm)('email')} className={inputCls} placeholder="you@gmail.com" autoComplete="email" /></div>
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('password')} *</label>
             {passwordInput(signupForm.password, set(signupForm, setSignupForm)('password'), showSignupPw, setShowSignupPw)}
             <div className="mt-2 grid grid-cols-3 gap-1 text-[10px] font-bold"><span className={`rounded px-2 py-1 text-center ${signupForm.password.length >= 4 ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-400'}`}>Level 1</span><span className={`rounded px-2 py-1 text-center ${signupForm.password.length >= 8 && /[A-Z]/.test(signupForm.password) && /\d/.test(signupForm.password) ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-400'}`}>Level 2</span><span className={`rounded px-2 py-1 text-center ${signupForm.password.length >= 12 && /[A-Z]/.test(signupForm.password) && /\d/.test(signupForm.password) && /[^A-Za-z0-9]/.test(signupForm.password) ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-400'}`}>Level 3</span></div>
           </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('confirmPassword')} *</label>
-            {passwordInput(signupForm.confirm_password, set(signupForm, setSignupForm)('confirm_password'), showConfirmPw, setShowConfirmPw)}
-          </div>
-          <button type="submit" disabled={busy} className="w-full btn-primary py-3 rounded-xl font-semibold disabled:opacity-60 flex items-center justify-center gap-2">
-            <FiUserPlus /> {busy ? t('loading') : t('createAccount')}
-          </button>
+          <div><label className="text-sm font-medium text-gray-700 dark:text-gray-300 block">{t('confirmPassword')} *</label>{passwordInput(signupForm.confirm_password, set(signupForm, setSignupForm)('confirm_password'), showConfirmPw, setShowConfirmPw)}</div>
+          <button type="submit" disabled={busy} className="w-full btn-primary py-3 rounded-xl font-semibold disabled:opacity-60 flex items-center justify-center gap-2"><FiUserPlus /> {busy ? t('loading') : t('createAccount')}</button>
         </form>
       )}
     </div>

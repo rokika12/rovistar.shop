@@ -25,6 +25,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
   const metadata = product.metadata || {};
   const isTelegramGift = metadata.product_type === 'telegram_gift';
   const isKaidoStore = shop?.username?.toLowerCase() === 'kaidostore';
+  const isRovistarStore = shop?.username?.toLowerCase() === 'rovistar';
   const description = (product.description || '').replace(/\s+/g, ' ').trim();
   const isDigital = metadata.product_type === 'digital';
   const isManualService = metadata.fulfillment_type === 'manual_service';
@@ -194,6 +195,39 @@ export default function ProductCard({ product, variant = 'standard' }) {
             <Link to={productLink}>ចូលមើលទំនិញ <FiArrowRight /></Link>
           </div>
         </div>
+      </article>
+    );
+  }
+
+  if (isRovistarStore) {
+    const productLink = `/${shop.username}/product/${product.id}`;
+
+    return (
+      <article className={`store-product-card dz-product-card store-product-card-${variant} group`}>
+        <Link to={productLink} className="dz-product-art" aria-label={`View ${product.name}`}>
+          <div className="store-product-image">
+            {product.images?.[0] && !imageFailed ? (
+              <img src={fullUrl(product.images[0])} alt={product.name} onError={() => setImageFailed(true)} />
+            ) : (
+              <span className="dz-product-placeholder"><FiShoppingBag /></span>
+            )}
+          </div>
+          {hasSale && <span className="store-sale-badge">SALE -{discount}%</span>}
+          {product.featured && <span className="store-hot-badge">HOT</span>}
+        </Link>
+        <div className="dz-product-info">
+          <Link to={productLink}><h3>{product.name}</h3></Link>
+          <div className="dz-product-price">
+            <span>From</span>
+            <strong>${Number(price).toFixed(2)}</strong>
+            {hasSale && <del>${originalPrice.toFixed(2)}</del>}
+          </div>
+        </div>
+        {isAvailable ? (
+          <Link to={productLink} className="dz-product-buy">Buy Now <FiArrowRight /></Link>
+        ) : (
+          <span className="dz-product-buy dz-product-sold">{t('soldOut')}</span>
+        )}
       </article>
     );
   }

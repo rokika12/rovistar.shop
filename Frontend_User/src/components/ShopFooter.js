@@ -10,6 +10,7 @@ export default function ShopFooter() {
   const { shop } = useShop();
   const { t } = useLanguage();
   const base = `/${shop.username}`;
+  const isRovistarStore = shop.username?.toLowerCase() === 'rovistar';
   return (
     <footer className="shop-footer bg-white text-slate-600 border-t border-slate-200 pb-24 md:pb-0">
       <div className="max-w-7xl mx-auto px-5 py-12 md:py-14">
@@ -49,12 +50,26 @@ export default function ShopFooter() {
           </div>
         </div>
       </div>
-      <div className="border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-5 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-        <span>© {new Date().getFullYear()} {shop.shop_name || shop.username}. All rights reserved.</span>
-        <span className="inline-flex items-center gap-1.5"><FiShield className="text-blue-600" /> Secure payments · Reliable service · 24/7 support</span>
-      </div>
-      </div>
+      {isRovistarStore ? (
+        <div
+          className="dz-footer-landscape"
+          style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/assets/asia-countryside.jpg)` }}
+          role="img"
+          aria-label="Asia countryside at sunset"
+        >
+          <div className="dz-footer-copyright">
+            <span>© {new Date().getFullYear()} {shop.shop_name || shop.username}. All rights reserved.</span>
+            <span><FiShield /> Secure payments · Reliable service · 24/7 support</span>
+          </div>
+        </div>
+      ) : (
+        <div className="border-t border-slate-200">
+          <div className="max-w-7xl mx-auto px-5 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+            <span>© {new Date().getFullYear()} {shop.shop_name || shop.username}. All rights reserved.</span>
+            <span className="inline-flex items-center gap-1.5"><FiShield className="text-blue-600" /> Secure payments · Reliable service · 24/7 support</span>
+          </div>
+        </div>
+      )}
     </footer>
   );
 }
