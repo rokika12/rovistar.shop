@@ -142,6 +142,7 @@ export default function ProductDetail() {
   const gameService = gameServices[servicePlatform];
   const freeFireService = manualService && servicePlatform === 'free_fire';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
+  const isRovistarStore = shop.username?.toLowerCase() === 'rovistar';
   const mobileLegendsService = manualService && servicePlatform === 'mobile_legends';
   const robloxService = manualService && servicePlatform === 'roblox';
   // Existing Free Fire and MLBB manual products verify through the shared checker,
@@ -241,7 +242,7 @@ export default function ProductDetail() {
         {manualService ? (
           <aside className="service-checkout-sidebar">
             <div className="service-game-card">
-              <span className="service-game-thumbnail">{displayedImage ? <img src={fullUrl(displayedImage)} alt="" /> : <FiShoppingBag />}</span>
+              <span className="service-game-thumbnail">{displayedImage ? <img src={fullUrl(displayedImage)} alt="" decoding={isRovistarStore ? 'async' : undefined} /> : <FiShoppingBag />}</span>
               <strong>{product.name}</strong>
             </div>
             <div className="service-link-card">
@@ -274,7 +275,7 @@ export default function ProductDetail() {
           <div className={`aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden ${isKaidoStore ? 'kaido-account-gallery' : ''}`}>
             {displayedImage ? (
               <button type="button" className="kaido-gallery-main-image" onClick={() => setGalleryOpen(true)} aria-label="View full size image">
-                <img src={fullUrl(displayedImage)} alt={packageImage && displayedImage === packageImage ? 'Selected package' : product.name} className="w-full h-full object-cover" />
+                <img src={fullUrl(displayedImage)} alt={packageImage && displayedImage === packageImage ? 'Selected package' : product.name} className="w-full h-full object-cover" decoding={isRovistarStore ? 'async' : undefined} />
                 <span className="kaido-gallery-expand"><FiMaximize2 /> មើលរូបពេញ</span>
               </button>
             ) : (
@@ -291,7 +292,7 @@ export default function ProductDetail() {
                   onClick={() => selectGalleryImage(i)}
                   className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${activeImage === i ? 'border-primary' : 'border-transparent'}`}
                 >
-                  <img src={fullUrl(img)} alt="" className="w-full h-full object-cover" />
+                  <img src={fullUrl(img)} alt="" className="w-full h-full object-cover" loading={isRovistarStore ? 'lazy' : undefined} decoding={isRovistarStore ? 'async' : undefined} />
                 </button>
               ))}
             </div>
@@ -388,7 +389,7 @@ export default function ProductDetail() {
                           }`}
                         >
                           {manualService && optionDiscount > 0 && <span className="service-package-discount">-{optionDiscount}%</span>}
-                          {manualService && optionImage && <img src={fullUrl(optionImage)} alt="" className="service-package-image" />}
+                          {manualService && optionImage && <img src={fullUrl(optionImage)} alt="" className="service-package-image" loading={isRovistarStore ? 'lazy' : undefined} decoding={isRovistarStore ? 'async' : undefined} />}
                           <span className={`service-package-mark ${isTikTokService ? 'service-package-mark-sale' : ''}`}>{serviceBadge}</span>
                           <span>{opt}</span>
                           {manualService && optionPrice != null && <small>{Number(optionPrice).toFixed(2)} {shop.currency}</small>}
@@ -406,7 +407,7 @@ export default function ProductDetail() {
               <section className="service-order-summary" aria-label="Selected top-up summary">
                 <div className="service-summary-heading"><span>ORDER SUMMARY</span><strong>{currentVariation ? '1 package selected' : 'Select a package'}</strong></div>
                 {currentVariation ? <div className="service-summary-item">
-                  <span className="service-summary-image">{(currentVariation.image_url || currentVariation.image || displayedImage) ? <img src={fullUrl(currentVariation.image_url || currentVariation.image || displayedImage)} alt="" /> : <FiShoppingBag />}</span>
+                  <span className="service-summary-image">{(currentVariation.image_url || currentVariation.image || displayedImage) ? <img src={fullUrl(currentVariation.image_url || currentVariation.image || displayedImage)} alt="" loading={isRovistarStore ? 'lazy' : undefined} decoding={isRovistarStore ? 'async' : undefined} /> : <FiShoppingBag />}</span>
                   <span><b>{product.name}</b><small>{Object.values(currentVariation.attrs || {}).filter(Boolean).join(' · ')}</small></span>
                   <strong>${Number(effectivePrice).toFixed(2)}</strong>
                 </div> : <p className="service-summary-empty">Choose a package to see your total.</p>}
@@ -489,7 +490,7 @@ export default function ProductDetail() {
         <div className="kaido-gallery-lightbox" role="dialog" aria-modal="true" aria-label="Full size product image" onClick={() => setGalleryOpen(false)}>
           <button type="button" className="kaido-gallery-close" onClick={() => setGalleryOpen(false)} aria-label="Close full size image"><FiX /></button>
           {galleryImages.length > 1 && <button type="button" className="kaido-gallery-nav kaido-gallery-prev" onClick={(event) => { event.stopPropagation(); selectGalleryImage(activeImage - 1); }} aria-label="Previous image"><FiChevronLeft /></button>}
-          <img src={fullUrl(displayedImage)} alt={product.name} className="kaido-gallery-lightbox-image" onClick={(event) => event.stopPropagation()} />
+          <img src={fullUrl(displayedImage)} alt={product.name} className="kaido-gallery-lightbox-image" decoding={isRovistarStore ? 'async' : undefined} onClick={(event) => event.stopPropagation()} />
           {galleryImages.length > 1 && <button type="button" className="kaido-gallery-nav kaido-gallery-next" onClick={(event) => { event.stopPropagation(); selectGalleryImage(activeImage + 1); }} aria-label="Next image"><FiChevronRight /></button>}
           {galleryImages.length > 1 && <p className="kaido-gallery-counter">{activeImage + 1} / {galleryImages.length}</p>}
         </div>

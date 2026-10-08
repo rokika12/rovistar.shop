@@ -147,7 +147,7 @@ export default function ShopHeader() {
                 }
                 setAccountOpen(!accountOpen);
               }}
-              className={`store-account-trigger store-account-avatar-trigger glass-action ${accountOpen ? 'store-account-trigger-open' : ''}`}
+              className={`store-account-trigger store-account-avatar-trigger glass-action ${isRovistarStore ? 'rounded-full' : ''} ${accountOpen ? 'store-account-trigger-open' : ''}`}
               aria-expanded={accountOpen}
               aria-label={isLoggedIn ? `${displayName} account` : 'Open account'}
             >

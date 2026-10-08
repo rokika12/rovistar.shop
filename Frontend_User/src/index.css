@@ -2453,6 +2453,14 @@ body {
   font-family: 'Concert One', 'Battambang', 'Kantumruy Pro', sans-serif;
 }
 
+.dz-rovi-shell,
+.dz-rovi-shell button,
+.dz-rovi-shell input,
+.dz-rovi-shell select,
+.dz-rovi-shell textarea {
+  font-family: 'Concert One', 'Battambang', 'Kantumruy Pro', Inter, sans-serif !important;
+}
+
 .dz-rovi-shell .store-sticky-shell { padding: 0 !important; box-shadow: 0 8px 28px rgba(19, 67, 94, .08); }
 .dz-rovi-shell .store-header,
 .dz-rovi-shell .rovistar-glass-header {
@@ -2510,8 +2518,8 @@ body {
 .dz-rovi-shell .store-information-toggle:hover,
 .dz-rovi-shell .store-account-avatar-trigger:hover,
 .dz-rovi-shell .dz-mobile-menu-trigger:hover { border-color: #74dce8 !important; box-shadow: 0 10px 26px rgba(0, 188, 212, .2) !important; transform: translateY(-2px); }
-.dz-rovi-shell .store-account-avatar-trigger { width: 46px !important; padding: .25rem !important; }
-.dz-rovi-shell .store-avatar { width: 100% !important; height: 100% !important; background: var(--dz-gradient) !important; color: #fff !important; }
+.dz-rovi-shell .store-account-trigger.store-account-avatar-trigger { width: 46px !important; padding: .25rem !important; border-radius: 9999px !important; background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(207, 250, 254, .86)) !important; }
+.dz-rovi-shell .store-avatar { width: 100% !important; height: 100% !important; border-radius: 9999px !important; background: var(--dz-gradient) !important; color: #fff !important; }
 .dz-rovi-shell .dz-mobile-menu-trigger { display: none; width: 52px; align-items: center; justify-content: center; }
 .dz-rovi-shell .dz-mobile-menu-trigger svg { width: 1.6rem; height: 1.6rem; }
 .dz-rovi-shell .store-language-menu,
@@ -2554,7 +2562,7 @@ html[lang='km'] .dz-rovi-shell .store-section-heading { color: var(--dz-primary)
 .dz-rovi-shell .dz-product-card { display: flex; height: 100%; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid #eef0f3 !important; border-radius: 16px !important; background: #fff !important; box-shadow: 0 2px 10px rgba(0, 0, 0, .07) !important; transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease; }
 .dz-rovi-shell .dz-product-card:hover { border-color: var(--dz-primary) !important; box-shadow: 0 8px 24px rgba(0, 188, 212, .14) !important; transform: translateY(-3px); }
 .dz-rovi-shell .dz-product-art { position: relative; display: block; }
-.dz-rovi-shell .dz-product-card .store-product-image { aspect-ratio: 1.35 / 1; overflow: hidden; background: linear-gradient(135deg, #f0f7ff, #e0f7fa); }
+.dz-rovi-shell .dz-product-card .store-product-image { aspect-ratio: 1 / 1; overflow: hidden; background: linear-gradient(135deg, #f0f7ff, #e0f7fa); }
 .dz-rovi-shell .dz-product-card .store-product-image::after { display: none; }
 .dz-rovi-shell .dz-product-card .store-product-image img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
 .dz-rovi-shell .dz-product-card:hover .store-product-image img { transform: scale(1.035); }
@@ -2563,16 +2571,30 @@ html[lang='km'] .dz-rovi-shell .store-section-heading { color: var(--dz-primary)
 .dz-rovi-shell .store-sale-badge { position: absolute; z-index: 2; top: .55rem; border-radius: 999px; padding: .2rem .55rem; color: #fff !important; font-size: .58rem; font-weight: 800; letter-spacing: .05em; }
 .dz-rovi-shell .store-hot-badge { left: .55rem; background: linear-gradient(135deg, #ff6b35, #ff3d71) !important; }
 .dz-rovi-shell .store-sale-badge { right: .55rem; background: var(--dz-gradient) !important; }
-.dz-rovi-shell .dz-product-info { flex: 1; padding: .75rem .8rem .4rem; }
-.dz-rovi-shell .dz-product-info h3 { display: -webkit-box; min-height: 2.35rem; overflow: hidden; margin: 0; color: var(--dz-text) !important; font-size: .95rem; font-weight: 700; line-height: 1.25; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.dz-rovi-shell .dz-product-price { display: flex; min-height: 1.5rem; align-items: baseline; gap: .28rem; margin-top: .45rem; }
+.dz-rovi-shell .dz-product-info { flex: 1; padding: .68rem .8rem .25rem; }
+.dz-rovi-shell .dz-product-info h3 { display: -webkit-box; min-height: 0; overflow: hidden; margin: 0; color: var(--dz-text) !important; font-size: .95rem; font-weight: 700; line-height: 1.25; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.dz-rovi-shell .dz-product-description { display: -webkit-box; overflow: hidden; margin: .2rem 0 0; color: #64748b; font-size: .72rem; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.dz-rovi-shell .dz-product-price { display: flex; min-height: 1.5rem; align-items: baseline; gap: .3rem; margin-top: .28rem; }
 .dz-rovi-shell .dz-product-price span { color: var(--dz-muted); font-family: 'Kantumruy Pro', sans-serif; font-size: .66rem; }
-.dz-rovi-shell .dz-product-price strong { color: #0284c7; font-size: 1rem; font-weight: 800; }
-.dz-rovi-shell .dz-product-price del { color: #aab2bd; font-size: .65rem; }
-.dz-rovi-shell .dz-product-buy { display: flex; min-height: 2.5rem; align-items: center; justify-content: space-between; gap: .5rem; padding: .55rem .8rem .75rem; color: var(--dz-primary) !important; font-size: .78rem; font-weight: 700; }
+.dz-rovi-shell .dz-product-price strong { color: #0284c7; font-family: 'Concert One', 'Battambang', 'Kantumruy Pro', sans-serif; font-size: 1.14rem; font-weight: 800; text-shadow: 0 0 12px rgba(2, 132, 199, .22); }
+.dz-rovi-shell .dz-product-price del { color: #94a3b8; font-size: .72rem; font-weight: 700; text-decoration-thickness: 1.5px; }
+.dz-rovi-shell .dz-product-buy { display: flex; min-height: 2.35rem; align-items: center; justify-content: space-between; gap: .5rem; padding: .4rem .8rem .65rem; color: var(--dz-primary) !important; font-size: .78rem; font-weight: 700; }
 .dz-rovi-shell .dz-product-buy svg { transition: transform .2s ease; }
 .dz-rovi-shell .dz-product-card:hover .dz-product-buy svg { transform: translateX(4px); }
 .dz-rovi-shell .dz-product-sold { color: #e24b5a !important; }
+
+.dz-rovi-shell .flash-sale-price-row strong,
+.dz-rovi-shell .product-price-row > span:first-child,
+.dz-rovi-shell .service-summary-item > strong,
+.dz-rovi-shell .service-summary-total > strong {
+  color: #0284c7 !important;
+  font-family: 'Concert One', 'Battambang', 'Kantumruy Pro', sans-serif;
+  font-weight: 800 !important;
+  text-shadow: 0 0 14px rgba(2, 132, 199, .24);
+}
+.dz-rovi-shell .flash-sale-price-row strong { font-size: 1.2rem; }
+.dz-rovi-shell .flash-sale-price-row del,
+.dz-rovi-shell .product-price-row > span.line-through { color: #94a3b8 !important; font-weight: 700; text-decoration-thickness: 1.5px; }
 
 .dz-rovi-shell .btn-primary,
 .dz-rovi-shell a.btn-primary { border: 0 !important; background: var(--dz-gradient) !important; color: #fff !important; }
@@ -2636,7 +2658,7 @@ html[lang='km'] .dz-rovi-shell .store-section-heading { color: var(--dz-primary)
 @media (max-width: 420px) {
   .dz-rovi-shell .dz-product-info { padding: .65rem .65rem .3rem; }
   .dz-rovi-shell .dz-product-info h3 { min-height: 2.15rem; font-size: .82rem; }
-  .dz-rovi-shell .dz-product-price strong { font-size: .9rem; }
+  .dz-rovi-shell .dz-product-price strong { font-size: 1.05rem; }
   .dz-rovi-shell .dz-product-buy { padding: .45rem .65rem .65rem; font-size: .7rem; }
   .dz-rovi-shell .dz-mobile-nav-panel { width: 100%; }
 }

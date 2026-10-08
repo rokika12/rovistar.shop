@@ -207,7 +207,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
         <Link to={productLink} className="dz-product-art" aria-label={`View ${product.name}`}>
           <div className="store-product-image">
             {product.images?.[0] && !imageFailed ? (
-              <img src={fullUrl(product.images[0])} alt={product.name} onError={() => setImageFailed(true)} />
+              <img src={fullUrl(product.images[0])} alt={product.name} loading="lazy" decoding="async" onError={() => setImageFailed(true)} />
             ) : (
               <span className="dz-product-placeholder"><FiShoppingBag /></span>
             )}
@@ -217,6 +217,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
         </Link>
         <div className="dz-product-info">
           <Link to={productLink}><h3>{product.name}</h3></Link>
+          <p className="dz-product-description">{description || (isDigital ? t('digitalAccess') : t('qualityProduct'))}</p>
           <div className="dz-product-price">
             <span>From</span>
             <strong>${Number(price).toFixed(2)}</strong>
@@ -224,7 +225,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
           </div>
         </div>
         {isAvailable ? (
-          <Link to={productLink} className="dz-product-buy">Buy Now <FiArrowRight /></Link>
+          <Link to={productLink} className="dz-product-buy">{t('viewProduct')} <FiArrowRight /></Link>
         ) : (
           <span className="dz-product-buy dz-product-sold">{t('soldOut')}</span>
         )}

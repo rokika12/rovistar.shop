@@ -64,6 +64,7 @@ export default function ShopHome() {
 
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
+  const isRovistarStore = shop.username?.toLowerCase() === 'rovistar';
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : 'https://t.me/kaidokmglaor');
   const appearance = shop.theme?.appearance || {};
@@ -138,7 +139,7 @@ export default function ShopHome() {
               <div className={`promo-marquee promo-marquee-${appearance.product_direction === 'right' ? 'right' : 'left'} flex w-max items-center gap-3`} style={{ '--promo-duration': appearance.product_speed === 'fast' ? '10s' : appearance.product_speed === 'normal' ? '18s' : '28s' }}>
                 {[...allProducts, ...allProducts].map((product, index) => (
                   <Link key={`${product.id}-${index}`} to={`/${shop.username}/product/${product.id}`} className={`flex shrink-0 items-center gap-3 rounded-xl px-3 py-2 whitespace-nowrap ${isDark ? 'bg-white/10 hover:bg-white/20' : 'bg-slate-50 hover:bg-blue-50'}`}>
-                    {appearance.show_marquee_images !== false && <div className={`h-10 w-10 overflow-hidden rounded-lg ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}>{product.images?.[0] && <img src={fullUrl(product.images[0])} alt="" className="h-full w-full object-cover" />}</div>}
+                    {appearance.show_marquee_images !== false && <div className={`h-10 w-10 overflow-hidden rounded-lg ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}>{product.images?.[0] && <img src={fullUrl(product.images[0])} alt="" className="h-full w-full object-cover" loading={isRovistarStore ? 'lazy' : undefined} decoding={isRovistarStore ? 'async' : undefined} />}</div>}
                     <span className="font-bold text-blue-700 dark:text-white">{product.name}</span>
                     <span className="font-black text-blue-600 dark:text-amber-300">${Number(product.sale_price ?? product.price).toFixed(2)}</span>
                   </Link>
@@ -174,7 +175,7 @@ export default function ShopHome() {
               return (
                 <Link key={product.id} to={`/${shop.username}/product/${product.id}`} className="flash-sale-card">
                   <div className="flash-sale-image">
-                    {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt={product.name} /> : <FiShoppingBag />}
+                    {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt={product.name} loading={isRovistarStore ? 'lazy' : undefined} decoding={isRovistarStore ? 'async' : undefined} /> : <FiShoppingBag />}
                   </div>
                   <div className="flash-sale-copy min-w-0 flex-1">
                     {!isKaidoStore && <span className="flash-sale-label">FLASH DEAL</span>}
