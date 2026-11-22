@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+Khmer:wght@400;500;600;700;800;900&family=Nunito:wght@500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Kantumruy+Pro:wght@500;600;700&family=Noto+Sans+Khmer:wght@400;500;600;700;800;900&family=Nunito:wght@500;600;700;800;900&display=swap');
 
 :root { --ink: #0a3479; --paper: #f6fbff; --acid: #bde9ff; --orange: #2878ff; --leaf: #155fc2; --line: rgba(10,52,121,.18); }
 * { box-sizing: border-box; }
@@ -50,3 +50,26 @@ html { scroll-behavior: smooth; }
 .reference-phone-scene { height:525px; position:relative; width:100%; z-index:1; }.reference-phone-shadow { background:#cdd0d9; border-radius:43px; height:445px; left:calc(50% - 152px); position:absolute; top:39px; transform:rotate(4deg); width:300px; }.reference-phone { background:#edf1f4; border:8px solid #10294c; border-radius:42px; box-shadow:0 18px 34px rgba(9,45,105,.18); height:450px; left:calc(50% - 162px); padding:20px 17px 16px; position:absolute; top:17px; width:305px; z-index:2; }.reference-phone:before { background:#10294c; border-radius:0 0 11px 11px; content:''; height:16px; left:104px; position:absolute; top:-1px; width:80px; }.reference-phone:after { background:#edf1f4; border-radius:33px; content:''; inset:8px; position:absolute; z-index:-1; }.reference-phone-top { align-items:center; display:flex; gap:13px; margin:8px 5px 22px; }.reference-progress { background:#d4d9dc; border-radius:999px; height:10px; overflow:hidden; width:175px; }.reference-progress span { background:#4bbd70; border-radius:inherit; display:block; height:100%; width:43%; }.reference-score { align-items:center; color:#e55259; display:flex; font:700 13px Nunito,sans-serif; gap:4px; }.reference-score svg { fill:#e55259; }.reference-lesson-card { background:#fff; border:1px solid #dbe1e5; border-radius:18px; box-shadow:0 4px 7px rgba(20,42,69,.05); padding:23px 19px; }.reference-sun { color:#ffc238; font-size:48px; line-height:1; margin-bottom:17px; text-align:center; text-shadow:0 2px #ed9d23; }.reference-lesson-row { align-items:center; display:flex; justify-content:space-between; }.reference-lesson-row b { color:#10294c; font-size:29px; letter-spacing:-.08em; line-height:1.12; }.reference-lesson-row button { align-items:center; background:#1674e8; border:0; border-radius:50%; box-shadow:none; color:#fff; display:flex; font-size:18px; height:42px; justify-content:center; min-height:42px; padding:0; width:42px; }.reference-lesson-row button:hover { box-shadow:none; transform:none; }.reference-lesson-card small { color:#7590aa; display:block; font-size:11px; line-height:1.55; margin-top:15px; }.reference-lesson-card strong { color:#10294c; display:block; font-size:14px; margin-top:4px; }.reference-continue { bottom:26px; font-family:'Noto Sans Khmer',sans-serif; font-weight:800; left:17px; position:absolute; right:17px; width:calc(100% - 34px); }.reference-mascot { bottom:16px; height:180px; left:calc(50% + 105px); position:absolute; width:145px; z-index:3; }.mascot-head { background:#12294c; border-radius:53% 53% 48% 48%; height:90px; left:27px; position:absolute; top:43px; width:92px; }.mascot-head:after { background:#ffba36; border-radius:50% 50% 44% 44%; content:''; height:27px; left:27px; position:absolute; top:48px; width:39px; }.mascot-head i { background:#fff; border-radius:50%; height:10px; position:absolute; top:32px; width:10px; z-index:1; }.mascot-head i:first-child { left:26px; }.mascot-head i:last-child { right:26px; }.mascot-body { background:#17355e; border-radius:45px 45px 20px 20px; bottom:0; color:#fff; font:800 30px Nunito,sans-serif; height:74px; left:18px; position:absolute; text-align:center; width:112px; }.mascot-body span { display:block; margin-top:20px; }.mascot-scarf { background:repeating-linear-gradient(90deg,#e65252 0 10px,#fff 10px 20px); border-radius:5px; height:17px; left:10px; position:absolute; top:120px; transform:rotate(-7deg); width:125px; z-index:1; }.mascot-bubble { background:#fff; border:1px solid #d8e0e8; border-radius:16px; color:#10294c; font-size:15px; font-weight:800; left:-38px; line-height:1.2; padding:10px 12px; position:absolute; text-align:center; top:0; width:135px; }.mascot-bubble:after { border-left:9px solid transparent; border-right:9px solid transparent; border-top:10px solid #fff; bottom:-9px; content:''; left:42px; position:absolute; }.mascot-bubble small { color:#7890a7; display:block; font-size:9px; line-height:1.5; margin-top:3px; }
 @media (max-width:900px) { .reference-hero { grid-template-columns:1fr; padding-top:66px; }.reference-phone-scene { margin:0 auto; max-width:500px; }.reference-hero:after { right:-17vw; top:auto; bottom:40px; } }
 @media (max-width:560px) { .reference-hero { gap:35px; padding:53px 6vw 55px; }.khmer-tools-home .reference-hero h1 { font-size:42px; line-height:1.42; }.reference-subtitle { font-size:16px; }.reference-phone-scene { height:485px; transform:scale(.9); transform-origin:top center; width:111%; margin-left:-5.5%; margin-bottom:-45px; }.reference-hero .tools-hero-actions { flex-direction:row; }.reference-hero .tools-hero-actions button,.reference-hero .tools-hero-actions a { font-size:11px; min-height:47px; padding:11px 12px; }.reference-helper { font-size:11px; }.reference-hero:after { height:310px; width:310px; } }
+
+/* Use a single rounded, heavy Khmer face so every Khmer label shares the same friendly voice. */
+.khmer-tools-home,
+.khmer-tools-home button,
+.khmer-tools-home input,
+.khmer-tools-home textarea,
+.khmer-tools-home .tools-nav nav a,
+.khmer-tools-home .tools-eyebrow,
+.khmer-tools-home .reference-badge,
+.khmer-tools-home .tools-card span,
+.khmer-tools-home .tools-card p,
+.khmer-tools-home .tools-card h3,
+.khmer-tools-home .tools-login-modal,
+.khmer-tools-home .tools-roadmap,
+.khmer-tools-home .tools-footer { font-family:'Kantumruy Pro','Noto Sans Khmer',sans-serif !important; font-weight:700; }
+.khmer-tools-home h1,
+.khmer-tools-home h2,
+.khmer-tools-home h3,
+.khmer-tools-home strong,
+.khmer-tools-home .reference-subtitle,
+.khmer-tools-home .tools-nav-button,
+.khmer-tools-home .tools-hero-actions button,
+.khmer-tools-home .tools-hero-actions a { font-family:'Kantumruy Pro','Noto Sans Khmer',sans-serif !important; font-weight:700; }
