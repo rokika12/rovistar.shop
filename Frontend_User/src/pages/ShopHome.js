@@ -51,14 +51,15 @@ export default function ShopHome() {
 
   const isDigitalStore = shop?.template_type === 'account';
   const slides = useMemo(() => [shop?.banner, ...(shop?.slideshow || [])].filter(Boolean), [shop]);
-
-  if (!shop) return null;
-  const catalogProducts = allProducts.filter((product) => product.metadata?.fulfillment_type !== 'manual_service');
+  const catalogProducts = useMemo(
+    () => allProducts.filter((product) => product.metadata?.fulfillment_type !== 'manual_service'),
+    [allProducts],
+  );
   const toolProducts = useMemo(() => {
     const query = toolQuery.trim().toLowerCase();
     const filtered = catalogProducts.filter((product) => {
       const matchesCategory = !toolCategory || String(product.category_id) === String(toolCategory);
-        const matchesSearch = !query || [product.name, product.description, product.category_name]
+      const matchesSearch = !query || [product.name, product.description, product.category_name]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(query));
       const isAvailable = product.metadata?.fulfillment_type === 'manual_service'
@@ -73,6 +74,8 @@ export default function ShopHome() {
       return Number(Boolean(b.featured)) - Number(Boolean(a.featured));
     });
   }, [catalogProducts, inStockOnly, toolCategory, toolQuery, toolSort]);
+
+  if (!shop) return null;
   const featuredProducts = (featured.length ? featured : catalogProducts)
     .filter((product) => product.metadata?.fulfillment_type !== 'manual_service')
     .slice(0, 4);
