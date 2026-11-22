@@ -2,50 +2,71 @@ import React, { useMemo, useState } from 'react';
 import './ToolsHome.css';
 import {
   FiArrowRight, FiCheckCircle, FiCode, FiCopy, FiFileText, FiImage, FiLink,
-  FiLock, FiMusic, FiPlay, FiSearch, FiSliders, FiVideo, FiX, FiZap,
+  FiLock, FiLogIn, FiLogOut, FiMusic, FiPlay, FiSearch, FiSliders, FiUser,
+  FiVideo, FiX, FiZap,
 } from 'react-icons/fi';
 
 const TOOLS = [
-  { id: 'video', icon: FiVideo, category: 'VIDEO', title: 'Video Studio', copy: 'Import your own media, plan formats, and prepare a job.', state: 'AUTHORIZED MEDIA' },
-  { id: 'json', icon: FiCode, category: 'DEVELOPER', title: 'JSON Formatter', copy: 'Format, validate, and clean JSON in your browser.', state: 'READY NOW' },
-  { id: 'text', icon: FiFileText, category: 'TEXT', title: 'Text Transformer', copy: 'Clean, convert, and reshape text instantly.', state: 'READY NOW' },
-  { id: 'password', icon: FiLock, category: 'SECURITY', title: 'Password Forge', copy: 'Generate strong passwords without sending data anywhere.', state: 'READY NOW' },
-  { id: 'url', icon: FiLink, category: 'DEVELOPER', title: 'URL Encoder', copy: 'Encode or decode URLs and query-string values.', state: 'READY NOW' },
-  { id: 'image', icon: FiImage, category: 'IMAGE', title: 'Image Lab', copy: 'Resize, convert, compress, and remove backgrounds.', state: 'NEXT' },
-  { id: 'audio', icon: FiMusic, category: 'AUDIO', title: 'Audio Lab', copy: 'Extract audio, transcribe, clean noise, and export captions.', state: 'NEXT' },
+  { id: 'video', icon: FiVideo, category: 'វីដេអូ', title: 'បន្ទប់រៀបចំវីដេអូ', copy: 'បញ្ចូលវីដេអូ ឬសំឡេងដែលអ្នកមានសិទ្ធិប្រើ ដើម្បីរៀបចំការងារ។', state: 'អាចប្រើបាន' },
+  { id: 'json', icon: FiCode, category: 'អ្នកអភិវឌ្ឍន៍', title: 'រៀបចំ JSON', copy: 'តម្រៀប និងពិនិត្យ JSON របស់អ្នកភ្លាមៗក្នុងកម្មវិធីរុករក។', state: 'អាចប្រើបាន' },
+  { id: 'text', icon: FiFileText, category: 'អត្ថបទ', title: 'កែសម្រួលអត្ថបទ', copy: 'បម្លែងអក្សរ លុបចន្លោះលើស និងរៀបចំអត្ថបទឲ្យស្អាត។', state: 'អាចប្រើបាន' },
+  { id: 'password', icon: FiLock, category: 'សុវត្ថិភាព', title: 'បង្កើតពាក្យសម្ងាត់', copy: 'បង្កើតពាក្យសម្ងាត់រឹងមាំដោយមិនបញ្ជូនទិន្នន័យចេញ។', state: 'អាចប្រើបាន' },
+  { id: 'url', icon: FiLink, category: 'អ្នកអភិវឌ្ឍន៍', title: 'បម្លែងតំណភ្ជាប់', copy: 'អ៊ិនកូដ ឬឌីកូដតំណភ្ជាប់ និងអក្សរពិសេសបានយ៉ាងងាយ។', state: 'អាចប្រើបាន' },
+  { id: 'image', icon: FiImage, category: 'រូបភាព', title: 'បន្ទប់កែរូបភាព', copy: 'បង្រួម បម្លែង និងកែទំហំរូបភាពសម្រាប់ការប្រើប្រាស់របស់អ្នក។', state: 'កំពុងរៀបចំ' },
+  { id: 'audio', icon: FiMusic, category: 'សំឡេង', title: 'បន្ទប់កែសំឡេង', copy: 'បម្លែងសំឡេង ដកសំឡេងរំខាន និងរៀបចំអត្ថបទសំឡេង។', state: 'កំពុងរៀបចំ' },
 ];
 
-const CATEGORIES = ['ALL', 'VIDEO', 'IMAGE', 'AUDIO', 'TEXT', 'DEVELOPER', 'SECURITY'];
+const CATEGORIES = ['ទាំងអស់', 'វីដេអូ', 'រូបភាព', 'សំឡេង', 'អត្ថបទ', 'អ្នកអភិវឌ្ឍន៍', 'សុវត្ថិភាព'];
 
 function copyText(value) {
   if (navigator.clipboard) navigator.clipboard.writeText(value);
 }
 
+function storedProfile() {
+  try { return JSON.parse(sessionStorage.getItem('rovistar-tools-profile')) || null; } catch { return null; }
+}
+
 export default function ToolsHome() {
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('ALL');
+  const [category, setCategory] = useState('ទាំងអស់');
   const [activeTool, setActiveTool] = useState('video');
   const [source, setSource] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
-  const [jsonInput, setJsonInput] = useState('{\n  "hello": "ROVISTAR TOOLS"\n}');
+  const [jsonInput, setJsonInput] = useState('{\n  "សារ": "សូមស្វាគមន៍មកកាន់ ROVISTAR TOOLS"\n}');
   const [jsonOutput, setJsonOutput] = useState('');
-  const [textInput, setTextInput] = useState('Make your work faster with ROVISTAR TOOLS');
+  const [textInput, setTextInput] = useState('កែសម្រួលអត្ថបទរបស់អ្នកឲ្យស្អាត និងងាយអាន');
   const [textOutput, setTextOutput] = useState('');
-  const [urlInput, setUrlInput] = useState('https://rovistar.shop/?tool=video studio');
+  const [urlInput, setUrlInput] = useState('https://rovistar.shop/?tool=video');
   const [urlOutput, setUrlOutput] = useState('');
   const [password, setPassword] = useState('');
+  const [profile, setProfile] = useState(storedProfile);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [pendingTool, setPendingTool] = useState(null);
+  const [accountName, setAccountName] = useState('');
+  const [accountEmail, setAccountEmail] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   const shownTools = useMemo(() => TOOLS.filter((tool) => {
-    const matchesCategory = category === 'ALL' || tool.category === category;
-    const haystack = `${tool.title} ${tool.copy} ${tool.category}`.toLowerCase();
-    return matchesCategory && haystack.includes(query.toLowerCase());
+    const matchesCategory = category === 'ទាំងអស់' || tool.category === category;
+    const haystack = `${tool.title} ${tool.copy} ${tool.category}`;
+    return matchesCategory && haystack.includes(query);
   }), [category, query]);
-
   const active = TOOLS.find((tool) => tool.id === activeTool) || TOOLS[0];
-  const selectTool = (tool) => {
+
+  const openTool = (tool) => {
+    if (!profile) { setPendingTool(tool); setLoginOpen(true); return; }
     setActiveTool(tool.id);
     document.getElementById('workbench')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+  const completeLogin = (event) => {
+    event.preventDefault();
+    if (!accountName.trim() || !accountEmail.includes('@')) { setLoginError('សូមបញ្ចូលឈ្មោះ និងអ៊ីមែលឲ្យត្រឹមត្រូវ។'); return; }
+    const nextProfile = { name: accountName.trim(), email: accountEmail.trim() };
+    sessionStorage.setItem('rovistar-tools-profile', JSON.stringify(nextProfile));
+    setProfile(nextProfile); setLoginOpen(false); setLoginError('');
+    if (pendingTool) { setActiveTool(pendingTool.id); setPendingTool(null); setTimeout(() => document.getElementById('workbench')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0); }
+  };
+  const logout = () => { sessionStorage.removeItem('rovistar-tools-profile'); setProfile(null); };
   const generatePassword = () => {
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*?';
     const values = new Uint32Array(18);
@@ -54,52 +75,58 @@ export default function ToolsHome() {
   };
 
   return (
-    <div className="tools-home">
+    <div className="tools-home khmer-tools-home">
       <div className="tools-noise" aria-hidden="true" />
       <header className="tools-nav">
-        <a href="/" className="tools-brand"><span>R</span><b>ROVISTAR</b><i>TOOLS</i></a>
-        <nav><a href="#tools">Explore tools</a><a href="#workbench">Workbench</a><a href="#roadmap">Roadmap</a></nav>
-        <button type="button" className="tools-nav-button" onClick={() => document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' })}>Open toolbox <FiArrowRight /></button>
+        <a href="/" className="tools-brand" aria-label="ROVISTAR TOOLS"><span>R</span><b>ROVISTAR</b><i>TOOLS</i></a>
+        <nav><a href="#tools">ឧបករណ៍</a><a href="#workbench">កន្លែងធ្វើការ</a><a href="#roadmap">មុខងារថ្មី</a></nav>
+        <div className="tools-account-actions">
+          {profile ? <><span className="tools-user-name"><FiUser /> {profile.name}</span><button type="button" className="tools-login-link" onClick={logout}><FiLogOut /> ចាកចេញ</button></> : <button type="button" className="tools-login-link" onClick={() => setLoginOpen(true)}><FiLogIn /> ចូលគណនី</button>}
+          <button type="button" className="tools-nav-button" onClick={() => profile ? document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' }) : setLoginOpen(true)}>{profile ? 'ចូលប្រើឧបករណ៍' : 'ចាប់ផ្តើមប្រើ'} <FiArrowRight /></button>
+        </div>
       </header>
 
       <main>
         <section className="tools-hero">
           <div className="tools-hero-copy">
-            <p className="tools-eyebrow"><FiZap /> A CREATOR AND PRODUCTIVITY UTILITY LAB</p>
-            <h1>One sharp <em>toolbox.</em><br />No noisy workflow.</h1>
-            <p className="tools-hero-lede">Turn files, ideas and repetitive work into finished output. Start with the fast browser tools, then bring your own media into the studio.</p>
-            <div className="tools-hero-actions"><button type="button" onClick={() => document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' })}>Explore tools <FiArrowRight /></button><a href="#workbench">Try a tool now</a></div>
-            <div className="tools-hero-proof"><span><b>05</b> live browser tools</span><span><b>03</b> creator labs next</span><span><b>0</b> files sent for text tools</span></div>
+            <p className="tools-eyebrow"><FiZap /> កន្លែងប្រើឧបករណ៍សម្រាប់ការងារប្រចាំថ្ងៃ</p>
+            <h1>ធ្វើការឲ្យលឿន<br /><em>ជាមួយឧបករណ៍</em><br />ដែលងាយប្រើ។</h1>
+            <p className="tools-hero-lede">ROVISTAR TOOLS ជួយអ្នករៀបចំវីដេអូ អត្ថបទ ឯកសារ និងការងារឌីជីថលផ្សេងៗនៅកន្លែងតែមួយ។</p>
+            <div className="tools-hero-actions"><button type="button" onClick={() => profile ? document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' }) : setLoginOpen(true)}>{profile ? 'មើលឧបករណ៍' : 'ចូលគណនីដើម្បីប្រើ'} <FiArrowRight /></button><a href="#tools">មើលឧបករណ៍ទាំងអស់</a></div>
+            <div className="tools-hero-proof"><span><b>៥</b> ឧបករណ៍អាចប្រើបាន</span><span><b>៣</b> មុខងារថ្មីកំពុងមក</span><span><b>១</b> គណនីសម្រាប់គ្រប់ឧបករណ៍</span></div>
           </div>
-          <div className="tools-signal-board" aria-label="Tool platform preview">
-            <div className="tools-board-top"><span>WORKSPACE / 01</span><i>ONLINE</i></div>
+          <div className="tools-signal-board" aria-label="ព័ត៌មានអំពីការប្រើឧបករណ៍">
+            <div className="tools-board-top"><span>កន្លែងធ្វើការ</span><i>រួចរាល់</i></div>
             <div className="tools-board-orbit"><span className="orbit-core"><FiZap /></span><span className="orbit-dot dot-one" /><span className="orbit-dot dot-two" /><span className="orbit-dot dot-three" /></div>
-            <div className="tools-board-stream"><span>VIDEO IMPORT</span><b>Authorized source ready</b><small>Bring a file or a permitted link.</small></div>
-            <div className="tools-board-bottom"><span>FORMAT</span><b>MP4 / MP3 / SRT</b><span>QUEUE</span><b>01</b></div>
+            <div className="tools-board-stream"><span>ចូលប្រើឧបករណ៍</span><b>រៀបចំការងាររបស់អ្នក</b><small>ចូលគណនីម្តង ដើម្បីប្រើឧបករណ៍ទាំងអស់។</small></div>
+            <div className="tools-board-bottom"><span>ស្ថានភាព</span><b>ត្រៀមប្រើ</b><span>ឧបករណ៍</span><b>០៥</b></div>
           </div>
         </section>
 
         <section className="tools-directory" id="tools">
-          <div className="tools-directory-heading"><div><p className="tools-eyebrow">TOOL DIRECTORY</p><h2>Pick a task. Make progress.</h2></div><p>Useful utilities first. Heavy media workflows follow with permission-aware imports.</p></div>
-          <div className="tools-filter-row"><div className="tools-search"><FiSearch /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search a tool" />{query && <button type="button" onClick={() => setQuery('')}><FiX /></button>}</div><div className="tools-categories">{CATEGORIES.map((item) => <button key={item} type="button" className={item === category ? 'is-active' : ''} onClick={() => setCategory(item)}>{item}</button>)}</div></div>
-          <div className="tools-card-grid">{shownTools.map((tool, index) => { const Icon = tool.icon; return <article key={tool.id} className={`tools-card tools-card-${index % 4}`}><div className="tools-card-mark"><Icon /></div><span>{tool.category}</span><h3>{tool.title}</h3><p>{tool.copy}</p><div><small className={tool.state === 'READY NOW' ? 'is-ready' : ''}>{tool.state}</small><button type="button" onClick={() => selectTool(tool)}>Open <FiArrowRight /></button></div></article>; })}</div>
+          <div className="tools-directory-heading"><div><p className="tools-eyebrow">បញ្ជីឧបករណ៍</p><h2>ជ្រើសរើសការងារដែលអ្នកចង់ធ្វើ។</h2></div><p>សូមចូលគណនីជាមុន ដើម្បីបើកប្រើឧបករណ៍ និងរក្សាទុកការងាររបស់អ្នក។</p></div>
+          <div className="tools-filter-row"><div className="tools-search"><FiSearch /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ស្វែងរកឧបករណ៍" />{query && <button type="button" onClick={() => setQuery('')} aria-label="លុបការស្វែងរក"><FiX /></button>}</div><div className="tools-categories">{CATEGORIES.map((item) => <button key={item} type="button" className={item === category ? 'is-active' : ''} onClick={() => setCategory(item)}>{item}</button>)}</div></div>
+          <div className="tools-card-grid">{shownTools.map((tool, index) => { const Icon = tool.icon; return <article key={tool.id} className={`tools-card tools-card-${index % 4}`}><div className="tools-card-mark"><Icon /></div><span>{tool.category}</span><h3>{tool.title}</h3><p>{tool.copy}</p><div><small className={tool.state === 'អាចប្រើបាន' ? 'is-ready' : ''}>{tool.state}</small><button type="button" onClick={() => openTool(tool)}>{profile ? 'បើកប្រើ' : 'ចូលគណនី'} <FiArrowRight /></button></div></article>; })}</div>
         </section>
 
         <section className="tools-workbench" id="workbench">
-          <div className="tools-workbench-sidebar"><p className="tools-eyebrow">LIVE WORKBENCH</p><h2>{active.title}</h2><p>{active.copy}</p><div className="tools-mini-list">{TOOLS.slice(0, 5).map((tool) => <button key={tool.id} type="button" className={tool.id === activeTool ? 'is-active' : ''} onClick={() => setActiveTool(tool.id)}>{tool.title}<FiArrowRight /></button>)}</div></div>
+          <div className="tools-workbench-sidebar"><p className="tools-eyebrow">កន្លែងធ្វើការ</p><h2>{active.title}</h2><p>{active.copy}</p><div className="tools-mini-list">{TOOLS.slice(0, 5).map((tool) => <button key={tool.id} type="button" className={tool.id === activeTool ? 'is-active' : ''} onClick={() => openTool(tool)}>{tool.title}<FiArrowRight /></button>)}</div></div>
           <div className="tools-workbench-panel">
-            {activeTool === 'video' && <div className="tools-panel-content"><div className="tools-panel-title"><FiVideo /><div><span>AUTHORIZED VIDEO IMPORT</span><h3>Bring your own media into the queue.</h3></div></div><label className="tools-file-drop"><input type="file" accept="video/*,audio/*" onChange={(event) => setSelectedFile(event.target.files?.[0] || null)} /><FiPlay /><b>{selectedFile ? selectedFile.name : 'Choose a video or audio file'}</b><small>{selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(1)} MB selected` : 'Your file stays local until you explicitly start a media job.'}</small></label><div className="tools-or">OR USE A PERMITTED DIRECT FILE URL</div><input className="tools-input" value={source} onChange={(event) => setSource(event.target.value)} placeholder="https://your-file-host.example/video.mp4" /><p className="tools-panel-note"><FiCheckCircle /> Use content you own or are authorized to process. Platform-restricted links are not extracted.</p></div>}
-            {activeTool === 'json' && <div className="tools-panel-content"><div className="tools-panel-title"><FiCode /><div><span>DEVELOPER UTILITY</span><h3>Format and validate JSON.</h3></div></div><textarea value={jsonInput} onChange={(event) => setJsonInput(event.target.value)} className="tools-textarea" spellCheck="false" /><div className="tools-panel-actions"><button type="button" onClick={() => { try { setJsonOutput(JSON.stringify(JSON.parse(jsonInput), null, 2)); } catch (error) { setJsonOutput(`Invalid JSON: ${error.message}`); } }}>Format JSON <FiArrowRight /></button>{jsonOutput && <button type="button" className="tools-copy" onClick={() => copyText(jsonOutput)}><FiCopy /> Copy</button>}</div>{jsonOutput && <pre className="tools-output">{jsonOutput}</pre>}</div>}
-            {activeTool === 'text' && <div className="tools-panel-content"><div className="tools-panel-title"><FiFileText /><div><span>TEXT UTILITY</span><h3>Transform text instantly.</h3></div></div><textarea value={textInput} onChange={(event) => setTextInput(event.target.value)} className="tools-textarea" /><div className="tools-transform-row"><button type="button" onClick={() => setTextOutput(textInput.toUpperCase())}>UPPERCASE</button><button type="button" onClick={() => setTextOutput(textInput.toLowerCase())}>lowercase</button><button type="button" onClick={() => setTextOutput(textInput.replace(/\s+/g, ' ').trim())}>Clean spaces</button></div>{textOutput && <div className="tools-output tools-plain-output">{textOutput}<button type="button" onClick={() => copyText(textOutput)}><FiCopy /></button></div>}</div>}
-            {activeTool === 'password' && <div className="tools-panel-content"><div className="tools-panel-title"><FiLock /><div><span>SECURITY UTILITY</span><h3>Create a strong local password.</h3></div></div><div className="tools-password-orb"><FiLock /></div><button type="button" className="tools-primary-action" onClick={generatePassword}>Generate password <FiZap /></button>{password && <div className="tools-output tools-plain-output"><code>{password}</code><button type="button" onClick={() => copyText(password)}><FiCopy /></button></div>}</div>}
-            {activeTool === 'url' && <div className="tools-panel-content"><div className="tools-panel-title"><FiLink /><div><span>DEVELOPER UTILITY</span><h3>Encode or decode a URL.</h3></div></div><textarea value={urlInput} onChange={(event) => setUrlInput(event.target.value)} className="tools-textarea" /><div className="tools-transform-row"><button type="button" onClick={() => setUrlOutput(encodeURIComponent(urlInput))}>Encode</button><button type="button" onClick={() => { try { setUrlOutput(decodeURIComponent(urlInput)); } catch { setUrlOutput('This value cannot be decoded.'); } }}>Decode</button></div>{urlOutput && <div className="tools-output tools-plain-output">{urlOutput}<button type="button" onClick={() => copyText(urlOutput)}><FiCopy /></button></div>}</div>}
-            {['image', 'audio'].includes(activeTool) && <div className="tools-panel-content tools-coming"><FiSliders /><span>UP NEXT</span><h3>{active.title} is on the next build queue.</h3><p>It will include safe file import, browser-first processing, and an export history.</p><button type="button" onClick={() => setActiveTool('video')}>Try Video Studio <FiArrowRight /></button></div>}
+            {!profile && <div className="tools-gate"><FiLock /><h3>ចូលគណនីដើម្បីចាប់ផ្តើមប្រើ</h3><p>គណនីរបស់អ្នកអាចចូលប្រើឧបករណ៍ទាំងអស់ និងរក្សាទុកការងាររបស់អ្នកបាន។</p><button type="button" onClick={() => setLoginOpen(true)}>ចូលគណនី <FiArrowRight /></button></div>}
+            {profile && activeTool === 'video' && <div className="tools-panel-content"><div className="tools-panel-title"><FiVideo /><div><span>បញ្ចូលវីដេអូដែលមានសិទ្ធិប្រើ</span><h3>បន្ថែមឯកសាររបស់អ្នកមកកន្លែងធ្វើការ។</h3></div></div><label className="tools-file-drop"><input type="file" accept="video/*,audio/*" onChange={(event) => setSelectedFile(event.target.files?.[0] || null)} /><FiPlay /><b>{selectedFile ? selectedFile.name : 'ជ្រើសរើសវីដេអូ ឬឯកសារសំឡេង'}</b><small>{selectedFile ? `បានជ្រើសរើស ${Math.ceil(selectedFile.size / 1024 / 1024)} MB` : 'ឯកសាររបស់អ្នកនៅលើឧបករណ៍នេះ រហូតដល់អ្នកចាប់ផ្តើមការងារ។'}</small></label><div className="tools-or">ឬ បញ្ចូលតំណឯកសារដែលអ្នកមានសិទ្ធិប្រើ</div><input className="tools-input" value={source} onChange={(event) => setSource(event.target.value)} placeholder="https://example.com/video.mp4" /><p className="tools-panel-note"><FiCheckCircle /> ប្រើតែឯកសារ និងខ្លឹមសារដែលអ្នកជាម្ចាស់ ឬមានសិទ្ធិដំណើរការ។</p></div>}
+            {profile && activeTool === 'json' && <div className="tools-panel-content"><div className="tools-panel-title"><FiCode /><div><span>ឧបករណ៍សម្រាប់អ្នកអភិវឌ្ឍន៍</span><h3>តម្រៀប និងពិនិត្យ JSON។</h3></div></div><textarea value={jsonInput} onChange={(event) => setJsonInput(event.target.value)} className="tools-textarea" spellCheck="false" /><div className="tools-panel-actions"><button type="button" onClick={() => { try { setJsonOutput(JSON.stringify(JSON.parse(jsonInput), null, 2)); } catch (error) { setJsonOutput(`JSON មិនត្រឹមត្រូវ៖ ${error.message}`); } }}>តម្រៀប JSON <FiArrowRight /></button>{jsonOutput && <button type="button" className="tools-copy" onClick={() => copyText(jsonOutput)}><FiCopy /> ចម្លង</button>}</div>{jsonOutput && <pre className="tools-output">{jsonOutput}</pre>}</div>}
+            {profile && activeTool === 'text' && <div className="tools-panel-content"><div className="tools-panel-title"><FiFileText /><div><span>ឧបករណ៍អត្ថបទ</span><h3>កែសម្រួលអត្ថបទបានភ្លាមៗ។</h3></div></div><textarea value={textInput} onChange={(event) => setTextInput(event.target.value)} className="tools-textarea" /><div className="tools-transform-row"><button type="button" onClick={() => setTextOutput(textInput.toUpperCase())}>អក្សរធំ</button><button type="button" onClick={() => setTextOutput(textInput.toLowerCase())}>អក្សរតូច</button><button type="button" onClick={() => setTextOutput(textInput.replace(/\s+/g, ' ').trim())}>លុបចន្លោះលើស</button></div>{textOutput && <div className="tools-output tools-plain-output">{textOutput}<button type="button" onClick={() => copyText(textOutput)} aria-label="ចម្លង"><FiCopy /></button></div>}</div>}
+            {profile && activeTool === 'password' && <div className="tools-panel-content"><div className="tools-panel-title"><FiLock /><div><span>ឧបករណ៍សុវត្ថិភាព</span><h3>បង្កើតពាក្យសម្ងាត់រឹងមាំ។</h3></div></div><div className="tools-password-orb"><FiLock /></div><button type="button" className="tools-primary-action" onClick={generatePassword}>បង្កើតពាក្យសម្ងាត់ <FiZap /></button>{password && <div className="tools-output tools-plain-output"><code>{password}</code><button type="button" onClick={() => copyText(password)} aria-label="ចម្លង"><FiCopy /></button></div>}</div>}
+            {profile && activeTool === 'url' && <div className="tools-panel-content"><div className="tools-panel-title"><FiLink /><div><span>ឧបករណ៍សម្រាប់អ្នកអភិវឌ្ឍន៍</span><h3>បម្លែងតំណភ្ជាប់បានងាយ។</h3></div></div><textarea value={urlInput} onChange={(event) => setUrlInput(event.target.value)} className="tools-textarea" /><div className="tools-transform-row"><button type="button" onClick={() => setUrlOutput(encodeURIComponent(urlInput))}>អ៊ិនកូដ</button><button type="button" onClick={() => { try { setUrlOutput(decodeURIComponent(urlInput)); } catch { setUrlOutput('តំណភ្ជាប់នេះមិនអាចឌីកូដបានទេ។'); } }}>ឌីកូដ</button></div>{urlOutput && <div className="tools-output tools-plain-output">{urlOutput}<button type="button" onClick={() => copyText(urlOutput)} aria-label="ចម្លង"><FiCopy /></button></div>}</div>}
+            {profile && ['image', 'audio'].includes(activeTool) && <div className="tools-panel-content tools-coming"><FiSliders /><span>កំពុងរៀបចំ</span><h3>{active.title} នឹងមកដល់ឆាប់ៗនេះ។</h3><p>យើងកំពុងបន្ថែមការនាំចូលឯកសារ ការកែសម្រួលក្នុងកម្មវិធីរុករក និងប្រវត្តិការនាំចេញ។</p><button type="button" onClick={() => setActiveTool('video')}>សាកល្បងបន្ទប់វីដេអូ <FiArrowRight /></button></div>}
           </div>
         </section>
 
-        <section className="tools-roadmap" id="roadmap"><div><p className="tools-eyebrow">THE NEXT BUILD</p><h2>Designed to become your daily operating desk.</h2></div><ol><li><b>01</b><span><strong>Media jobs</strong>Convert, compress, captions, and exports for owned or authorized media.</span></li><li><b>02</b><span><strong>File workspace</strong>Private history, reusable presets, and safe deletion controls.</span></li><li><b>03</b><span><strong>Khmer AI utilities</strong>Translate, summarize, captions, and cleaner business writing.</span></li></ol></section>
+        <section className="tools-roadmap" id="roadmap"><div><p className="tools-eyebrow">អ្វីដែលនឹងមកដល់</p><h2>បង្កើតសម្រាប់ការងាររបស់អ្នករាល់ថ្ងៃ។</h2></div><ol><li><b>០១</b><span><strong>ការងារវីដេអូ</strong>បម្លែង បង្រួម បង្កើតចំណងជើង និងនាំចេញឯកសារដែលអ្នកមានសិទ្ធិប្រើ។</span></li><li><b>០២</b><span><strong>កន្លែងរក្សាទុកឯកសារ</strong>រក្សាប្រវត្តិការងារ កំណត់ស្រេចប្រើ និងគ្រប់គ្រងឯកសារដោយសុវត្ថិភាព។</span></li><li><b>០៣</b><span><strong>ឧបករណ៍ AI ភាសាខ្មែរ</strong>បកប្រែ សង្ខេបអត្ថបទ សរសេរចំណងជើង និងកែសម្រួលសំណេរ។</span></li></ol></section>
       </main>
-      <footer className="tools-footer"><span>ROVISTAR TOOLS / BUILT FOR USEFUL WORK</span><span>Use content and files you have the right to process.</span></footer>
+      <footer className="tools-footer"><span>ROVISTAR TOOLS / ធ្វើការឲ្យងាយជាងមុន</span><span>សូមប្រើតែឯកសារ និងខ្លឹមសារដែលអ្នកមានសិទ្ធិប្រើ។</span></footer>
+
+      {loginOpen && <div className="tools-login-backdrop" role="presentation" onMouseDown={() => setLoginOpen(false)}><section className="tools-login-modal" role="dialog" aria-modal="true" aria-labelledby="tools-login-title" onMouseDown={(event) => event.stopPropagation()}><button type="button" className="tools-modal-close" onClick={() => setLoginOpen(false)} aria-label="បិទ"><FiX /></button><div className="tools-login-icon"><FiUser /></div><p>គណនី ROVISTAR TOOLS</p><h2 id="tools-login-title">ចូលគណនីដើម្បីប្រើឧបករណ៍ទាំងអស់</h2><span>បញ្ចូលព័ត៌មានរបស់អ្នក ដើម្បីចាប់ផ្តើមប្រើឧបករណ៍ និងរក្សាទុកការងាររបស់អ្នកក្នុងសម័យប្រើប្រាស់នេះ។</span><form onSubmit={completeLogin}><label>ឈ្មោះរបស់អ្នក<input value={accountName} onChange={(event) => setAccountName(event.target.value)} placeholder="បញ្ចូលឈ្មោះ" autoFocus /></label><label>អ៊ីមែល<input type="email" value={accountEmail} onChange={(event) => setAccountEmail(event.target.value)} placeholder="អ្នក@អ៊ីមែល.com" /></label>{loginError && <em>{loginError}</em>}<button type="submit">ចូលប្រើឧបករណ៍ <FiArrowRight /></button></form><small>អ្នកអាចចាកចេញពីគណនីបានគ្រប់ពេលនៅខាងលើ។</small></section></div>}
     </div>
   );
 }
