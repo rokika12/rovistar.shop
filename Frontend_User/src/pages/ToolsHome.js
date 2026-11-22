@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import './ToolsHome.css';
 import {
-  FiArrowRight, FiCheckCircle, FiCode, FiCopy, FiFileText, FiImage, FiLink,
-  FiLock, FiLogIn, FiLogOut, FiMusic, FiPlay, FiSearch, FiSliders, FiUser,
-  FiVideo, FiX, FiZap,
+  FiArrowRight, FiCheckCircle, FiCode, FiCopy, FiFileText, FiHeart, FiImage,
+  FiLink, FiLock, FiLogIn, FiLogOut, FiMusic, FiPlay, FiSearch, FiSliders,
+  FiUser, FiVideo, FiVolume2, FiX, FiZap,
 } from 'react-icons/fi';
 
 const TOOLS = [
@@ -87,19 +87,23 @@ export default function ToolsHome() {
       </header>
 
       <main>
-        <section className="tools-hero">
-          <div className="tools-hero-copy">
-            <p className="tools-eyebrow"><FiZap /> កន្លែងប្រើឧបករណ៍សម្រាប់ការងារប្រចាំថ្ងៃ</p>
-            <h1>ធ្វើការឲ្យលឿន<br /><em>ជាមួយឧបករណ៍</em><br />ដែលងាយប្រើ។</h1>
-            <p className="tools-hero-lede">ROVISTAR TOOLS ជួយអ្នករៀបចំវីដេអូ អត្ថបទ ឯកសារ និងការងារឌីជីថលផ្សេងៗនៅកន្លែងតែមួយ។</p>
-            <div className="tools-hero-actions"><button type="button" onClick={() => profile ? document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' }) : setLoginOpen(true)}>{profile ? 'មើលឧបករណ៍' : 'ចូលគណនីដើម្បីប្រើ'} <FiArrowRight /></button><a href="#tools">មើលឧបករណ៍ទាំងអស់</a></div>
-            <div className="tools-hero-proof"><span><b>៥</b> ឧបករណ៍អាចប្រើបាន</span><span><b>៣</b> មុខងារថ្មីកំពុងមក</span><span><b>១</b> គណនីសម្រាប់គ្រប់ឧបករណ៍</span></div>
+        <section className="tools-hero reference-hero">
+          <div className="tools-hero-copy reference-hero-copy">
+            <p className="reference-badge"><FiZap /> ឧបករណ៍ឆ្លាតវៃសម្រាប់ការងារប្រចាំថ្ងៃ</p>
+            <h1>ធ្វើការបានងាយ<br /><em>លឿនជាងមុន</em><br />រាល់ថ្ងៃ។</h1>
+            <p className="reference-subtitle">ឧបករណ៍ឌីជីថលជាភាសាខ្មែរ សម្រាប់ជួយអ្នកធ្វើការបានលឿន ស្អាត និងមានប្រសិទ្ធភាព។</p>
+            <p className="tools-hero-lede">ចាប់ផ្តើមពីអត្ថបទ តំណភ្ជាប់ និងឯកសាររបស់អ្នក។ ចូលគណនីម្តង ដើម្បីបើកប្រើ Tool ទាំងអស់នៅកន្លែងតែមួយ។</p>
+            <div className="tools-hero-actions"><button type="button" onClick={() => profile ? document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' }) : setLoginOpen(true)}>{profile ? 'ចូលប្រើឧបករណ៍' : 'ចាប់ផ្តើមប្រើ'} <FiArrowRight /></button><a href="#tools">មើលឧបករណ៍ទាំងអស់</a></div>
+            <p className="reference-helper">ងាយប្រើ សម្រាប់អ្នកចាប់ផ្តើម និងអ្នកធ្វើការជំនាញ។</p>
           </div>
-          <div className="tools-signal-board" aria-label="ព័ត៌មានអំពីការប្រើឧបករណ៍">
-            <div className="tools-board-top"><span>កន្លែងធ្វើការ</span><i>រួចរាល់</i></div>
-            <div className="tools-board-orbit"><span className="orbit-core"><FiZap /></span><span className="orbit-dot dot-one" /><span className="orbit-dot dot-two" /><span className="orbit-dot dot-three" /></div>
-            <div className="tools-board-stream"><span>ចូលប្រើឧបករណ៍</span><b>រៀបចំការងាររបស់អ្នក</b><small>ចូលគណនីម្តង ដើម្បីប្រើឧបករណ៍ទាំងអស់។</small></div>
-            <div className="tools-board-bottom"><span>ស្ថានភាព</span><b>ត្រៀមប្រើ</b><span>ឧបករណ៍</span><b>០៥</b></div>
+          <div className="reference-phone-scene" aria-label="គំរូនៃឧបករណ៍ ROVISTAR">
+            <div className="reference-phone-shadow" />
+            <div className="reference-phone">
+              <div className="reference-phone-top"><div className="reference-progress"><span /></div><div className="reference-score"><FiHeart /> <b>៥</b></div></div>
+              <div className="reference-lesson-card"><div className="reference-sun">☀</div><div className="reference-lesson-row"><b>រៀបចំ<br />ការងារ</b><button type="button" aria-label="ស្តាប់"><FiVolume2 /></button></div><small>ឧបករណ៍ឆ្លាតវៃសម្រាប់អ្នក</small><strong>ងាយប្រើ និងរហ័ស</strong></div>
+              <button type="button" className="reference-continue" onClick={() => profile ? document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' }) : setLoginOpen(true)}>ចាប់ផ្តើមប្រើ</button>
+            </div>
+            <div className="reference-mascot" aria-hidden="true"><span className="mascot-bubble">សួស្តី!<small>ត្រៀមធ្វើការហើយឬនៅ?</small></span><div className="mascot-head"><i /><i /></div><div className="mascot-body"><span>R</span></div><div className="mascot-scarf" /></div>
           </div>
         </section>
 
