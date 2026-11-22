@@ -11,6 +11,7 @@ import { useLanguage } from './i18n';
 
 // Keep the first storefront visit light; secondary screens load only when opened.
 const CreateShop = lazy(() => import('./pages/CreateShop'));
+const ToolsHome = lazy(() => import('./pages/ToolsHome'));
 const ShopHome = lazy(() => import('./pages/ShopHome'));
 const Products = lazy(() => import('./pages/Products'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
@@ -29,18 +30,7 @@ export default function App() {
           <OwnerProvider>
             <Suspense fallback={<PageLoader />}>
             <Routes>
-          <Route path="/" element={<ShopProvider directDomain><ShopLayout /></ShopProvider>}>
-            <Route index element={<ShopHome />} />
-            <Route path="products" element={<Products />} />
-            <Route path="product/:id" element={<ProductDetail />} />
-            <Route path="checkout" element={<Checkout />} />
-            <Route path="order-success" element={<OrderSuccess />} />
-            <Route path="my-orders" element={<MyOrders />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="information" element={<InformationFeed />} />
-            <Route path="saved-information" element={<InformationFeed savedOnly />} />
-            <Route path="about" element={<About />} />
-          </Route>
+          <Route path="/" element={<ToolsHome />} />
           <Route path="/create-shop" element={<CreateShop />} />
           <Route
             path="/:username"
