@@ -53,7 +53,16 @@ export const ShopProvider = ({ children, directDomain = false }) => {
     setError(null);
     setShop(null); // reset so we never show the previous shop's data while loading
     setShopFavicon(null);
-    (username ? Promise.resolve({ username }) : getShopForDomain(window.location.hostname))
+    const hostname = window.location.hostname;
+    // The hosted Render storefront remains usable after a database recovery, before
+    // its domain mapping has been recreated in the new database.
+    const resolvedShop = username
+      ? Promise.resolve({ username })
+      : getShopForDomain(hostname).catch((error) => {
+        if (hostname === 'rovistar-storefront.onrender.com') return { username: 'demo' };
+        throw error;
+      });
+    resolvedShop
       .then((resolved) => loadShop(resolved.username))
       .catch((err) => {
         setError(err?.response?.data?.detail || 'Shop not found');
