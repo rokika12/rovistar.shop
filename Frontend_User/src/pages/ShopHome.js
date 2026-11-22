@@ -13,6 +13,7 @@ import CategoryNav from '../components/CategoryNav';
 import ProductCard from '../components/ProductCard';
 import ProductRow from '../components/ProductRow';
 import ShopSearchBar from '../components/ShopSearchBar';
+import CommerceToolbox from '../components/CommerceToolbox';
 
 export default function ShopHome() {
   const { shop } = useShop();
@@ -22,6 +23,10 @@ export default function ShopHome() {
   const [categories, setCategories] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [toolQuery, setToolQuery] = useState('');
+  const [toolCategory, setToolCategory] = useState('');
+  const [toolSort, setToolSort] = useState('featured');
+  const [inStockOnly, setInStockOnly] = useState(false);
 
   useEffect(() => {
     if (!shop) return;
@@ -49,6 +54,25 @@ export default function ShopHome() {
 
   if (!shop) return null;
   const catalogProducts = allProducts.filter((product) => product.metadata?.fulfillment_type !== 'manual_service');
+  const toolProducts = useMemo(() => {
+    const query = toolQuery.trim().toLowerCase();
+    const filtered = catalogProducts.filter((product) => {
+      const matchesCategory = !toolCategory || String(product.category_id) === String(toolCategory);
+        const matchesSearch = !query || [product.name, product.description, product.category_name]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(query));
+      const isAvailable = product.metadata?.fulfillment_type === 'manual_service'
+        ? !product.metadata?.manual_service_out_of_stock
+        : Number(product.quantity) > 0;
+      return matchesCategory && matchesSearch && (!inStockOnly || isAvailable);
+    });
+    return [...filtered].sort((a, b) => {
+      if (toolSort === 'low') return Number(a.sale_price ?? a.price) - Number(b.sale_price ?? b.price);
+      if (toolSort === 'high') return Number(b.sale_price ?? b.price) - Number(a.sale_price ?? a.price);
+      if (toolSort === 'newest') return Number(b.id) - Number(a.id);
+      return Number(Boolean(b.featured)) - Number(Boolean(a.featured));
+    });
+  }, [catalogProducts, inStockOnly, toolCategory, toolQuery, toolSort]);
   const featuredProducts = (featured.length ? featured : catalogProducts)
     .filter((product) => product.metadata?.fulfillment_type !== 'manual_service')
     .slice(0, 4);
@@ -100,6 +124,22 @@ export default function ShopHome() {
     <div className={isKaidoStore ? 'kaido-storefront' : `domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>
       <ShopSearchBar />
       {categories.length > 0 && <div className={isKaidoStore ? 'kaido-top-category-nav' : ''}><CategoryNav categories={categories} products={allProducts} /></div>}
+
+      {!isKaidoStore && !loading && (
+        <CommerceToolbox
+          shop={shop}
+          categories={categories}
+          products={catalogProducts}
+          query={toolQuery}
+          setQuery={setToolQuery}
+          selectedCategory={toolCategory}
+          setSelectedCategory={setToolCategory}
+          sort={toolSort}
+          setSort={setToolSort}
+          inStockOnly={inStockOnly}
+          setInStockOnly={setInStockOnly}
+        />
+      )}
 
       {slides.length > 0 && (
         <section className={`${isKaidoStore ? 'kaido-banner-wrap' : 'max-w-7xl mx-auto px-4 pt-6 md:pt-8'}`}>
@@ -236,8 +276,8 @@ export default function ShopHome() {
       {!isKaidoStore && <section className="max-w-7xl mx-auto px-4 pt-10 md:pt-14 pb-7">
         <div className="store-section-heading">
           <div>
-            <span className="store-section-kicker">Browse everything</span>
-            <h2>All Products</h2>
+            <span className="store-section-kicker">{toolQuery || toolCategory || inStockOnly ? 'Filtered collection' : 'Browse everything'}</span>
+            <h2>{toolQuery || toolCategory || inStockOnly ? `${toolProducts.length} matching products` : 'All Products'}</h2>
           </div>
           <Link to={`/${shop.username}/products`}>{t('viewAll')} →</Link>
         </div>
@@ -250,11 +290,11 @@ export default function ShopHome() {
               </div>
             ))}
           </div>
-        ) : allProducts.length === 0 ? (
+        ) : toolProducts.length === 0 ? (
           <p className="text-gray-400 text-center py-10">{t('noProducts')}</p>
         ) : (
           <div className={isKaidoStore ? 'kaido-account-grid' : 'grid grid-cols-2 md:grid-cols-4 gap-4'}>
-            {allProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
+            {toolProducts.map((product) => <ProductCard key={product.id} product={product} variant="popular" />)}
           </div>
         )}
       </section>}

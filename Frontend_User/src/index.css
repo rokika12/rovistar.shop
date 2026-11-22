@@ -11,6 +11,48 @@
   --brand-blue: #2563eb;
 }
 
+/* Storefront command center: compact shopping controls that work across every shop theme. */
+.commerce-toolbox {
+  width: min(1280px, calc(100% - 2rem));
+  margin: 1.25rem auto 0;
+  overflow: hidden;
+  border: 1px solid #d9e4ef;
+  border-radius: 1.4rem;
+  background: linear-gradient(135deg, #f8fcff 0%, #ffffff 52%, #fff8f4 100%);
+  box-shadow: 0 14px 36px rgba(19, 61, 93, 0.08);
+}
+.commerce-toolbox-topline,
+.commerce-toolbox-grid,
+.commerce-toolbox-categories,
+.commerce-toolbox-status { display: flex; align-items: center; gap: .8rem; }
+.commerce-toolbox-topline { justify-content: space-between; padding: .8rem 1rem; border-bottom: 1px solid #e8eef5; }
+.commerce-toolbox-topline p { margin: 0; color: #536b83; font-size: .78rem; font-weight: 700; }
+.commerce-toolbox-topline p span { margin-right: .55rem; color: #e23f5f; font-size: .65rem; font-weight: 950; letter-spacing: .13em; }
+.commerce-toolbox-shortcuts { display: flex; align-items: center; gap: .4rem; }
+.commerce-toolbox-shortcuts a, .commerce-toolbox-shortcuts button { display: inline-flex; align-items: center; gap: .35rem; border: 0; border-radius: 999px; background: transparent; padding: .35rem .55rem; color: #31506e; font-size: .73rem; font-weight: 800; }
+.commerce-toolbox-shortcuts a:hover, .commerce-toolbox-shortcuts button:hover { background: #e9f3ff; color: #145dcc; }
+.commerce-toolbox-shortcuts b { display: grid; min-width: 1.15rem; height: 1.15rem; place-items: center; border-radius: 50%; background: #e23f5f; color: #fff; font-size: .62rem; }
+.commerce-toolbox-grid { padding: 1rem; }
+.commerce-toolbox-search { position: relative; display: flex; min-width: 0; flex: 1 1 420px; align-items: center; gap: .65rem; border: 1px solid #bfcee0; border-radius: .9rem; background: #fff; padding: 0 .8rem; transition: border-color .2s ease, box-shadow .2s ease; }
+.commerce-toolbox-search:focus-within { border-color: #2773df; box-shadow: 0 0 0 3px rgba(39,115,223,.12); }
+.commerce-toolbox-search > svg { color: #2875d9; flex: 0 0 auto; }
+.commerce-toolbox-search input { width: 100%; min-width: 0; border: 0; background: transparent; padding: .78rem 0; color: #18324c; font: inherit; font-size: .86rem; }
+.commerce-toolbox-search button { display: grid; place-items: center; color: #7890a6; }
+.commerce-toolbox-sort { display: flex; align-items: center; gap: .45rem; border: 1px solid #d5e0eb; border-radius: .9rem; background: #fff; padding: .1rem .65rem; color: #54708a; font-size: .72rem; font-weight: 900; white-space: nowrap; }
+.commerce-toolbox-sort select { min-height: 2.65rem; max-width: 9.5rem; border: 0; background: transparent; color: #1b3e61; font: inherit; font-size: .76rem; font-weight: 800; }
+.commerce-stock-toggle { display: inline-flex; align-items: center; gap: .45rem; color: #31506e; font-size: .75rem; font-weight: 800; white-space: nowrap; }
+.commerce-stock-toggle input { accent-color: #e23f5f; }
+.commerce-toolbox-categories { overflow-x: auto; padding: 0 1rem 1rem; scrollbar-width: none; }
+.commerce-toolbox-categories::-webkit-scrollbar { display: none; }
+.commerce-toolbox-categories button { flex: 0 0 auto; border: 1px solid #dbe5ef; border-radius: 999px; background: #fff; padding: .48rem .7rem; color: #48647e; font-size: .73rem; font-weight: 800; transition: background .2s ease, border-color .2s ease, color .2s ease; }
+.commerce-toolbox-categories button:hover, .commerce-toolbox-categories button.is-active { border-color: #2269ca; background: #2269ca; color: #fff; }
+.commerce-toolbox-categories b { display: inline-grid; min-width: 1.1rem; height: 1.1rem; margin-left: .18rem; place-items: center; border-radius: 50%; background: #edf3f8; color: #46617a; font-size: .6rem; }
+.commerce-toolbox-categories button.is-active b { background: rgba(255,255,255,.2); color: #fff; }
+.commerce-toolbox-status { justify-content: space-between; flex-wrap: wrap; border-top: 1px solid #e8eef5; background: rgba(19,61,93,.03); padding: .68rem 1rem; color: #60788d; font-size: .7rem; font-weight: 700; }
+.commerce-toolbox-status span { display: inline-flex; align-items: center; gap: .35rem; }.commerce-toolbox-status svg { color: #e23f5f; }.commerce-toolbox-status b { color: #1f466c; }.commerce-toolbox-status a { display: inline-flex; align-items: center; gap: .35rem; color: #1765ca; font-weight: 900; }
+.quick-add-button { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; width: 100%; margin-top: .7rem; border: 1px solid #c9d9e8; border-radius: .65rem; background: #f7fbff; padding: .58rem .7rem; color: #195eb9; font-size: .74rem; font-weight: 900; transition: transform .2s ease, background .2s ease, color .2s ease; }.quick-add-button:hover { transform: translateY(-1px); background: #1769cf; color: #fff; }
+@media (max-width: 720px) { .commerce-toolbox { width: calc(100% - 1rem); border-radius: 1rem; }.commerce-toolbox-topline p { display: none; }.commerce-toolbox-topline { justify-content: flex-end; padding: .55rem .7rem; }.commerce-toolbox-grid { flex-wrap: wrap; padding: .75rem; }.commerce-toolbox-search { flex-basis: 100%; }.commerce-toolbox-sort { flex: 1; }.commerce-stock-toggle { min-height: 2.65rem; }.commerce-toolbox-status span:nth-child(2) { display: none; }.commerce-toolbox-status { padding: .6rem .75rem; }.commerce-toolbox-status a { margin-left: auto; }.quick-add-button { padding: .52rem; } }
+
 body {
   margin: 0;
   font-family: 'Plus Jakarta Sans', 'Kantumruy Pro', 'Noto Sans Khmer', system-ui, sans-serif;

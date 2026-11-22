@@ -4,6 +4,7 @@ import { FiArrowRight, FiArrowUpRight, FiCheck, FiExternalLink, FiGift, FiHeadph
 import { useShop } from '../contexts/ShopContext';
 import { fullUrl } from '../api';
 import { useLanguage } from '../i18n';
+import QuickAddButton from './QuickAddButton';
 
 export default function ProductCard({ product, variant = 'standard' }) {
   const { shop } = useShop();
@@ -263,6 +264,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
           <span className={isAvailable ? 'text-emerald-600' : 'text-rose-600'}>{isAvailable ? `● ${t('available')}` : `● ${t('soldOut')}`}</span>
           <span className="text-slate-400">{isManualService ? t('manualService') : (isDigital ? t('instantAccess') : t('readyToOrder'))}</span>
         </div>
+        {!isManualService && <QuickAddButton product={product} available={isAvailable} />}
         {isManualService && (isAvailable ? (
           <Link to={`/${shop.username}/product/${product.id}`} className="mt-auto w-full rounded-full bg-blue-600 py-2.5 text-center text-xs sm:text-sm font-black text-white shadow-sm transition hover:bg-blue-700">{t('viewProduct')}</Link>
         ) : (

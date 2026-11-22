@@ -60,7 +60,7 @@ export default function ShopLayout() {
         <Outlet />
       </main>
       {!isCheckout && <ShopFooter />}
-      {!isAccountTemplate && <CartSidebar />}
+      <CartSidebar />
 
       {isKaidoStore && <KaidoGreeter />}
       <SupportChat />
