@@ -248,7 +248,6 @@ export default function ShopHome() {
                     {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt={product.name} loading={isRovistarStore ? 'lazy' : undefined} decoding={isRovistarStore ? 'async' : undefined} /> : <FiShoppingBag />}
                   </div>
                   <div className="flash-sale-copy min-w-0 flex-1">
-                    {!isKaidoStore && <span className="flash-sale-label">FLASH DEAL</span>}
                     <h3>{product.name}</h3>
                     <span className="flash-sale-seller"><FiUser /> admin</span>
                     <div className="flash-sale-price-row">
