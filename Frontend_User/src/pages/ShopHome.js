@@ -92,6 +92,7 @@ export default function ShopHome() {
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const isRovistarStore = shop.username?.toLowerCase() === 'rovistar';
+  const isRonewShop = shop.username?.toLowerCase() === 'ronewshop';
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : 'https://t.me/kaidokmglaor');
   const appearance = shop.theme?.appearance || {};
@@ -128,7 +129,33 @@ export default function ShopHome() {
       <ShopSearchBar />
       {categories.length > 0 && <div className={isKaidoStore ? 'kaido-top-category-nav' : ''}><CategoryNav categories={categories} products={allProducts} /></div>}
 
-      {!isKaidoStore && !loading && catalogProducts.length > 0 && (
+      {isRonewShop && !loading && !catalogProducts.length && (
+        <>
+          <section className="bg-[#fffaf1] px-4 py-12 sm:py-16">
+            <div className="mx-auto max-w-7xl">
+              <div className="flex flex-col gap-4 border-b border-[#eadfc8] pb-5 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <span className="text-xs font-black tracking-[.18em] text-[#b88712]">BROWSE EVERYTHING</span>
+                  <h1 className="mt-2 border-l-4 border-blue-600 pl-4 text-4xl font-black tracking-tight text-pink-600 sm:text-5xl">All Products</h1>
+                </div>
+                <Link to={`/${shop.username}/products`} className="inline-flex items-center gap-2 font-bold text-blue-600 hover:text-blue-800">មើលទាំងអស់ <FiArrowRight /></Link>
+              </div>
+              <p className="py-16 text-center text-sm font-medium text-slate-400 sm:py-24">មិនទាន់មានទំនិញសម្រាប់បង្ហាញទេ</p>
+            </div>
+          </section>
+          <section className="bg-white px-4 py-12 sm:py-16">
+            <div className="mx-auto grid max-w-6xl gap-10 sm:grid-cols-3">
+              {[
+                [FiTruck, 'ដឹកជញ្ជូនរហ័ស', 'ទទួលបានព័ត៌មាន និងសេវាកម្មរបស់អ្នកបានឆាប់រហ័ស។'],
+                [FiCreditCard, 'ABA Pay មានសុវត្ថិភាព', 'ទូទាត់តាម ABA Mobile និង KHQR បានយ៉ាងងាយស្រួល។'],
+                [FiHeadphones, 'ជំនួយអតិថិជន', 'ទាក់ទងក្រុមការងារតាម Telegram បានគ្រប់ពេល។'],
+              ].map(([Icon, title, copy]) => <article key={title} className="text-center"><i className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl text-blue-600"><Icon /></i><h2 className="mt-4 text-lg font-black text-slate-800">{title}</h2><p className="mx-auto mt-2 max-w-xs text-sm leading-7 text-slate-500">{copy}</p></article>)}
+            </div>
+          </section>
+        </>
+      )}
+
+      {!isKaidoStore && !isRonewShop && !loading && catalogProducts.length > 0 && (
         <CommerceToolbox
           shop={shop}
           categories={categories}
