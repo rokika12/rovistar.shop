@@ -18,6 +18,17 @@ const TOOLS = [
 
 const CATEGORIES = ['ទាំងអស់', 'វីដេអូ', 'រូបភាព', 'សំឡេង', 'អត្ថបទ', 'អ្នកអភិវឌ្ឍន៍', 'សុវត្ថិភាព'];
 
+const BENEFITS = [
+  { icon: FiZap, title: 'ធ្វើការបានលឿន', copy: 'កាត់បន្ថយជំហានដដែលៗ ដើម្បីឲ្យអ្នកមានពេលសម្រាប់ការងារសំខាន់។', badge: 'ពេញនិយម' },
+  { icon: FiSliders, title: 'ងាយប្រើ', copy: 'រៀបចំសម្រាប់អ្នកចាប់ផ្តើម ដោយមិនចាំបាច់មានជំនាញបច្ចេកទេស។', badge: 'ងាយចាប់ផ្តើម' },
+  { icon: FiLock, title: 'គ្រប់គ្រងបានសុវត្ថិភាព', copy: 'ចូលគណនីមុនប្រើ ដើម្បីគ្រប់គ្រងការងារ និងឯកសាររបស់អ្នក។', badge: 'មានសុវត្ថិភាព' },
+  { icon: FiCheckCircle, title: 'គ្រប់ឧបករណ៍នៅកន្លែងតែមួយ', copy: 'អត្ថបទ វីដេអូ រូបភាព និងតំណភ្ជាប់ អាចប្រើបានក្នុងគណនីតែមួយ។', badge: 'រួចរាល់' },
+  { icon: FiFileText, title: 'សន្សំពេលវេលា', copy: 'បម្លែង និងរៀបចំឯកសារបានភ្លាមៗ ដោយមិនប្ដូរទៅកម្មវិធីច្រើន។' },
+  { icon: FiUser, title: 'សម្រាប់អ្នកគ្រប់គ្នា', copy: 'អ្នកធ្វើការ អ្នកសិក្សា និងអ្នកបង្កើតមាតិកា អាចចាប់ផ្តើមបានងាយ។' },
+  { icon: FiImage, title: 'លទ្ធផលស្អាត', copy: 'មានរបៀបរៀបចំច្បាស់ ងាយយកលទ្ធផលទៅប្រើបន្ត។' },
+  { icon: FiMusic, title: 'កំពុងបន្ថែមជានិច្ច', copy: 'យើងបន្តបង្កើតឧបករណ៍ថ្មីៗ ដើម្បីឲ្យការងាររបស់អ្នកកាន់តែងាយ។' },
+];
+
 function copyText(value) {
   if (navigator.clipboard) navigator.clipboard.writeText(value);
 }
@@ -79,7 +90,7 @@ export default function ToolsHome() {
       <div className="tools-noise" aria-hidden="true" />
       <header className="tools-nav">
         <a href="/" className="tools-brand" aria-label="ROVISTAR TOOLS"><span>R</span><b>ROVISTAR</b><i>TOOLS</i></a>
-        <nav><a href="#tools">ឧបករណ៍</a><a href="#workbench">កន្លែងធ្វើការ</a><a href="#roadmap">មុខងារថ្មី</a></nav>
+        <nav>{profile ? <><a href="#tools">ឧបករណ៍</a><a href="#workbench">កន្លែងធ្វើការ</a><a href="#roadmap">មុខងារថ្មី</a></> : <><a href="#benefits">អត្ថប្រយោជន៍</a><a href="#how-it-works">របៀបប្រើ</a><a href="#access">ចូលប្រើ</a></>}</nav>
         <div className="tools-account-actions">
           {profile ? <><span className="tools-user-name"><FiUser /> {profile.name}</span><button type="button" className="tools-login-link" onClick={logout}><FiLogOut /> ចាកចេញ</button></> : <button type="button" className="tools-login-link" onClick={() => setLoginOpen(true)}><FiLogIn /> ចូលគណនី</button>}
           <button type="button" className="tools-nav-button" onClick={() => profile ? document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' }) : setLoginOpen(true)}>{profile ? 'ចូលប្រើឧបករណ៍' : 'ចាប់ផ្តើមប្រើ'} <FiArrowRight /></button>
@@ -107,10 +118,17 @@ export default function ToolsHome() {
           </div>
         </section>
 
-        <section className="tools-directory" id="tools">
+        <section className="tools-benefits" id="benefits">
+          <div className="tools-benefits-heading"><div><p className="tools-eyebrow">ហេតុអ្វីជ្រើសរើស ROVISTAR TOOLS</p><h2>អត្ថប្រយោជន៍ដែលអ្នកទទួលបាន។</h2></div><p>ចូលមើលអត្ថប្រយោជន៍ជាមុន ហើយចូលគណនីនៅពេលអ្នកត្រៀមប្រើឧបករណ៍។</p></div>
+          <div className="tools-benefits-grid">{BENEFITS.map((benefit, index) => { const Icon = benefit.icon; return <article className={`tools-benefit-card ${index < 4 ? 'is-featured' : ''}`} key={benefit.title}>{benefit.badge && <span>{benefit.badge}</span>}<div className="tools-benefit-icon"><Icon /></div><h3>{benefit.title}</h3><p>{benefit.copy}</p><div className="tools-benefit-footer"><small>{index < 4 ? 'អត្ថប្រយោជន៍សំខាន់' : 'ROVISTAR TOOLS'}</small><button type="button" onClick={() => setLoginOpen(true)}>ចូលប្រើ <FiArrowRight /></button></div></article>; })}</div>
+        </section>
+
+        <section className="tools-how" id="how-it-works"><div className="tools-how-number">០១</div><div><p className="tools-eyebrow">របៀបចាប់ផ្តើម</p><h2>ចូលគណនីម្តង<br />រួចប្រើបានគ្រប់ឧបករណ៍។</h2></div><ol><li><b>១</b><span>បង្កើត ឬចូលគណនីរបស់អ្នក</span></li><li><b>២</b><span>ជ្រើសរើសឧបករណ៍ដែលអ្នកត្រូវការ</span></li><li><b>៣</b><span>ចាប់ផ្តើមការងារ និងរក្សាទុកលទ្ធផល</span></li></ol><button type="button" id="access" onClick={() => setLoginOpen(true)}>ចូលគណនីដើម្បីចាប់ផ្តើម <FiArrowRight /></button></section>
+
+        {profile && <><section className="tools-directory" id="tools">
           <div className="tools-directory-heading"><div><p className="tools-eyebrow">បញ្ជីឧបករណ៍</p><h2>ជ្រើសរើសការងារដែលអ្នកចង់ធ្វើ។</h2></div><p>សូមចូលគណនីជាមុន ដើម្បីបើកប្រើឧបករណ៍ និងរក្សាទុកការងាររបស់អ្នក។</p></div>
           <div className="tools-filter-row"><div className="tools-search"><FiSearch /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ស្វែងរកឧបករណ៍" />{query && <button type="button" onClick={() => setQuery('')} aria-label="លុបការស្វែងរក"><FiX /></button>}</div><div className="tools-categories">{CATEGORIES.map((item) => <button key={item} type="button" className={item === category ? 'is-active' : ''} onClick={() => setCategory(item)}>{item}</button>)}</div></div>
-          <div className="tools-card-grid">{shownTools.map((tool, index) => { const Icon = tool.icon; return <article key={tool.id} className={`tools-card tools-card-${index % 4}`}><div className="tools-card-mark"><Icon /></div><span>{tool.category}</span><h3>{tool.title}</h3><p>{tool.copy}</p><div><small className={tool.state === 'អាចប្រើបាន' ? 'is-ready' : ''}>{tool.state}</small><button type="button" onClick={() => openTool(tool)}>{profile ? 'បើកប្រើ' : 'ចូលគណនី'} <FiArrowRight /></button></div></article>; })}</div>
+          <div className="tools-card-grid">{shownTools.map((tool, index) => { const Icon = tool.icon; return <article key={tool.id} className={`tools-card tools-card-${index % 4}`}>{index < 4 && <span className="tools-card-badge">ណែនាំ</span>}<div className="tools-card-mark"><Icon /></div><span>{tool.category}</span><h3>{tool.title}</h3><p>{tool.copy}</p><div><small className={tool.state === 'អាចប្រើបាន' ? 'is-ready' : ''}>{tool.state}</small><button type="button" onClick={() => openTool(tool)}>បើកប្រើ <FiArrowRight /></button></div></article>; })}</div>
         </section>
 
         <section className="tools-workbench" id="workbench">
@@ -126,7 +144,7 @@ export default function ToolsHome() {
           </div>
         </section>
 
-        <section className="tools-roadmap" id="roadmap"><div><p className="tools-eyebrow">អ្វីដែលនឹងមកដល់</p><h2>បង្កើតសម្រាប់ការងាររបស់អ្នករាល់ថ្ងៃ។</h2></div><ol><li><b>០១</b><span><strong>ការងារវីដេអូ</strong>បម្លែង បង្រួម បង្កើតចំណងជើង និងនាំចេញឯកសារដែលអ្នកមានសិទ្ធិប្រើ។</span></li><li><b>០២</b><span><strong>កន្លែងរក្សាទុកឯកសារ</strong>រក្សាប្រវត្តិការងារ កំណត់ស្រេចប្រើ និងគ្រប់គ្រងឯកសារដោយសុវត្ថិភាព។</span></li><li><b>០៣</b><span><strong>ឧបករណ៍ AI ភាសាខ្មែរ</strong>បកប្រែ សង្ខេបអត្ថបទ សរសេរចំណងជើង និងកែសម្រួលសំណេរ។</span></li></ol></section>
+        <section className="tools-roadmap" id="roadmap"><div><p className="tools-eyebrow">អ្វីដែលនឹងមកដល់</p><h2>បង្កើតសម្រាប់ការងាររបស់អ្នករាល់ថ្ងៃ។</h2></div><ol><li><b>០១</b><span><strong>ការងារវីដេអូ</strong>បម្លែង បង្រួម បង្កើតចំណងជើង និងនាំចេញឯកសារដែលអ្នកមានសិទ្ធិប្រើ។</span></li><li><b>០២</b><span><strong>កន្លែងរក្សាទុកឯកសារ</strong>រក្សាប្រវត្តិការងារ កំណត់ស្រេចប្រើ និងគ្រប់គ្រងឯកសារដោយសុវត្ថិភាព។</span></li><li><b>០៣</b><span><strong>ឧបករណ៍ AI ភាសាខ្មែរ</strong>បកប្រែ សង្ខេបអត្ថបទ សរសេរចំណងជើង និងកែសម្រួលសំណេរ។</span></li></ol></section></>}
       </main>
       <footer className="tools-footer"><span>ROVISTAR TOOLS / ធ្វើការឲ្យងាយជាងមុន</span><span>សូមប្រើតែឯកសារ និងខ្លឹមសារដែលអ្នកមានសិទ្ធិប្រើ។</span></footer>
 
