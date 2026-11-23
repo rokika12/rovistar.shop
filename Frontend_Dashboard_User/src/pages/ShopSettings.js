@@ -64,6 +64,7 @@ export default function ShopSettings() {
 
   const set = (field) => (e) => setShop({ ...shop, [field]: e.target.value });
   const setTheme = (field) => (e) => setShop({ ...shop, theme: { ...(shop.theme || {}), [field]: e.target.value } });
+  const setPublicContact = (field) => (e) => setShop({ ...shop, theme: { ...(shop.theme || {}), appearance: { ...(shop.theme?.appearance || {}), public_contact: { ...(shop.theme?.appearance?.public_contact || {}), [field]: e.target.value } } } });
   const setSocial = (field) => (e) => setShop({ ...shop, social_media: { ...(shop.social_media || {}), [field]: e.target.value } });
   const setShipping = (field) => (e) => setShop({ ...shop, shipping_settings: { ...(shop.shipping_settings || {}), [field]: e.target.value } });
 
@@ -221,6 +222,14 @@ export default function ShopSettings() {
             ))}
           </div>
         )}
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm p-6 space-y-4 border border-sky-100">
+        <div><h2 className="font-bold">ROVISTAR TOOLS Public Contact</h2><p className="text-sm text-gray-500 mt-1">These values appear in the public ROVISTAR Tools footer. You can update them at any time.</p></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label className="text-sm font-medium text-gray-700 block">Public Gmail</label><input value={shop.theme?.appearance?.public_contact?.email || 'rovistar@gmail.com'} onChange={setPublicContact('email')} className={inputCls} placeholder="rovistar@gmail.com" /></div>
+          <div><label className="text-sm font-medium text-gray-700 block">Telegram Contact</label><input value={shop.theme?.appearance?.public_contact?.telegram || ''} onChange={setPublicContact('telegram')} className={inputCls} placeholder="@your_telegram" /></div>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
