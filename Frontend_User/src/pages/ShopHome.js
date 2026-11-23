@@ -128,7 +128,7 @@ export default function ShopHome() {
       <ShopSearchBar />
       {categories.length > 0 && <div className={isKaidoStore ? 'kaido-top-category-nav' : ''}><CategoryNav categories={categories} products={allProducts} /></div>}
 
-      {!isKaidoStore && !loading && (
+      {!isKaidoStore && !loading && catalogProducts.length > 0 && (
         <CommerceToolbox
           shop={shop}
           categories={categories}
