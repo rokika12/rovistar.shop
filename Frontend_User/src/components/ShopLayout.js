@@ -63,7 +63,7 @@ export default function ShopLayout() {
       <CartSidebar />
 
       {isKaidoStore && <KaidoGreeter />}
-      <SupportChat />
+      {!shop.username?.toLowerCase().includes('ronewshop') && <SupportChat />}
 
     </div>
   );

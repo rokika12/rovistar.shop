@@ -328,7 +328,7 @@ export default function ShopHome() {
         )}
       </section>}
 
-      {!isKaidoStore && !loading && categories.map((category) => {
+      {!isKaidoStore && !isRonewShop && !loading && categories.map((category) => {
         const items = catalogProducts.filter((product) => product.category_id === category.id);
         if (!items.length) return null;
         return (
@@ -342,7 +342,7 @@ export default function ShopHome() {
         );
       })}
 
-      {!isKaidoStore && !loading && (() => {
+      {!isKaidoStore && !isRonewShop && !loading && (() => {
         const categoryIds = new Set(categories.map((category) => category.id));
         const others = catalogProducts.filter((product) => !categoryIds.has(product.category_id));
         if (!others.length) return null;
