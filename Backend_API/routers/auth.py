@@ -213,7 +213,9 @@ def telegram_login(data: schemas.TelegramAuthRequest, db: Session = Depends(get_
             shop_id=shop.id,
             name=display_name,
             telegram=telegram_handle,
+            telegram_username=data.username or "",
             telegram_id=data.id,
+            avatar_url=data.photo_url or "",
             notes=f"Telegram login · tg://user?id={data.id}",
         )
         db.add(customer)
@@ -223,6 +225,9 @@ def telegram_login(data: schemas.TelegramAuthRequest, db: Session = Depends(get_
     customer.name = display_name
     if data.username:
         customer.telegram = telegram_handle
+        customer.telegram_username = data.username
+    if data.photo_url:
+        customer.avatar_url = data.photo_url
     db.commit()
     db.refresh(customer)
 

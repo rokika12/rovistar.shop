@@ -78,6 +78,7 @@ export const customerHistory = (payload) => api.post('/api/orders/public/history
 export const customerSignup = (payload) => api.post('/api/customers/auth/signup', payload).then((r) => r.data);
 export const customerSignin = (payload) => api.post('/api/customers/auth/signin', payload).then((r) => r.data);
 export const customerGoogleSignin = (payload) => api.post('/api/customers/auth/google', payload).then((r) => r.data);
+export const customerTelegramSignin = (payload) => api.post('/api/auth/telegram/login', payload).then((r) => r.data);
 export const getMyOrders = (token) =>
   api.get('/api/customers/auth/orders', { headers: token ? { Authorization: `Bearer ${token}` } : {} }).then((r) => r.data);
 export const createOrderAsCustomer = (payload, token) =>

@@ -1,10 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './ToolsHome.css';
+import { FcGoogle } from 'react-icons/fc';
+import { FaTelegramPlane } from 'react-icons/fa';
 import {
   FiArrowRight, FiCheckCircle, FiCode, FiCopy, FiFileText, FiHeart, FiImage,
   FiLink, FiLock, FiLogIn, FiLogOut, FiMusic, FiPlay, FiSearch, FiSliders,
   FiUser, FiVideo, FiVolume2, FiX, FiZap,
 } from 'react-icons/fi';
+import { customerTelegramSignin, getShop } from '../api';
+import TelegramLogin from '../components/TelegramLogin';
+import { useCustomer } from '../contexts/CustomerContext';
 
 const TOOLS = [
   { id: 'video', icon: FiVideo, category: 'វីដេអូ', title: 'បន្ទប់រៀបចំវីដេអូ', copy: 'បញ្ចូលវីដេអូ ឬសំឡេងដែលអ្នកមានសិទ្ធិប្រើ ដើម្បីរៀបចំការងារ។', state: 'អាចប្រើបាន' },
@@ -29,15 +34,29 @@ const BENEFITS = [
   { icon: FiMusic, title: 'កំពុងបន្ថែមជានិច្ច', copy: 'យើងបន្តបង្កើតឧបករណ៍ថ្មីៗ ដើម្បីឲ្យការងាររបស់អ្នកកាន់តែងាយ។' },
 ];
 
+const GOOGLE_IDENTITY_SCRIPT_ID = 'google-identity-services';
+let googleIdentityServicesPromise;
+
+function loadGoogleIdentityServices() {
+  if (window.google?.accounts?.id) return Promise.resolve();
+  if (googleIdentityServicesPromise) return googleIdentityServicesPromise;
+  googleIdentityServicesPromise = new Promise((resolve, reject) => {
+    const existing = document.getElementById(GOOGLE_IDENTITY_SCRIPT_ID);
+    const script = existing || document.createElement('script');
+    const ready = () => window.google?.accounts?.id ? resolve() : reject(new Error('Google Identity Services did not initialize'));
+    script.addEventListener('load', ready, { once: true });
+    script.addEventListener('error', () => reject(new Error('Google Identity Services could not load')), { once: true });
+    if (!existing) { script.id = GOOGLE_IDENTITY_SCRIPT_ID; script.src = 'https://accounts.google.com/gsi/client'; script.async = true; script.defer = true; document.head.appendChild(script); }
+  });
+  return googleIdentityServicesPromise;
+}
+
 function copyText(value) {
   if (navigator.clipboard) navigator.clipboard.writeText(value);
 }
 
-function storedProfile() {
-  try { return JSON.parse(sessionStorage.getItem('rovistar-tools-profile')) || null; } catch { return null; }
-}
-
 export default function ToolsHome() {
+  const { customer, googleSignin, logout: customerLogout, setSession } = useCustomer();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('ទាំងអស់');
   const [activeTool, setActiveTool] = useState('video');
@@ -50,12 +69,18 @@ export default function ToolsHome() {
   const [urlInput, setUrlInput] = useState('https://rovistar.shop/?tool=video');
   const [urlOutput, setUrlOutput] = useState('');
   const [password, setPassword] = useState('');
-  const [profile, setProfile] = useState(storedProfile);
+  const [toolsShop, setToolsShop] = useState(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [pendingTool, setPendingTool] = useState(null);
-  const [accountName, setAccountName] = useState('');
-  const [accountEmail, setAccountEmail] = useState('');
-  const [loginError, setLoginError] = useState('');
+  const [providerError, setProviderError] = useState('');
+  const [providerBusy, setProviderBusy] = useState(false);
+  const googleButtonRef = useRef(null);
+  const profile = customer;
+  const toolsUsername = process.env.REACT_APP_TOOLS_SHOP_USERNAME || 'demo';
+  const googleClientId = (toolsShop?.theme?.appearance?.google_client_id || '').trim();
+  const telegramBotUsername = (toolsShop?.telegram_bot_username || '').trim();
+
+  useEffect(() => { getShop(toolsUsername).then(setToolsShop).catch(() => setProviderError('មិនអាចភ្ជាប់ប្រព័ន្ធចូលគណនីបានទេ។')); }, [toolsUsername]);
 
   const shownTools = useMemo(() => TOOLS.filter((tool) => {
     const matchesCategory = category === 'ទាំងអស់' || tool.category === category;
@@ -69,15 +94,38 @@ export default function ToolsHome() {
     setActiveTool(tool.id);
     document.getElementById('workbench')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
-  const completeLogin = (event) => {
-    event.preventDefault();
-    if (!accountName.trim() || !accountEmail.includes('@')) { setLoginError('សូមបញ្ចូលឈ្មោះ និងអ៊ីមែលឲ្យត្រឹមត្រូវ។'); return; }
-    const nextProfile = { name: accountName.trim(), email: accountEmail.trim() };
-    sessionStorage.setItem('rovistar-tools-profile', JSON.stringify(nextProfile));
-    setProfile(nextProfile); setLoginOpen(false); setLoginError('');
+  const finishProviderLogin = useCallback((customerProfile) => {
+    setLoginOpen(false); setProviderError('');
     if (pendingTool) { setActiveTool(pendingTool.id); setPendingTool(null); setTimeout(() => document.getElementById('workbench')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0); }
-  };
-  const logout = () => { sessionStorage.removeItem('rovistar-tools-profile'); setProfile(null); };
+    return customerProfile;
+  }, [pendingTool]);
+  const handleGoogleCredential = useCallback(async (response) => {
+    if (!response?.credential || !toolsShop) return;
+    setProviderBusy(true); setProviderError('');
+    try { finishProviderLogin(await googleSignin(toolsShop.id, response.credential)); }
+    catch (error) { setProviderError(error?.response?.data?.detail || 'មិនអាចចូលជាមួយ Google បានទេ។'); }
+    finally { setProviderBusy(false); }
+  }, [finishProviderLogin, googleSignin, toolsShop]);
+  const handleTelegramAuth = useCallback(async (telegramUser) => {
+    if (!toolsShop) return;
+    setProviderBusy(true); setProviderError('');
+    try { finishProviderLogin(setSession(await customerTelegramSignin({ shop_id: toolsShop.id, ...telegramUser }))); }
+    catch (error) { setProviderError(error?.response?.data?.detail || 'មិនអាចចូលជាមួយ Telegram បានទេ។'); }
+    finally { setProviderBusy(false); }
+  }, [finishProviderLogin, setSession, toolsShop]);
+  useEffect(() => {
+    let active = true;
+    const container = googleButtonRef.current;
+    if (!loginOpen || !googleClientId || !container) return undefined;
+    loadGoogleIdentityServices().then(() => {
+      if (!active || !window.google?.accounts?.id) return;
+      window.google.accounts.id.initialize({ client_id: googleClientId, callback: handleGoogleCredential, auto_select: false, cancel_on_tap_outside: true });
+      container.replaceChildren();
+      window.google.accounts.id.renderButton(container, { theme: 'outline', size: 'large', text: 'continue_with', width: Math.min(container.clientWidth || 350, 400) });
+    }).catch(() => active && setProviderError('Google មិនអាចបើកបានទេ។'));
+    return () => { active = false; };
+  }, [googleClientId, handleGoogleCredential, loginOpen]);
+  const logout = () => { customerLogout(); };
   const generatePassword = () => {
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*?';
     const values = new Uint32Array(18);
@@ -92,7 +140,7 @@ export default function ToolsHome() {
         <a href="/" className="tools-brand" aria-label="ROVISTAR TOOLS"><span>R</span><b>ROVISTAR</b><i>TOOLS</i></a>
         <nav>{profile ? <><a href="#tools">ឧបករណ៍</a><a href="#workbench">កន្លែងធ្វើការ</a><a href="#roadmap">មុខងារថ្មី</a></> : <><a href="#benefits">អត្ថប្រយោជន៍</a><a href="#how-it-works">របៀបប្រើ</a><a href="#access">ចូលប្រើ</a></>}</nav>
         <div className="tools-account-actions">
-          {profile ? <><span className="tools-user-name"><FiUser /> {profile.name}</span><button type="button" className="tools-login-link" onClick={logout}><FiLogOut /> ចាកចេញ</button></> : <button type="button" className="tools-login-link" onClick={() => setLoginOpen(true)}><FiLogIn /> ចូលគណនី</button>}
+          {profile ? <><span className="tools-user-name">{profile.avatar_url ? <img src={profile.avatar_url} alt="" referrerPolicy="no-referrer" /> : <FiUser />} {profile.name || profile.username || profile.email}</span><button type="button" className="tools-login-link" onClick={logout}><FiLogOut /> ចាកចេញ</button></> : <button type="button" className="tools-login-link" onClick={() => setLoginOpen(true)}><FiLogIn /> ចូលគណនី</button>}
           <button type="button" className="tools-nav-button" onClick={() => profile ? document.getElementById('tools')?.scrollIntoView({ behavior: 'smooth' }) : setLoginOpen(true)}>{profile ? 'ចូលប្រើឧបករណ៍' : 'ចាប់ផ្តើមប្រើ'} <FiArrowRight /></button>
         </div>
       </header>
@@ -148,7 +196,7 @@ export default function ToolsHome() {
       </main>
       <footer className="tools-footer"><span>ROVISTAR TOOLS / ធ្វើការឲ្យងាយជាងមុន</span><span>សូមប្រើតែឯកសារ និងខ្លឹមសារដែលអ្នកមានសិទ្ធិប្រើ។</span></footer>
 
-      {loginOpen && <div className="tools-login-backdrop" role="presentation" onMouseDown={() => setLoginOpen(false)}><section className="tools-login-modal" role="dialog" aria-modal="true" aria-labelledby="tools-login-title" onMouseDown={(event) => event.stopPropagation()}><button type="button" className="tools-modal-close" onClick={() => setLoginOpen(false)} aria-label="បិទ"><FiX /></button><div className="tools-login-icon"><FiUser /></div><p>គណនី ROVISTAR TOOLS</p><h2 id="tools-login-title">ចូលគណនីដើម្បីប្រើឧបករណ៍ទាំងអស់</h2><span>បញ្ចូលព័ត៌មានរបស់អ្នក ដើម្បីចាប់ផ្តើមប្រើឧបករណ៍ និងរក្សាទុកការងាររបស់អ្នកក្នុងសម័យប្រើប្រាស់នេះ។</span><form onSubmit={completeLogin}><label>ឈ្មោះរបស់អ្នក<input value={accountName} onChange={(event) => setAccountName(event.target.value)} placeholder="បញ្ចូលឈ្មោះ" autoFocus /></label><label>អ៊ីមែល<input type="email" value={accountEmail} onChange={(event) => setAccountEmail(event.target.value)} placeholder="អ្នក@អ៊ីមែល.com" /></label>{loginError && <em>{loginError}</em>}<button type="submit">ចូលប្រើឧបករណ៍ <FiArrowRight /></button></form><small>អ្នកអាចចាកចេញពីគណនីបានគ្រប់ពេលនៅខាងលើ។</small></section></div>}
+      {loginOpen && <div className="tools-login-backdrop" role="presentation" onMouseDown={() => setLoginOpen(false)}><section className="tools-login-modal tools-provider-modal" role="dialog" aria-modal="true" aria-labelledby="tools-login-title" onMouseDown={(event) => event.stopPropagation()}><button type="button" className="tools-modal-close" onClick={() => setLoginOpen(false)} aria-label="បិទ"><FiX /></button><div className="tools-login-icon"><FiLock /></div><p>គណនី ROVISTAR TOOLS</p><h2 id="tools-login-title">ចូលគណនីដោយសុវត្ថិភាព</h2><span>ជ្រើសរើស Google ឬ Telegram របស់អ្នក។ ឈ្មោះ អ៊ីមែល និងរូបភាព Profile នឹងមកពីគណនីដែលអ្នកជ្រើសរើសដោយផ្ទាល់។</span>{providerError && <em className="tools-provider-error">{providerError}</em>}<div className="tools-provider-options"><div className="tools-provider-option"><div className="tools-provider-heading"><FcGoogle /><div><b>បន្តជាមួយ Google</b><small>ប្រើ Gmail និងរូបភាព Profile ពិតរបស់អ្នក</small></div></div>{googleClientId ? <div ref={googleButtonRef} className="tools-google-button" /> : <div className="tools-provider-pending">កំពុងរៀបចំ Google Sign-In</div>}</div><div className="tools-provider-divider"><span>ឬ</span></div><div className="tools-provider-option"><div className="tools-provider-heading tools-telegram-heading"><FaTelegramPlane /><div><b>បន្តជាមួយ Telegram</b><small>ប្រើឈ្មោះ Username និងរូបភាព Profile ពិតរបស់អ្នក</small></div></div>{telegramBotUsername ? <TelegramLogin botUsername={telegramBotUsername} onAuth={handleTelegramAuth} label="Telegram មិនទាន់រៀបចំ" /> : <div className="tools-provider-pending">កំពុងរៀបចំ Telegram Sign-In</div>}</div></div>{providerBusy && <small className="tools-provider-loading">កំពុងផ្ទៀងផ្ទាត់គណនីរបស់អ្នក...</small>}<small>ROVISTAR TOOLS មិនស្នើសុំពាក្យសម្ងាត់ Google ឬ Telegram របស់អ្នកទេ។</small></section></div>}
     </div>
   );
 }
