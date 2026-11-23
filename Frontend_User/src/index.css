@@ -1891,6 +1891,8 @@ body {
 .store-utility-switcher { display: inline-flex; height: 2.85rem; align-items: center; border-radius: 0.9rem; background: #eef4fb; padding: 0.2rem; color: #243852; }
 .store-language-toggle, .store-theme-toggle { display: inline-flex; height: 2.4rem; align-items: center; justify-content: center; gap: 0.42rem; border: 0; border-radius: 0.7rem; background: transparent; padding: 0 0.7rem; color: inherit; font-family: var(--font-commerce); font-size: 0.84rem; }
 .store-language-toggle { background: #347df0; color: #fff; }
+.ronew-language-toggle { border: 1px solid #d7e2ef; background: rgba(255,255,255,.84); color: #173b65; box-shadow: 0 4px 12px rgba(30,65,105,.08); }
+.ronew-language-toggle:hover { background: #fff; border-color: #9bc2e8; }
 .store-language-toggle svg, .store-theme-toggle svg { width: 1.05rem; height: 1.05rem; }
 .store-utility-divider { width: 1px; height: 1.35rem; margin: 0 0.18rem; background: #d2ddea; }
 .store-account-avatar-trigger { width: 2.85rem; height: 2.85rem; overflow: hidden; border: 0; border-radius: 50%; padding: 0; background: #eef4fb; box-shadow: 0 0 0 2px #eef4fb; }

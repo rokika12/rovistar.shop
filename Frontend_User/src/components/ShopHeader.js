@@ -30,6 +30,8 @@ export default function ShopHeader() {
   const isAccountTemplate = shop.template_type === 'account';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const isRovistarStore = shop.username?.toLowerCase() === 'rovistar';
+  const isRonewShop = shop.username?.toLowerCase() === 'ronewshop';
+  const languageMenuEnabled = isRovistarStore || isRonewShop;
   const displayName = customer?.first_name || customer?.name?.split(' ')[0] || 'Account';
   const customerInitial = (displayName || 'A')[0].toUpperCase();
   const customerAvatar = customer?.avatar_url;
@@ -127,11 +129,11 @@ export default function ShopHeader() {
         </Link>
         <div className="store-header-actions">
           <div className="store-utility-switcher" aria-label="Language and theme controls">
-            {isRovistarStore ? (
+            {languageMenuEnabled ? (
               <div className="store-language-menu-wrap" ref={languageMenuRef}>
-                <button type="button" onClick={() => setLanguageOpen(!languageOpen)} className="store-language-toggle glass-action" aria-expanded={languageOpen} aria-haspopup="menu" aria-label="Choose language"><FiGlobe /><span>{languageNames[lang]}</span><FiChevronDown className={languageOpen ? 'store-language-chevron-open' : ''} /></button>
+                <button type="button" onClick={() => setLanguageOpen(!languageOpen)} className={`store-language-toggle glass-action ${isRonewShop ? 'ronew-language-toggle' : ''}`} aria-expanded={languageOpen} aria-haspopup="menu" aria-label="Choose language"><FiGlobe /><span>{languageNames[lang]}</span><FiChevronDown className={languageOpen ? 'store-language-chevron-open' : ''} /></button>
                 {languageOpen && <div className="store-language-menu" role="menu" aria-label="Choose language">
-                  {['kh', 'en', 'zh'].map((code) => <button key={code} type="button" role="menuitemradio" aria-checked={lang === code} className={lang === code ? 'store-language-option is-active' : 'store-language-option'} onClick={() => { setLang(code); setLanguageOpen(false); }}><span>{languageNames[code]}</span>{lang === code && <span className="store-language-check">✓</span>}</button>)}
+                  {(isRonewShop ? ['kh', 'en'] : ['kh', 'en', 'zh']).map((code) => <button key={code} type="button" role="menuitemradio" aria-checked={lang === code} className={lang === code ? 'store-language-option is-active' : 'store-language-option'} onClick={() => { setLang(code); setLanguageOpen(false); }}><span>{languageNames[code]}</span>{lang === code && <span className="store-language-check">✓</span>}</button>)}
                 </div>}
               </div>
             ) : <button type="button" onClick={toggleLanguage} className="store-language-toggle" aria-label="Switch language"><FiGlobe /><span>{lang === 'kh' ? 'ខ្មែរ' : (lang === 'zh' ? '中文' : 'EN')}</span></button>}
