@@ -31,6 +31,8 @@ export default function App() {
             <Suspense fallback={<PageLoader />}>
             <Routes>
           <Route path="/" element={<ToolsHome />} />
+          <Route path="/tools" element={<ToolsHome />} />
+          <Route path="/tools/:toolId" element={<ToolsHome />} />
           <Route path="/create-shop" element={<CreateShop />} />
           <Route
             path="/:username"
