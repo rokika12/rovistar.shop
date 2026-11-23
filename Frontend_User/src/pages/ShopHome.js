@@ -50,10 +50,11 @@ export default function ShopHome() {
   }, [shop]);
 
   const isDigitalStore = shop?.template_type === 'account';
+  const isRonewShop = shop?.username?.toLowerCase() === 'ronewshop';
   const slides = useMemo(() => [shop?.banner, ...(shop?.slideshow || [])].filter(Boolean), [shop]);
   const catalogProducts = useMemo(
-    () => allProducts.filter((product) => product.metadata?.fulfillment_type !== 'manual_service'),
-    [allProducts],
+    () => allProducts.filter((product) => isRonewShop || product.metadata?.fulfillment_type !== 'manual_service'),
+    [allProducts, isRonewShop],
   );
   const toolProducts = useMemo(() => {
     const query = toolQuery.trim().toLowerCase();
@@ -92,7 +93,6 @@ export default function ShopHome() {
   const isDomi = shop.username?.toLowerCase() === 'domi';
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const isRovistarStore = shop.username?.toLowerCase() === 'rovistar';
-  const isRonewShop = shop.username?.toLowerCase() === 'ronewshop';
   const supportLink = shop.social_media?.telegram
     || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : 'https://t.me/kaidokmglaor');
   const appearance = shop.theme?.appearance || {};

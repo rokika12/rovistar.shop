@@ -124,7 +124,7 @@ export default function ShopHeader() {
           <ShopLogo shop={shop} className="h-10 w-10 rounded-2xl" textClassName="hidden" />
           <span className="store-brand-copy">
             <strong>{isKaidoStore ? 'kaidostore' : (shop.shop_name || shop.username)}</strong>
-            <small>{isKaidoStore ? 'Verified game accounts' : t('marketplaceSubtitle')}</small>
+            {!isRonewShop && <small>{isKaidoStore ? 'Verified game accounts' : t('marketplaceSubtitle')}</small>}
           </span>
         </Link>
         <div className="store-header-actions">

@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { CartProvider } from './contexts/CartContext';
 import { ShopProvider } from './contexts/ShopContext';
@@ -30,7 +30,7 @@ export default function App() {
           <OwnerProvider>
             <Suspense fallback={<PageLoader />}>
             <Routes>
-          <Route path="/" element={<ToolsHome />} />
+          <Route path="/" element={<Navigate to="/RonewShop" replace />} />
           <Route path="/tools" element={<ToolsHome />} />
           <Route path="/tools/:toolId" element={<ToolsHome />} />
           <Route path="/create-shop" element={<CreateShop />} />
