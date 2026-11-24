@@ -11,6 +11,13 @@ import httpx
 from config import config
 
 
+# Keys that admin-managed KHQRPay secrets are stored under in the `settings`
+# table (shop_id IS NULL => platform level). Values are Fernet-encrypted at rest.
+KHQRPAY_SECRET_KEY_DB = "khqrpay_secret_key"
+KHQRPAY_WEBHOOK_SECRET_DB = "khqrpay_webhook_secret"
+KHQRPAY_BASE_URL_DB = "khqrpay_base_url"
+
+
 class KHQRPayError(Exception):
     """Base error for safe, user-facing KHQRPay failures."""
 
@@ -27,15 +34,85 @@ class WebhookVerificationError(KHQRPayError):
     """Raised when a webhook cannot be authenticated."""
 
 
+def _db_secret(key: str) -> str:
+    """Read one admin-managed, encrypted KHQRPay secret from the database.
+
+    Returns '' when the key is absent or cannot be decrypted. Done in a short-lived
+    session so this module stays usable outside a FastAPI request context.
+    """
+    try:
+        from database import SessionLocal  # local import avoids circulars at import time
+        from security import decrypt_secret  # noqa: WPS433
+
+        import models as _models
+
+        db = SessionLocal()
+        try:
+            row = (
+                db.query(_models.Setting)
+                .filter(_models.Setting.shop_id.is_(None))
+                .filter(_models.Setting.key == key)
+                .first()
+            )
+        finally:
+            db.close()
+        if not row or not row.value:
+            return ""
+        return decrypt_secret(row.value)
+    except Exception:
+        # Any storage error must never leak a partial/empty key as a false positive.
+        return ""
+
+
+def _db_base_url() -> str:
+    try:
+        from database import SessionLocal
+        import models as _models
+
+        db = SessionLocal()
+        try:
+            row = (
+                db.query(_models.Setting)
+                .filter(_models.Setting.shop_id.is_(None))
+                .filter(_models.Setting.key == KHQRPAY_BASE_URL_DB)
+                .first()
+            )
+        finally:
+            db.close()
+        if not row or not row.value:
+            return ""
+        # Settings are JSON-encoded when set through the generic endpoint.
+        import json
+        val = row.value
+        if val.startswith(('"',)):
+            try:
+                val = json.loads(val)
+            except Exception:
+                val = val.strip('"')
+        return str(val or "").strip()
+    except Exception:
+        return ""
+
+
+def _api_secret() -> str:
+    """Admin-managed secret first, then the environment fallback."""
+    return (_db_secret(KHQRPAY_SECRET_KEY_DB) or (config.KHQRPAY_SECRET_KEY or "")).strip()
+
+
+def _webhook_secret() -> str:
+    return (_db_secret(KHQRPAY_WEBHOOK_SECRET_DB) or (config.KHQRPAY_WEBHOOK_SECRET or "")).strip()
+
+
+def _base_url() -> str:
+    return (_db_base_url() or (config.KHQRPAY_BASE_URL or "")).strip().rstrip("/")
+
+
 def is_configured() -> bool:
-    return bool(
-        (config.KHQRPAY_SECRET_KEY or "").strip()
-        and (config.KHQRPAY_WEBHOOK_SECRET or "").strip()
-    )
+    return bool(_api_secret() and _webhook_secret())
 
 
 def _api_url() -> str:
-    base_url = (config.KHQRPAY_BASE_URL or "").strip().rstrip("/")
+    base_url = _base_url()
     parsed = urlparse(base_url)
     if parsed.scheme != "https" or not parsed.netloc:
         raise KHQRPayNotConfigured("KHQRPay requires a valid HTTPS base URL")
@@ -62,7 +139,7 @@ def format_amount(amount, currency: str) -> str:
 def create_payment(amount, currency: str, reference_id: str, idempotency_key: str,
                    metadata=None) -> dict:
     """Create one KHQRPay checkout using a server-only bearer secret."""
-    secret = (config.KHQRPAY_SECRET_KEY or "").strip()
+    secret = _api_secret()
     if not secret:
         raise KHQRPayNotConfigured("KHQRPay is not configured")
     key = str(idempotency_key or "").strip()
@@ -127,7 +204,7 @@ def create_payment(amount, currency: str, reference_id: str, idempotency_key: st
 def verify_webhook_signature(raw_body: bytes, signature_header: str, *, now=None,
                              secret=None) -> int:
     """Verify `t.<raw body>` with HMAC-SHA256 and return the signed timestamp."""
-    webhook_secret = config.KHQRPAY_WEBHOOK_SECRET if secret is None else secret
+    webhook_secret = _webhook_secret() if secret is None else secret
     webhook_secret = str(webhook_secret or "").strip()
     if not webhook_secret:
         raise WebhookVerificationError("KHQRPay webhook secret is not configured")

@@ -1,8 +1,11 @@
 """Security helpers: password hashing, JWT tokens, current-user dependencies."""
+import base64
+import hashlib
 from datetime import datetime, timedelta
 from typing import Optional
 
 import bcrypt
+from cryptography.fernet import Fernet, InvalidToken
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -11,6 +14,55 @@ from sqlalchemy.orm import Session
 import models
 from config import config
 from database import get_db
+
+
+# --- Symmetric encryption for admin-managed secrets stored in the database ---
+# The platform SECRET_KEY is stretched into a 32-byte Fernet key so secrets can
+# be stored encrypted at rest and decrypted only on the server.
+_fernet = None
+
+
+def _fernet_instance() -> Fernet:
+    global _fernet
+    if _fernet is None:
+        digest = hashlib.sha256((config.SECRET_KEY or "fallback").encode("utf-8")).digest()
+        _fernet = Fernet(base64.urlsafe_b64encode(digest))
+    return _fernet
+
+
+def encrypt_secret(plaintext: str) -> str:
+    """Encrypt a secret value for storage in the database. Returns a token string."""
+    if plaintext is None:
+        return ""
+    token = _fernet_instance().encrypt((plaintext or "").encode("utf-8"))
+    return token.decode("ascii")
+
+
+def decrypt_secret(token: str) -> str:
+    """Decrypt a stored secret. Returns '' for missing/empty values."""
+    if not token:
+        return ""
+    try:
+        return _fernet_instance().decrypt(token.encode("ascii")).decode("utf-8")
+    except (InvalidToken, ValueError):
+        return ""
+
+
+def mask_secret(value: str, visible_tail: int = 4) -> str:
+    """Return a masked representation, e.g. kp_live_••••c9b7."""
+    if not value:
+        return ""
+    if len(value) <= visible_tail:
+        return "•" * visible_tail
+    prefix = ""
+    # Preserve common live/test prefixes so the admin can tell env apart.
+    for p in ("kp_live_", "kp_test_", "sk_live_", "sk_test_"):
+        if value.startswith(p):
+            prefix, value = p, value[len(p):]
+            break
+    keep = value[-visible_tail:]
+    masked = "•" * max(4, min(20, len(value) - visible_tail))
+    return f"{prefix}{masked}{keep}"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 

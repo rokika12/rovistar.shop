@@ -138,6 +138,11 @@ export const backupHistory = () => api.get('/api/backup/history').then((r) => r.
 export const getBackupDownload = (filename) => api.get('/api/backup/download', { params: { filename } }).then((r) => r.data);
 export const getPlatformSettings = () => api.get('/api/settings/platform').then((r) => r.data);
 
+// KHQRPay platform-level credentials (admin-managed, encrypted at rest).
+export const getKhqrpayKeys = () => api.get('/api/settings/khqrpay').then((r) => r.data);
+export const updateKhqrpayKeys = (data) => api.put('/api/settings/khqrpay', data).then((r) => r.data);
+export const revealKhqrpayKeys = () => api.post('/api/settings/khqrpay/reveal').then((r) => r.data);
+
 // Admin-only documented supplier catalog import.
 export const listProviders = () => api.get('/api/provider-catalog/providers').then((r) => r.data);
 export const createProvider = (data) => api.post('/api/provider-catalog/providers', data).then((r) => r.data);
