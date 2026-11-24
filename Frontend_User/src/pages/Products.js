@@ -82,9 +82,10 @@ export default function Products() {
 
   const shown = products.slice(0, visibleCount);
   const isKaidoStore = shop?.username?.toLowerCase() === 'kaidostore';
+  const isRonewShop = shop?.username?.toLowerCase() === 'ronewshop';
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-8 ${isKaidoStore ? 'kaido-products-page' : ''}`}>
+    <div className={`max-w-7xl mx-auto px-4 py-8 ${isKaidoStore ? 'kaido-products-page' : ''} ${isRonewShop ? 'ronew-products-page' : ''}`}>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold dark:text-gray-100">{t('products')}</h1>
         <div className="product-list-filters">
@@ -114,8 +115,10 @@ export default function Products() {
       <CategoryNav categories={categories} />
 
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({ length: PAGE_SIZE }).map((_, i) => <ProductSkeleton key={i} />)}
+        <div className={isRonewShop ? 'ronew-product-grid' : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'}>
+          {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+            isRonewShop ? <div key={i} className="ronew-product-skeleton"><span /><i /><i /></div> : <ProductSkeleton key={i} />
+          ))}
         </div>
       ) : products.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
@@ -127,13 +130,15 @@ export default function Products() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             {shown.length} / {products.length} {t('products')}
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {shown.map((p) => <ProductCard key={p.id} product={p} />)}
+          <div className={isRonewShop ? 'ronew-product-grid' : 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'}>
+            {shown.map((p) => <ProductCard key={p.id} product={p} variant={isRonewShop ? 'ronew' : 'standard'} />)}
           </div>
 
           {loadingMore && (
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {Array.from({ length: Math.min(PAGE_SIZE, products.length - shown.length) }).map((_, i) => <ProductSkeleton key={`more-${i}`} />)}
+            <div className={isRonewShop ? 'ronew-product-grid mt-6' : 'mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'}>
+              {Array.from({ length: Math.min(PAGE_SIZE, products.length - shown.length) }).map((_, i) => (
+                isRonewShop ? <div key={`more-${i}`} className="ronew-product-skeleton"><span /><i /><i /></div> : <ProductSkeleton key={`more-${i}`} />
+              ))}
             </div>
           )}
         </>

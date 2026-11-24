@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FiArrowRight, FiCreditCard, FiHeadphones, FiMessageCircle, FiShield, FiShoppingBag, FiSmartphone, FiUser,
-  FiTruck, FiZap,
+  FiArrowRight, FiCheckCircle, FiCreditCard, FiHeadphones, FiMessageCircle, FiPackage, FiShield,
+  FiShoppingBag, FiSmartphone, FiStar, FiUser, FiTruck, FiZap,
 } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -94,9 +94,8 @@ export default function ShopHome() {
   const isKaidoStore = shop.username?.toLowerCase() === 'kaidostore';
   const isRovistarStore = shop.username?.toLowerCase() === 'rovistar';
   const supportLink = shop.social_media?.telegram
-    || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : 'https://t.me/kaidokmglaor');
+    || (typeof shop.contact === 'string' && shop.contact.includes('t.me') ? shop.contact : (isRonewShop ? '' : 'https://t.me/kaidokmglaor'));
   const appearance = shop.theme?.appearance || {};
-  const productRailClass = appearance.product_direction === 'right' ? 'domi-rail-right' : 'domi-rail-left';
   const kaidoTrustFeatures = [
     {
       id: 'verified',
@@ -123,6 +122,129 @@ export default function ShopHome() {
       robotPose: 'deliver',
     },
   ];
+
+  if (isRonewShop) {
+    const heroProducts = featuredProducts.slice(0, 3);
+    const servicePills = [
+      { icon: FiShield, label: 'Secure checkout' },
+      { icon: FiPackage, label: 'Careful fulfillment' },
+      { icon: FiHeadphones, label: 'Helpful support' },
+    ];
+
+    return (
+      <div className="ronew-marketplace">
+        <section className="ronew-hero" aria-labelledby="ronew-hero-title">
+          <div className="ronew-hero-glow ronew-hero-glow-one" aria-hidden="true" />
+          <div className="ronew-hero-glow ronew-hero-glow-two" aria-hidden="true" />
+          <div className="ronew-hero-inner">
+            <div className="ronew-hero-copy">
+              <span className="ronew-eyebrow"><FiStar /> Thoughtfully selected, made easy</span>
+              <h1 id="ronew-hero-title">A marketplace for<br /><em>everyday discoveries.</em></h1>
+              <p>Explore useful products and trusted digital services, gathered in one calm, simple place.</p>
+              <div className="ronew-hero-actions">
+                <Link to={`/${shop.username}/products`} className="ronew-primary-action">Explore the marketplace <FiArrowRight /></Link>
+                <a href="#ronew-collection" className="ronew-text-action">See what is new</a>
+              </div>
+              <div className="ronew-hero-note"><FiCheckCircle /> Secure payment and straightforward ordering</div>
+            </div>
+
+            <div className={`ronew-hero-showcase ${heroProducts.length ? '' : 'ronew-hero-showcase-empty'}`} aria-label="Featured marketplace picks">
+              {heroProducts.length ? heroProducts.map((product, index) => (
+                <Link
+                  key={product.id}
+                  to={`/${shop.username}/product/${product.id}`}
+                  className={`ronew-hero-product ronew-hero-product-${index + 1}`}
+                  aria-label={`View ${product.name}`}
+                >
+                  <span className="ronew-hero-product-image">
+                    {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt="" /> : <FiShoppingBag />}
+                  </span>
+                  <span className="ronew-hero-product-copy">
+                    <small>{product.category_name || 'Marketplace pick'}</small>
+                    <strong>{product.name}</strong>
+                    <b>${Number(product.sale_price ?? product.price).toFixed(2)}</b>
+                  </span>
+                </Link>
+              )) : (
+                <div className="ronew-empty-showcase" aria-hidden="true">
+                  <span><FiShoppingBag /></span>
+                  <strong>New finds<br />arrive here</strong>
+                </div>
+              )}
+              <span className="ronew-showcase-orbit" aria-hidden="true">R</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="ronew-discovery-bar" aria-label="Browse the marketplace">
+          <div className="ronew-discovery-row ronew-category-pills no-scrollbar">
+            <Link to={`/${shop.username}/products`} className="is-active">All finds <span>{catalogProducts.length}</span></Link>
+            {categories.map((category) => (
+              <Link key={category.id} to={`/${shop.username}/products?category=${category.id}`}>
+                {category.name}
+                <span>{typeof category.product_count === 'number' ? category.product_count : catalogProducts.filter((product) => String(product.category_id) === String(category.id)).length}</span>
+              </Link>
+            ))}
+          </div>
+          <div className="ronew-discovery-row ronew-service-pills no-scrollbar">
+            {servicePills.map(({ icon: Icon, label }) => <span key={label}><Icon /> {label}</span>)}
+            {supportLink && <a href={supportLink} target="_blank" rel="noreferrer"><FiMessageCircle /> Ask RonewShop</a>}
+          </div>
+        </section>
+
+        <div className="ronew-search"><ShopSearchBar /></div>
+
+        {slides.length > 0 && (
+          <section className="ronew-banner" aria-label="Store announcements">
+            <Slideshow slides={slides} />
+          </section>
+        )}
+
+        <section id="ronew-collection" className="ronew-collection" aria-labelledby="ronew-collection-title">
+          <div className="ronew-section-heading">
+            <div>
+              <span>THE RONEWSHOP EDIT</span>
+              <h2 id="ronew-collection-title">Find something worth keeping.</h2>
+              <p>Products and services selected for a smoother everyday experience.</p>
+            </div>
+            <Link to={`/${shop.username}/products`}>View the full collection <FiArrowRight /></Link>
+          </div>
+
+          {loading ? (
+            <div className="ronew-product-grid ronew-product-grid-loading" aria-label="Loading products">
+              {Array.from({ length: 4 }).map((_, index) => <div key={index} className="ronew-product-skeleton"><span /><i /><i /></div>)}
+            </div>
+          ) : toolProducts.length ? (
+            <div className="ronew-product-grid">
+              {toolProducts.map((product) => <ProductCard key={product.id} product={product} variant="ronew" />)}
+            </div>
+          ) : (
+            <div className="ronew-empty-collection">
+              <span><FiShoppingBag /></span>
+              <h3>The shelves are being prepared.</h3>
+              <p>Fresh products and services will appear here soon.</p>
+              <Link to={`/${shop.username}/products`}>Browse the catalog <FiArrowRight /></Link>
+            </div>
+          )}
+        </section>
+
+        <section className="ronew-promise" aria-label="Why shop with RonewShop">
+          {[
+            [FiShield, 'Protected from click to checkout', 'Clear steps and secure payment help every order feel simple.'],
+            [FiZap, 'Quick, thoughtful service', 'Digital access and order updates arrive without unnecessary waiting.'],
+            [FiHeadphones, 'Real support when needed', 'Questions are welcome before, during, and after your purchase.'],
+          ].map(([Icon, title, copy], index) => (
+            <article key={title}>
+              <span>0{index + 1}</span>
+              <Icon />
+              <h3>{title}</h3>
+              <p>{copy}</p>
+            </article>
+          ))}
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className={isKaidoStore ? 'kaido-storefront' : `domi-storefront marquee-text-${appearance.text_color || 'default'}`} data-palette={appearance.palette || 'rose'} style={{ '--section-kicker': appearance.section_kicker_color || '#b88712', '--section-title': appearance.section_title_color || '#d62468', '--section-accent': appearance.section_accent_color || '#1677db' }}>

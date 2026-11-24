@@ -27,6 +27,7 @@ export default function ProductCard({ product, variant = 'standard' }) {
   const isTelegramGift = metadata.product_type === 'telegram_gift';
   const isKaidoStore = shop?.username?.toLowerCase() === 'kaidostore';
   const isRovistarStore = shop?.username?.toLowerCase() === 'rovistar';
+  const isRonewShop = shop?.username?.toLowerCase() === 'ronewshop';
   const description = (product.description || '').replace(/\s+/g, ' ').trim();
   const isDigital = metadata.product_type === 'digital';
   const isManualService = metadata.fulfillment_type === 'manual_service';
@@ -194,6 +195,47 @@ export default function ProductCard({ product, variant = 'standard' }) {
               {hasSale && <del>${originalPrice.toFixed(2)}</del>}
             </div>
             <Link to={productLink}>ចូលមើលទំនិញ <FiArrowRight /></Link>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  if (isRonewShop && variant === 'ronew') {
+    const productLink = `/${shop.username}/product/${product.id}`;
+    const displayPrice = Number.isFinite(price) ? `$${price.toFixed(2)}` : 'View details';
+
+    return (
+      <article className="ronew-product-card">
+        <Link to={productLink} className="ronew-product-art" aria-label={`View ${product.name}`}>
+          {product.images?.[0] && !imageFailed ? (
+            <img src={fullUrl(product.images[0])} alt={product.name} loading="lazy" decoding="async" onError={() => setImageFailed(true)} />
+          ) : (
+            <span className="ronew-product-placeholder"><FiShoppingBag /></span>
+          )}
+          <span className="ronew-product-index">{String(product.id).padStart(2, '0').slice(-2)}</span>
+          {hasSale && <span className="ronew-product-sale">Save {discount}%</span>}
+        </Link>
+
+        <div className="ronew-product-body">
+          <div className="ronew-product-meta">
+            <span>{product.category_name || (isManualService ? 'Service' : 'RonewShop find')}</span>
+            <span className={isAvailable ? 'is-available' : 'is-unavailable'}>{isAvailable ? 'Available' : 'Unavailable'}</span>
+          </div>
+          <Link to={productLink}><h3>{product.name}</h3></Link>
+          <p>{description || (isDigital ? 'Digital access with a simple, secure order process.' : 'A useful marketplace find, ready when you are.')}</p>
+          <div className="ronew-product-price">
+            <strong>{isManualService ? 'Tailored service' : displayPrice}</strong>
+            {!isManualService && <small>{shop.currency || 'USD'}</small>}
+            {!isManualService && hasSale && <del>${originalPrice.toFixed(2)}</del>}
+          </div>
+          <div className="ronew-product-actions">
+            {!isManualService && <QuickAddButton product={product} available={isAvailable} />}
+            {isAvailable ? (
+              <Link to={productLink} className="ronew-product-view">{isManualService ? 'View service' : 'View details'} <FiArrowUpRight /></Link>
+            ) : (
+              <span className="ronew-product-view is-disabled">Sold out</span>
+            )}
           </div>
         </div>
       </article>

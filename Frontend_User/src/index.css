@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Lilita+One&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Vichealey&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Kantumruy+Pro:wght@400;500;600;700&family=Lilita+One&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Vichealey&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -2832,4 +2832,292 @@ html[lang='km'] .dz-rovi-shell .store-section-heading { color: var(--dz-primary)
   .dz-khqr-band { padding: 0 1rem; }
   .dz-khqr-meta,
   .qr-card-new .qr-info { gap: .65rem; }
+}
+
+/* RonewShop: a warm, editorial marketplace built around real catalog content. */
+.ronew-store-shell {
+  --ronew-ivory: #f5efe3;
+  --ronew-paper: #fffaf1;
+  --ronew-cream: #eadfc9;
+  --ronew-ink: #243029;
+  --ronew-muted: #6f776f;
+  --ronew-moss: #64705c;
+  --ronew-clay: #bd694a;
+  --ronew-sun: #e5b768;
+  --ronew-line: rgba(62, 74, 62, .14);
+  background: var(--ronew-ivory) !important;
+  color: var(--ronew-ink);
+  font-family: 'Manrope', 'Kantumruy Pro', sans-serif;
+}
+.ronew-store-shell .storefront-main { overflow-x: clip; background: var(--ronew-ivory) !important; }
+.ronew-sticky-shell {
+  top: .45rem;
+  width: calc(100% - 1rem);
+  margin: .45rem auto 0;
+  border-radius: 1rem;
+  background: transparent;
+  box-shadow: none;
+}
+.ronew-store-header {
+  overflow: visible;
+  border: 1px solid rgba(255, 255, 255, .82) !important;
+  border-radius: 1rem;
+  background: rgba(255, 250, 241, .86) !important;
+  box-shadow: 0 12px 35px rgba(64, 67, 51, .10) !important;
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+}
+.ronew-store-header .store-header-inner { min-height: 62px; height: 62px; padding: 0 .7rem; }
+.ronew-store-header .store-brand { min-width: 0; color: var(--ronew-ink); }
+.ronew-store-header .store-brand > span:first-child { width: 2.35rem !important; height: 2.35rem !important; border: 1px solid rgba(67, 78, 64, .12); border-radius: .75rem !important; box-shadow: 0 5px 14px rgba(83, 82, 60, .1); }
+.ronew-store-header .store-brand-copy strong { max-width: 8rem; color: var(--ronew-ink); font-family: 'Fraunces', 'Kantumruy Pro', serif; font-size: 1.05rem; letter-spacing: -.03em; }
+.ronew-header-nav { display: none; }
+.ronew-store-header .store-header-actions { gap: .35rem; }
+.ronew-store-header .store-utility-switcher { border: 0; background: transparent; padding: 0; }
+.ronew-store-header .store-language-toggle,
+.ronew-store-header .store-login-button,
+.ronew-store-header .store-account-trigger { min-height: 2.35rem; border: 1px solid var(--ronew-line); border-radius: 999px; background: rgba(255, 255, 255, .6); color: var(--ronew-ink); box-shadow: none; }
+.ronew-store-header .store-language-toggle { gap: .28rem; padding: .45rem .55rem; }
+.ronew-store-header .store-language-toggle span { display: none; }
+.ronew-store-header .store-language-toggle svg:last-child { display: none; }
+.ronew-store-header .store-login-button { padding: 0 .7rem; }
+.ronew-store-header .store-signup-button { min-height: 2.35rem; border: 0; border-radius: 999px; background: var(--ronew-ink); padding: 0 .8rem; color: #fffaf1; box-shadow: none; }
+.ronew-store-header .store-language-menu,
+.ronew-store-header .store-account-menu { border-color: var(--ronew-line); background: var(--ronew-paper); box-shadow: 0 18px 48px rgba(47, 50, 39, .16); }
+
+.ronew-marketplace { min-height: 100vh; background: var(--ronew-ivory); color: var(--ronew-ink); }
+.ronew-hero {
+  position: relative;
+  width: calc(100% - 1rem);
+  min-height: 690px;
+  margin: .75rem auto 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .7);
+  border-radius: 1.75rem;
+  background:
+    linear-gradient(155deg, rgba(255, 252, 245, .92), rgba(239, 223, 193, .78)),
+    repeating-linear-gradient(90deg, transparent 0 52px, rgba(93, 106, 86, .035) 52px 53px);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .7);
+}
+.ronew-hero::after {
+  position: absolute;
+  right: -4rem;
+  bottom: -8rem;
+  width: 18rem;
+  height: 18rem;
+  border: 1px solid rgba(100, 112, 92, .14);
+  border-radius: 50%;
+  content: '';
+}
+.ronew-hero-glow { position: absolute; border-radius: 50%; filter: blur(2px); pointer-events: none; }
+.ronew-hero-glow-one { top: -8rem; right: -5rem; width: 23rem; height: 23rem; background: radial-gradient(circle, rgba(241, 184, 112, .48), rgba(244, 216, 171, 0) 68%); }
+.ronew-hero-glow-two { bottom: -8rem; left: -6rem; width: 20rem; height: 20rem; background: radial-gradient(circle, rgba(145, 164, 132, .3), rgba(145, 164, 132, 0) 70%); }
+.ronew-hero-inner { position: relative; z-index: 1; display: grid; width: min(1320px, 100%); min-height: inherit; margin: 0 auto; padding: 3.5rem 1.25rem 1.25rem; }
+.ronew-hero-copy { position: relative; z-index: 3; align-self: center; }
+.ronew-eyebrow { display: inline-flex; align-items: center; gap: .45rem; margin-bottom: 1.15rem; color: var(--ronew-clay); font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.ronew-eyebrow svg { fill: currentColor; }
+.ronew-hero-copy h1 { max-width: 14ch; margin: 0; color: var(--ronew-ink); font-family: 'Fraunces', 'Kantumruy Pro', serif; font-size: clamp(2.75rem, 12vw, 4.6rem); font-weight: 600; letter-spacing: -.055em; line-height: .96; }
+.ronew-hero-copy h1 em { color: var(--ronew-clay); font-style: italic; font-weight: 600; }
+.ronew-hero-copy > p { max-width: 34rem; margin: 1.3rem 0 0; color: var(--ronew-muted); font-size: .92rem; line-height: 1.75; }
+.ronew-hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .8rem 1.1rem; margin-top: 1.55rem; }
+.ronew-primary-action { display: inline-flex; min-height: 3.25rem; align-items: center; justify-content: center; gap: .55rem; border-radius: 999px; background: var(--ronew-ink); padding: 0 1.2rem; color: #fffaf1; font-size: .76rem; font-weight: 800; box-shadow: 0 10px 22px rgba(36, 48, 41, .18); transition: transform .2s ease, box-shadow .2s ease; }
+.ronew-primary-action:hover { color: #fff; box-shadow: 0 14px 28px rgba(36, 48, 41, .24); transform: translateY(-2px); }
+.ronew-text-action { border-bottom: 1px solid rgba(36, 48, 41, .35); padding: .3rem 0; color: var(--ronew-ink); font-size: .76rem; font-weight: 800; }
+.ronew-hero-note { display: flex; align-items: center; gap: .45rem; margin-top: 1.2rem; color: #737b71; font-size: .66rem; font-weight: 700; }
+.ronew-hero-note svg { color: var(--ronew-moss); }
+.ronew-hero-showcase { position: relative; min-height: 310px; margin-top: 2.4rem; }
+.ronew-hero-product { position: absolute; display: flex; width: min(82%, 18rem); align-items: center; gap: .7rem; overflow: hidden; border: 1px solid rgba(255, 255, 255, .85); border-radius: 1.2rem; background: rgba(255, 252, 246, .88); padding: .55rem; color: var(--ronew-ink); box-shadow: 0 18px 40px rgba(71, 71, 50, .15); backdrop-filter: blur(12px); animation: ronew-rise .7s cubic-bezier(.2, .8, .2, 1) both; transition: transform .25s ease, box-shadow .25s ease; }
+.ronew-hero-product:hover { color: var(--ronew-ink); box-shadow: 0 24px 48px rgba(71, 71, 50, .2); }
+.ronew-hero-product-1 { top: 0; left: 2%; transform: rotate(-3deg); }
+.ronew-hero-product-1:hover { transform: rotate(-3deg) translateY(-4px); }
+.ronew-hero-product-2 { top: 7rem; right: 0; transform: rotate(3deg); animation-delay: .1s; }
+.ronew-hero-product-2:hover { transform: rotate(3deg) translateY(-4px); }
+.ronew-hero-product-3 { display: none; }
+.ronew-hero-product-image { display: grid; width: 5rem; height: 5rem; flex: 0 0 5rem; place-items: center; overflow: hidden; border-radius: .9rem; background: #e9deca; color: var(--ronew-clay); font-size: 1.35rem; }
+.ronew-hero-product-image img { width: 100%; height: 100%; object-fit: cover; }
+.ronew-hero-product-copy { display: flex; min-width: 0; flex-direction: column; }
+.ronew-hero-product-copy small { color: var(--ronew-clay); font-size: .54rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.ronew-hero-product-copy strong { overflow: hidden; margin-top: .22rem; font-family: 'Fraunces', 'Kantumruy Pro', serif; font-size: .9rem; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
+.ronew-hero-product-copy b { margin-top: .35rem; color: var(--ronew-moss); font-size: .75rem; }
+.ronew-showcase-orbit { position: absolute; right: 1.5rem; bottom: .3rem; display: grid; width: 4.5rem; height: 4.5rem; place-items: center; border: 1px solid rgba(54, 65, 54, .18); border-radius: 50%; color: rgba(55, 67, 56, .28); font-family: 'Fraunces', serif; font-size: 2rem; }
+.ronew-showcase-orbit::before { position: absolute; inset: .35rem; border: 1px dashed rgba(54, 65, 54, .2); border-radius: inherit; content: ''; animation: ronew-spin 18s linear infinite; }
+.ronew-empty-showcase { position: absolute; inset: 1rem 2rem 2rem; display: grid; place-content: center; border: 1px dashed rgba(72, 83, 70, .22); border-radius: 50% 42% 46% 40%; color: var(--ronew-moss); text-align: center; transform: rotate(-4deg); }
+.ronew-empty-showcase span { margin-bottom: .75rem; font-size: 2rem; }
+.ronew-empty-showcase strong { font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 600; line-height: 1.05; }
+
+.ronew-discovery-bar { width: calc(100% - 1rem); margin: .75rem auto 0; border: 1px solid rgba(255, 255, 255, .78); border-radius: 1.35rem; background: rgba(255, 250, 241, .72); padding: .7rem; box-shadow: 0 10px 30px rgba(74, 73, 54, .06); }
+.ronew-discovery-row { display: flex; align-items: center; gap: .5rem; overflow-x: auto; scroll-snap-type: x proximity; }
+.ronew-discovery-row > * { flex: 0 0 auto; scroll-snap-align: start; }
+.ronew-category-pills a { display: inline-flex; min-height: 2.65rem; align-items: center; gap: .55rem; border: 1px solid var(--ronew-line); border-radius: 999px; background: rgba(255, 255, 255, .56); padding: 0 .85rem; color: #4e5a50; font-size: .71rem; font-weight: 800; }
+.ronew-category-pills a:hover,
+.ronew-category-pills a.is-active { border-color: var(--ronew-ink); background: var(--ronew-ink); color: #fffaf1; }
+.ronew-category-pills a span { display: grid; min-width: 1.15rem; height: 1.15rem; place-items: center; border-radius: 50%; background: rgba(189, 105, 74, .14); color: var(--ronew-clay); font-size: .56rem; }
+.ronew-category-pills a.is-active span { background: rgba(255, 255, 255, .16); color: #fff; }
+.ronew-service-pills { margin-top: .55rem; border-top: 1px solid var(--ronew-line); padding-top: .55rem; }
+.ronew-service-pills span,
+.ronew-service-pills a { display: inline-flex; align-items: center; gap: .38rem; border-radius: 999px; background: #eee4d2; padding: .46rem .7rem; color: #64705f; font-size: .63rem; font-weight: 750; }
+.ronew-service-pills svg { color: var(--ronew-clay); }
+
+.ronew-search { width: min(920px, calc(100% - 1rem)); margin: .75rem auto 0; }
+.ronew-search > div { border: 0 !important; background: transparent !important; }
+.ronew-search > div > div { padding: 0 !important; }
+.ronew-search form { filter: drop-shadow(0 10px 24px rgba(70, 69, 51, .08)); }
+.ronew-search input { min-height: 3.35rem; border: 1px solid rgba(67, 78, 64, .15) !important; border-radius: 999px !important; background: rgba(255, 252, 245, .94) !important; padding-left: 3rem !important; color: var(--ronew-ink) !important; font-family: 'Manrope', 'Kantumruy Pro', sans-serif; box-shadow: inset 0 1px rgba(255,255,255,.9) !important; }
+.ronew-search input:focus { border-color: var(--ronew-clay) !important; box-shadow: 0 0 0 4px rgba(189, 105, 74, .1) !important; }
+.ronew-banner { width: calc(100% - 1rem); margin: 1rem auto 0; overflow: hidden; border: 1px solid rgba(255, 255, 255, .75); border-radius: 1.4rem; background: var(--ronew-paper); box-shadow: 0 12px 30px rgba(70, 69, 51, .08); }
+.ronew-banner > div { border-radius: inherit; }
+.ronew-products-page { width: min(1320px, calc(100% - 1rem)); max-width: none; padding: 3rem 0 4rem; }
+.ronew-products-page h1 { color: var(--ronew-ink) !important; font-family: 'Fraunces', 'Kantumruy Pro', serif; font-size: clamp(2.2rem, 7vw, 4rem); font-weight: 600; letter-spacing: -.04em; }
+.ronew-products-page .product-list-filters { gap: .55rem; }
+.ronew-products-page .product-list-search input,
+.ronew-products-page .product-list-filters select { min-height: 2.9rem; border: 1px solid var(--ronew-line); border-radius: 999px; background: rgba(255, 251, 243, .9) !important; color: var(--ronew-ink) !important; box-shadow: 0 8px 20px rgba(70, 69, 51, .06); }
+.ronew-products-page .store-category-nav { position: static !important; top: auto; margin-bottom: 1.25rem; border: 0; background: transparent; }
+.ronew-products-page .store-category-nav-inner { padding: 0; }
+.ronew-products-page .store-category-pill { border-color: var(--ronew-line); background: #eee4d2; color: var(--ronew-ink); }
+.ronew-products-page .store-category-pill-active { border-color: var(--ronew-ink); background: var(--ronew-ink); color: #fffaf1; }
+
+.ronew-collection { width: min(1320px, calc(100% - 1.5rem)); margin: 0 auto; padding: 4rem 0 3rem; scroll-margin-top: 6rem; }
+.ronew-section-heading { display: flex; align-items: flex-start; flex-direction: column; gap: 1.2rem; margin-bottom: 1.6rem; }
+.ronew-section-heading span { color: var(--ronew-clay); font-size: .64rem; font-weight: 850; letter-spacing: .16em; }
+.ronew-section-heading h2 { max-width: 16ch; margin: .4rem 0 0; color: var(--ronew-ink); font-family: 'Fraunces', 'Kantumruy Pro', serif; font-size: clamp(2rem, 8vw, 3.45rem); font-weight: 600; letter-spacing: -.045em; line-height: 1.02; }
+.ronew-section-heading p { max-width: 34rem; margin: .75rem 0 0; color: var(--ronew-muted); font-size: .8rem; line-height: 1.65; }
+.ronew-section-heading > a { display: inline-flex; align-items: center; gap: .5rem; border-bottom: 1px solid rgba(36, 48, 41, .32); padding: .35rem 0; color: var(--ronew-ink); font-size: .72rem; font-weight: 800; }
+.ronew-product-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.ronew-product-card { display: flex; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid rgba(255, 255, 255, .85); border-radius: 1.35rem; background: rgba(255, 251, 243, .88); box-shadow: 0 12px 32px rgba(71, 70, 50, .08); animation: ronew-rise .6s ease both; transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease; }
+.ronew-product-card:nth-child(2) { animation-delay: .06s; }
+.ronew-product-card:nth-child(3) { animation-delay: .12s; }
+.ronew-product-card:hover { border-color: rgba(189, 105, 74, .36); box-shadow: 0 22px 45px rgba(71, 70, 50, .14); transform: translateY(-4px); }
+.ronew-product-art { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background: linear-gradient(135deg, #e8dcc6, #f3eadb); }
+.ronew-product-art::after { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 65%, rgba(35, 45, 38, .16)); content: ''; pointer-events: none; }
+.ronew-product-art > img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s cubic-bezier(.2,.7,.2,1); }
+.ronew-product-card:hover .ronew-product-art > img { transform: scale(1.035); }
+.ronew-product-placeholder { display: grid; width: 100%; height: 100%; place-items: center; color: rgba(100, 112, 92, .58); font-size: 3rem; }
+.ronew-product-index { position: absolute; z-index: 2; top: .75rem; left: .75rem; display: grid; width: 2.15rem; height: 2.15rem; place-items: center; border: 1px solid rgba(255,255,255,.75); border-radius: 50%; background: rgba(255, 250, 241, .82); color: var(--ronew-ink); font-family: 'Fraunces', serif; font-size: .7rem; backdrop-filter: blur(10px); }
+.ronew-product-sale { position: absolute; z-index: 2; top: .8rem; right: .8rem; border-radius: 999px; background: var(--ronew-clay); padding: .38rem .65rem; color: #fff; font-size: .6rem; font-weight: 800; }
+.ronew-product-body { display: flex; flex: 1; flex-direction: column; padding: 1rem; }
+.ronew-product-meta { display: flex; align-items: center; justify-content: space-between; gap: .75rem; color: var(--ronew-clay); font-size: .58rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.ronew-product-meta > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ronew-product-meta > span:last-child { position: relative; flex: 0 0 auto; padding-left: .6rem; color: #6f796d; letter-spacing: 0; text-transform: none; }
+.ronew-product-meta > span:last-child::before { position: absolute; top: .27rem; left: 0; width: .35rem; height: .35rem; border-radius: 50%; background: #6f8a62; content: ''; }
+.ronew-product-meta > span.is-unavailable::before { background: #ba6958; }
+.ronew-product-body h3 { display: -webkit-box; overflow: hidden; margin: .7rem 0 0; color: var(--ronew-ink); font-family: 'Fraunces', 'Kantumruy Pro', serif; font-size: 1.35rem; font-weight: 600; letter-spacing: -.025em; line-height: 1.12; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.ronew-product-body > p { display: -webkit-box; min-height: 2.8rem; overflow: hidden; margin: .55rem 0 0; color: var(--ronew-muted); font-size: .72rem; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.ronew-product-price { display: flex; min-height: 2rem; align-items: baseline; gap: .4rem; margin-top: .9rem; }
+.ronew-product-price strong { color: var(--ronew-ink); font-size: 1.1rem; font-weight: 850; letter-spacing: -.035em; }
+.ronew-product-price small { color: #8c918a; font-size: .55rem; font-weight: 800; }
+.ronew-product-price del { color: #9a978f; font-size: .68rem; }
+.ronew-product-actions { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1fr); gap: .55rem; margin-top: 1rem; }
+.ronew-product-actions > .quick-add-button { min-height: 2.8rem; margin: 0; border: 1px solid rgba(36, 48, 41, .2); border-radius: 999px; background: transparent; color: var(--ronew-ink); }
+.ronew-product-actions > .quick-add-button:hover { background: #e9decc; color: var(--ronew-ink); }
+.ronew-product-actions > .ronew-product-view:only-child { grid-column: 1 / -1; }
+.ronew-product-view { display: inline-flex; min-height: 2.8rem; align-items: center; justify-content: center; gap: .4rem; border-radius: 999px; background: var(--ronew-ink); padding: .6rem .75rem; color: #fffaf1; font-size: .69rem; font-weight: 800; }
+.ronew-product-view:hover { background: var(--ronew-clay); color: #fff; }
+.ronew-product-view.is-disabled { background: #ded8cb; color: #8a8a81; }
+.ronew-product-skeleton { overflow: hidden; border-radius: 1.35rem; background: rgba(255, 251, 243, .72); padding-bottom: 1rem; }
+.ronew-product-skeleton span { display: block; aspect-ratio: 4 / 3; background: linear-gradient(100deg, #e9dfcf 25%, #f7f1e7 45%, #e9dfcf 65%); background-size: 220% 100%; animation: ronew-shimmer 1.4s infinite linear; }
+.ronew-product-skeleton i { display: block; width: 72%; height: .8rem; margin: .8rem 1rem 0; border-radius: 999px; background: #e8dece; }
+.ronew-product-skeleton i:last-child { width: 45%; }
+.ronew-empty-collection { display: grid; min-height: 22rem; place-items: center; align-content: center; border: 1px dashed rgba(65, 77, 64, .24); border-radius: 1.5rem; padding: 2rem; text-align: center; }
+.ronew-empty-collection > span { display: grid; width: 4rem; height: 4rem; place-items: center; border-radius: 50%; background: #eadfce; color: var(--ronew-clay); font-size: 1.5rem; }
+.ronew-empty-collection h3 { margin: 1rem 0 .35rem; font-family: 'Fraunces', serif; font-size: 1.5rem; }
+.ronew-empty-collection p { margin: 0; color: var(--ronew-muted); font-size: .8rem; }
+.ronew-empty-collection a { display: inline-flex; align-items: center; gap: .45rem; margin-top: 1rem; color: var(--ronew-clay); font-size: .75rem; font-weight: 800; }
+
+.ronew-promise { display: grid; width: calc(100% - 1rem); margin: 0 auto 1rem; overflow: hidden; border-radius: 1.5rem; background: var(--ronew-ink); color: #f8f0e3; }
+.ronew-promise article { position: relative; padding: 2rem 1.3rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+.ronew-promise article:last-child { border-bottom: 0; }
+.ronew-promise article > span { position: absolute; top: 1.1rem; right: 1.1rem; color: rgba(255,255,255,.28); font-family: 'Fraunces', serif; font-size: .68rem; }
+.ronew-promise article > svg { color: var(--ronew-sun); font-size: 1.5rem; }
+.ronew-promise h3 { max-width: 18rem; margin: 1rem 0 .45rem; font-family: 'Fraunces', 'Kantumruy Pro', serif; font-size: 1.35rem; font-weight: 600; line-height: 1.1; }
+.ronew-promise p { max-width: 23rem; margin: 0; color: rgba(248, 240, 227, .65); font-size: .73rem; line-height: 1.65; }
+.ronew-store-shell .shop-footer { margin: 0; border-color: var(--ronew-line) !important; background: #eee4d2 !important; color: var(--ronew-muted) !important; }
+.ronew-store-shell .shop-footer .shop-brand-name,
+.ronew-store-shell .shop-footer .shop-brand-heading { color: var(--ronew-ink) !important; font-family: 'Fraunces', 'Kantumruy Pro', serif; }
+.ronew-store-shell .shop-footer .text-slate-500,
+.ronew-store-shell .shop-footer .text-slate-400 { color: #70776d !important; }
+.ronew-store-shell .shop-footer .border-slate-200 { border-color: var(--ronew-line) !important; }
+.ronew-store-shell .shop-payment-acceptance { border-color: var(--ronew-clay); }
+
+@keyframes ronew-rise { from { opacity: 0; translate: 0 16px; } to { opacity: 1; translate: 0 0; } }
+@keyframes ronew-spin { to { transform: rotate(360deg); } }
+@keyframes ronew-shimmer { to { background-position: -220% 0; } }
+
+@media (min-width: 560px) {
+  .ronew-sticky-shell { width: calc(100% - 1.5rem); }
+  .ronew-store-header .store-header-inner { padding: 0 1rem; }
+  .ronew-store-header .store-brand-copy strong { max-width: 12rem; font-size: 1.15rem; }
+  .ronew-store-header .store-language-toggle span { display: inline; }
+  .ronew-hero,
+  .ronew-discovery-bar,
+  .ronew-banner,
+  .ronew-promise { width: calc(100% - 1.5rem); }
+  .ronew-hero-inner { padding-right: 2rem; padding-left: 2rem; }
+  .ronew-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 800px) {
+  .ronew-sticky-shell { top: .7rem; width: min(1320px, calc(100% - 2rem)); margin-top: .7rem; border-radius: 999px; }
+  .ronew-store-header { border-radius: 999px; }
+  .ronew-store-header .store-header-inner { height: 72px; min-height: 72px; padding: 0 1rem 0 .8rem; }
+  .ronew-store-header .store-brand > span:first-child { width: 2.7rem !important; height: 2.7rem !important; border-radius: 50% !important; }
+  .ronew-store-header .store-language-toggle svg:last-child { display: block; }
+  .ronew-store-header .store-login-button,
+  .ronew-store-header .store-signup-button { min-height: 2.65rem; padding-right: 1rem; padding-left: 1rem; }
+  .ronew-header-nav { display: flex; align-items: center; gap: .25rem; margin: 0 auto; }
+  .ronew-header-nav a { display: inline-flex; min-height: 2.5rem; align-items: center; gap: .35rem; border-radius: 999px; padding: 0 .75rem; color: #667066; font-size: .68rem; font-weight: 800; transition: background .2s ease, color .2s ease; }
+  .ronew-header-nav a:hover { background: #eee4d4; color: var(--ronew-ink); }
+  .ronew-header-nav svg { color: var(--ronew-clay); }
+  .ronew-hero { width: min(1380px, calc(100% - 2rem)); min-height: 650px; margin-top: 1rem; border-radius: 2.5rem; }
+  .ronew-hero-inner { grid-template-columns: minmax(0, .95fr) minmax(360px, .75fr); align-items: center; gap: 3rem; padding: 4.5rem 4rem; }
+  .ronew-hero-copy h1 { font-size: clamp(4.2rem, 7vw, 7.2rem); }
+  .ronew-hero-copy > p { font-size: .98rem; }
+  .ronew-hero-showcase { min-height: 460px; margin: 0; }
+  .ronew-hero-product { width: min(88%, 22rem); padding: .65rem; }
+  .ronew-hero-product-1 { top: 1rem; left: 0; }
+  .ronew-hero-product-2 { top: 10.5rem; right: -1rem; }
+  .ronew-hero-product-3 { bottom: 1.5rem; left: 1rem; display: flex; transform: rotate(-1deg); animation-delay: .2s; }
+  .ronew-hero-product-3:hover { transform: rotate(-1deg) translateY(-4px); }
+  .ronew-hero-product-image { width: 6.2rem; height: 6.2rem; flex-basis: 6.2rem; }
+  .ronew-hero-product-copy strong { font-size: 1.05rem; }
+  .ronew-showcase-orbit { right: -1rem; bottom: -.5rem; width: 7rem; height: 7rem; font-size: 2.6rem; }
+  .ronew-discovery-bar { width: min(1260px, calc(100% - 2rem)); margin-top: 1rem; padding: .8rem; }
+  .ronew-service-pills { justify-content: center; }
+  .ronew-category-pills { justify-content: flex-start; }
+  .ronew-search { margin-top: 1rem; }
+  .ronew-banner { width: min(1260px, calc(100% - 2rem)); border-radius: 2rem; }
+  .ronew-collection { width: min(1320px, calc(100% - 3rem)); padding: 6rem 0 4.5rem; }
+  .ronew-section-heading { align-items: flex-end; flex-direction: row; justify-content: space-between; margin-bottom: 2.2rem; }
+  .ronew-section-heading h2 { font-size: clamp(3rem, 5vw, 4.6rem); }
+  .ronew-section-heading p { font-size: .86rem; }
+  .ronew-product-grid { gap: 1.25rem; }
+  .ronew-promise { width: min(1320px, calc(100% - 2rem)); grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 1rem; border-radius: 2rem; }
+  .ronew-promise article { min-height: 15rem; border-right: 1px solid rgba(255,255,255,.1); border-bottom: 0; padding: 2.4rem 2rem; }
+  .ronew-promise article:last-child { border-right: 0; }
+}
+
+@media (min-width: 1120px) {
+  .ronew-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+  .ronew-product-body { padding: 1.2rem; }
+  .ronew-product-body h3 { font-size: 1.55rem; }
+  .ronew-product-body > p { font-size: .77rem; }
+}
+
+@media (max-width: 410px) {
+  .ronew-store-header.store-header-logged-out .store-brand-copy { display: block; }
+  .ronew-store-header .store-brand-copy strong { max-width: 5.5rem; font-size: .9rem; }
+  .ronew-store-header .store-login-button { display: none; }
+  .ronew-store-header .store-signup-button { padding: 0 .7rem; font-size: .68rem; }
+  .ronew-hero-copy h1 { font-size: 2.55rem; }
+  .ronew-hero-product { width: 88%; }
+  .ronew-product-actions { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ronew-hero-product,
+  .ronew-product-card,
+  .ronew-showcase-orbit::before,
+  .ronew-product-skeleton span { animation: none; }
+  .ronew-product-card,
+  .ronew-product-art > img,
+  .ronew-primary-action { transition: none; }
 }

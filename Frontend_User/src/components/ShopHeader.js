@@ -118,7 +118,7 @@ export default function ShopHeader() {
   };
 
   return (
-    <header className={`store-header ${!isLoggedIn ? 'store-header-logged-out' : ''} ${isKaidoStore ? 'kaido-store-header' : ''} ${isRovistarStore ? 'rovistar-glass-header' : ''}`}>
+    <header className={`store-header ${!isLoggedIn ? 'store-header-logged-out' : ''} ${isKaidoStore ? 'kaido-store-header' : ''} ${isRovistarStore ? 'rovistar-glass-header' : ''} ${isRonewShop ? 'ronew-store-header' : ''}`}>
       <div className="store-header-inner">
         <Link to={base} onClick={closePanels} className={`store-brand ${isKaidoStore ? 'store-brand-kaido' : ''}`} aria-label={`${shop.shop_name || shop.username} home`}>
           <ShopLogo shop={shop} className="h-10 w-10 rounded-2xl" textClassName="hidden" />
@@ -127,6 +127,13 @@ export default function ShopHeader() {
             {!isRonewShop && <small>{isKaidoStore ? 'Verified game accounts' : t('marketplaceSubtitle')}</small>}
           </span>
         </Link>
+        {isRonewShop && (
+          <nav className="ronew-header-nav" aria-label="Store navigation">
+            <Link to={base}><FiHome /> Home</Link>
+            <Link to={`${base}/products`}><FiPackage /> Marketplace</Link>
+            <Link to={`${base}/my-orders`}><FiCreditCard /> Orders</Link>
+          </nav>
+        )}
         <div className="store-header-actions">
           <div className="store-utility-switcher" aria-label="Language and theme controls">
             {languageMenuEnabled ? (
@@ -236,7 +243,7 @@ export default function ShopHeader() {
               <section className="store-full-login-card">
                 <button type="button" onClick={() => setFullLoginOpen(false)} className="store-full-login-close" aria-label="Close sign in"><FiX /></button>
                 <h2>Sign in to your account</h2>
-                <p>Use your Rovistar account details to continue.</p>
+                <p>Use your {shop.shop_name || shop.username} account details to continue.</p>
                 <CustomerAuth onSuccess={finishFullLogin} onOwnerSuccess={openOwnerDashboard} />
               </section>
             </div>
