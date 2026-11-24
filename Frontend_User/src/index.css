@@ -3121,3 +3121,37 @@ html[lang='km'] .dz-rovi-shell .store-section-heading { color: var(--dz-primary)
   .ronew-product-art > img,
   .ronew-primary-action { transition: none; }
 }
+
+/* ===== KHQR checkout — clean (no dark overlay), hosted-style QR card ===== */
+.dz-payment-page { background: #f7f5f0 !important; }
+.dz-payment-page .dz-payment-modal { box-shadow: 0 18px 50px rgba(30,42,56,.14); }
+
+/* KHQR red badge centered over the QR (relies on the QR's own error-correction) */
+.dz-qr-center-logo {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 20%; height: 20%; min-width: 28px; min-height: 28px;
+  border-radius: 50%; background: #fff; padding: 3px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 4px #fff, 0 4px 10px rgba(0,0,0,.12);
+  pointer-events: none;
+}
+.dz-qr-center-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+
+/* Khmer scan instructions + download button */
+.dz-scan-info { text-align: center; margin-top: 1rem; }
+.dz-scan-info p { color: #5b6b7b; font-size: .82rem; line-height: 1.5; max-width: 20rem; margin: 0 auto .9rem; }
+.dz-qr-download {
+  display: inline-flex; align-items: center; gap: .5rem;
+  border: 1px solid #d4dae0; background: #fff; color: #2a3a4a;
+  padding: .6rem 1.15rem; border-radius: .8rem; font-size: .82rem; font-weight: 700;
+  box-shadow: 0 2px 6px rgba(15,23,42,.05); transition: box-shadow .15s ease, transform .1s ease;
+  cursor: pointer;
+}
+.dz-qr-download:hover { box-shadow: 0 4px 12px rgba(15,23,42,.1); transform: translateY(-1px); }
+
+/* Supported-bank logos row (muted) */
+.dz-bank-logos {
+  display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;
+  margin: 1.4rem auto 0; padding: 1rem 0 .4rem; max-width: 22rem; opacity: .65; filter: grayscale(1);
+}
+.dz-bank-logos img { height: 26px; width: auto; object-fit: contain; }

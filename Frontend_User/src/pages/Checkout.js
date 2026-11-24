@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiCreditCard, FiLoader, FiLock, FiSmartphone, FiUser, FiX } from 'react-icons/fi';
+import { FiCreditCard, FiLoader, FiLock, FiSmartphone, FiUser, FiX, FiDownload } from 'react-icons/fi';
 import { useShop } from '../contexts/ShopContext';
 import { useCart } from '../contexts/CartContext';
 import { useCustomer } from '../contexts/CustomerContext';
@@ -20,7 +20,20 @@ const initialForm = {
 const ABA_LOGO_URL = `${process.env.PUBLIC_URL}/aba-payment-mark.png`;
 const ABA_BRAND_URL = `${process.env.PUBLIC_URL}/aba-brand.png`;
 const KHQR_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-brand.webp`;
+const KHQR_CENTER_LOGO_URL = `${process.env.PUBLIC_URL}/khqr-logo.png`;
 const WALLET_ICON_URL = `${process.env.PUBLIC_URL}/rovistar-wallet.svg`;
+
+// Download the QR image so customers can scan it from another device/bank app.
+const downloadQr = (url, name = 'KHQR-payment.png') => {
+  try {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch (e) { /* download is a convenience, not critical */ }
+};
 
 export default function Checkout() {
   const { shop } = useShop();
@@ -278,7 +291,7 @@ export default function Checkout() {
   if (payment) {
     const payAmount = Number(payment.amount || order?.total || 0).toFixed(2);
     return (
-      <div className={`fixed inset-0 z-[100] overflow-y-auto bg-slate-900/55 py-8 px-4 backdrop-blur-[2px] dz-payment-overlay ${isKaidoStore ? 'kaido-payment-overlay' : ''}`} onClick={() => navigate(`/${shop.username}/checkout`)}>
+      <div className={`relative min-h-screen w-full overflow-y-auto bg-[#f7f5f0] py-8 px-4 dz-payment-overlay dz-payment-page ${isKaidoStore ? 'kaido-payment-overlay' : ''}`} onClick={() => navigate(`/${shop.username}/checkout`)}>
         <div className={`relative max-w-md mx-auto rounded-[1.75rem] bg-white dark:bg-gray-800 px-5 py-6 shadow-2xl dz-payment-modal ${isKaidoStore ? 'kaido-payment-modal' : ''}`} onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
@@ -301,9 +314,14 @@ export default function Checkout() {
               <div className="qr-box">
                 <div className={isKaidoStore ? 'kaido-qr-frame' : ''} style={{ position: 'relative', width: isKaidoStore ? 300 : 195, height: isKaidoStore ? 300 : 195 }}>
                   {payment.qr_code_url && !qrFailed ? (
-                    <img src={fullUrl(payment.qr_code_url)} alt="KHQR"
-                         className="qr-img"
-                         onError={() => setQrFailed(true)} />
+                    <>
+                      <img src={fullUrl(payment.qr_code_url)} alt="KHQR"
+                           className="qr-img"
+                           onError={() => setQrFailed(true)} />
+                      <span className="dz-qr-center-logo" aria-hidden="true">
+                        <img src={KHQR_CENTER_LOGO_URL} alt="" />
+                      </span>
+                    </>
                   ) : (
                     <div className={`${isKaidoStore ? 'w-[300px] h-[300px]' : 'w-[195px] h-[195px]'} rounded-xl border border-red-200 bg-red-50 px-5 flex flex-col items-center justify-center text-center text-red-700`}>
                       <FiSmartphone className="w-10 h-10 mb-2" />
@@ -317,9 +335,21 @@ export default function Checkout() {
             </div>
           </div>
 
-          {/* Scan info */}
-          <div className="scan-info">
-            <p>{t('scanWithABA')}</p>
+          {/* Scan info — Khmer instructions like KHQRPay hosted checkout */}
+          <div className="scan-info dz-scan-info">
+            <p>សូមស្កេនកូដ KHQR ដោយប្រើកម្មវិធីធនាគារ ឬកាបូបអេឡិចត្រូនិកដែលគាំទ្រ។</p>
+            {payment.qr_code_url && !qrFailed && (
+              <button type="button" className="dz-qr-download" onClick={() => downloadQr(fullUrl(payment.qr_code_url))}>
+                <FiDownload className="w-4 h-4" /> រក្សាទុក QR
+              </button>
+            )}
+          </div>
+
+          {/* Supported banks row */}
+          <div className="dz-bank-logos" aria-label="Supported payment apps">
+            <img src={ABA_BRAND_URL} alt="ABA" />
+            <img src={KHQR_LOGO_URL} alt="KHQR" />
+            <img src={ABA_LOGO_URL} alt="ABA KHQR" />
           </div>
 
           {/* Payment status */}
