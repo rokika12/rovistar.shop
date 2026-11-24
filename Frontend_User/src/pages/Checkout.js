@@ -291,7 +291,7 @@ export default function Checkout() {
   if (payment) {
     const payAmount = Number(payment.amount || order?.total || 0).toFixed(2);
     return (
-      <div className={`relative min-h-screen w-full overflow-y-auto bg-[#f7f5f0] py-8 px-4 dz-payment-overlay dz-payment-page ${isKaidoStore ? 'kaido-payment-overlay' : ''}`} onClick={() => navigate(`/${shop.username}/checkout`)}>
+      <div className={`relative min-h-screen w-full overflow-y-auto dz-payment-page ${isKaidoStore ? 'kaido-payment-overlay' : ''}`} onClick={() => navigate(`/${shop.username}/checkout`)}>
         <div className={`relative max-w-md mx-auto rounded-[1.75rem] bg-white dark:bg-gray-800 px-5 py-6 shadow-2xl dz-payment-modal ${isKaidoStore ? 'kaido-payment-modal' : ''}`} onClick={(e) => e.stopPropagation()}>
           <button
             type="button"

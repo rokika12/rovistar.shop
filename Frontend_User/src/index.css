@@ -61,7 +61,7 @@ body {
   color: #111827;
 }
 
-:root { --font-khmer-display: 'Vichealey', 'Kantumruy Pro', sans-serif; --font-commerce: 'Lilita One', 'Baloo 2', 'Kantumruy Pro', sans-serif; }
+:root { --font-khmer-display: 'Vichealey', 'Kantumruy Pro', sans-serif; --font-commerce: 'Lilita One', 'Baloo 2', 'Kantumruy Pro', sans-serif; --font-display: 'Rajdhani', 'Kantumruy Pro', sans-serif; --accent-blue: #2563eb; }
 html[lang='km'] h1, html[lang='km'] h2, html[lang='km'] h3, html[lang='km'] .store-section-heading { font-family: var(--font-khmer-display); font-weight: 400; line-height: 1.35; }
 html[lang='zh-CN'], html[lang='zh-CN'] body { font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif; }
 .price, .currency, .store-product-price, .product-pay-button, .qr-amt-row { font-family: var(--font-commerce); }
@@ -3123,8 +3123,14 @@ html[lang='km'] .dz-rovi-shell .store-section-heading { color: var(--dz-primary)
 }
 
 /* ===== KHQR checkout — clean (no dark overlay), hosted-style QR card ===== */
-.dz-payment-page { background: #f7f5f0 !important; }
-.dz-payment-page .dz-payment-modal { box-shadow: 0 18px 50px rgba(30,42,56,.14); }
+.dz-payment-page {
+  background: #1a1d24 !important;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.025) 0, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,.02) 0, transparent 40%) !important;
+  padding: 2rem 1rem !important;
+}
+.dz-payment-page .dz-payment-modal { box-shadow: 0 18px 50px rgba(0,0,0,.4); }
 
 /* KHQR red badge centered over the QR (relies on the QR's own error-correction) */
 .dz-qr-center-logo {
@@ -3139,19 +3145,19 @@ html[lang='km'] .dz-rovi-shell .store-section-heading { color: var(--dz-primary)
 
 /* Khmer scan instructions + download button */
 .dz-scan-info { text-align: center; margin-top: 1rem; }
-.dz-scan-info p { color: #5b6b7b; font-size: .82rem; line-height: 1.5; max-width: 20rem; margin: 0 auto .9rem; }
+.dz-scan-info p { color: #d7dde6; font-size: .82rem; line-height: 1.5; max-width: 20rem; margin: 0 auto .9rem; }
 .dz-qr-download {
   display: inline-flex; align-items: center; gap: .5rem;
-  border: 1px solid #d4dae0; background: #fff; color: #2a3a4a;
+  border: 1px solid #3a404a; background: transparent; color: #e8edf4;
   padding: .6rem 1.15rem; border-radius: .8rem; font-size: .82rem; font-weight: 700;
-  box-shadow: 0 2px 6px rgba(15,23,42,.05); transition: box-shadow .15s ease, transform .1s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2); transition: background .15s ease, transform .1s ease;
   cursor: pointer;
 }
-.dz-qr-download:hover { box-shadow: 0 4px 12px rgba(15,23,42,.1); transform: translateY(-1px); }
+.dz-qr-download:hover { background: rgba(255,255,255,.06); transform: translateY(-1px); }
 
-/* Supported-bank logos row (muted) */
+/* Supported-bank logos row (muted, multi-row on narrow widths) */
 .dz-bank-logos {
-  display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;
-  margin: 1.4rem auto 0; padding: 1rem 0 .4rem; max-width: 22rem; opacity: .65; filter: grayscale(1);
+  display: flex; align-items: center; justify-content: center; gap: 1.25rem 1.5rem; flex-wrap: wrap;
+  margin: 1.4rem auto 0; padding: 1rem 0 .4rem; max-width: 24rem; opacity: .6; filter: grayscale(1) brightness(1.4);
 }
-.dz-bank-logos img { height: 26px; width: auto; object-fit: contain; }
+.dz-bank-logos img { height: 24px; width: auto; object-fit: contain; }
