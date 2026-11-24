@@ -290,6 +290,7 @@ class WalletTopup(BaseModel):
     amount: float
     success_url: str = ""
     error_url: str = ""
+    checkout_attempt_id: str = Field(default="", max_length=255)
 
 
 class POSOrderCreate(BaseModel):
@@ -405,6 +406,7 @@ class PaymentCreate(BaseModel):
     success_url: str = ""
     error_url: str = ""
     cancel_url: str = ""
+    checkout_attempt_id: str = Field(default="", max_length=255)
 
 
 class PaymentVerify(BaseModel):

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FiCalendar, FiCheckCircle, FiCreditCard, FiDollarSign, FiEdit2, FiEye, FiEyeOff, FiKey, FiList, FiLogOut, FiPlus, FiSave, FiShield, FiUser, FiX } from 'react-icons/fi';
@@ -32,6 +32,7 @@ export default function Profile() {
   const [topupSuccess, setTopupSuccess] = useState(null);
   const [topupBusy, setTopupBusy] = useState(false);
   const [topupTelegram, setTopupTelegram] = useState('');
+  const topupAttempt = useRef({ key: '', amount: null });
 
   const completeTopup = async (payment) => {
     const updated = await getMyWallet(token);
@@ -75,6 +76,10 @@ export default function Profile() {
     const amount = Number(topupAmount);
     if (!amount || amount < 0.10) { toast.error('Enter a valid top-up amount'); return; }
     if (!/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(topupTelegram.trim())) { toast.error('Enter a valid Telegram username starting with @'); return; }
+    if (!topupAttempt.current.key || topupAttempt.current.amount !== amount) {
+      const randomPart = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      topupAttempt.current = { key: `wallet-${randomPart}`, amount };
+    }
     setTopupBusy(true);
     try {
       const updatedCustomer = await updateMyProfile(token, { ...profileForm, telegram_username: topupTelegram.trim() });
@@ -83,8 +88,10 @@ export default function Profile() {
         amount,
         success_url: `${window.location.origin}${window.location.pathname}`,
         error_url: window.location.href,
+        checkout_attempt_id: topupAttempt.current.key,
       });
       setTopup(result);
+      topupAttempt.current = { key: '', amount: null };
     } catch (err) {
       toast.error(err?.response?.data?.detail || 'Unable to start wallet top-up');
     } finally { setTopupBusy(false); }

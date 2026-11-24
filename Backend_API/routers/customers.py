@@ -12,7 +12,6 @@ import schemas
 from database import get_db
 from security import (create_access_token, get_current_customer, get_current_user,
                       hash_password, log_activity, require_shop_access, verify_password)
-from services import aba_service
 from services.aba_service import PaymentGatewayUnavailable, PaymentNotConfigured
 from routers.uploads import _save_media, _validate_image
 
@@ -195,6 +194,14 @@ def customer_wallet(customer: models.Customer = Depends(get_current_customer),
     for order in pending_topups:
         if not order.transaction_id:
             continue
+        khqr_attempt = db.query(models.PaymentAttempt).filter(
+            models.PaymentAttempt.order_id == order.id,
+            models.PaymentAttempt.provider == "khqrpay",
+            models.PaymentAttempt.provider_payment_id == order.transaction_id,
+        ).first()
+        if khqr_attempt:
+            # KHQRPay settlement is webhook-owned; never poll ABA with its id.
+            continue
         result = aba_service.verify_payment(order, shop)
         if result.get("verified"):
             newly_paid = _mark_paid(db, order, result.get("transaction_id"), result.get("amount"))
@@ -226,7 +233,36 @@ def customer_wallet_topup(data: schemas.WalletTopup,
                           db: Session = Depends(get_db)):
     if data.amount < 0.10 or data.amount > 1000:
         raise HTTPException(status_code=400, detail="Top-up amount must be between $0.10 and $1000")
+    from routers.payments import create_payment_for_order
+    from services.khqrpay_service import KHQRPayGatewayError, KHQRPayNotConfigured
+
     shop = db.query(models.Shop).filter(models.Shop.id == customer.shop_id).first()
+    attempt_key = data.checkout_attempt_id.strip()
+    if attempt_key:
+        existing_attempt = db.query(models.PaymentAttempt).filter(
+            models.PaymentAttempt.idempotency_key == attempt_key,
+        ).first()
+        if existing_attempt:
+            existing_order = db.get(models.Order, existing_attempt.order_id)
+            if (not existing_order or existing_order.customer_id != customer.id
+                    or existing_order.payment_method != "wallet_topup"
+                    or round(float(existing_order.total or 0), 2) != round(data.amount, 2)):
+                raise HTTPException(status_code=409, detail="Checkout attempt does not match this top-up")
+            if existing_attempt.provider_payment_id:
+                return {
+                    "order": existing_order.to_dict(include_items=False),
+                    "payment": existing_attempt.to_payment_dict(),
+                }
+            try:
+                payment = create_payment_for_order(
+                    db, existing_order, shop,
+                    success_url=data.success_url, error_url=data.error_url,
+                    checkout_attempt_id=attempt_key)
+            except (PaymentNotConfigured, KHQRPayNotConfigured) as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+            except (PaymentGatewayUnavailable, KHQRPayGatewayError) as exc:
+                raise HTTPException(status_code=502, detail=str(exc)) from exc
+            return {"order": existing_order.to_dict(include_items=False), "payment": payment}
     order = models.Order(
         shop_id=shop.id, order_number=f"WALLET-{customer.id}-{int(datetime.utcnow().timestamp())}",
         customer_id=customer.id, customer_name=customer.name, customer_email=customer.email,
@@ -236,12 +272,13 @@ def customer_wallet_topup(data: schemas.WalletTopup,
     db.add(order)
     db.flush()
     try:
-        payment = aba_service.build_checkout_url(order, shop, success_url=data.success_url, error_url=data.error_url)
-        order.transaction_id = payment.get("transaction_id", "")
-    except PaymentNotConfigured as exc:
+        payment = create_payment_for_order(
+            db, order, shop, success_url=data.success_url, error_url=data.error_url,
+            checkout_attempt_id=attempt_key)
+    except (PaymentNotConfigured, KHQRPayNotConfigured) as exc:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(exc))
-    except PaymentGatewayUnavailable as exc:
+    except (PaymentGatewayUnavailable, KHQRPayGatewayError) as exc:
         db.rollback()
         raise HTTPException(status_code=502, detail=str(exc))
     db.commit()

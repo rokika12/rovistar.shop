@@ -56,6 +56,13 @@ class Config:
     ABA_CHECKOUT_URL = "https://checkout.payway.com.kh"
     ABA_API_URL = "https://api.payway.com.kh"
 
+    # KHQRPay is a platform-level payment provider. Both secrets are read only
+    # from the server environment and are never stored in shop settings.
+    KHQRPAY_BASE_URL = os.getenv("KHQRPAY_BASE_URL", "https://khqrpay.dev").rstrip("/")
+    KHQRPAY_SECRET_KEY = os.getenv("KHQRPAY_SECRET_KEY", "").strip()
+    KHQRPAY_WEBHOOK_SECRET = os.getenv("KHQRPAY_WEBHOOK_SECRET", "").strip()
+    KHQRPAY_WEBHOOK_TOLERANCE_SECONDS = 300
+
     # Default Telegram bot token used for platform-level notifications.
     # Provide via the TELEGRAM_BOT_TOKEN environment variable; never hard-code.
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")

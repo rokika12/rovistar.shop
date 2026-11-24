@@ -366,6 +366,66 @@ class OrderItem(Base):
         return result
 
 
+class PaymentAttempt(Base):
+    """One provider request for one checkout attempt."""
+    __tablename__ = "payment_attempts"
+    __table_args__ = (
+        UniqueConstraint("provider", "idempotency_key", name="uq_payment_attempt_provider_key"),
+        UniqueConstraint("provider", "provider_payment_id", name="uq_payment_attempt_provider_payment"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=False, index=True)
+    provider = Column(String, nullable=False, default="khqrpay")
+    idempotency_key = Column(String(255), nullable=False)
+    provider_payment_id = Column(String(255), nullable=True, index=True)
+    status = Column(String, nullable=False, default="creating")
+    amount = Column(String(32), nullable=False)
+    currency = Column(String(3), nullable=False)
+    qr_string = Column(Text, default="")
+    checkout_url = Column(Text, default="")
+    response_json = Column(Text, default="{}")
+    expires_at = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    def to_payment_dict(self):
+        result = JSONText.loads(self.response_json, {})
+        result.update({
+            "provider": self.provider,
+            "attempt_id": self.id,
+            "transaction_id": self.provider_payment_id or "",
+            "status": self.status,
+            "amount": self.amount,
+            "currency": self.currency,
+            "qr_string": self.qr_string or result.get("qr_string", ""),
+            "checkout_url": self.checkout_url or result.get("checkout_url", ""),
+            "expires_at": _iso(self.expires_at),
+        })
+        return result
+
+
+class PaymentEvent(Base):
+    """Durable webhook receipt used to deduplicate provider deliveries."""
+    __tablename__ = "payment_events"
+    __table_args__ = (
+        UniqueConstraint("provider", "provider_event_id", name="uq_payment_event_provider_id"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    provider = Column(String, nullable=False, default="khqrpay")
+    provider_event_id = Column(String(255), nullable=False, index=True)
+    event_type = Column(String(100), nullable=False)
+    provider_payment_id = Column(String(255), default="", index=True)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=True, index=True)
+    livemode = Column(Boolean, nullable=False, default=False)
+    payload_sha256 = Column(String(64), nullable=False)
+    processing_status = Column(String(40), nullable=False, default="received")
+    received_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    processed_at = Column(DateTime, nullable=True)
+
+
 class ProviderConnection(Base):
     """A supplier connection owned by the platform administrator."""
     __tablename__ = "provider_connections"
@@ -534,6 +594,12 @@ class AnnouncementComment(Base):
 
 class WalletTransaction(Base):
     __tablename__ = "wallet_transactions"
+    __table_args__ = (
+        UniqueConstraint(
+            "customer_id", "transaction_type", "reference",
+            name="uq_wallet_transaction_customer_type_reference",
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, index=True)
