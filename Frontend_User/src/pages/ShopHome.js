@@ -138,14 +138,11 @@ export default function ShopHome() {
           <div className="ronew-hero-glow ronew-hero-glow-two" aria-hidden="true" />
           <div className="ronew-hero-inner">
             <div className="ronew-hero-copy">
-              <span className="ronew-eyebrow"><FiStar /> Thoughtfully selected, made easy</span>
-              <h1 id="ronew-hero-title">A marketplace for<br /><em>everyday discoveries.</em></h1>
-              <p>Explore useful products and trusted digital services, gathered in one calm, simple place.</p>
+              <h1 id="ronew-hero-title">Marketplace <em>for everyday discoveries.</em></h1>
               <div className="ronew-hero-actions">
                 <Link to={`/${shop.username}/products`} className="ronew-primary-action">Explore the marketplace <FiArrowRight /></Link>
                 <a href="#ronew-collection" className="ronew-text-action">See what is new</a>
               </div>
-              <div className="ronew-hero-note"><FiCheckCircle /> Secure payment and straightforward ordering</div>
             </div>
 
             <div className={`ronew-hero-showcase ${heroProducts.length ? '' : 'ronew-hero-showcase-empty'}`} aria-label="Featured marketplace picks">
