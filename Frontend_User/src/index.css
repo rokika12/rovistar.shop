@@ -3116,6 +3116,11 @@ html[lang='km'] .dz-rovi-shell .store-section-heading { color: var(--dz-primary)
   .ronew-product-actions { grid-template-columns: 1fr; }
 }
 
+/* Wide desktop: four product columns, like the referenced storefronts */
+@media (min-width: 1280px) {
+  .ronew-product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ronew-hero-product,
   .ronew-product-card,
