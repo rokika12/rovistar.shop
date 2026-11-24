@@ -2843,12 +2843,12 @@ html[lang='km'] .dz-rovi-shell .store-section-heading { color: var(--dz-primary)
   --ronew-ivory: #f5efe3;
   --ronew-paper: #fffaf1;
   --ronew-cream: #eadfc9;
-  --ronew-ink: #243029;
-  --ronew-muted: #6f776f;
-  --ronew-moss: #64705c;
-  --ronew-clay: #bd694a;
+  --ronew-ink: #1e3a8a;
+  --ronew-muted: #5b6b86;
+  --ronew-moss: #3b5b8a;
+  --ronew-clay: #2563eb;
   --ronew-sun: #e5b768;
-  --ronew-line: rgba(62, 74, 62, .14);
+  --ronew-line: rgba(30, 58, 138, .16);
   background: var(--ronew-ivory) !important;
   color: var(--ronew-ink);
   font-family: 'Manrope', 'Kantumruy Pro', sans-serif;

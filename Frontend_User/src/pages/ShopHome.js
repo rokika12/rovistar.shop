@@ -124,7 +124,6 @@ export default function ShopHome() {
   ];
 
   if (isRonewShop) {
-    const heroProducts = featuredProducts.slice(0, 3);
     const servicePills = [
       { icon: FiShield, label: 'Secure checkout' },
       { icon: FiPackage, label: 'Careful fulfillment' },
@@ -133,46 +132,6 @@ export default function ShopHome() {
 
     return (
       <div className="ronew-marketplace">
-        <section className="ronew-hero" aria-labelledby="ronew-hero-title">
-          <div className="ronew-hero-glow ronew-hero-glow-one" aria-hidden="true" />
-          <div className="ronew-hero-glow ronew-hero-glow-two" aria-hidden="true" />
-          <div className="ronew-hero-inner">
-            <div className="ronew-hero-copy">
-              <h1 id="ronew-hero-title">Marketplace <em>for everyday discoveries.</em></h1>
-              <div className="ronew-hero-actions">
-                <Link to={`/${shop.username}/products`} className="ronew-primary-action">Explore the marketplace <FiArrowRight /></Link>
-                <a href="#ronew-collection" className="ronew-text-action">See what is new</a>
-              </div>
-            </div>
-
-            <div className={`ronew-hero-showcase ${heroProducts.length ? '' : 'ronew-hero-showcase-empty'}`} aria-label="Featured marketplace picks">
-              {heroProducts.length ? heroProducts.map((product, index) => (
-                <Link
-                  key={product.id}
-                  to={`/${shop.username}/product/${product.id}`}
-                  className={`ronew-hero-product ronew-hero-product-${index + 1}`}
-                  aria-label={`View ${product.name}`}
-                >
-                  <span className="ronew-hero-product-image">
-                    {product.images?.[0] ? <img src={fullUrl(product.images[0])} alt="" /> : <FiShoppingBag />}
-                  </span>
-                  <span className="ronew-hero-product-copy">
-                    <small>{product.category_name || 'Marketplace pick'}</small>
-                    <strong>{product.name}</strong>
-                    <b>${Number(product.sale_price ?? product.price).toFixed(2)}</b>
-                  </span>
-                </Link>
-              )) : (
-                <div className="ronew-empty-showcase" aria-hidden="true">
-                  <span><FiShoppingBag /></span>
-                  <strong>New finds<br />arrive here</strong>
-                </div>
-              )}
-              <span className="ronew-showcase-orbit" aria-hidden="true">R</span>
-            </div>
-          </div>
-        </section>
-
         <section className="ronew-discovery-bar" aria-label="Browse the marketplace">
           <div className="ronew-discovery-row ronew-category-pills no-scrollbar">
             <Link to={`/${shop.username}/products`} className="is-active">All finds <span>{catalogProducts.length}</span></Link>
