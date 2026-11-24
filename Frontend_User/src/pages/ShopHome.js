@@ -132,22 +132,6 @@ export default function ShopHome() {
 
     return (
       <div className="ronew-marketplace">
-        <section className="ronew-discovery-bar" aria-label="Browse the marketplace">
-          <div className="ronew-discovery-row ronew-category-pills no-scrollbar">
-            <Link to={`/${shop.username}/products`} className="is-active">All finds <span>{catalogProducts.length}</span></Link>
-            {categories.map((category) => (
-              <Link key={category.id} to={`/${shop.username}/products?category=${category.id}`}>
-                {category.name}
-                <span>{typeof category.product_count === 'number' ? category.product_count : catalogProducts.filter((product) => String(product.category_id) === String(category.id)).length}</span>
-              </Link>
-            ))}
-          </div>
-          <div className="ronew-discovery-row ronew-service-pills no-scrollbar">
-            {servicePills.map(({ icon: Icon, label }) => <span key={label}><Icon /> {label}</span>)}
-            {supportLink && <a href={supportLink} target="_blank" rel="noreferrer"><FiMessageCircle /> Ask RonewShop</a>}
-          </div>
-        </section>
-
         <div className="ronew-search"><ShopSearchBar /></div>
 
         {slides.length > 0 && (
