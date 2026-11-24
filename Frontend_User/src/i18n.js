@@ -82,7 +82,7 @@ const kh = {
   transId: 'លេខប្រតិបត្តិការ',
   paymentConfirmed: 'ការទូទាត់បានបញ្ជាក់! កំពុងបញ្ជូនបន្ត...',
   paymentUnavailable: 'ការទូទាត់តាមអ៊ីនធឺណិតមិនអាចប្រើបានទេ',
-  paymentUnavailableDesc: 'ហាងនេះមិនទាន់កំណត់រចនាសម្ព័ន្ធ ABA Pay នៅឡើយទេ ដូច្នេះការទូទាត់តាមអ៊ីនធឺណិតត្រូវបានបិទ។ សូមទាក់ទងហាងដើម្បីបញ្ចប់ការបញ្ជាទិញរបស់អ្នក។',
+  paymentUnavailableDesc: 'ការទូទាត់តាមអ៊ីនធឺណិតមិនទាន់បានកំណត់នៅឡើយទេ ដូច្នេះការទូទាត់ត្រូវបានបិទបណ្តោះអាសន្ន។ សូមទាក់ទងហាងដើម្បីបញ្ចប់ការបញ្ជាទិញរបស់អ្នក។',
   backToProducts: 'ត្រឡប់ទៅផលិតផល',
   paymentPending: 'ការទូទាត់នៅមិនទាន់បញ្ចប់។ សូមបំពេញការទូទាត់ក្នុងកម្មវិធី ABA Mobile។',
 
@@ -407,7 +407,7 @@ const en = {
   transId: 'Transaction',
   paymentConfirmed: 'Payment confirmed! Redirecting...',
   paymentUnavailable: 'Online payment unavailable',
-  paymentUnavailableDesc: 'This shop has not configured its ABA Pay yet, so online payment is currently disabled. Please contact the shop to complete your order.',
+  paymentUnavailableDesc: 'Online payment is not configured yet, so payment is temporarily disabled. Please contact the shop to complete your order.',
   backToProducts: 'Back to products',
   paymentPending: 'Payment is still pending. Please complete the payment in ABA Mobile.',
 
@@ -725,7 +725,7 @@ const zh = {
   transId: "交易",
   paymentConfirmed: "付款已确认！正在重定向...",
   paymentUnavailable: "无法在线支付",
-  paymentUnavailableDesc: "该商店尚未配置ABA Pay，因此目前无法进行在线支付。请联系商店以完成您的订单。",
+  paymentUnavailableDesc: "在线支付尚未配置，因此暂时无法在线支付。请联系商店以完成您的订单。",
   backToProducts: "返回产品",
   paymentPending: "付款仍在等待中。请在ABA Mobile中完成支付。",
   paymentSuccess: "付款成功！",

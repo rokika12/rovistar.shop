@@ -11,6 +11,7 @@ from database import get_db
 from security import (get_current_admin, get_current_shop_user, get_current_user,
                       hash_password, log_activity, require_shop_access)
 from services import qr_service, telegram_service
+from services.khqrpay_service import is_configured as khqrpay_is_configured
 from services.telegram_service import get_bot_username
 
 router = APIRouter(prefix="/api/shops", tags=["shops"])
@@ -26,8 +27,11 @@ def get_shop_by_username(username: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Shop not found or unavailable")
     d = shop.to_dict(include_private=False)
     aba = shop.aba_dict()
-    d["payment_configured"] = bool((aba.get("profile_id") or "").strip()
-                                   and (aba.get("secret_key") or "").strip())
+    # Online payment is available when EITHER the platform-level KHQRPay provider
+    # is configured (used for every shop) OR this shop has its own ABA credentials.
+    d["payment_configured"] = bool(khqrpay_is_configured()
+                                   or ((aba.get("profile_id") or "").strip()
+                                       and (aba.get("secret_key") or "").strip()))
     # Telegram login (real "Login with Telegram" widget)
     tg = shop.telegram_dict()
     bot_token = (tg.get("bot_token") or "").strip()
