@@ -1,0 +1,33 @@
+/* RonewShop English display typography: rounded, bold, pink. Khmer body copy remains readable. */
+.ronew-store-shell {
+  --ronew-pink: #ec4899;
+  --ronew-pink-dark: #be185d;
+}
+.ronew-store-shell .ronew-hero-copy h1,
+.ronew-store-shell .ronew-hero-copy h1 em,
+.ronew-store-shell .ronew-hero-product-copy strong,
+.ronew-store-shell .ronew-showcase-orbit,
+.ronew-store-shell .ronew-empty-showcase strong,
+.ronew-store-shell .ronew-catalog-heading h2,
+.ronew-store-shell .ronew-product-copy h3,
+.ronew-store-shell .store-brand-copy strong {
+  color: var(--ronew-pink);
+  font-family: 'Baloo 2', 'Nunito', 'Kantumruy Pro', sans-serif;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+.ronew-store-shell .ronew-eyebrow,
+.ronew-store-shell .ronew-hero-product-copy small,
+.ronew-store-shell .ronew-category-pills a,
+.ronew-store-shell .ronew-product-copy small {
+  color: var(--ronew-pink-dark);
+  font-family: 'Nunito', 'Kantumruy Pro', sans-serif;
+  font-weight: 900;
+}
+.ronew-store-shell .ronew-primary-action,
+.ronew-store-shell .ronew-product-action {
+  background: linear-gradient(135deg, #f472b6, #db2777);
+  font-family: 'Baloo 2', 'Kantumruy Pro', sans-serif;
+  font-weight: 800;
+}
